@@ -18,8 +18,42 @@ class Journal extends Model
         'tanggal',
         'Transaksi',
         'KodeCOA',
+        'NamaCOA',
         'Keterangan',
         'Debet',
-        'Credit',
+        'Kredit'
     ];
+
+    protected $casts = [
+        'tanggal' => 'date',
+        'Debet' => 'decimal:2',
+        'Kredit' => 'decimal:2'
+    ];
+
+    // Relationships
+    public function coa()
+    {
+        return $this->belongsTo(MCOA::class, 'KodeCOA', 'kodecoa');
+    }
+
+    // Scopes for financial reporting
+    public function scopeByPeriod($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('tanggal', [$startDate, $endDate]);
+    }
+
+    public function scopeDebet($query)
+    {
+        return $query->where('Debet', '>', 0);
+    }
+
+    public function scopeKredit($query)
+    {
+        return $query->where('Kredit', '>', 0);
+    }
+
+    public function scopeByCOA($query, $kodeCOA)
+    {
+        return $query->where('KodeCOA', $kodeCOA);
+    }
 }

@@ -3,12 +3,49 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Test endpoint for debugging
+Route::get('/test', function () {
+    try {
+        $user = \App\Models\MasterUser::where('kodedivisi', '01')->where('username', 'admin')->first();
+        
+        if ($user) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User found',
+                'data' => [
+                    'kodedivisi' => $user->kodedivisi,
+                    'username' => $user->username,
+                    'nama' => $user->nama,
+                    'password_test' => $user->verifyPassword('admin123') ? 'OK' : 'FAIL'
+                ]
+            ]);
+        } else {
+            $allUsers = \App\Models\MasterUser::all(['kodedivisi', 'username', 'nama']);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found',
+                'all_users' => $allUsers
+            ]);
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Exception: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
 // Master Data Controllers
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\MasterUserController;
 use App\Http\Controllers\MBankController;
+use App\Http\Controllers\MCOAController;
+use App\Http\Controllers\MDivisiController;
+use App\Http\Controllers\MDokumenController;
 use App\Http\Controllers\MResiController;
 use App\Http\Controllers\MTTController;
 use App\Http\Controllers\MTransController;
@@ -38,7 +75,21 @@ use App\Http\Controllers\UserModuleController;
 use App\Http\Controllers\DPaketController;
 use App\Http\Controllers\MergeBarangController;
 use App\Http\Controllers\OpnameController;
+use App\Http\Controllers\AuthController;
 
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('auth/login', [AuthController::class, 'login']);
+Route::post('auth/register', [AuthController::class, 'register'])->middleware(['auth:sanctum', 'admin']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::get('auth/me', [AuthController::class, 'me']);
+    Route::post('auth/change-password', [AuthController::class, 'changePassword']);
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -49,58 +100,100 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 | Master Data Routes
 |--------------------------------------------------------------------------
 */
-Route::apiResource('areas', AreaController::class);
-Route::apiResource('barang', BarangController::class);
-Route::apiResource('customers', CustomerController::class);
-Route::apiResource('kategoris', KategoriController::class);
-Route::apiResource('banks', MBankController::class);
-Route::apiResource('resis', MResiController::class);
-Route::apiResource('tts', MTTController::class);
-Route::apiResource('trans', MTransController::class);
-Route::apiResource('vouchers', MVoucherController::class);
-Route::apiResource('sales', SalesController::class);
+// Areas routes with composite keys
+Route::get('areas', [AreaController::class, 'index']);
+Route::post('areas', [AreaController::class, 'store']);
+Route::get('areas/{kodeDivisi}', [AreaController::class, 'showByDivisi']); // NEW: Show by division only
+Route::get('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'show']);
+Route::put('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'update']);
+Route::delete('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'destroy']);
+
+// Barang routes with composite keys
+Route::get('barang', [BarangController::class, 'index']);
+Route::post('barang', [BarangController::class, 'store']);
+Route::get('barang/{kodeDivisi}', [BarangController::class, 'showByDivisi']); // NEW: Show by division only
+Route::get('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'show']);
+Route::put('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'update']);
+Route::delete('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'destroy']);
+Route::get('vbarang', [BarangController::class, 'getVBarang']);
+
+// Kategori routes with composite keys
+Route::get('kategori', [KategoriController::class, 'index']);
+Route::post('kategori', [KategoriController::class, 'store']);
+Route::get('kategori/{kodeDivisi}', [KategoriController::class, 'showByDivisi']); // NEW: Show by division only
+Route::get('kategori/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'show']);
+Route::put('kategori/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'update']);
+Route::delete('kategori/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'destroy']);
+
+// Route::apiResource('banks', MBankController::class);
+
+// Customer routes with composite keys
+Route::get('customers', [CustomerController::class, 'index']);
+Route::post('customers', [CustomerController::class, 'store']);
+Route::get('customers/{kodeDivisi}', [CustomerController::class, 'showByDivisi']); // NEW: Show by division only
+Route::get('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'show']);
+Route::put('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'update']);
+Route::delete('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'destroy']);
+
+// Route::apiResource('kategoris', KategoriController::class);
+// Route::apiResource('banks', MBankController::class);
+// Route::apiResource('resis', MResiController::class);
+// Route::apiResource('tts', MTTController::class);
+// Route::apiResource('trans', MTransController::class);
+// Route::apiResource('vouchers', MVoucherController::class);
+
+// Sales routes with composite keys
+Route::get('sales', [SalesController::class, 'index']);
+Route::post('sales', [SalesController::class, 'store']);
+Route::get('sales/{kodeDivisi}', [SalesController::class, 'showByDivisi']); // NEW: Show by division only
+Route::get('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'show']);
+Route::put('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'update']);
+Route::delete('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'destroy']);
+
+// Master Data Routes
 Route::apiResource('suppliers', SupplierController::class);
-Route::apiResource('mcoas', MCOAController::class);
-Route::apiResource('mdivisis', MDivisiController::class);
-Route::apiResource('mdokumens', MDokumenController::class);
-Route::apiResource('master-users', MasterUserController::class);
+Route::apiResource('mcoa', MCOAController::class);
+Route::apiResource('mdivisi', MDivisiController::class);
+Route::apiResource('mdokumen', MDokumenController::class);
+Route::apiResource('master-user', MasterUserController::class);
 
 /*
 |--------------------------------------------------------------------------
 | Existing Transaction Routes
 |--------------------------------------------------------------------------
 */
-Route::apiResource('claims', ClaimController::class);
-Route::apiResource('invoice-bonus', InvoiceBonusController::class);
-Route::apiResource('invoices', InvoiceController::class);
-Route::apiResource('journals', JournalController::class);
-Route::apiResource('kartu-stok', KartuStokController::class);
-Route::apiResource('part-penerimaan', PartPenerimaanController::class);
-Route::apiResource('penerimaan-finance', PenerimaanFinanceController::class);
-Route::apiResource('return-sales', ReturnSalesController::class);
+// Route::apiResource('claims', ClaimController::class);
+// Route::apiResource('invoice-bonus', InvoiceBonusController::class);
+// Route::apiResource('invoices', InvoiceController::class);
+// Route::apiResource('journals', JournalController::class);
+// Route::apiResource('kartu-stok', KartuStokController::class);
+// Route::apiResource('part-penerimaan', PartPenerimaanController::class);
+// Route::apiResource('penerimaan-finance', PenerimaanFinanceController::class);
+// Route::apiResource('return-sales', ReturnSalesController::class);
 
 /*
 |--------------------------------------------------------------------------
 | New Transaction & Feature Routes
 |--------------------------------------------------------------------------
 */
-Route::apiResource('part-penerimaan-bonus', PartPenerimaanBonusController::class);
-Route::apiResource('retur-penerimaan', ReturPenerimaanController::class);
-Route::apiResource('saldo-bank', SaldoBankController::class);
-Route::apiResource('spv', SPVController::class);
-Route::apiResource('stok-claim', StokClaimController::class);
-Route::apiResource('stok-minimum', StokMinimumController::class);
-Route::apiResource('tmp-print-tt', TmpPrintTTController::class);
-Route::apiResource('user-module', UserModuleController::class);
-Route::apiResource('d-paket', DPaketController::class);
-Route::apiResource('merge-barang', MergeBarangController::class);
-Route::apiResource('opname', OpnameController::class);
+// Route::apiResource('part-penerimaan-bonus', PartPenerimaanBonusController::class);
+// Route::apiResource('retur-penerimaan', ReturPenerimaanController::class);
+// Route::apiResource('saldo-bank', SaldoBankController::class);
+// Route::apiResource('spv', SPVController::class);
+// Route::apiResource('stok-claim', StokClaimController::class);
+// Route::apiResource('stok-minimum', StokMinimumController::class);
+// Route::apiResource('tmp-print-tt', TmpPrintTTController::class);
+// Route::apiResource('user-module', UserModuleController::class);
+// Route::apiResource('d-paket', DPaketController::class);
+// Route::apiResource('merge-barang', MergeBarangController::class);
+// Route::apiResource('opname', OpnameController::class);
 
 /*
 |--------------------------------------------------------------------------
 | Custom View & Action Routes
 |--------------------------------------------------------------------------
 */
+/*
 // Existing custom routes
 Route::get('customer-name', [CustomerController::class, 'getNamaCust']);
 Route::get('v-barang', [BarangController::class, 'getVBarang']);
@@ -129,3 +222,4 @@ Route::get('v-tt', [MTTController::class, 'getVTT']);
 Route::get('v-tt-invoice', [MTTController::class, 'getVTTInvoice']);
 Route::get('v-tt-retur', [MTTController::class, 'getVTTRetur']);
 Route::get('v-part-penerimaan-bonus-header', [PartPenerimaanBonusController::class, 'getVPartPenerimaanBonusHeader']);
+*/

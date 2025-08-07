@@ -1,95 +1,107 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import DataTable from './common/DataTable';
+import { useCrudOperations } from '../hooks/useDataFetch';
+import { supplierService } from '../config/apiService';
+import { useConfirmDialog } from './common/LoadingComponents';
 
 function SupplierList({ onEdit, onRefresh }) {
-  const [suppliers, setSuppliers] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: suppliers,
+    loading,
+    refresh
+  } = useCrudOperations(supplierService, onRefresh);
+  
+  const confirm = useConfirmDialog();
 
-  const fetchSuppliers = async () => {
-    setLoading(true); // Set loading to true before fetching
-    try {
-      const response = await axios.get(`${API_URL}/suppliers`); // Changed from /supplier to /suppliers
-      let suppliersData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        suppliersData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        suppliersData = response.data;
-      }
-      setSuppliers(suppliersData); // Ensure it's always an array
-      toast.success('Data supplier berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      toast.error('Gagal memuat data supplier.');
-      setSuppliers([]); // Ensure suppliers is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+  const handleDelete = async (item) => {
+    const confirmed = await confirm({
+      title: 'Hapus Supplier',
+      message: `Apakah Anda yakin ingin menghapus supplier "${item.namasupplier}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger'
+    });
+
+    if (confirmed) {
+      // Implementasi delete jika diperlukan
+      // await deleteOperation(item.kodedivisi, item.kodesupplier);
     }
   };
 
-  useEffect(() => {
-    fetchSuppliers();
-  }, [onRefresh]);
+  const StatusBadge = ({ status }) => (
+    <span className={`badge ${status ? 'bg-success' : 'bg-danger'}`}>
+      {status ? 'Aktif' : 'Nonaktif'}
+    </span>
+  );
 
-  const handleDelete = async (kodeDivisi, kodeSupplier) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus supplier ini?')) {
-      try {
-        await axios.delete(`${API_URL}/suppliers/${kodeDivisi}/${kodeSupplier}`); // Changed from /supplier to /suppliers
-        fetchSuppliers();
-        toast.success('Supplier berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting supplier:', error);
-        toast.error('Gagal menghapus supplier.');
-      }
+  const columns = [
+    { 
+      header: 'Kode Divisi', 
+      accessor: 'kodedivisi',
+      className: 'text-center'
+    },
+    { 
+      header: 'Kode Supplier', 
+      accessor: 'kodesupplier',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Nama Supplier', 
+      accessor: 'namasupplier',
+      className: 'text-start'
+    },
+    { 
+      header: 'Alamat', 
+      accessor: 'alamat',
+      render: (value) => value || '-',
+      className: 'text-start'
+    },
+    { 
+      header: 'Telepon', 
+      accessor: 'telepon',
+      render: (value) => value || '-',
+      className: 'text-center'
+    },
+    { 
+      header: 'Email', 
+      accessor: 'email',
+      render: (value) => value || '-',
+      className: 'text-start'
+    },
+    { 
+      header: 'Status', 
+      accessor: 'status',
+      render: (value) => <StatusBadge status={value} />,
+      className: 'text-center'
     }
-  };
+  ];
 
-  if (loading) {
-    return <div>Memuat data supplier...</div>; // Display loading message
-  }
-
-  // Ensure suppliers is an array before mapping
-  if (!Array.isArray(suppliers)) {
-    console.error('Suppliers state is not an array:', suppliers);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: onEdit,
+      className: 'btn btn-primary btn-sm',
+      show: !!onEdit
+    },
+    {
+      label: 'Hapus',
+      onClick: handleDelete,
+      className: 'btn btn-danger btn-sm',
+      show: true
+    }
+  ];
 
   return (
     <div>
-      <h2>Daftar Supplier</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>Kode Supplier</th>
-            <th>Nama Supplier</th>
-            <th>Alamat</th>
-            <th>Telp</th>
-            <th>Contact</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {suppliers.map(supplier => (
-            <tr key={`${supplier.KodeDivisi}-${supplier.KodeSupplier}`}>
-              <td>{supplier.KodeDivisi}</td>
-              <td>{supplier.KodeSupplier}</td>
-              <td>{supplier.NamaSupplier}</td>
-              <td>{supplier.Alamat}</td>
-              <td>{supplier.Telp}</td>
-              <td>{supplier.contact}</td>
-              <td>{supplier.status ? 'Aktif' : 'Tidak Aktif'}</td>
-              <td>
-                <button onClick={() => onEdit(supplier)}>Edit</button>
-                <button onClick={() => handleDelete(supplier.KodeDivisi, supplier.KodeSupplier)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        title="Daftar Supplier"
+        data={suppliers}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        onRefresh={refresh}
+        searchable={true}
+        searchFields={['kodesupplier', 'namasupplier', 'alamat', 'telepon', 'email']}
+        keyField="kodesupplier"
+      />
     </div>
   );
 }

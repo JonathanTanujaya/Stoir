@@ -1,97 +1,118 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import DataTable from './common/DataTable';
+import { formatCurrency } from './common/DataTable';
+import { useCrudOperations } from '../hooks/useDataFetch';
+import { barangService } from '../config/apiService';
+import { LoadingButton, useConfirmDialog } from './common/LoadingComponents';
 
 function BarangList({ onEdit, onRefresh }) {
-  const [barang, setBarang] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: barang,
+    loading,
+    refresh
+  } = useCrudOperations(barangService, onRefresh);
+  
+  const confirm = useConfirmDialog();
 
-  const fetchBarang = async () => {
-    setLoading(true); // Set loading to true before fetching
-    try {
-      const response = await axios.get(`${API_URL}/barang`);
-      let barangData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        barangData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        barangData = response.data;
-      }
-      setBarang(barangData); // Ensure it's always an array
-      toast.success('Data barang berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching barang:', error);
-      toast.error('Gagal memuat data barang.');
-      setBarang([]); // Ensure barang is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+  const handleDelete = async (item) => {
+    const confirmed = await confirm({
+      title: 'Hapus Barang',
+      message: `Apakah Anda yakin ingin menghapus barang "${item.namabarang}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger'
+    });
+
+    if (confirmed) {
+      // Implementasi delete jika diperlukan
+      // await deleteOperation(item.kodedivisi, item.kodebarang);
     }
   };
 
-  useEffect(() => {
-    fetchBarang();
-  }, [onRefresh]);
+  const StatusBadge = ({ status }) => (
+    <span className={`badge ${status ? 'bg-success' : 'bg-danger'}`}>
+      {status ? 'Aktif' : 'Nonaktif'}
+    </span>
+  );
 
-  const handleDelete = async (kodeDivisi, kodeBarang) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
-      try {
-        await axios.delete(`${API_URL}/barang/${kodeDivisi}/${kodeBarang}`);
-        fetchBarang();
-        toast.success('Barang berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting barang:', error);
-        toast.error('Gagal menghapus barang.');
-      }
+  const columns = [
+    { 
+      header: 'Kode Divisi', 
+      accessor: 'kodedivisi',
+      className: 'text-center'
+    },
+    { 
+      header: 'Kode Barang', 
+      accessor: 'kodebarang',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Nama Barang', 
+      accessor: 'namabarang',
+      className: 'text-start'
+    },
+    { 
+      header: 'Kategori', 
+      accessor: 'kodekategori',
+      className: 'text-center'
+    },
+    { 
+      header: 'Satuan', 
+      accessor: 'satuan',
+      className: 'text-center'
+    },
+    { 
+      header: 'Harga Jual', 
+      accessor: 'hargajual',
+      render: (value) => formatCurrency(value),
+      className: 'text-end'
+    },
+    { 
+      header: 'Harga List', 
+      accessor: 'hargalist',
+      render: (value) => formatCurrency(value),
+      className: 'text-end'
+    },
+    { 
+      header: 'Stok', 
+      accessor: 'stokmin',
+      render: (value) => value || '-',
+      className: 'text-center'
+    },
+    { 
+      header: 'Status', 
+      accessor: 'status',
+      render: (value) => <StatusBadge status={value} />,
+      className: 'text-center'
     }
-  };
+  ];
 
-  if (loading) {
-    return <div>Memuat data barang...</div>; // Display loading message
-  }
-
-  // Ensure barang is an array before mapping
-  if (!Array.isArray(barang)) {
-    console.error('Barang state is not an array:', barang);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: onEdit,
+      className: 'btn btn-primary btn-sm',
+      show: !!onEdit
+    },
+    {
+      label: 'Hapus',
+      onClick: handleDelete,
+      className: 'btn btn-danger btn-sm',
+      show: true
+    }
+  ];
 
   return (
     <div>
-      <h2>Daftar Barang</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>Kode Barang</th>
-            <th>Nama Barang</th>
-            <th>Kategori</th>
-            <th>Harga Jual</th>
-            <th>Satuan</th>
-            <th>Merk</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {barang.map(item => (
-            <tr key={`${item.KodeDivisi}-${item.KodeBarang}`}>
-              <td>{item.KodeDivisi}</td>
-              <td>{item.KodeBarang}</td>
-              <td>{item.NamaBarang}</td>
-              <td>{item.KodeKategori}</td>
-              <td>{item.HargaJual}</td>
-              <td>{item.Satuan}</td>
-              <td>{item.merk}</td>
-              <td>{item.status ? 'Aktif' : 'Tidak Aktif'}</td>
-              <td>
-                <button onClick={() => onEdit(item)}>Edit</button>
-                <button onClick={() => handleDelete(item.KodeDivisi, item.KodeBarang)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        title="Daftar Barang"
+        data={barang}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        onRefresh={refresh}
+        searchable={true}
+        searchFields={['kodebarang', 'namabarang', 'kodekategori', 'merk']}
+        keyField="kodebarang"
+      />
     </div>
   );
 }

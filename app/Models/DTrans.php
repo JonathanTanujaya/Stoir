@@ -10,7 +10,7 @@ class DTrans extends Model
     use HasFactory;
 
     protected $table = 'd_trans';
-    protected $primaryKey = null;
+    protected $primaryKey = ['KodeTrans', 'KodeCOA'];
     public $incrementing = false;
     public $timestamps = false;
 
@@ -19,4 +19,35 @@ class DTrans extends Model
         'KodeCOA',
         'SaldoNormal',
     ];
+
+    protected $casts = [
+        'SaldoNormal' => 'decimal:2'
+    ];
+
+    // Relationships
+    public function mTrans()
+    {
+        return $this->belongsTo(MTrans::class, 'KodeTrans', 'KodeTrans');
+    }
+
+    public function coa()
+    {
+        return $this->belongsTo(MCOA::class, 'KodeCOA', 'KodeCOA');
+    }
+
+    // Scopes
+    public function scopeByTrans($query, $kodeTrans)
+    {
+        return $query->where('KodeTrans', $kodeTrans);
+    }
+
+    public function scopeDebet($query)
+    {
+        return $query->where('SaldoNormal', '>', 0);
+    }
+
+    public function scopeKredit($query)
+    {
+        return $query->where('SaldoNormal', '<', 0);
+    }
 }

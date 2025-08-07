@@ -10,17 +10,28 @@ class MSales extends Model
     use HasFactory;
 
     protected $table = 'm_sales';
-    protected $primaryKey = ['KodeDivisi', 'KodeSales'];
+    
+    // Use first column as primary key for Laravel compatibility
+    protected $primaryKey = 'kodedivisi';
     public $incrementing = false;
     public $timestamps = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'KodeDivisi',
-        'KodeSales',
-        'NamaSales',
-        'Alamat',
-        'NoHP',
-        'Target',
-        'Status',
+        'kodedivisi',
+        'kodesales',
+        'namasales',
+        'alamat',
+        'nohp',
+        'target',
+        'status',
     ];
+    
+    // Custom method to find by composite key
+    public static function findByCompositeKey($kodeDivisi, $kodeSales)
+    {
+        return self::where('kodedivisi', $kodeDivisi)
+                   ->where('kodesales', $kodeSales)
+                   ->first();
+    }
 }

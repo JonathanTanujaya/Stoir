@@ -10,14 +10,25 @@ class MArea extends Model
     use HasFactory;
 
     protected $table = 'm_area';
-    protected $primaryKey = ['KodeDivisi', 'KodeArea'];
+    
+    // Use first column as primary key for Laravel compatibility
+    protected $primaryKey = 'kodedivisi';
     public $incrementing = false;
     public $timestamps = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'KodeDivisi',
-        'KodeArea',
-        'Area',
+        'kodedivisi',
+        'kodearea', 
+        'area',
         'status',
     ];
+    
+    // Custom method to find by composite key
+    public static function findByCompositeKey($kodeDivisi, $kodeArea)
+    {
+        return self::where('kodedivisi', $kodeDivisi)
+                   ->where('kodearea', $kodeArea)
+                   ->first();
+    }
 }

@@ -1,89 +1,77 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import DataTable from './common/DataTable';
+import { useCrudOperations } from '../hooks/useDataFetch';
+import { areaService } from '../config/apiService';
+import { useConfirmDialog } from './common/LoadingComponents';
 
 function AreaList({ onEdit, onRefresh }) {
-  const [areas, setAreas] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: areas,
+    loading,
+    refresh
+  } = useCrudOperations(areaService, onRefresh);
+  
+  const confirm = useConfirmDialog();
 
-  const fetchAreas = async () => {
-    setLoading(true); // Set loading to true before fetching
-    try {
-      const response = await axios.get(`${API_URL}/areas`); // Changed from /area to /areas
-      let areaData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        areaData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        areaData = response.data;
-      }
-      setAreas(areaData); // Ensure it's always an array
-      toast.success('Data area berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching areas:', error);
-      toast.error('Gagal memuat data area.');
-      setAreas([]); // Ensure areas is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+  const handleDelete = async (item) => {
+    const confirmed = await confirm({
+      title: 'Hapus Area',
+      message: `Apakah Anda yakin ingin menghapus area "${item.namaarea}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger'
+    });
+
+    if (confirmed) {
+      // Implementasi delete jika diperlukan
+      // await deleteOperation(item.kodedivisi, item.kodearea);
     }
   };
 
-  useEffect(() => {
-    fetchAreas();
-  }, [onRefresh]);
-
-  const handleDelete = async (kodeDivisi, kodeArea) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus area ini?')) {
-      try {
-        await axios.delete(`${API_URL}/areas/${kodeDivisi}/${kodeArea}`); // Changed from /area to /areas
-        fetchAreas();
-        toast.success('Area berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting area:', error);
-        toast.error('Gagal menghapus area.');
-      }
+  const columns = [
+    { 
+      header: 'Kode Divisi', 
+      accessor: 'kodedivisi',
+      className: 'text-center'
+    },
+    { 
+      header: 'Kode Area', 
+      accessor: 'kodearea',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Nama Area', 
+      accessor: 'namaarea',
+      className: 'text-start'
     }
-  };
+  ];
 
-  if (loading) {
-    return <div>Memuat data area...</div>; // Display loading message
-  }
-
-  // Ensure areas is an array before mapping
-  if (!Array.isArray(areas)) {
-    console.error('Areas state is not an array:', areas);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: onEdit,
+      className: 'btn btn-primary btn-sm',
+      show: !!onEdit
+    },
+    {
+      label: 'Hapus',
+      onClick: handleDelete,
+      className: 'btn btn-danger btn-sm',
+      show: true
+    }
+  ];
 
   return (
     <div>
-      <h2>Daftar Area</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>Kode Area</th>
-            <th>Area</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {areas.map(area => (
-            <tr key={`${area.KodeDivisi}-${area.KodeArea}`}>
-              <td>{area.KodeDivisi}</td>
-              <td>{area.KodeArea}</td>
-              <td>{area.Area}</td>
-              <td>{area.status ? 'Aktif' : 'Tidak Aktif'}</td>
-              <td>
-                <button onClick={() => onEdit(area)}>Edit</button>
-                <button onClick={() => handleDelete(area.KodeDivisi, area.KodeArea)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        title="Daftar Area"
+        data={areas}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        onRefresh={refresh}
+        searchable={true}
+        searchFields={['kodearea', 'namaarea']}
+        keyField="kodearea"
+      />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api';
+import API_BASE_URL from '../config/api.js';
 
 function KategoriForm({ kategori, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -13,7 +12,13 @@ function KategoriForm({ kategori, onSave, onCancel }) {
 
   useEffect(() => {
     if (kategori) {
-      setFormData(kategori);
+      // Convert lowercase fields from backend to PascalCase for form
+      setFormData({
+        KodeDivisi: kategori.kodedivisi || '',
+        KodeKategori: kategori.kodekategori || '',
+        Kategori: kategori.kategori || '',
+        Status: kategori.status !== undefined ? kategori.status : true,
+      });
     }
   }, [kategori]);
 
@@ -30,10 +35,10 @@ function KategoriForm({ kategori, onSave, onCancel }) {
     try {
       if (kategori) {
         // Update existing kategori
-        await axios.put(`${API_URL}/kategori/${kategori.KodeDivisi}/${kategori.KodeKategori}`, formData);
+        await axios.put(`${API_BASE_URL}/kategori/${kategori.kodedivisi}/${kategori.kodekategori}`, formData);
       } else {
         // Create new kategori
-        await axios.post(`${API_URL}/kategori`, formData);
+        await axios.post(`${API_BASE_URL}/kategori`, formData);
       }
       onSave();
     } catch (error) {

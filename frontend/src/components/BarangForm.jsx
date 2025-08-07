@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api';
+import { toast } from 'react-toastify';
+import { barangService } from '../config/apiService.js';
 
 function BarangForm({ item, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -23,6 +22,8 @@ function BarangForm({ item, onSave, onCancel }) {
     StokMin: '',
     Checklist: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (item) {
@@ -36,21 +37,71 @@ function BarangForm({ item, onSave, onCancel }) {
       ...prevData,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.KodeDivisi.trim()) {
+      newErrors.KodeDivisi = 'Kode Divisi harus diisi';
+    }
+    
+    if (!formData.KodeBarang.trim()) {
+      newErrors.KodeBarang = 'Kode Barang harus diisi';
+    }
+    
+    if (!formData.NamaBarang.trim()) {
+      newErrors.NamaBarang = 'Nama Barang harus diisi';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error('Mohon lengkapi semua field yang diperlukan');
+      return;
+    }
+    
+    setLoading(true);
+    setErrors({});
+    
     try {
+      let result;
       if (item) {
         // Update existing item
-        await axios.put(`${API_URL}/barang/${item.KodeDivisi}/${item.KodeBarang}`, formData);
+        result = await barangService.update(item.KodeDivisi, item.KodeBarang, formData);
       } else {
         // Create new item
-        await axios.post(`${API_URL}/barang`, formData);
+        result = await barangService.create(formData);
       }
-      onSave();
+      
+      if (result.success) {
+        toast.success(result.message);
+        onSave();
+      } else {
+        toast.error(result.message);
+        if (result.errors) {
+          console.error('Validation errors:', result.errors);
+          setErrors(result.errors);
+        }
+      }
     } catch (error) {
       console.error('Error saving barang:', error);
+      toast.error('Terjadi kesalahan saat menyimpan barang');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,15 +109,38 @@ function BarangForm({ item, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input 
+          type="text" 
+          name="KodeDivisi" 
+          value={formData.KodeDivisi} 
+          onChange={handleChange} 
+          required 
+          disabled={loading}
+        />
+        {errors.KodeDivisi && <span style={{color: 'red'}}>{errors.KodeDivisi}</span>}
       </div>
       <div>
         <label>Kode Barang:</label>
-        <input type="text" name="KodeBarang" value={formData.KodeBarang} onChange={handleChange} required />
+        <input 
+          type="text" 
+          name="KodeBarang" 
+          value={formData.KodeBarang} 
+          onChange={handleChange} 
+          required 
+          disabled={loading}
+        />
+        {errors.KodeBarang && <span style={{color: 'red'}}>{errors.KodeBarang}</span>}
       </div>
       <div>
         <label>Nama Barang:</label>
-        <input type="text" name="NamaBarang" value={formData.NamaBarang} onChange={handleChange} />
+        <input 
+          type="text" 
+          name="NamaBarang" 
+          value={formData.NamaBarang} 
+          onChange={handleChange} 
+          disabled={loading}
+        />
+        {errors.NamaBarang && <span style={{color: 'red'}}>{errors.NamaBarang}</span>}
       </div>
       <div>
         <label>Kode Kategori:</label>
@@ -124,8 +198,12 @@ function BarangForm({ item, onSave, onCancel }) {
         <label>Checklist:</label>
         <input type="checkbox" name="Checklist" checked={formData.Checklist} onChange={handleChange} />
       </div>
-      <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="submit" disabled={loading}>
+        {loading ? 'Menyimpan...' : 'Simpan'}
+      </button>
+      <button type="button" onClick={onCancel} disabled={loading}>
+        Batal
+      </button>
     </form>
   );
 }

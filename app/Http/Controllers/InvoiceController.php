@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\InvoiceRequest;
 use App\Services\InvoiceService;
+use App\Services\BusinessRuleService;
 use App\Models\Invoice;
 use App\Models\MCust;
 use App\Models\MSales;
@@ -13,14 +15,17 @@ use App\Models\MKategori;
 use App\Models\Company;
 use App\Models\InvoiceDetail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class InvoiceController extends Controller
 {
     protected $invoiceService;
+    protected $businessRuleService;
 
-    public function __construct(InvoiceService $invoiceService)
+    public function __construct(InvoiceService $invoiceService, BusinessRuleService $businessRuleService)
     {
         $this->invoiceService = $invoiceService;
+        $this->businessRuleService = $businessRuleService;
     }
 
     /**
@@ -34,32 +39,39 @@ class InvoiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(InvoiceRequest $request)
     {
         try {
-            $this->invoiceService->createInvoice(
-                $request->input('KodeDivisi'),
-                $request->input('NoInvoice'),
-                $request->input('KodeCust'),
-                $request->input('KodeSales'),
-                $request->input('Tipe'),
-                $request->input('Total'),
-                $request->input('Disc'),
-                $request->input('Pajak'),
-                $request->input('GrandTotal'),
-                $request->input('Ket'),
-                $request->input('KodeBarang'),
-                $request->input('QtySupply'),
-                $request->input('HargaJual'),
-                $request->input('Diskon1'),
-                $request->input('Diskon2'),
-                $request->input('HargaNett'),
-                $request->input('username')
-            );
+            $validatedData = $request->validated();
+            
+            // Additional business rule validation
+            $businessErrors = $this->businessRuleService->validateInvoice($validatedData);
+            if (!empty($businessErrors)) {
+                return response()->json(['errors' => $businessErrors], 422);
+            }
+            
+            // Create invoice header
+            $invoiceData = collect($validatedData)->except('details')->toArray();
+            $invoice = Invoice::create($invoiceData);
 
-            return response()->json(['message' => 'Invoice created successfully'], 201);
+            // Create invoice details
+            if (isset($validatedData['details'])) {
+                foreach ($validatedData['details'] as $detail) {
+                    $invoice->details()->create(array_merge($detail, [
+                        'kodedivisi' => $invoice->kodedivisi,
+                        'noinvoice' => $invoice->noinvoice,
+                    ]));
+                }
+            }
+
+            return response()->json([
+                'message' => 'Invoice created successfully',
+                'data' => $invoice->load('details')
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to create invoice: ' . $e->getMessage()], 500);
         }
     }
 

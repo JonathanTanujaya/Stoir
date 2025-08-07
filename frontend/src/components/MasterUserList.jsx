@@ -1,31 +1,28 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import { masterUserService } from '../config/apiService.js';
 
 function MasterUserList({ onEdit, onRefresh }) {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/master-user`);
-      let userData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        userData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        userData = response.data;
+      const result = await masterUserService.getAll();
+      if (result.success) {
+        setUsers(Array.isArray(result.data) ? result.data : []);
+      } else {
+        console.error('Error fetching users:', result.error);
+        toast.error(result.message || 'Gagal memuat data pengguna.');
+        setUsers([]);
       }
-      setUsers(userData); // Ensure it's always an array
-      toast.success('Data pengguna berhasil dimuat!');
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Gagal memuat data pengguna.');
-      setUsers([]); // Ensure users is an empty array on error
+      setUsers([]);
     } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+      setLoading(false);
     }
   };
 
@@ -36,9 +33,13 @@ function MasterUserList({ onEdit, onRefresh }) {
   const handleDelete = async (kodeDivisi, username) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
       try {
-        await axios.delete(`${API_URL}/master-user/${kodeDivisi}/${username}`);
-        fetchUsers();
-        toast.success('Pengguna berhasil dihapus!');
+        const result = await masterUserService.delete(kodeDivisi, username);
+        if (result.success) {
+          fetchUsers();
+          toast.success(result.message || 'Pengguna berhasil dihapus!');
+        } else {
+          toast.error(result.message || 'Gagal menghapus pengguna.');
+        }
       } catch (error) {
         console.error('Error deleting user:', error);
         toast.error('Gagal menghapus pengguna.');

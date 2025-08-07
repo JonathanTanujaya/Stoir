@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\MDivisi; // Asumsi model MDivisi ada
+use App\Models\Mdivisi; // Asumsi model Mdivisi ada
 
-class MDivisiController extends Controller
+class MdivisiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $mdivisis = MDivisi::all();
+        $mdivisis = Mdivisi::all();
         return response()->json($mdivisis);
     }
 
@@ -25,7 +25,7 @@ class MDivisiController extends Controller
             'nama_divisi' => 'required|string|max:255|unique:m_divisis',
         ]);
 
-        $mdivisi = MDivisi::create($request->all());
+        $mdivisi = Mdivisi::create($request->all());
         return response()->json($mdivisi, 201);
     }
 
@@ -34,7 +34,7 @@ class MDivisiController extends Controller
      */
     public function show(string $id)
     {
-        $mdivisi = MDivisi::findOrFail($id);
+        $mdivisi = Mdivisi::findOrFail($id);
         return response()->json($mdivisi);
     }
 
@@ -47,7 +47,7 @@ class MDivisiController extends Controller
             'nama_divisi' => 'required|string|max:255|unique:m_divisis,nama_divisi,' . $id,
         ]);
 
-        $mdivisi = MDivisi::findOrFail($id);
+        $mdivisi = Mdivisi::findOrFail($id);
         $mdivisi->update($request->all());
         return response()->json($mdivisi);
     }
@@ -57,7 +57,7 @@ class MDivisiController extends Controller
      */
     public function destroy(string $id)
     {
-        $mdivisi = MDivisi::findOrFail($id);
+        $mdivisi = Mdivisi::findOrFail($id);
         $mdivisi->delete();
         return response()->json(null, 204);
     }

@@ -28,6 +28,9 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
+        <env name="ALLOW_NEGATIVE_STOCK" value="false"/>
+        <env name="CREDIT_LIMIT_CHECK" value="true"/>
+        <env name="MAX_TRANSACTION_AMOUNT" value="10000000"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>

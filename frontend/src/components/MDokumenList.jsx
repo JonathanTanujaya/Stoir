@@ -1,31 +1,28 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import { mdokumenService } from '../config/apiService.js';
 
 function MDokumenList({ onEdit, onRefresh }) {
   const [dokumen, setDokumen] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   const fetchDokumen = async () => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/mdokumen`);
-      let dokumenData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        dokumenData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        dokumenData = response.data;
+      const result = await mdokumenService.getAll();
+      if (result.success) {
+        setDokumen(Array.isArray(result.data) ? result.data : []);
+      } else {
+        console.error('Error fetching dokumen:', result.error);
+        toast.error(result.message || 'Gagal memuat data dokumen.');
+        setDokumen([]);
       }
-      setDokumen(dokumenData); // Ensure it's always an array
-      toast.success('Data dokumen berhasil dimuat!');
     } catch (error) {
       console.error('Error fetching dokumen:', error);
       toast.error('Gagal memuat data dokumen.');
-      setDokumen([]); // Ensure dokumen is an empty array on error
+      setDokumen([]);
     } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+      setLoading(false);
     }
   };
 
@@ -36,9 +33,13 @@ function MDokumenList({ onEdit, onRefresh }) {
   const handleDelete = async (kodeDivisi, kodeDok) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
       try {
-        await axios.delete(`${API_URL}/mdokumen/${kodeDivisi}/${kodeDok}`);
-        fetchDokumen();
-        toast.success('Dokumen berhasil dihapus!');
+        const result = await mdokumenService.delete(kodeDivisi, kodeDok);
+        if (result.success) {
+          fetchDokumen();
+          toast.success(result.message || 'Dokumen berhasil dihapus!');
+        } else {
+          toast.error(result.message || 'Gagal menghapus dokumen.');
+        }
       } catch (error) {
         console.error('Error deleting dokumen:', error);
         toast.error('Gagal menghapus dokumen.');

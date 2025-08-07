@@ -10,11 +10,13 @@ class MDivisi extends Model
     use HasFactory;
 
     protected $table = 'm_divisi';
+    protected $primaryKey = 'kodedivisi';
     public $incrementing = false;
     public $timestamps = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'KodeDivisi',
-        'Divisi',
+        'kodedivisi',
+        'divisi',
     ];
 }

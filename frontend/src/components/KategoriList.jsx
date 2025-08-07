@@ -1,89 +1,83 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import DataTable from './common/DataTable';
+import { useCrudOperations } from '../hooks/useDataFetch';
+import { kategoriService } from '../config/apiService';
+import { useConfirmDialog } from './common/LoadingComponents';
 
 function KategoriList({ onEdit, onRefresh }) {
-  const [kategori, setKategori] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: kategori,
+    loading,
+    refresh
+  } = useCrudOperations(kategoriService, onRefresh);
+  
+  const confirm = useConfirmDialog();
 
-  const fetchKategori = async () => {
-    setLoading(true); // Set loading to true before fetching
-    try {
-      const response = await axios.get(`${API_URL}/kategori`);
-      let kategoriData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        kategoriData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        kategoriData = response.data;
-      }
-      setKategori(kategoriData); // Ensure it's always an array
-      toast.success('Data kategori berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching kategori:', error);
-      toast.error('Gagal memuat data kategori.');
-      setKategori([]); // Ensure kategori is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+  const handleDelete = async (item) => {
+    const confirmed = await confirm({
+      title: 'Hapus Kategori',
+      message: `Apakah Anda yakin ingin menghapus kategori "${item.namakategori}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger'
+    });
+
+    if (confirmed) {
+      // Implementasi delete jika diperlukan
+      // await deleteOperation(item.kodedivisi, item.kodekategori);
     }
   };
 
-  useEffect(() => {
-    fetchKategori();
-  }, [onRefresh]);
-
-  const handleDelete = async (kodeDivisi, kodeKategori) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
-      try {
-        await axios.delete(`${API_URL}/kategori/${kodeDivisi}/${kodeKategori}`);
-        fetchKategori();
-        toast.success('Kategori berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting kategori:', error);
-        toast.error('Gagal menghapus kategori.');
-      }
+  const columns = [
+    { 
+      header: 'Kode Divisi', 
+      accessor: 'kodedivisi',
+      className: 'text-center'
+    },
+    { 
+      header: 'Kode Kategori', 
+      accessor: 'kodekategori',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Nama Kategori', 
+      accessor: 'namakategori',
+      className: 'text-start'
+    },
+    { 
+      header: 'Keterangan', 
+      accessor: 'keterangan',
+      render: (value) => value || '-',
+      className: 'text-start'
     }
-  };
+  ];
 
-  if (loading) {
-    return <div>Memuat data kategori...</div>; // Display loading message
-  }
-
-  // Ensure kategori is an array before mapping
-  if (!Array.isArray(kategori)) {
-    console.error('Kategori state is not an array:', kategori);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: onEdit,
+      className: 'btn btn-primary btn-sm',
+      show: !!onEdit
+    },
+    {
+      label: 'Hapus',
+      onClick: handleDelete,
+      className: 'btn btn-danger btn-sm',
+      show: true
+    }
+  ];
 
   return (
     <div>
-      <h2>Daftar Kategori</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>Kode Kategori</th>
-            <th>Kategori</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {kategori.map(cat => (
-            <tr key={`${cat.KodeDivisi}-${cat.KodeKategori}`}>
-              <td>{cat.KodeDivisi}</td>
-              <td>{cat.KodeKategori}</td>
-              <td>{cat.Kategori}</td>
-              <td>{cat.Status ? 'Aktif' : 'Tidak Aktif'}</td>
-              <td>
-                <button onClick={() => onEdit(cat)}>Edit</button>
-                <button onClick={() => handleDelete(cat.KodeDivisi, cat.KodeKategori)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        title="Daftar Kategori"
+        data={kategori}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        onRefresh={refresh}
+        searchable={true}
+        searchFields={['kodekategori', 'namakategori', 'keterangan']}
+        keyField="kodekategori"
+      />
     </div>
   );
 }

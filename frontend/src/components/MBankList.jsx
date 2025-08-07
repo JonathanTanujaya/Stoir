@@ -1,89 +1,101 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import DataTable from './common/DataTable';
+import { useCrudOperations } from '../hooks/useDataFetch';
+import { bankService } from '../config/apiService';
+import { useConfirmDialog } from './common/LoadingComponents';
 
 function MBankList({ onEdit, onRefresh }) {
-  const [banks, setBanks] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: banks,
+    loading,
+    refresh
+  } = useCrudOperations(bankService, onRefresh);
+  
+  const confirm = useConfirmDialog();
 
-  const fetchBanks = async () => {
-    setLoading(true); // Set loading to true before fetching
-    try {
-      const response = await axios.get(`${API_URL}/banks`); // Changed from /mbank to /banks
-      let bankData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        bankData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        bankData = response.data;
-      }
-      setBanks(bankData); // Ensure it's always an array
-      toast.success('Data bank berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching banks:', error);
-      toast.error('Gagal memuat data bank.');
-      setBanks([]); // Ensure banks is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+  const handleDelete = async (item) => {
+    const confirmed = await confirm({
+      title: 'Hapus Bank',
+      message: `Apakah Anda yakin ingin menghapus bank "${item.namabank}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger'
+    });
+
+    if (confirmed) {
+      // Implementasi delete jika diperlukan
+      // await deleteOperation(item.kodedivisi, item.kodebank);
     }
   };
 
-  useEffect(() => {
-    fetchBanks();
-  }, [onRefresh]);
+  const StatusBadge = ({ status }) => (
+    <span className={`badge ${status ? 'bg-success' : 'bg-danger'}`}>
+      {status ? 'Aktif' : 'Nonaktif'}
+    </span>
+  );
 
-  const handleDelete = async (kodeDivisi, kodeBank) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus bank ini?')) {
-      try {
-        await axios.delete(`${API_URL}/banks/${kodeDivisi}/${kodeBank}`); // Changed from /mbank to /banks
-        fetchBanks();
-        toast.success('Bank berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting bank:', error);
-        toast.error('Gagal menghapus bank.');
-      }
+  const columns = [
+    { 
+      header: 'Kode Divisi', 
+      accessor: 'kodedivisi',
+      className: 'text-center'
+    },
+    { 
+      header: 'Kode Bank', 
+      accessor: 'kodebank',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Nama Bank', 
+      accessor: 'namabank',
+      className: 'text-start'
+    },
+    { 
+      header: 'No. Rekening', 
+      accessor: 'norekening',
+      render: (value) => value || '-',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Atas Nama', 
+      accessor: 'atasnama',
+      render: (value) => value || '-',
+      className: 'text-start'
+    },
+    { 
+      header: 'Status', 
+      accessor: 'status',
+      render: (value) => <StatusBadge status={value} />,
+      className: 'text-center'
     }
-  };
+  ];
 
-  if (loading) {
-    return <div>Memuat data bank...</div>; // Display loading message
-  }
-
-  // Ensure banks is an array before mapping
-  if (!Array.isArray(banks)) {
-    console.error('Banks state is not an array:', banks);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: onEdit,
+      className: 'btn btn-primary btn-sm',
+      show: !!onEdit
+    },
+    {
+      label: 'Hapus',
+      onClick: handleDelete,
+      className: 'btn btn-danger btn-sm',
+      show: true
+    }
+  ];
 
   return (
     <div>
-      <h2>Daftar Bank</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>Kode Bank</th>
-            <th>Nama Bank</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {banks.map(bank => (
-            <tr key={`${bank.KodeDivisi}-${bank.KodeBank}`}>
-              <td>{bank.KodeDivisi}</td>
-              <td>{bank.KodeBank}</td>
-              <td>{bank.NamaBank}</td>
-              <td>{bank.Status ? 'Aktif' : 'Tidak Aktif'}</td>
-              <td>
-                <button onClick={() => onEdit(bank)}>Edit</button>
-                <button onClick={() => handleDelete(bank.KodeDivisi, bank.KodeBank)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        title="Daftar Bank"
+        data={banks}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        onRefresh={refresh}
+        searchable={true}
+        searchFields={['kodebank', 'namabank', 'norekening', 'atasnama']}
+        keyField="kodebank"
+      />
     </div>
   );
 }

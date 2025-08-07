@@ -1,95 +1,121 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import DataTable from './common/DataTable';
+import { formatCurrency } from './common/DataTable';
+import { useCrudOperations } from '../hooks/useDataFetch';
+import { invoiceService } from '../config/apiService';
+import { useConfirmDialog } from './common/LoadingComponents';
 
 function InvoiceList({ onEdit, onRefresh }) {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: invoices,
+    loading,
+    refresh
+  } = useCrudOperations(invoiceService, onRefresh);
+  
+  const confirm = useConfirmDialog();
 
-  const fetchInvoices = async () => {
-    setLoading(true); // Set loading to true before fetching
+  const handleDelete = async (item) => {
+    const confirmed = await confirm({
+      title: 'Hapus Invoice',
+      message: `Apakah Anda yakin ingin menghapus invoice "${item.noinvoice}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger'
+    });
+
+    if (confirmed) {
+      // Implementasi delete jika diperlukan
+      // await deleteOperation(item.kodedivisi, item.noinvoice);
+    }
+  };
+
+  const StatusBadge = ({ status }) => (
+    <span className={`badge ${status ? 'bg-success' : 'bg-warning'}`}>
+      {status ? 'Lunas' : 'Belum Lunas'}
+    </span>
+  );
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
     try {
-      const response = await axios.get(`${API_URL}/invoices`);
-      let invoiceData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        invoiceData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        invoiceData = response.data;
-      }
-      setInvoices(invoiceData); // Ensure it's always an array
-      toast.success('Data invoice berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching invoices:', error);
-      toast.error('Gagal memuat data invoice.');
-      setInvoices([]); // Ensure invoices is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+      return new Date(dateString).toLocaleDateString('id-ID');
+    } catch {
+      return dateString;
     }
   };
 
-  useEffect(() => {
-    fetchInvoices();
-  }, [onRefresh]);
-
-  const handleDelete = async (kodeDivisi, noInvoice) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus invoice ini?')) {
-      try {
-        await axios.delete(`${API_URL}/invoices/${kodeDivisi}/${noInvoice}`);
-        fetchInvoices();
-        toast.success('Invoice berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting invoice:', error);
-        toast.error('Gagal menghapus invoice.');
-      }
+  const columns = [
+    { 
+      header: 'Kode Divisi', 
+      accessor: 'kodedivisi',
+      className: 'text-center'
+    },
+    { 
+      header: 'No. Invoice', 
+      accessor: 'noinvoice',
+      className: 'font-monospace'
+    },
+    { 
+      header: 'Tanggal', 
+      accessor: 'tanggal',
+      render: (value) => formatDate(value),
+      className: 'text-center'
+    },
+    { 
+      header: 'Customer', 
+      accessor: 'namacustomer',
+      render: (value) => value || '-',
+      className: 'text-start'
+    },
+    { 
+      header: 'Total', 
+      accessor: 'total',
+      render: (value) => formatCurrency(value),
+      className: 'text-end'
+    },
+    { 
+      header: 'Status', 
+      accessor: 'status',
+      render: (value) => <StatusBadge status={value} />,
+      className: 'text-center'
     }
-  };
+  ];
 
-  if (loading) {
-    return <div>Memuat data invoice...</div>; // Display loading message
-  }
-
-  // Ensure invoices is an array before mapping
-  if (!Array.isArray(invoices)) {
-    console.error('Invoices state is not an array:', invoices);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const actions = [
+    {
+      label: 'Lihat',
+      onClick: (item) => {
+        // Implementasi view detail invoice
+        console.log('View invoice:', item);
+      },
+      className: 'btn btn-info btn-sm',
+      show: true
+    },
+    {
+      label: 'Edit',
+      onClick: onEdit,
+      className: 'btn btn-primary btn-sm',
+      show: !!onEdit
+    },
+    {
+      label: 'Hapus',
+      onClick: handleDelete,
+      className: 'btn btn-danger btn-sm',
+      show: true
+    }
+  ];
 
   return (
     <div>
-      <h2>Daftar Invoice</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>No Invoice</th>
-            <th>Tgl Faktur</th>
-            <th>Kode Customer</th>
-            <th>Total</th>
-            <th>Grand Total</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoices.map(invoice => (
-            <tr key={`${invoice.KodeDivisi}-${invoice.NoInvoice}`}>
-              <td>{invoice.KodeDivisi}</td>
-              <td>{invoice.NoInvoice}</td>
-              <td>{invoice.TglFaktur}</td>
-              <td>{invoice.KodeCust}</td>
-              <td>{invoice.Total}</td>
-              <td>{invoice.GrandTotal}</td>
-              <td>{invoice.Status}</td>
-              <td>
-                <button onClick={() => onEdit(invoice)}>Edit</button>
-                <button onClick={() => handleDelete(invoice.KodeDivisi, invoice.NoInvoice)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        title="Daftar Invoice"
+        data={invoices}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        onRefresh={refresh}
+        searchable={true}
+        searchFields={['noinvoice', 'namacustomer']}
+        keyField="noinvoice"
+      />
     </div>
   );
 }

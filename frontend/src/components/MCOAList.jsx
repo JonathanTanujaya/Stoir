@@ -1,31 +1,28 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import { mcoaService } from '../config/apiService.js';
 
 function MCOAList({ onEdit, onRefresh }) {
   const [coas, setCoas] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   const fetchCoas = async () => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/mcoa`);
-      let coasData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        coasData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        coasData = response.data;
+      const result = await mcoaService.getAll();
+      if (result.success) {
+        setCoas(Array.isArray(result.data) ? result.data : []);
+      } else {
+        console.error('Error fetching COAs:', result.error);
+        toast.error(result.message || 'Gagal memuat data COA.');
+        setCoas([]);
       }
-      setCoas(coasData); // Ensure it's always an array
-      toast.success('Data COA berhasil dimuat!');
     } catch (error) {
       console.error('Error fetching COAs:', error);
       toast.error('Gagal memuat data COA.');
-      setCoas([]); // Ensure coas is an empty array on error
+      setCoas([]);
     } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+      setLoading(false);
     }
   };
 
@@ -36,9 +33,13 @@ function MCOAList({ onEdit, onRefresh }) {
   const handleDelete = async (kodeCOA) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus COA ini?')) {
       try {
-        await axios.delete(`${API_URL}/mcoa/${kodeCOA}`);
-        fetchCoas();
-        toast.success('COA berhasil dihapus!');
+        const result = await mcoaService.delete(kodeCOA);
+        if (result.success) {
+          fetchCoas();
+          toast.success(result.message || 'COA berhasil dihapus!');
+        } else {
+          toast.error(result.message || 'Gagal menghapus COA.');
+        }
       } catch (error) {
         console.error('Error deleting COA:', error);
         toast.error('Gagal menghapus COA.');

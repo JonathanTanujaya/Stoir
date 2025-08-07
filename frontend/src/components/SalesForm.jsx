@@ -1,22 +1,30 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api';
+import API_BASE_URL from '../config/api.js';
 
 function SalesForm({ sale, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     KodeDivisi: '',
     KodeSales: '',
-    NamaSales: '',
-    Alamat: '',
-    NoHP: '',
-    Target: '',
-    Status: true,
+    namasales: '',
+    alamat: '',
+    nohp: '',
+    target: '',
+    status: true,
   });
 
   useEffect(() => {
     if (sale) {
-      setFormData(sale);
+      // Convert backend response to form format
+      setFormData({
+        KodeDivisi: sale.kodedivisi || '',
+        KodeSales: sale.kodesales || '',
+        namasales: sale.namasales || '',
+        alamat: sale.alamat || '',
+        nohp: sale.nohp || '',
+        target: sale.target || '',
+        status: sale.status !== undefined ? sale.status : true,
+      });
     }
   }, [sale]);
 
@@ -33,10 +41,10 @@ function SalesForm({ sale, onSave, onCancel }) {
     try {
       if (sale) {
         // Update existing sale
-        await axios.put(`${API_URL}/sales/${sale.KodeDivisi}/${sale.KodeSales}`, formData);
+        await axios.put(`${API_BASE_URL}/sales/${sale.kodedivisi}/${sale.kodesales}`, formData);
       } else {
         // Create new sale
-        await axios.post(`${API_URL}/sales`, formData);
+        await axios.post(`${API_BASE_URL}/sales`, formData);
       }
       onSave();
     } catch (error) {
@@ -56,23 +64,23 @@ function SalesForm({ sale, onSave, onCancel }) {
       </div>
       <div>
         <label>Nama Sales:</label>
-        <input type="text" name="NamaSales" value={formData.NamaSales} onChange={handleChange} />
+        <input type="text" name="namasales" value={formData.namasales} onChange={handleChange} />
       </div>
       <div>
         <label>Alamat:</label>
-        <input type="text" name="Alamat" value={formData.Alamat} onChange={handleChange} />
+        <input type="text" name="alamat" value={formData.alamat} onChange={handleChange} />
       </div>
       <div>
         <label>No HP:</label>
-        <input type="text" name="NoHP" value={formData.NoHP} onChange={handleChange} />
+        <input type="text" name="nohp" value={formData.nohp} onChange={handleChange} />
       </div>
       <div>
         <label>Target:</label>
-        <input type="number" name="Target" value={formData.Target} onChange={handleChange} />
+        <input type="number" name="target" value={formData.target} onChange={handleChange} />
       </div>
       <div>
         <label>Status:</label>
-        <input type="checkbox" name="Status" checked={formData.Status} onChange={handleChange} />
+        <input type="checkbox" name="status" checked={formData.status} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
       <button type="button" onClick={onCancel}>Batal</button>
