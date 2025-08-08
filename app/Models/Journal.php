@@ -9,31 +9,31 @@ class Journal extends Model
 {
     use HasFactory;
 
-    protected $table = 'journal';
+    protected $table = 'dbo.journal';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;
 
     protected $fillable = [
         'tanggal',
-        'Transaksi',
-        'KodeCOA',
-        'NamaCOA',
-        'Keterangan',
-        'Debet',
-        'Kredit'
+        'transaksi',
+        'kodecoa',
+        'namacoa',
+        'keterangan',
+        'debet',
+        'kredit'
     ];
 
     protected $casts = [
         'tanggal' => 'date',
-        'Debet' => 'decimal:2',
-        'Kredit' => 'decimal:2'
+        'debet' => 'decimal:2',
+        'kredit' => 'decimal:2'
     ];
 
     // Relationships
     public function coa()
     {
-        return $this->belongsTo(MCOA::class, 'KodeCOA', 'kodecoa');
+        return $this->belongsTo(MCOA::class, 'kodecoa', 'kodecoa');
     }
 
     // Scopes for financial reporting
@@ -44,16 +44,16 @@ class Journal extends Model
 
     public function scopeDebet($query)
     {
-        return $query->where('Debet', '>', 0);
+        return $query->where('debet', '>', 0);
     }
 
     public function scopeKredit($query)
     {
-        return $query->where('Kredit', '>', 0);
+        return $query->where('kredit', '>', 0);
     }
 
     public function scopeByCOA($query, $kodeCOA)
     {
-        return $query->where('KodeCOA', $kodeCOA);
+        return $query->where('kodecoa', $kodeCOA);
     }
 }

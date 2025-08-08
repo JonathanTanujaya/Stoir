@@ -33,7 +33,22 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $invoices = Invoice::orderBy('tglfaktur', 'desc')
+                             ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data invoices retrieved successfully',
+                'data' => $invoices
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve invoices data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

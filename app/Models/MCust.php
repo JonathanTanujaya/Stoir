@@ -9,7 +9,7 @@ class MCust extends Model
 {
     use HasFactory;
 
-    protected $table = 'm_cust';
+    protected $table = 'dbo.m_cust';
     
         // Use first column as primary key for Laravel compatibility
     protected $primaryKey = 'kodedivisi';

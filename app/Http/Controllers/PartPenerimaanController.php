@@ -15,7 +15,23 @@ class PartPenerimaanController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $partPenerimaans = PartPenerimaan::with(['supplier', 'details.barang'])
+                                           ->orderBy('tglpenerimaan', 'desc')
+                                           ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data part penerimaan retrieved successfully',
+                'data' => $partPenerimaans
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve part penerimaan data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -23,31 +39,164 @@ class PartPenerimaanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'kodedivisi' => 'required|string|max:2',
+                'nopenerimaan' => 'required|string|max:20',
+                'tglpenerimaan' => 'required|date',
+                'kodesupplier' => 'required|string|max:10',
+                'details' => 'required|array',
+                'details.*.kodebarang' => 'required|string|max:20',
+                'details.*.qty' => 'required|numeric|min:0',
+                'details.*.harga' => 'required|numeric|min:0'
+            ]);
+
+            $partPenerimaan = PartPenerimaan::create($request->only([
+                'kodedivisi', 'nopenerimaan', 'tglpenerimaan', 'kodesupplier'
+            ]));
+
+            // Create details
+            foreach ($request->details as $detail) {
+                PartPenerimaanDetail::create([
+                    'kodedivisi' => $request->kodedivisi,
+                    'nopenerimaan' => $request->nopenerimaan,
+                    'kodebarang' => $detail['kodebarang'],
+                    'qty' => $detail['qty'],
+                    'harga' => $detail['harga']
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Part penerimaan created successfully',
+                'data' => $partPenerimaan->load('details')
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create part penerimaan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PartPenerimaan $partPenerimaan)
+    public function show($kodeDivisi, $noPenerimaan)
     {
-        //
+        try {
+            $partPenerimaan = PartPenerimaan::with(['supplier', 'details.barang'])
+                                          ->where('kodedivisi', $kodeDivisi)
+                                          ->where('nopenerimaan', $noPenerimaan)
+                                          ->first();
+            
+            if (!$partPenerimaan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Part penerimaan not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Part penerimaan retrieved successfully',
+                'data' => $partPenerimaan
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve part penerimaan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PartPenerimaan $partPenerimaan)
+    public function update(Request $request, $kodeDivisi, $noPenerimaan)
     {
-        //
+        try {
+            $partPenerimaan = PartPenerimaan::where('kodedivisi', $kodeDivisi)
+                                          ->where('nopenerimaan', $noPenerimaan)
+                                          ->first();
+            
+            if (!$partPenerimaan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Part penerimaan not found'
+                ], 404);
+            }
+
+            $request->validate([
+                'tglpenerimaan' => 'required|date',
+                'kodesupplier' => 'required|string|max:10'
+            ]);
+
+            $partPenerimaan->update($request->only(['tglpenerimaan', 'kodesupplier']));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Part penerimaan updated successfully',
+                'data' => $partPenerimaan
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update part penerimaan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartPenerimaan $partPenerimaan)
+    public function destroy($kodeDivisi, $noPenerimaan)
     {
-        //
+        try {
+            $partPenerimaan = PartPenerimaan::where('kodedivisi', $kodeDivisi)
+                                          ->where('nopenerimaan', $noPenerimaan)
+                                          ->first();
+            
+            if (!$partPenerimaan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Part penerimaan not found'
+                ], 404);
+            }
+
+            // Delete details first
+            PartPenerimaanDetail::where('kodedivisi', $kodeDivisi)
+                               ->where('nopenerimaan', $noPenerimaan)
+                               ->delete();
+
+            $partPenerimaan->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Part penerimaan deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete part penerimaan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getVPartPenerimaan()

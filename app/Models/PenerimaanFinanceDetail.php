@@ -9,7 +9,7 @@ class PenerimaanFinanceDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'penerimaanfinance_detail';
+    protected $table = 'dbo.penerimaanfinance_detail';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;
@@ -33,15 +33,17 @@ class PenerimaanFinanceDetail extends Model
         'id' => 'integer'
     ];
 
-    // Relationships
+    // Relationships (perbaikan untuk composite key)
     public function penerimaanFinance()
     {
-        return $this->belongsTo(PenerimaanFinance::class, ['kodedivisi', 'nopenerimaan'], ['kodedivisi', 'nopenerimaan']);
+        return $this->belongsTo(PenerimaanFinance::class, 'nopenerimaan', 'nopenerimaan')
+                    ->where('dbo.penerimaanfinance.kodedivisi', '=', $this->kodedivisi ?? '');
     }
 
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class, ['kodedivisi', 'noinvoice'], ['KodeDivisi', 'NoInvoice']);
+        return $this->belongsTo(Invoice::class, 'noinvoice', 'noinvoice')
+                    ->where('dbo.invoice.kodedivisi', '=', $this->kodedivisi ?? '');
     }
 
     // Scopes

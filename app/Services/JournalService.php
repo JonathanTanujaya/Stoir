@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Journal;
 use App\Models\Invoice;
-use App\Models\KartuStok;
 use App\Models\ReturnSales;
 use Illuminate\Support\Facades\DB;
 
@@ -22,8 +21,6 @@ class JournalService
             $grandTotal = $invoice->GrandTotal;
             $total = $invoice->Total;
 
-            // Calculate HPP from KartuStok
-            $hpp = KartuStok::where('No_Ref', $noinvoice)->sum(DB::raw('HPP * Decrease'));
 
             $insentif = 1; // Assuming 1% as per SQL script
 
@@ -106,8 +103,6 @@ class JournalService
 
             $totalRetur = $returnSales->Total;
 
-            // Calculate HPP from KartuStok
-            $hpp = KartuStok::where('No_Ref', $noretur)->sum('HPP');
 
             $insentif = 1; // Assuming 1% as per SQL script
 

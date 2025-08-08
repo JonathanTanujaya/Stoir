@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\JournalService;
+use App\Models\Journal;
 
 class JournalController extends Controller
 {
@@ -12,6 +13,34 @@ class JournalController extends Controller
     public function __construct(JournalService $journalService)
     {
         $this->journalService = $journalService;
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        try {
+            // Limit untuk testing Laravel - hanya 10 data terbaru
+            $journals = Journal::with(['coa'])
+                             ->orderBy('tanggal', 'desc')
+                             ->limit(10)
+                             ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data journals retrieved successfully (limited to 10 for testing)',
+                'data' => $journals,
+                'total_shown' => $journals->count(),
+                'note' => 'Data limited to 10 records for Laravel testing'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve journals data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -47,19 +76,49 @@ class JournalController extends Controller
 
     public function getVJournal()
     {
-        $vJournal = \App\Models\Journal::join('m_coa', 'journal.KodeCOA', '=', 'm_coa.KodeCOA')
+        $vJournal = \App\Models\Journal::join('dbo.m_coa', 'dbo.journal.kodecoa', '=', 'dbo.m_coa.kodecoa')
             ->select(
-                'journal.id',
-                'journal.tanggal',
-                'journal.Transaksi',
-                'journal.KodeCOA',
-                'm_coa.NamaCOA',
-                'journal.Keterangan',
-                'journal.Debet',
-                'journal.Credit'
+                'dbo.journal.id',
+                'dbo.journal.tanggal',
+                'dbo.journal.transaksi',
+                'dbo.journal.kodecoa',
+                'dbo.m_coa.namacoa',
+                'dbo.journal.keterangan',
+                'dbo.journal.debet',
+                'dbo.journal.kredit'
             )
+            ->orderBy('dbo.journal.tanggal', 'desc')
             ->get();
 
-        return response()->json($vJournal);
+        return response()->json([
+            'success' => true,
+            'message' => 'Journal data retrieved successfully',
+            'data' => $vJournal
+        ]);
+    }
+
+    /**
+     * Get all journals for frontend (no limit)
+     */
+    public function getAllForFrontend()
+    {
+        try {
+            $journals = Journal::with(['coa'])
+                             ->orderBy('tanggal', 'desc')
+                             ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'All journal data retrieved for frontend',
+                'data' => $journals,
+                'total_records' => $journals->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve all journal data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

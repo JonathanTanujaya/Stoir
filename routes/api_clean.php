@@ -22,9 +22,6 @@ use App\Http\Controllers\MTransController;
 use App\Http\Controllers\MVoucherController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\TmpPrintInvoiceController;
-use App\Http\Controllers\KartuStokController;
 
 // Transaction Controllers
 use App\Http\Controllers\ClaimController;
@@ -153,6 +150,8 @@ Route::get('invoices/{id}', [InvoiceController::class, 'show']);
 Route::put('invoices/{id}', [InvoiceController::class, 'update']);
 Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
 
+// Invoice Bonus routes
+
 // Part Penerimaan routes
 Route::get('part-penerimaan', [PartPenerimaanController::class, 'index']);
 Route::post('part-penerimaan', [PartPenerimaanController::class, 'store']);
@@ -161,8 +160,7 @@ Route::put('part-penerimaan/{id}', [PartPenerimaanController::class, 'update']);
 Route::delete('part-penerimaan/{id}', [PartPenerimaanController::class, 'destroy']);
 
 // Penerimaan Finance routes
-Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']); // Limited untuk testing Laravel
-Route::get('penerimaan-finance/all', [PenerimaanFinanceController::class, 'getAllForFrontend']); // Semua data untuk frontend
+Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']);
 Route::post('penerimaan-finance', [PenerimaanFinanceController::class, 'store']);
 Route::get('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'show']);
 Route::put('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'update']);
@@ -173,35 +171,13 @@ Route::delete('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'd
 // ===========================
 
 // Journal routes
-Route::get('journals', [JournalController::class, 'index']); // Limited untuk testing Laravel
-Route::get('journals/all', [JournalController::class, 'getAllForFrontend']); // Semua data untuk frontend
+Route::get('journals', [JournalController::class, 'index']);
 Route::post('journals', [JournalController::class, 'store']);
 Route::get('journals/{id}', [JournalController::class, 'show']);
 Route::put('journals/{id}', [JournalController::class, 'update']);
 Route::delete('journals/{id}', [JournalController::class, 'destroy']);
 
 // Kartu Stok routes
-Route::get('kartu-stok', [KartuStokController::class, 'index']); // Limited untuk testing Laravel
-Route::get('kartu-stok/all', [KartuStokController::class, 'getAllForFrontend']); // Semua data untuk frontend
-Route::post('kartu-stok', [KartuStokController::class, 'store']);
-Route::get('kartu-stok/{id}', [KartuStokController::class, 'show']);
-Route::put('kartu-stok/{id}', [KartuStokController::class, 'update']);
-Route::delete('kartu-stok/{id}', [KartuStokController::class, 'destroy']);
-Route::get('kartu-stok/by-barang/{kodeDivisi}/{kodeBarang}', [KartuStokController::class, 'getByBarang']);
-
-// Company routes
-Route::get('companies', [CompanyController::class, 'index']);
-Route::post('companies', [CompanyController::class, 'store']);
-Route::get('companies/{id}', [CompanyController::class, 'show']);
-Route::put('companies/{id}', [CompanyController::class, 'update']);
-Route::delete('companies/{id}', [CompanyController::class, 'destroy']);
-
-// Tmp Print Invoice routes
-Route::get('tmp-print-invoices', [TmpPrintInvoiceController::class, 'index']);
-Route::post('tmp-print-invoices', [TmpPrintInvoiceController::class, 'store']);
-Route::get('tmp-print-invoices/{id}', [TmpPrintInvoiceController::class, 'show']);
-Route::put('tmp-print-invoices/{id}', [TmpPrintInvoiceController::class, 'update']);
-Route::delete('tmp-print-invoices/{id}', [TmpPrintInvoiceController::class, 'destroy']);
 
 // Opname routes
 Route::get('opnames', [OpnameController::class, 'index']);

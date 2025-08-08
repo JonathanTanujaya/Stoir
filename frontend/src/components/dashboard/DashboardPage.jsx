@@ -130,13 +130,13 @@ const DashboardPage = () => {
           Dashboard
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Selamat datang, {user?.nama || user?.username}! 
-          <Chip 
-            label={`Divisi: ${user?.kodedivisi || 'N/A'}`} 
-            size="small" 
-            sx={{ ml: 2 }} 
-          />
+          Selamat datang, {user?.nama || user?.username}!
         </Typography>
+        <Chip 
+          label={`Divisi: ${user?.kodedivisi || 'N/A'}`} 
+          size="small" 
+          sx={{ ml: 0, mt: 1 }} 
+        />
       </Box>
 
       {/* Welcome Alert */}

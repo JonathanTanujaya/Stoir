@@ -9,7 +9,7 @@ class MKategori extends Model
 {
     use HasFactory;
 
-    protected $table = 'm_kategori';
+    protected $table = 'dbo.m_kategori';
     
     // Use first column as primary key for Laravel compatibility
     protected $primaryKey = 'kodedivisi';

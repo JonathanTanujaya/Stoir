@@ -17,7 +17,26 @@ class PenerimaanFinanceController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            // Sementara tanpa relasi untuk menghindari composite key error
+            $penerimaanFinances = PenerimaanFinance::orderBy('tglpenerimaan', 'desc')
+                                                 ->limit(5)
+                                                 ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data penerimaan finance retrieved successfully (limited to 5 for testing)',
+                'data' => $penerimaanFinances,
+                'total_shown' => $penerimaanFinances->count(),
+                'note' => 'Data limited to 5 records for Laravel testing - Relations disabled temporarily'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve penerimaan finance data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -25,31 +44,166 @@ class PenerimaanFinanceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'kodedivisi' => 'required|string|max:2',
+                'nopenerimaan' => 'required|string|max:20',
+                'tglpenerimaan' => 'required|date',
+                'kodecust' => 'required|string|max:10',
+                'kodesales' => 'required|string|max:10',
+                'total' => 'required|numeric|min:0',
+                'details' => 'required|array',
+                'details.*.noinvoice' => 'required|string|max:20',
+                'details.*.jumlah' => 'required|numeric|min:0'
+            ]);
+
+            $penerimaanFinance = PenerimaanFinance::create($request->only([
+                'kodedivisi', 'nopenerimaan', 'tglpenerimaan', 'kodecust', 'kodesales', 'total'
+            ]));
+
+            // Create details
+            foreach ($request->details as $detail) {
+                PenerimaanFinanceDetail::create([
+                    'kodedivisi' => $request->kodedivisi,
+                    'nopenerimaan' => $request->nopenerimaan,
+                    'noinvoice' => $detail['noinvoice'],
+                    'jumlah' => $detail['jumlah']
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penerimaan finance created successfully',
+                'data' => $penerimaanFinance->load('details')
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create penerimaan finance',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PenerimaanFinance $penerimaanFinance)
+    public function show($kodeDivisi, $noPenerimaan)
     {
-        //
+        try {
+            $penerimaanFinance = PenerimaanFinance::with(['customer', 'sales', 'details.invoice'])
+                                                ->where('kodedivisi', $kodeDivisi)
+                                                ->where('nopenerimaan', $noPenerimaan)
+                                                ->first();
+            
+            if (!$penerimaanFinance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Penerimaan finance not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penerimaan finance retrieved successfully',
+                'data' => $penerimaanFinance
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve penerimaan finance',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PenerimaanFinance $penerimaanFinance)
+    public function update(Request $request, $kodeDivisi, $noPenerimaan)
     {
-        //
+        try {
+            $penerimaanFinance = PenerimaanFinance::where('kodedivisi', $kodeDivisi)
+                                                ->where('nopenerimaan', $noPenerimaan)
+                                                ->first();
+            
+            if (!$penerimaanFinance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Penerimaan finance not found'
+                ], 404);
+            }
+
+            $request->validate([
+                'tglpenerimaan' => 'required|date',
+                'kodecust' => 'required|string|max:10',
+                'kodesales' => 'required|string|max:10',
+                'total' => 'required|numeric|min:0'
+            ]);
+
+            $penerimaanFinance->update($request->only(['tglpenerimaan', 'kodecust', 'kodesales', 'total']));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penerimaan finance updated successfully',
+                'data' => $penerimaanFinance
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update penerimaan finance',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PenerimaanFinance $penerimaanFinance)
+    public function destroy($kodeDivisi, $noPenerimaan)
     {
-        //
+        try {
+            $penerimaanFinance = PenerimaanFinance::where('kodedivisi', $kodeDivisi)
+                                                ->where('nopenerimaan', $noPenerimaan)
+                                                ->first();
+            
+            if (!$penerimaanFinance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Penerimaan finance not found'
+                ], 404);
+            }
+
+            // Delete details first
+            PenerimaanFinanceDetail::where('kodedivisi', $kodeDivisi)
+                                  ->where('nopenerimaan', $noPenerimaan)
+                                  ->delete();
+
+            $penerimaanFinance->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penerimaan finance deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete penerimaan finance',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getVPenerimaanFinance()
@@ -75,7 +229,37 @@ class PenerimaanFinanceController extends Controller
         )
         ->get();
 
-        return response()->json($vPenerimaanFinance);
+        return response()->json([
+            'success' => true,
+            'message' => 'Penerimaan Finance view data retrieved successfully',
+            'data' => $vPenerimaanFinance
+        ]);
+    }
+
+    /**
+     * Get all penerimaan finance for frontend (no limit)
+     */
+    public function getAllForFrontend()
+    {
+        try {
+            // Sementara tanpa relasi untuk menghindari composite key error
+            $penerimaanFinances = PenerimaanFinance::orderBy('tglpenerimaan', 'desc')
+                                                 ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'All penerimaan finance data retrieved for frontend',
+                'data' => $penerimaanFinances,
+                'total_records' => $penerimaanFinances->count(),
+                'note' => 'Relations disabled temporarily to fix composite key error'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve all penerimaan finance data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getVPenerimaanFinanceDetail()

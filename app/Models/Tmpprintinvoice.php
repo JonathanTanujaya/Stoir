@@ -4,14 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Tmpprintinvoice extends Model
+class TmpPrintInvoice extends Model
 {
-    protected $table = 'tmpprintinvoice';
-    
-    // No primary key found
-    
-    public $incrementing = false;
-    
+    protected $table = 'dbo.tmpprintinvoice';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
     public $timestamps = false;
     
     protected $fillable = [

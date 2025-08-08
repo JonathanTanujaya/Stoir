@@ -9,16 +9,20 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $table = 'company';
-    public $incrementing = false;
+    protected $table = 'dbo.company';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
     public $timestamps = false;
 
     protected $fillable = [
-        'CompanyName',
-        'Alamat',
-        'Kota',
-        'AN',
-        'Telp',
-        'NPWP',
+        'namacompany',
+        'alamat',
+        'kota',
+        'telp',
+        'fax',
+        'email',
+        'website',
+        'npwp',
+        'direktur'
     ];
 }

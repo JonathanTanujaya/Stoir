@@ -9,13 +9,13 @@ class MBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'd_barang';
+    protected $table = 'dbo.d_barang';
     
-        // Use first column as primary key for Laravel compatibility
-    protected $primaryKey = 'kodedivisi';
-    public $incrementing = false;
+    // Use id as primary key since it's the auto-increment field
+    protected $primaryKey = 'id';
+    public $incrementing = true;
     public $timestamps = false;
-    protected $keyType = 'string';
+    protected $keyType = 'int';
 
     protected $fillable = [
         'kodedivisi',
@@ -23,14 +23,14 @@ class MBarang extends Model
         'tglmasuk',
         'modal',
         'stok',
-        'iid'
+        'id'
     ];
 
     protected $casts = [
         'tglmasuk' => 'datetime',
         'modal' => 'decimal:4',
-        'stok' => 'decimal:2',
-        'iid' => 'integer'
+        'stok' => 'integer',
+        'id' => 'integer'
     ];
 
     // Relationships

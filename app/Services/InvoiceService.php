@@ -6,7 +6,6 @@ use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\MCust;
 use App\Models\DBarang;
-use App\Models\KartuStok;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceService
@@ -116,7 +115,6 @@ class InvoiceService
 
                 $qtyBaru = DBarang::where('KodeBarang', $KodeBarang)->sum('Stok');
 
-                KartuStok::create([
                     'KodeDivisi' => $KodeDivisi,
                     'KodeBarang' => $KodeBarang,
                     'No_Ref' => $NoInvoice,

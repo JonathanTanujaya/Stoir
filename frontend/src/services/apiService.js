@@ -9,8 +9,10 @@ const apiClient = axios.create({
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
-  withCredentials: false, // Don't send cookies for API requests
+  withCredentials: false, // Important: Don't send cookies for API requests
+  timeout: 10000, // 10 second timeout
 });
 
 // Request interceptor to add auth token

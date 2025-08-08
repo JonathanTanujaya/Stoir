@@ -33,7 +33,6 @@ import InvoicePage from './components/InvoicePage.jsx';
 import PartPenerimaanPage from './components/PartPenerimaanPage.jsx';
 import ReturnSalesPage from './components/ReturnSalesPage.jsx';
 import PenerimaanFinancePage from './components/PenerimaanFinancePage.jsx';
-import InvoiceBonusPage from './components/InvoiceBonusPage.jsx';
 import ClaimPenjualanPage from './components/ClaimPenjualanPage.jsx';
 import PartPenerimaanBonusPage from './pages/PartPenerimaanBonusPage.jsx';
 import ReturPenerimaanPage from './pages/ReturPenerimaanPage.jsx';
@@ -100,7 +99,6 @@ function App() {
                 <Route path="return-sales" element={<ReturnSalesPage />} />
                 <Route path="claim-penjualan" element={<ClaimPenjualanPage />} />
                 <Route path="opname" element={<OpnamePage />} />
-                <Route path="invoice-bonus" element={<InvoiceBonusPage />} />
                 <Route path="part-penerimaan-bonus" element={<PartPenerimaanBonusPage />} />
                 <Route path="retur-penerimaan" element={<ReturPenerimaanPage />} />
                 

@@ -9,7 +9,7 @@ class MDivisi extends Model
 {
     use HasFactory;
 
-    protected $table = 'm_divisi';
+    protected $table = 'dbo.m_divisi';
     protected $primaryKey = 'kodedivisi';
     public $incrementing = false;
     public $timestamps = false;

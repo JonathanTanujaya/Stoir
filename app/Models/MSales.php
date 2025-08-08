@@ -9,7 +9,7 @@ class MSales extends Model
 {
     use HasFactory;
 
-    protected $table = 'm_sales';
+    protected $table = 'dbo.m_sales';
     
     // Use first column as primary key for Laravel compatibility
     protected $primaryKey = 'kodedivisi';
