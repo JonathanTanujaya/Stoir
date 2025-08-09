@@ -10,83 +10,94 @@ class KartuStok extends Model
     use HasFactory;
 
     protected $table = 'dbo.kartustok';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'urut';
     public $incrementing = true;
     public $timestamps = false;
 
     protected $fillable = [
         'kodedivisi',
         'kodebarang',
-        'tanggal',
-        'noreferensi',
-        'jenistransaksi',
-        'masuk',
-        'keluar',
-        'saldo',
-        'harga',
-        'keterangan'
+        'no_ref',
+        'tglproses',
+        'tipe',
+        'increase',
+        'decrease',
+        'harga_debet',
+        'harga_kredit',
+        'qty',
+        'hpp'
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
-        'masuk' => 'decimal:4',
-        'keluar' => 'decimal:4',
-        'saldo' => 'decimal:4',
-        'harga' => 'decimal:4'
+        'tglproses' => 'datetime',
+        'increase' => 'decimal:4',
+        'decrease' => 'decimal:4',
+        'harga_debet' => 'decimal:4',
+        'harga_kredit' => 'decimal:4',
+        'qty' => 'decimal:4',
+        'hpp' => 'decimal:4'
     ];
 
     // Relationships
     public function barang()
     {
-        return $this->belongsTo(MBarang::class, 'kodebarang', 'kodebarang')
-                    ->where('dbo.m_barang.kodedivisi', '=', $this->kodedivisi ?? '');
+        return $this->belongsTo(MBarang::class, 'kodebarang', 'kodebarang');
     }
 
     // Scopes
-    public function scopeByBarang($query, $kodeDivisi, $kodeBarang)
+    public function scopeByBarang($query, $kodeBarang)
     {
-        return $query->where('kodedivisi', $kodeDivisi)
-                    ->where('kodebarang', $kodeBarang);
+        return $query->where('kodebarang', $kodeBarang);
+    }
+
+    public function scopeByDivisi($query, $kodeDivisi)
+    {
+        return $query->where('kodedivisi', $kodeDivisi);
     }
 
     public function scopeByPeriod($query, $startDate, $endDate)
     {
-        return $query->whereBetween('tanggal', [$startDate, $endDate]);
+        return $query->whereBetween('tglproses', [$startDate, $endDate]);
     }
 
-    public function scopeByTransactionType($query, $jenisTransaksi)
+    public function scopeByTransactionType($query, $tipe)
     {
-        return $query->where('jenistransaksi', $jenisTransaksi);
+        return $query->where('tipe', $tipe);
     }
 
     public function scopeMasuk($query)
     {
-        return $query->where('masuk', '>', 0);
+        return $query->where('increase', '>', 0);
     }
 
     public function scopeKeluar($query)
     {
-        return $query->where('keluar', '>', 0);
+        return $query->where('decrease', '>', 0);
     }
 
     // Helper methods
     public function isMasuk()
     {
-        return $this->masuk > 0;
+        return $this->increase > 0;
     }
 
     public function isKeluar()
     {
-        return $this->keluar > 0;
+        return $this->decrease > 0;
     }
 
     public function getNetMovement()
     {
-        return $this->masuk - $this->keluar;
+        return $this->increase - $this->decrease;
     }
 
-    public function getTotalValue()
+    public function getTotalValueDebet()
     {
-        return $this->saldo * $this->harga;
+        return $this->qty * $this->harga_debet;
+    }
+
+    public function getTotalValueKredit()
+    {
+        return $this->qty * $this->harga_kredit;
     }
 }

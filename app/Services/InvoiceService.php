@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\MCust;
 use App\Models\DBarang;
+use App\Models\KartuStok;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceService
@@ -115,17 +116,18 @@ class InvoiceService
 
                 $qtyBaru = DBarang::where('KodeBarang', $KodeBarang)->sum('Stok');
 
-                    'KodeDivisi' => $KodeDivisi,
-                    'KodeBarang' => $KodeBarang,
-                    'No_Ref' => $NoInvoice,
-                    'TglProses' => now(),
-                    'Tipe' => 'Penjualan',
-                    'Increase' => 0,
-                    'Decrease' => $qtyToProcess,
-                    'Harga_Debet' => 0,
-                    'Harga_Kredit' => $harganett - ($harganett * $disc / 100),
-                    'Qty' => $qtyBaru,
-                    'HPP' => $item->Modal,
+                // Create KartuStok entry
+                KartuStok::create([
+                    'kodedivisi' => $KodeDivisi,
+                    'kodebarang' => $KodeBarang,
+                    'tanggal' => now(),
+                    'noreferensi' => $NoInvoice,
+                    'jenistransaksi' => 'Penjualan',
+                    'masuk' => 0,
+                    'keluar' => $qtyToProcess,
+                    'saldo' => $qtyBaru,
+                    'harga' => $harganett - ($harganett * $disc / 100),
+                    'keterangan' => 'Invoice: ' . $NoInvoice
                 ]);
 
                 $remainingQtySupply -= $qtyToProcess;

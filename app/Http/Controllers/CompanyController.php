@@ -13,7 +13,7 @@ class CompanyController extends Controller
     public function index()
     {
         try {
-            $companies = Company::orderBy('id', 'asc')->get();
+            $companies = Company::orderBy('companyname', 'asc')->get();
             
             return response()->json([
                 'success' => true,
@@ -37,15 +37,12 @@ class CompanyController extends Controller
     {
         try {
             $request->validate([
-                'namacompany' => 'required|string|max:100',
+                'companyname' => 'required|string|max:100',
                 'alamat' => 'nullable|string|max:255',
                 'kota' => 'nullable|string|max:50',
+                'an' => 'nullable|string|max:100',
                 'telp' => 'nullable|string|max:20',
-                'fax' => 'nullable|string|max:20',
-                'email' => 'nullable|email|max:100',
-                'website' => 'nullable|string|max:100',
-                'npwp' => 'nullable|string|max:20',
-                'direktur' => 'nullable|string|max:100'
+                'npwp' => 'nullable|string|max:20'
             ]);
 
             $company = Company::create($request->all());
@@ -67,10 +64,10 @@ class CompanyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($companyname)
     {
         try {
-            $company = Company::findOrFail($id);
+            $company = Company::findOrFail($companyname);
             
             return response()->json([
                 'success' => true,
@@ -89,21 +86,17 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $companyname)
     {
         try {
-            $company = Company::findOrFail($id);
+            $company = Company::findOrFail($companyname);
             
             $request->validate([
-                'namacompany' => 'required|string|max:100',
                 'alamat' => 'nullable|string|max:255',
                 'kota' => 'nullable|string|max:50',
+                'an' => 'nullable|string|max:100',
                 'telp' => 'nullable|string|max:20',
-                'fax' => 'nullable|string|max:20',
-                'email' => 'nullable|email|max:100',
-                'website' => 'nullable|string|max:100',
-                'npwp' => 'nullable|string|max:20',
-                'direktur' => 'nullable|string|max:100'
+                'npwp' => 'nullable|string|max:20'
             ]);
 
             $company->update($request->all());
@@ -125,10 +118,10 @@ class CompanyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($companyname)
     {
         try {
-            $company = Company::findOrFail($id);
+            $company = Company::findOrFail($companyname);
             $company->delete();
 
             return response()->json([

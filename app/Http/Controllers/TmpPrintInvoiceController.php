@@ -13,13 +13,17 @@ class TmpPrintInvoiceController extends Controller
     public function index()
     {
         try {
-            $tmpPrintInvoices = TmpPrintInvoice::orderBy('id', 'desc')->get();
+            $tmpPrintInvoices = TmpPrintInvoice::orderBy('tglfaktur', 'desc')
+                                               ->orderBy('noinvoice', 'desc')
+                                               ->limit(10)
+                                               ->get();
             
             return response()->json([
                 'success' => true,
                 'message' => 'Data tmp print invoices retrieved successfully',
                 'data' => $tmpPrintInvoices,
-                'total_records' => $tmpPrintInvoices->count()
+                'total_shown' => $tmpPrintInvoices->count(),
+                'note' => 'Showing latest 10 records for testing purposes'
             ]);
         } catch (\Exception $e) {
             return response()->json([

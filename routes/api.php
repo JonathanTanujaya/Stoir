@@ -16,6 +16,7 @@ use App\Http\Controllers\MBankController;
 use App\Http\Controllers\MCOAController;
 use App\Http\Controllers\MDivisiController;
 use App\Http\Controllers\MDokumenController;
+use App\Http\Controllers\UserModuleController;
 use App\Http\Controllers\MResiController;
 use App\Http\Controllers\MTTController;
 use App\Http\Controllers\MTransController;
@@ -105,6 +106,7 @@ Route::delete('suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::clas
 
 // Kategori routes
 Route::get('kategoris', [KategoriController::class, 'index']);
+Route::get('categories', [KategoriController::class, 'index']); // Alias
 Route::post('kategoris', [KategoriController::class, 'store']);
 Route::get('kategoris/{kodeDivisi}', [KategoriController::class, 'showByDivisi']); 
 Route::get('kategoris/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'show']);
@@ -113,6 +115,7 @@ Route::delete('kategoris/{kodeDivisi}/{kodeKategori}', [KategoriController::clas
 
 // Master User routes
 Route::get('master-users', [MasterUserController::class, 'index']);
+Route::get('users', [MasterUserController::class, 'index']); // Alias
 Route::post('master-users', [MasterUserController::class, 'store']);
 Route::get('master-users/{kodeDivisi}', [MasterUserController::class, 'showByDivisi']); 
 Route::get('master-users/{kodeDivisi}/{username}', [MasterUserController::class, 'show']);
@@ -137,6 +140,7 @@ Route::delete('coas/{kodeDivisi}/{kodeCOA}', [MCOAController::class, 'destroy'])
 
 // Divisi routes
 Route::get('divisis', [MDivisiController::class, 'index']);
+Route::get('divisions', [MDivisiController::class, 'index']); // Alias
 Route::post('divisis', [MDivisiController::class, 'store']);
 Route::get('divisis/{kodeDivisi}', [MDivisiController::class, 'show']);
 Route::put('divisis/{kodeDivisi}', [MDivisiController::class, 'update']);
@@ -154,7 +158,8 @@ Route::put('invoices/{id}', [InvoiceController::class, 'update']);
 Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
 
 // Part Penerimaan routes
-Route::get('part-penerimaan', [PartPenerimaanController::class, 'index']);
+Route::get('part-penerimaan', [PartPenerimaanController::class, 'index']); // Limited untuk testing Laravel
+Route::get('part-penerimaan/all', [PartPenerimaanController::class, 'getAllForFrontend']); // Semua data untuk frontend
 Route::post('part-penerimaan', [PartPenerimaanController::class, 'store']);
 Route::get('part-penerimaan/{id}', [PartPenerimaanController::class, 'show']);
 Route::put('part-penerimaan/{id}', [PartPenerimaanController::class, 'update']);
@@ -209,3 +214,32 @@ Route::post('opnames', [OpnameController::class, 'store']);
 Route::get('opnames/{id}', [OpnameController::class, 'show']);
 Route::put('opnames/{id}', [OpnameController::class, 'update']);
 Route::delete('opnames/{id}', [OpnameController::class, 'destroy']);
+
+// Dokumen routes
+Route::get('dokumens', [MDokumenController::class, 'index']);
+Route::get('documents', [MDokumenController::class, 'index']); // Alias
+Route::post('dokumens', [MDokumenController::class, 'store']);
+Route::get('dokumens/{kodeDivisi}', [MDokumenController::class, 'showByDivisi']); 
+Route::get('dokumens/{kodeDivisi}/{kodeDokumen}', [MDokumenController::class, 'show']);
+Route::put('dokumens/{kodeDivisi}/{kodeDokumen}', [MDokumenController::class, 'update']);
+Route::delete('dokumens/{kodeDivisi}/{kodeDokumen}', [MDokumenController::class, 'destroy']);
+
+// Module routes
+Route::get('user-modules', [UserModuleController::class, 'index']);
+Route::get('modules', [UserModuleController::class, 'index']); // Alias
+Route::post('user-modules', [UserModuleController::class, 'store']);
+Route::get('user-modules/{kodeDivisi}', [UserModuleController::class, 'showByDivisi']); 
+Route::get('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'show']);
+Route::put('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'update']);
+Route::delete('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'destroy']);
+
+// Return Sales routes
+Route::get('return-sales', [ReturnSalesController::class, 'index']);
+Route::post('return-sales', [ReturnSalesController::class, 'store']);
+Route::get('return-sales/{id}', [ReturnSalesController::class, 'show']);
+Route::put('return-sales/{id}', [ReturnSalesController::class, 'update']);
+Route::delete('return-sales/{id}', [ReturnSalesController::class, 'destroy']);
+
+// Invoice Details routes (assume handled by InvoiceController)
+Route::get('invoice-details', [InvoiceController::class, 'getAllDetails']);
+Route::get('invoices/{invoiceId}/details', [InvoiceController::class, 'getDetails']);

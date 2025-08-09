@@ -9,7 +9,7 @@ class PartPenerimaanDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'part_penerimaan_detail';
+    protected $table = 'dbo.partpenerimaan_detail';
     public $incrementing = false;
     public $timestamps = false;
 

@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class TmpPrintInvoice extends Model
 {
     protected $table = 'dbo.tmpprintinvoice';
-    protected $primaryKey = 'id';
-    public $incrementing = true;
+    protected $primaryKey = 'noinvoice';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
     
     protected $fillable = [

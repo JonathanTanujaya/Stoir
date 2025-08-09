@@ -9,7 +9,7 @@ class PartPenerimaan extends Model
 {
     use HasFactory;
 
-    protected $table = 'partpenerimaan';
+    protected $table = 'dbo.partpenerimaan';
     protected $primaryKey = ['kodedivisi', 'nopenerimaan'];
     public $incrementing = false;
     public $timestamps = false;

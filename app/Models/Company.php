@@ -10,19 +10,17 @@ class Company extends Model
     use HasFactory;
 
     protected $table = 'dbo.company';
-    protected $primaryKey = 'id';
-    public $incrementing = true;
+    protected $primaryKey = 'companyname';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
-        'namacompany',
+        'companyname',
         'alamat',
         'kota',
+        'an',
         'telp',
-        'fax',
-        'email',
-        'website',
-        'npwp',
-        'direktur'
+        'npwp'
     ];
 }

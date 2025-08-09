@@ -9,8 +9,8 @@ class InvoiceDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'invoicedetail';
-    protected $primaryKey = ['KodeDivisi', 'NoInvoice', 'NoUrut'];
+    protected $table = 'dbo.invoice_detail';
+    protected $primaryKey = null; // No primary key for composite key tables
     public $incrementing = false;
     public $timestamps = false;
 

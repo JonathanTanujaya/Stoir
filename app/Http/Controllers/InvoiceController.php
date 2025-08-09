@@ -7,13 +7,13 @@ use App\Http\Requests\InvoiceRequest;
 use App\Services\InvoiceService;
 use App\Services\BusinessRuleService;
 use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use App\Models\MCust;
 use App\Models\MSales;
 use App\Models\MArea;
 use App\Models\MBarang;
 use App\Models\MKategori;
 use App\Models\Company;
-use App\Models\InvoiceDetail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -233,5 +233,44 @@ class InvoiceController extends Controller
         ->get();
 
         return response()->json($vInvoiceHeader);
+    }
+
+    /**
+     * Get all invoice details across all invoices
+     */
+    public function getAllDetails()
+    {
+        try {
+            // Use Query Builder with correct table name
+            $details = DB::table('dbo.invoice_detail')
+                ->limit(10)
+                ->get();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $details,
+                'count' => $details->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'table' => 'dbo.invoice_detail'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get details for a specific invoice
+     */
+    public function getDetails($invoiceId)
+    {
+        $invoice = Invoice::find($invoiceId);
+        if (!$invoice) {
+            return response()->json(['message' => 'Invoice not found'], 404);
+        }
+        
+        $details = $invoice->details;
+        return response()->json($details);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Invoice;
 use App\Models\MCust;
 use App\Models\DBarang;
+use App\Models\KartuStok;
 use App\Models\Journal;
 use App\Models\Company;
 use Illuminate\Support\Facades\DB;

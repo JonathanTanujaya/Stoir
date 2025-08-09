@@ -16,19 +16,45 @@ class PartPenerimaanController extends Controller
     public function index()
     {
         try {
-            $partPenerimaans = PartPenerimaan::with(['supplier', 'details.barang'])
-                                           ->orderBy('tglpenerimaan', 'desc')
+            $partPenerimaans = PartPenerimaan::orderBy('tglpenerimaan', 'desc')
+                                           ->limit(10)
                                            ->get();
             
             return response()->json([
                 'success' => true,
                 'message' => 'Data part penerimaan retrieved successfully',
-                'data' => $partPenerimaans
+                'data' => $partPenerimaans,
+                'total_shown' => $partPenerimaans->count(),
+                'note' => 'Showing latest 10 records for testing purposes'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve part penerimaan data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all part penerimaan for frontend (unlimited)
+     */
+    public function getAllForFrontend()
+    {
+        try {
+            $partPenerimaans = PartPenerimaan::orderBy('tglpenerimaan', 'desc')
+                                           ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'All part penerimaan data retrieved successfully',
+                'data' => $partPenerimaans,
+                'total_records' => $partPenerimaans->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve all part penerimaan data',
                 'error' => $e->getMessage()
             ], 500);
         }

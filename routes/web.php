@@ -22,7 +22,7 @@ Route::get('/test-db', function () {
             'database_info' => [
                 'host' => config('database.connections.pgsql.host'),
                 'database' => config('database.connections.pgsql.database'),
-                'schema' => config('database.connections.pgsql.schema'),
+                'schema' => config('database.connections.pgsql.search_path', ''),
             ],
             'data_counts' => [
                 'companies' => $companiesCount,
@@ -34,8 +34,31 @@ Route::get('/test-db', function () {
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'message' => $e->getMessage()
+            'message' => 'Database connection failed',
+            'error' => $e->getMessage(),
+            'migration_system' => 'COMPLETELY BYPASSED - File-based storage for cache/sessions'
+        ], 500);
+    }
+});
+
+Route::get('/test-company', function () {
+    try {
+        // Test company table direct access
+        $count = DB::table('dbo.company')->count();
+        $sample = DB::table('dbo.company')->limit(3)->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Company table accessible',
+            'total_records' => $count,
+            'sample_data' => $sample
         ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Company table access failed',
+            'error' => $e->getMessage()
+        ], 500);
     }
 });
 
