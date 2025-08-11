@@ -1,48 +1,59 @@
 import React from 'react';
-import { PlusIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { useLocation } from 'react-router-dom';
 
-const PageHeader = ({ 
-  title, 
-  subtitle, 
-  breadcrumb, 
-  onAdd, 
-  addButtonText = "Tambah",
-  showAddButton = true 
-}) => {
+function PageHeader({ title, subtitle, actions }) {
+  const location = useLocation();
+
+  // Auto-generate title based on path if not provided
+  const getAutoTitle = () => {
+    const pathMap = {
+      '/transactions/purchasing': 'Transaksi Pembelian',
+      '/transactions/purchasing/form': 'Form Pembelian Baru',
+      '/transactions/purchasing/list': 'Daftar Pembelian',
+      '/master/categories': 'Master Kategori',
+      '/master/customer': 'Master Customer',
+      '/master/supplier': 'Master Supplier',
+      '/master/barang': 'Master Barang',
+      '/master/sales': 'Master Sales',
+      '/dashboard': 'Dashboard'
+    };
+    
+    return pathMap[location.pathname] || title || 'Halaman';
+  };
+
+  const getAutoSubtitle = () => {
+    const subtitleMap = {
+      '/transactions/purchasing': 'Kelola transaksi pembelian dan penerimaan barang',
+      '/transactions/purchasing/form': 'Buat faktur pembelian baru dengan interface yang mudah digunakan',
+      '/transactions/purchasing/list': 'Lihat dan kelola semua transaksi pembelian yang telah dibuat',
+      '/master/categories': 'Kelola kategori produk',
+      '/master/customer': 'Kelola data customer',
+      '/master/supplier': 'Kelola data supplier',
+      '/master/barang': 'Kelola data barang',
+      '/master/sales': 'Kelola data sales',
+      '/dashboard': 'Ringkasan aktivitas dan statistik'
+    };
+    
+    return subtitle || subtitleMap[location.pathname] || '';
+  };
+
   return (
     <div className="page-header">
-      <div className="header-content">
-        <div>
-          {breadcrumb && (
-            <nav className="breadcrumb">
-              {breadcrumb.map((item, index) => (
-                <span key={index} className="flex items-center">
-                  {index > 0 && <ChevronRightIcon className="w-4 h-4 breadcrumb-separator" />}
-                  <span className={`${index === breadcrumb.length - 1 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                    {item}
-                  </span>
-                </span>
-              ))}
-            </nav>
-          )}
-          <h1 className="header-title">{title}</h1>
-          {subtitle && (
-            <p className="text-gray-600 mt-1">{subtitle}</p>
+      <div className="page-header-content">
+        <div className="page-header-text">
+          <h1 className="page-header-title">{title || getAutoTitle()}</h1>
+          {(subtitle || getAutoSubtitle()) && (
+            <p className="page-header-subtitle">{subtitle || getAutoSubtitle()}</p>
           )}
         </div>
-        
-        {showAddButton && onAdd && (
-          <button
-            onClick={onAdd}
-            className="btn btn-primary"
-          >
-            <PlusIcon className="w-5 h-5" />
-            {addButtonText}
-          </button>
+        {actions && (
+          <div className="page-header-actions">
+            {actions}
+          </div>
         )}
       </div>
     </div>
   );
-};
+}
 
 export default PageHeader;

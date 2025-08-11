@@ -44,6 +44,7 @@ use App\Http\Controllers\SPVController;
 use App\Http\Controllers\StokClaimController;
 use App\Http\Controllers\OpnameController;
 use App\Http\Controllers\MergeBarangController;
+use App\Http\Controllers\PurchasesController;
 
 // ===========================
 // AUTHENTICATION ROUTES (PUBLIC FOR DEVELOPMENT)
@@ -200,6 +201,12 @@ Route::post('part-penerimaan', [PartPenerimaanController::class, 'store']);
 Route::get('part-penerimaan/{id}', [PartPenerimaanController::class, 'show']);
 Route::put('part-penerimaan/{id}', [PartPenerimaanController::class, 'update']);
 Route::delete('part-penerimaan/{id}', [PartPenerimaanController::class, 'destroy']);
+
+// Purchases routes (Modern API)
+Route::get('purchases', [PurchasesController::class, 'index']);
+Route::post('purchases', [PurchasesController::class, 'store']);
+Route::get('purchases/{id}', [PurchasesController::class, 'show']);
+Route::delete('purchases/{id}', [PurchasesController::class, 'destroy']);
 
 // Penerimaan Finance routes
 Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']); // Limited untuk testing Laravel

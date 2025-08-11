@@ -36,6 +36,7 @@ export const customersAPI = createAPIService('/customers');
 export const suppliersAPI = createAPIService('/suppliers');
 export const salesAPI = createAPIService('/sales');
 export const barangAPI = createAPIService('/barang');
+export const purchasesAPI = createAPIService('/purchases');
 
 export const companiesAPI = createAPIService('/companies');
 export const invoicesAPI = createAPIService('/invoices');

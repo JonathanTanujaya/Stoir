@@ -53,7 +53,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
       icon: DocumentTextIcon,
       hasSubmenu: true,
       submenu: [
-        { label: 'Form Pembelian', path: '/transactions/purchasing/pembelian' },
+        { label: 'Form Pembelian', path: '/transactions/purchasing' },
         { label: 'Form Retur Pembelian', path: '/transactions/purchasing/retur-pembelian' },
         { label: 'Form Penjualan', path: '/transactions/sales/penjualan' },
         { label: 'Form Retur Penjualan', path: '/transactions/sales/retur-penjualan' },

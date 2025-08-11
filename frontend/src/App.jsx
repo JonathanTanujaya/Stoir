@@ -12,6 +12,9 @@ import MasterCustomers from './pages/MasterData/Customers/MasterCustomersOptimiz
 import MasterSuppliers from './pages/MasterData/Suppliers/MasterSuppliers';
 import MasterBarang from './pages/MasterData/Barang/MasterBarang';
 import MasterSales from './pages/MasterData/Sales/MasterSales';
+import PurchaseForm from './pages/Purchasing/PurchaseForm';
+import PurchasingIndex from './pages/Purchasing/PurchasingIndex';
+import PurchaseList from './pages/Purchasing/PurchaseList';
 
 import './App.css';
 
@@ -29,6 +32,15 @@ function App() {
             <Route path="master/supplier" element={<MasterSuppliers />} />
             <Route path="master/barang" element={<MasterBarang />} />
             <Route path="master/sales" element={<MasterSales />} />
+            
+            {/* Purchasing Module - Simplified Routes */}
+            <Route path="transactions/purchasing" element={<PurchasingIndex />} />
+            <Route path="transactions/purchasing/form" element={<PurchaseForm />} />
+            <Route path="transactions/purchasing/list" element={<PurchaseList />} />
+            
+            {/* Legacy routes for backward compatibility */}
+            <Route path="pembelian/form" element={<PurchaseForm />} />
+            <Route path="pembelian/list" element={<PurchaseList />} />
             {/* Add more routes here as needed */}
           </Route>
         </Routes>
