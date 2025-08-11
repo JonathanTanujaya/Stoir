@@ -34,25 +34,50 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Fetching dashboard data from Laravel backend...');
       
       // Fetch data from multiple endpoints
       const [customers, suppliers, products, invoices, categories] = await Promise.all([
-        customersAPI.getAll().catch(() => ({ data: [] })),
-        suppliersAPI.getAll().catch(() => ({ data: [] })),
-        barangAPI.getAll().catch(() => ({ data: [] })),
-        invoicesAPI.getAll().catch(() => ({ data: [] })),
-        categoriesAPI.getAll().catch(() => ({ data: [] }))
+        customersAPI.getAll().catch((error) => {
+          console.error('❌ Customers API Error:', error);
+          return { data: { data: [] } };
+        }),
+        suppliersAPI.getAll().catch((error) => {
+          console.error('❌ Suppliers API Error:', error);
+          return { data: { data: [] } };
+        }),
+        barangAPI.getAll().catch((error) => {
+          console.error('❌ Barang API Error:', error);
+          return { data: { data: [] } };
+        }),
+        invoicesAPI.getAll().catch((error) => {
+          console.error('❌ Invoices API Error:', error);
+          return { data: { data: [] } };
+        }),
+        categoriesAPI.getAll().catch((error) => {
+          console.error('❌ Categories API Error:', error);
+          return { data: { data: [] } };
+        })
       ]);
 
+      console.log('📊 Laravel API Responses:', {
+        customers: customers.data,
+        suppliers: suppliers.data,
+        products: products.data,
+        invoices: invoices.data,
+        categories: categories.data
+      });
+
+      // Laravel returns data in response.data.data format
       setStats({
-        totalCustomers: customers.data?.length || 0,
-        totalSuppliers: suppliers.data?.length || 0,
-        totalProducts: products.data?.length || 0,
-        totalInvoices: invoices.data?.length || 0,
-        totalCategories: categories.data?.length || 0
+        totalCustomers: customers.data?.data?.length || 0,
+        totalSuppliers: suppliers.data?.data?.length || 0,
+        totalProducts: products.data?.data?.length || 0,
+        totalInvoices: invoices.data?.data?.length || 0,
+        totalCategories: categories.data?.data?.length || 0
       });
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('❌ Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }

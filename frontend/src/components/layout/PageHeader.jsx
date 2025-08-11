@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const PageHeader = ({ 
   title, 
@@ -10,33 +10,33 @@ const PageHeader = ({
   showAddButton = true 
 }) => {
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-card p-6 mb-6">
-      <div className="flex items-center justify-between">
+    <div className="page-header">
+      <div className="header-content">
         <div>
           {breadcrumb && (
-            <nav className="text-sm text-gray-500 mb-2">
+            <nav className="breadcrumb">
               {breadcrumb.map((item, index) => (
-                <span key={index}>
-                  {index > 0 && ' > '}
-                  <span className={index === breadcrumb.length - 1 ? 'text-gray-700' : ''}>
+                <span key={index} className="flex items-center">
+                  {index > 0 && <ChevronRightIcon className="w-4 h-4 breadcrumb-separator" />}
+                  <span className={`${index === breadcrumb.length - 1 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
                     {item}
                   </span>
                 </span>
               ))}
             </nav>
           )}
-          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+          <h1 className="header-title">{title}</h1>
           {subtitle && (
             <p className="text-gray-600 mt-1">{subtitle}</p>
           )}
         </div>
         
-        {showAddButton && (
+        {showAddButton && onAdd && (
           <button
             onClick={onAdd}
-            className="btn-primary flex items-center gap-2"
+            className="btn btn-primary"
           >
-            <PlusIcon className="w-4 h-4" />
+            <PlusIcon className="w-5 h-5" />
             {addButtonText}
           </button>
         )}

@@ -1,0 +1,63 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Context
+import { AuthProvider } from './contexts/AuthContext';
+
+// Auth Components
+import Login from './pages/Auth/Login';
+
+// Layout Components
+import AppTailwind from './components/Layout/AppTailwind';
+
+// Pages
+import Dashboard from './pages/Dashboard/Dashboard';
+import MasterCategories from './pages/MasterData/Categories/MasterCategories';
+import MasterCustomers from './pages/MasterData/Customers/MasterCustomers';
+
+import './App.css';
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* Main App Routes - No Protection for Demo */}
+            <Route path="/*" element={
+              <AppTailwind>
+                <Routes>
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="master/categories" element={<MasterCategories />} />
+                  <Route path="master/customer" element={<MasterCustomers />} />
+                  {/* Add more routes here as needed */}
+                </Routes>
+              </AppTailwind>
+            } />
+          </Routes>
+          
+          {/* Toast Notifications */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
+        </div>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;

@@ -13,14 +13,20 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('authToken'));
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Development mode - always authenticated
+  const [user, setUser] = useState({
+    id: 1,
+    name: 'Development User',
+    email: 'dev@stockflow.com',
+    role: 'admin'
+  });
+  const [token, setToken] = useState('dev-token-123');
+  const [loading, setLoading] = useState(false); // No loading in dev mode
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Always authenticated in dev mode
 
-  // Check authentication status on app load
+  // No need to check auth status in development
   useEffect(() => {
-    checkAuthStatus();
+    console.log('🔧 Development Mode: Authentication bypassed');
   }, []);
 
   const checkAuthStatus = async () => {

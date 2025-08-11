@@ -34,6 +34,11 @@ class MBarang extends Model
     ];
 
     // Relationships
+    public function kategori()
+    {
+        return $this->belongsTo(MKategori::class, 'kodedivisi', 'kodedivisi');
+    }
+
     public function kartuStok()
     {
         return $this->hasMany(KartuStok::class, 'kodebarang', 'kodebarang');

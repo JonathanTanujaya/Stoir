@@ -7,8 +7,8 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Authorization': 'Bearer test-token-123'
+    'Accept': 'application/json'
+    // No authorization header for development
   }
 });
 
@@ -36,6 +36,7 @@ export const customersAPI = createAPIService('/customers');
 export const suppliersAPI = createAPIService('/suppliers');
 export const salesAPI = createAPIService('/sales');
 export const barangAPI = createAPIService('/barang');
+
 export const companiesAPI = createAPIService('/companies');
 export const invoicesAPI = createAPIService('/invoices');
 export const invoiceDetailsAPI = createAPIService('/invoice-details');

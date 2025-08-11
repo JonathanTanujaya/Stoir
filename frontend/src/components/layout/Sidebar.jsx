@@ -7,7 +7,8 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
 const Sidebar = ({ collapsed, onToggle }) => {
@@ -31,7 +32,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: HomeIcon,
-      path: '/'
+      path: '/dashboard'
     },
     {
       id: 'master',
@@ -40,7 +41,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
       hasSubmenu: true,
       submenu: [
         { label: 'Kategori Barang', path: '/master/categories' },
-        { label: 'Data Barang', path: '/master/sparepart' },
+        { label: 'Data Barang', path: '/master/barang' },
         { label: 'Customer', path: '/master/customer' },
         { label: 'Supplier', path: '/master/supplier' },
         { label: 'Sales', path: '/master/sales' },
@@ -92,88 +93,77 @@ const Sidebar = ({ collapsed, onToggle }) => {
   };
 
   return (
-    <div className={`fixed left-0 top-0 h-full bg-gradient-sidebar backdrop-blur-md shadow-custom transition-all duration-300 z-50 ${
-      collapsed ? 'w-16' : 'w-72'
-    }`}>
-      <div className="p-5">
-        {/* Logo Area */}
-        <div className="flex items-center justify-between mb-8">
+    <div className={`sidebar transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
+      <div className="sidebar-header">
+        <div className="flex items-center justify-between">
           {!collapsed && (
-            <div className="text-center">
-              <h1 className="text-xl font-bold text-brand-600">StockFlow</h1>
-              <p className="text-xs text-gray-500 mt-1">MANAGEMENT SYSTEM</p>
+            <div className="sidebar-brand">
+              StockFlow
             </div>
           )}
           <button
             onClick={onToggle}
-            className="p-2 rounded-lg hover:bg-white/20 transition-colors"
+            className="btn btn-ghost p-2"
           >
             {collapsed ? <Bars3Icon className="w-5 h-5" /> : <XMarkIcon className="w-5 h-5" />}
           </button>
         </div>
+      </div>
 
-        {/* Navigation Menu */}
-        <nav className="space-y-2">
-          {menuItems.map((item) => (
-            <div key={item.id}>
-              {/* Main Menu Item */}
-              <div
-                className={`sidebar-item ${
-                  item.hasSubmenu 
-                    ? (isActiveParent(item.submenu) ? 'active' : '')
-                    : (isActiveMenu(item.path) ? 'active' : '')
-                }`}
-                onClick={() => {
-                  if (item.hasSubmenu) {
-                    toggleSubmenu(item.id);
-                  } else {
-                    navigate(item.path);
-                  }
-                }}
-              >
-                <item.icon className="w-5 h-5 mr-3" />
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => (
+          <div key={item.id} className="nav-item">
+            {/* Main Menu Item */}
+            <div
+              className={`nav-link cursor-pointer ${
+                item.hasSubmenu && isActiveParent(item.submenu)
+                  ? 'active'
+                  : isActiveMenu(item.path)
+                  ? 'active'
+                  : ''
+              }`}
+              onClick={() => {
+                if (item.hasSubmenu) {
+                  toggleSubmenu(item.id);
+                } else {
+                  navigate(item.path);
+                }
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <item.icon className="nav-icon" />
                 {!collapsed && (
-                  <>
-                    <span className="flex-1">{item.label}</span>
-                    {item.hasSubmenu && (
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
-                          expandedMenus[item.id] ? 'rotate-90' : ''
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    )}
-                  </>
+                  <span className="font-medium">{item.label}</span>
                 )}
               </div>
-
-              {/* Submenu */}
-              {item.hasSubmenu && !collapsed && expandedMenus[item.id] && (
-                <div className="ml-4 mt-3 space-y-2">
-                  {item.submenu.map((subItem, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center px-4 py-3 rounded-xl text-sm cursor-pointer transition-all duration-300 font-medium ${
-                        isActiveMenu(subItem.path)
-                          ? 'bg-gradient-to-r from-white/30 to-white/20 text-white font-bold shadow-lg border border-white/20'
-                          : 'text-gray-300 hover:bg-white/15 hover:text-white hover:shadow-md border border-transparent hover:border-white/10'
-                      }`}
-                      onClick={() => navigate(subItem.path)}
-                    >
-                      <div className="w-3 h-3 rounded-full bg-current opacity-80 mr-3 shadow-sm"></div>
-                      {subItem.label}
-                    </div>
-                  ))}
-                </div>
+              {!collapsed && item.hasSubmenu && (
+                <ChevronDownIcon 
+                  className={`w-4 h-4 transition-transform ${
+                    expandedMenus[item.id] ? 'rotate-180' : ''
+                  }`}
+                />
               )}
             </div>
-          ))}
-        </nav>
-      </div>
+
+            {/* Submenu */}
+            {!collapsed && item.hasSubmenu && expandedMenus[item.id] && (
+              <div className="ml-8 mt-1 space-y-1">
+                {item.submenu.map((subItem, index) => (
+                  <div
+                    key={index}
+                    className={`nav-link cursor-pointer text-sm ${
+                      isActiveMenu(subItem.path) ? 'active' : ''
+                    }`}
+                    onClick={() => navigate(subItem.path)}
+                  >
+                    {subItem.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </nav>
     </div>
   );
 };

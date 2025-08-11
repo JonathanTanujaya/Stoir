@@ -17,9 +17,27 @@ class CustomerController extends Controller
     {
         try {
             $customers = MCust::all();
+            
+            // Transform data to match frontend expectations
+            $transformedCustomers = $customers->map(function ($customer) {
+                return [
+                    'id' => $customer->kodecust, // Use kodecust as ID
+                    'kode_customer' => $customer->kodecust,
+                    'nama' => $customer->namacust,
+                    'alamat' => $customer->alamat,
+                    'telepon' => $customer->telp,
+                    'email' => $customer->contact ?? '', // Use contact as email fallback
+                    'status' => $customer->status ? 'aktif' : 'nonaktif',
+                    'kodedivisi' => $customer->kodedivisi,
+                    'kodearea' => $customer->kodearea,
+                    'creditlimit' => (float) ($customer->creditlimit ?? 0),
+                    'jatuhtempo' => $customer->jatuhtempo ?? 0
+                ];
+            });
+            
             return response()->json([
                 'success' => true,
-                'data' => $customers
+                'data' => $transformedCustomers
             ]);
         } catch (\Exception $e) {
             return response()->json([

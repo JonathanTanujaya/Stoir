@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { categoriesAPI } from '../../../services/api';
+import { salesAPI } from '../../../services/api';
 
-const MasterCategories = () => {
-  const [categories, setCategories] = useState([]);
+const MasterSales = () => {
+  const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState({
-    namaKategori: '',
-    kodeKategori: '',
-    deskripsi: '',
+    namasales: '',
+    kodesales: '',
+    kodedivisi: '',
+    alamat: '',
+    nohp: '',
+    target: '',
     status: 'Aktif'
   });
   const [editingId, setEditingId] = useState(null);
@@ -19,20 +22,39 @@ const MasterCategories = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchCategories();
+    fetchSales();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchSales = async () => {
     try {
       setLoading(true);
-      const response = await categoriesAPI.getAll();
-      const categoriesData = response.data?.data || [];
-      setCategories(categoriesData);
+      console.log('🔄 Fetching sales from:', 'http://localhost:8000/api/sales');
+      
+      const response = await salesAPI.getAll();
+      console.log('📊 Sales API Full Response:', response);
+      console.log('📊 Sales API Response Data:', response.data);
+      console.log('📊 Sales Array:', response.data?.data);
+      
+      // Laravel returns data in response.data.data format
+      const salesData = response.data?.data || [];
+      console.log('📊 Final Sales Data:', salesData);
+      console.log('📊 Sales Data Type:', typeof salesData);
+      console.log('📊 Is Array:', Array.isArray(salesData));
+      
+      setSales(salesData);
+      console.log('✅ Sales state set successfully');
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      setCategories([]);
+      console.error('❌ Error fetching sales:', error);
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error response:', error.response);
+      console.error('❌ Error status:', error.response?.status);
+      console.error('❌ Error data:', error.response?.data);
+      
+      // Set empty array on error
+      setSales([]);
     } finally {
       setLoading(false);
+      console.log('🔄 Loading set to false');
     }
   };
 
@@ -40,63 +62,73 @@ const MasterCategories = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await categoriesAPI.update(editingId, formData);
+        await salesAPI.update(editingId, formData);
       } else {
-        await categoriesAPI.create(formData);
+        await salesAPI.create(formData);
       }
       
       setFormData({
-        namaKategori: '',
-        kodeKategori: '',
-        deskripsi: '',
+        namasales: '',
+        kodesales: '',
+        kodedivisi: '',
+        alamat: '',
+        nohp: '',
+        target: '',
         status: 'Aktif'
       });
       setEditingId(null);
-      fetchCategories();
+      fetchSales();
     } catch (error) {
-      console.error('Error saving category:', error);
+      console.error('Error saving sales:', error);
     }
   };
 
-  const handleEdit = (category) => {
+  const handleEdit = (sales) => {
     setFormData({
-      namaKategori: category.kategori || category.namaKategori || '',
-      kodeKategori: category.kodekategori || category.kodeKategori || '',
-      deskripsi: category.deskripsi || '',
-      status: category.status === true || category.status === 'Aktif' ? 'Aktif' : 'Nonaktif'
+      namasales: sales.namasales || '',
+      kodesales: sales.kodesales || '',
+      kodedivisi: sales.kodedivisi || '',
+      alamat: sales.alamat || '',
+      nohp: sales.nohp || '',
+      target: sales.target || '',
+      status: sales.status === true || sales.status === 'Aktif' || sales.status === 1 ? 'Aktif' : 'Nonaktif'
     });
-    setEditingId(category.id);
+    setEditingId(sales.kodedivisi + '|' + sales.kodesales); // Composite key
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
+  const handleDelete = async (kodeDivisi, kodeSales) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus sales ini?')) {
       try {
-        await categoriesAPI.delete(id);
-        fetchCategories();
+        await salesAPI.delete(`${kodeDivisi}/${kodeSales}`);
+        fetchSales();
       } catch (error) {
-        console.error('Error deleting category:', error);
+        console.error('Error deleting sales:', error);
       }
     }
   };
 
   const handleReset = () => {
     setFormData({
-      namaKategori: '',
-      kodeKategori: '',
-      deskripsi: '',
+      namasales: '',
+      kodesales: '',
+      kodedivisi: '',
+      alamat: '',
+      nohp: '',
+      target: '',
       status: 'Aktif'
     });
     setEditingId(null);
   };
 
-  const filteredCategories = categories.filter(category =>
-    (category.kategori || category.namaKategori || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (category.kodekategori || category.kodeKategori || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSales = sales.filter(sales =>
+    (sales.namasales || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (sales.kodesales || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (sales.kodedivisi || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filteredCategories.slice(startIndex, startIndex + itemsPerPage);
+  const currentData = filteredSales.slice(startIndex, startIndex + itemsPerPage);
 
   if (loading) {
     return (
@@ -113,9 +145,9 @@ const MasterCategories = () => {
     <div className="page-content">
       <div className="content-wrapper">
         <PageHeader 
-          title="Master Kategori"
-          subtitle="Kelola data kategori barang"
-          breadcrumb={['Master Data', 'Kategori']}
+          title="Master Sales"
+          subtitle="Kelola data sales/marketing"
+          breadcrumb={['Master Data', 'Sales']}
           showAddButton={false}
         />
 
@@ -124,47 +156,88 @@ const MasterCategories = () => {
           <div className="lg:col-span-1">
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                {editingId ? 'Edit Kategori' : 'Tambah Kategori'}
+                {editingId ? 'Edit Sales' : 'Tambah Sales'}
               </h2>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Kategori
+                    Nama Sales
                   </label>
                   <input
                     type="text"
                     className="input"
-                    placeholder="Masukkan nama kategori"
-                    value={formData.namaKategori}
-                    onChange={(e) => setFormData({...formData, namaKategori: e.target.value})}
+                    placeholder="Masukkan nama sales"
+                    value={formData.namasales}
+                    onChange={(e) => setFormData({...formData, namasales: e.target.value})}
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Kode Kategori
+                    Kode Sales
                   </label>
                   <input
                     type="text"
                     className={`input ${!editingId ? 'bg-gray-100' : ''}`}
-                    placeholder="Auto generated"
-                    value={formData.kodeKategori}
-                    onChange={(e) => setFormData({...formData, kodeKategori: e.target.value})}
+                    placeholder="Masukkan kode sales"
+                    value={formData.kodesales}
+                    onChange={(e) => setFormData({...formData, kodesales: e.target.value})}
                     disabled={!editingId}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Deskripsi
+                    Kode Divisi
+                  </label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Masukkan kode divisi"
+                    value={formData.kodedivisi}
+                    onChange={(e) => setFormData({...formData, kodedivisi: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    No HP
+                  </label>
+                  <input
+                    type="tel"
+                    className="input"
+                    placeholder="Masukkan nomor HP"
+                    value={formData.nohp}
+                    onChange={(e) => setFormData({...formData, nohp: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Alamat
                   </label>
                   <textarea
                     className="input h-20 resize-none"
-                    placeholder="Deskripsi kategori..."
-                    value={formData.deskripsi}
-                    onChange={(e) => setFormData({...formData, deskripsi: e.target.value})}
+                    placeholder="Masukkan alamat"
+                    value={formData.alamat}
+                    onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Target
+                  </label>
+                  <input
+                    type="number"
+                    className="input"
+                    placeholder="Masukkan target"
+                    value={formData.target}
+                    onChange={(e) => setFormData({...formData, target: e.target.value})}
                   />
                 </div>
 
@@ -198,14 +271,14 @@ const MasterCategories = () => {
           <div className="lg:col-span-2">
             <div className="table-container">
               <div className="table-header">
-                <h2 className="table-title">Daftar Kategori</h2>
+                <h2 className="table-title">Daftar Sales</h2>
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       className="input pl-10 w-64"
-                      placeholder="Cari kategori..."
+                      placeholder="Cari sales..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -217,37 +290,45 @@ const MasterCategories = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Kode</th>
-                      <th>Nama Kategori</th>
-                      <th>Deskripsi</th>
+                      <th>Kode Divisi</th>
+                      <th>Kode Sales</th>
+                      <th>Nama Sales</th>
+                      <th>No HP</th>
+                      <th>Target</th>
                       <th>Status</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentData.length > 0 ? (
-                      currentData.map((category) => (
-                        <tr key={category.id}>
+                      currentData.map((sales, index) => (
+                        <tr key={`${sales.kodedivisi}-${sales.kodesales}` || index}>
                           <td className="font-medium">
-                            {category.kodekategori || category.kodeKategori || '-'}
+                            {sales.kodedivisi || '-'}
                           </td>
                           <td className="font-medium">
-                            {category.kategori || category.namaKategori || '-'}
+                            {sales.kodesales || '-'}
+                          </td>
+                          <td className="font-medium">
+                            {sales.namasales || '-'}
                           </td>
                           <td className="text-gray-600">
-                            {category.deskripsi || '-'}
+                            {sales.nohp || '-'}
+                          </td>
+                          <td className="text-gray-600">
+                            {sales.target ? new Intl.NumberFormat('id-ID').format(sales.target) : '-'}
                           </td>
                           <td>
                             <span className={`badge ${
-                              (category.status || category.status_aktif) === 'Aktif' || 
-                              (category.status || category.status_aktif) === 1 || 
-                              (category.status || category.status_aktif) === true
+                              sales.status === 'Aktif' || 
+                              sales.status === 1 || 
+                              sales.status === true
                                 ? 'badge-success' 
                                 : 'badge-neutral'
                             }`}>
-                              {(category.status || category.status_aktif) === 'Aktif' || 
-                               (category.status || category.status_aktif) === 1 || 
-                               (category.status || category.status_aktif) === true
+                              {sales.status === 'Aktif' || 
+                               sales.status === 1 || 
+                               sales.status === true
                                 ? 'Aktif' 
                                 : 'Tidak Aktif'}
                             </span>
@@ -255,13 +336,13 @@ const MasterCategories = () => {
                           <td>
                             <div className="action-buttons">
                               <button
-                                onClick={() => handleEdit(category)}
+                                onClick={() => handleEdit(sales)}
                                 className="btn btn-sm btn-ghost text-primary"
                               >
                                 <PencilIcon className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => handleDelete(category.id)}
+                                onClick={() => handleDelete(sales.kodedivisi, sales.kodesales)}
                                 className="btn btn-sm btn-ghost text-error"
                               >
                                 <TrashIcon className="w-4 h-4" />
@@ -272,9 +353,9 @@ const MasterCategories = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5" className="text-center py-8">
+                        <td colSpan="7" className="text-center py-8">
                           <div className="empty-state">
-                            <p>Tidak ada data kategori</p>
+                            <p>Tidak ada data sales</p>
                           </div>
                         </td>
                       </tr>
@@ -287,7 +368,7 @@ const MasterCategories = () => {
               {totalPages > 1 && (
                 <div className="flex justify-between items-center p-6 border-t border-gray-200">
                   <span className="text-sm text-gray-500">
-                    Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredCategories.length)} dari {filteredCategories.length} data
+                    Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredSales.length)} dari {filteredSales.length} data
                   </span>
                   <div className="flex gap-2">
                     <button
@@ -314,21 +395,21 @@ const MasterCategories = () => {
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <div className="card p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Total Kategori</h3>
-            <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
+            <h3 className="text-sm font-medium text-gray-600 mb-2">Total Sales</h3>
+            <p className="text-2xl font-bold text-gray-900">{sales.length}</p>
           </div>
           
           <div className="card p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Kategori Aktif</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-2">Sales Aktif</h3>
             <p className="text-2xl font-bold text-success">
-              {categories.filter(cat => cat.status === true || cat.status === 'Aktif').length}
+              {sales.filter(s => s.status === true || s.status === 'Aktif').length}
             </p>
           </div>
           
           <div className="card p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Kategori Nonaktif</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-2">Sales Nonaktif</h3>
             <p className="text-2xl font-bold text-gray-500">
-              {categories.filter(cat => cat.status !== true && cat.status !== 'Aktif').length}
+              {sales.filter(s => s.status !== true && s.status !== 'Aktif').length}
             </p>
           </div>
         </div>
@@ -337,4 +418,4 @@ const MasterCategories = () => {
   );
 };
 
-export default MasterCategories;
+export default MasterSales;
