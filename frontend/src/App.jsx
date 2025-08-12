@@ -15,6 +15,12 @@ import MasterSales from './pages/MasterData/Sales/MasterSales';
 import PurchaseForm from './pages/Purchasing/PurchaseForm';
 import PurchasingIndex from './pages/Purchasing/PurchasingIndex';
 import PurchaseList from './pages/Purchasing/PurchaseList';
+import SalesIndex from './pages/Sales/SalesIndex';
+import SalesForm from './pages/Sales/SalesForm';
+
+// Return Forms
+import ReturPembelianForm from './pages/Purchasing/ReturPembelianForm';
+import ReturPenjualanForm from './pages/Sales/ReturPenjualanForm';
 
 import './App.css';
 
@@ -37,10 +43,20 @@ function App() {
             <Route path="transactions/purchasing" element={<PurchasingIndex />} />
             <Route path="transactions/purchasing/form" element={<PurchaseForm />} />
             <Route path="transactions/purchasing/list" element={<PurchaseList />} />
+            <Route path="transactions/purchasing/return" element={<ReturPembelianForm />} />
+            <Route path="transactions/purchasing/retur-pembelian" element={<ReturPembelianForm />} />
+            
+            {/* Sales Module */}
+            <Route path="transactions/sales" element={<SalesIndex />} />
+            <Route path="transactions/sales/form" element={<SalesForm />} />
+            <Route path="transactions/sales/return" element={<ReturPenjualanForm />} />
+            <Route path="transactions/sales/retur-penjualan" element={<ReturPenjualanForm />} />
             
             {/* Legacy routes for backward compatibility */}
             <Route path="pembelian/form" element={<PurchaseForm />} />
             <Route path="pembelian/list" element={<PurchaseList />} />
+            <Route path="retur/pembelian" element={<ReturPembelianForm />} />
+            <Route path="retur/penjualan" element={<ReturPenjualanForm />} />
             {/* Add more routes here as needed */}
           </Route>
         </Routes>

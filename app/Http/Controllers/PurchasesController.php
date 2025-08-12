@@ -70,7 +70,7 @@ class PurchasesController extends Controller
             'header.invoiceNumber' => 'required|string|max:50',
             'header.receiptDate' => 'required|date',
             'header.dueDate' => 'required|date',
-            'header.supplier_id' => 'required|integer',
+            'header.supplier_id' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.code' => 'required|string',
             'items.*.name' => 'required|string',
@@ -120,12 +120,25 @@ class PurchasesController extends Controller
             $tax = $afterDiscount * ($taxPercent / 100);
             $grandTotal = $afterDiscount + $tax;
 
-            // Get supplier info
-            $supplier = DB::table('dbo.msupplier')
-                ->where('id', $header['supplier_id'])
-                ->first();
+            // Get supplier info - fix the lookup to use correct table and field
+            $supplier = null;
+            
+            // Check if supplier_id is provided in header (assuming it's kodesupplier)
+            if (isset($header['supplier_id'])) {
+                $supplier = DB::table('dbo.m_supplier')
+                    ->where('kodesupplier', $header['supplier_id'])
+                    ->first();
+            }
+            
+            // Fallback: try to get supplier from supplier object in header
+            if (!$supplier && isset($header['supplier']['code'])) {
+                $supplier = DB::table('dbo.m_supplier')
+                    ->where('kodesupplier', $header['supplier']['code'])
+                    ->first();
+            }
+            
             if (!$supplier) {
-                throw new \Exception('Supplier not found');
+                throw new \Exception('Supplier not found. Please select a valid supplier.');
             }
 
             // Generate sequential number
@@ -141,7 +154,7 @@ class PurchasesController extends Controller
                 'tglpenerimaan' => $header['receiptDate'],
                 'kodevalas' => 'IDR',
                 'kurs' => 1,
-                'kodesupplier' => $supplier->kodecust,
+                'kodesupplier' => $supplier->kodecust ?? $supplier->kodesupplier ?? $header['supplier']['code'],
                 'jatuhtempo' => $header['dueDate'],
                 'nofaktur' => $header['invoiceNumber'],
                 'total' => $subtotal,
@@ -158,21 +171,16 @@ class PurchasesController extends Controller
                 $disc1 = $item['disc1'] ?? 0;
                 $disc2 = $item['disc2'] ?? 0;
                 $netPrice = $price * (1 - $disc1/100) * (1 - $disc2/100);
-                $itemSubtotal = $netPrice * $qty;
 
                 DB::table('dbo.partpenerimaan_detail')->insert([
                     'kodedivisi' => '01',
                     'nopenerimaan' => $newNo,
-                    'nourut' => $index + 1,
                     'kodebarang' => $item['code'],
-                    'namabarang' => $item['name'],
                     'qtysupply' => $qty,
-                    'satuan' => $item['unit'] ?? 'PCS',
                     'harga' => $price,
                     'diskon1' => $disc1,
                     'diskon2' => $disc2,
                     'harganett' => $netPrice,
-                    'subtotal' => $itemSubtotal
                 ]);
             }
 
@@ -231,6 +239,38 @@ class PurchasesController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to delete purchase: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function checkInvoice(Request $request)
+    {
+        try {
+            $invoiceNumber = $request->query('invoice_number');
+            
+            if (!$invoiceNumber) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invoice number is required'
+                ], 400);
+            }
+
+            // Check if invoice number exists in database
+            $exists = DB::table('dbo.partpenerimaan')
+                ->where('nofaktur', $invoiceNumber)
+                ->exists();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'exists' => $exists,
+                    'available' => !$exists
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to check invoice: ' . $e->getMessage()
             ], 500);
         }
     }

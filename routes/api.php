@@ -44,7 +44,9 @@ use App\Http\Controllers\SPVController;
 use App\Http\Controllers\StokClaimController;
 use App\Http\Controllers\OpnameController;
 use App\Http\Controllers\MergeBarangController;
-use App\Http\Controllers\PurchasesController;
+// Return/Retur controllers
+use App\Http\Controllers\ReturPembelianController;
+use App\Http\Controllers\ReturPenjualanController;
 
 // ===========================
 // AUTHENTICATION ROUTES (PUBLIC FOR DEVELOPMENT)
@@ -133,6 +135,14 @@ Route::get('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'show']);
 Route::put('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'update']);
 Route::delete('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'destroy']);
 
+// Sales Transaction/Form specific routes
+Route::get('customers', [InvoiceController::class, 'getCustomers']);
+Route::get('sales-persons', [InvoiceController::class, 'getSalesPersons']);
+Route::get('barang', [InvoiceController::class, 'getBarang']);
+Route::get('sales/transactions', [InvoiceController::class, 'index']);
+Route::post('sales/transactions', [InvoiceController::class, 'store']);
+Route::get('sales/transactions/{id}', [InvoiceController::class, 'show']);
+
 // Supplier routes with composite keys
 Route::get('suppliers', [SupplierController::class, 'index']);
 Route::post('suppliers', [SupplierController::class, 'store']);
@@ -205,8 +215,22 @@ Route::delete('part-penerimaan/{id}', [PartPenerimaanController::class, 'destroy
 // Purchases routes (Modern API)
 Route::get('purchases', [PurchasesController::class, 'index']);
 Route::post('purchases', [PurchasesController::class, 'store']);
+Route::get('purchases/check-invoice', [PurchasesController::class, 'checkInvoice']);
 Route::get('purchases/{id}', [PurchasesController::class, 'show']);
 Route::delete('purchases/{id}', [PurchasesController::class, 'destroy']);
+
+// Return Pembelian routes
+Route::get('return-purchases', [ReturPembelianController::class, 'index']);
+Route::post('return-purchases', [ReturPembelianController::class, 'store']);
+Route::get('return-purchases/purchases', [ReturPembelianController::class, 'getPurchases']);
+Route::get('return-purchases/purchase-details/{purchaseId}', [ReturPembelianController::class, 'getPurchaseDetails']);
+
+// Return Penjualan routes
+Route::get('return-sales', [ReturPenjualanController::class, 'index']);
+Route::post('return-sales', [ReturPenjualanController::class, 'store']);
+Route::get('return-sales/invoices', [ReturPenjualanController::class, 'getInvoices']);
+Route::get('return-sales/invoice-details/{invoiceNumber}', [ReturPenjualanController::class, 'getInvoiceDetails']);
+Route::get('return-sales/customers', [ReturPenjualanController::class, 'getCustomers']);
 
 // Penerimaan Finance routes
 Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']); // Limited untuk testing Laravel
@@ -276,12 +300,7 @@ Route::get('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::clas
 Route::put('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'update']);
 Route::delete('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'destroy']);
 
-// Return Sales routes
-Route::get('return-sales', [ReturnSalesController::class, 'index']);
-Route::post('return-sales', [ReturnSalesController::class, 'store']);
-Route::get('return-sales/{id}', [ReturnSalesController::class, 'show']);
-Route::put('return-sales/{id}', [ReturnSalesController::class, 'update']);
-Route::delete('return-sales/{id}', [ReturnSalesController::class, 'destroy']);
+// Return Sales routes - handled by ReturPenjualanController above
 
 // Invoice Details routes (assume handled by InvoiceController)
 Route::get('invoice-details', [InvoiceController::class, 'getAllDetails']);

@@ -273,4 +273,112 @@ class InvoiceController extends Controller
         $details = $invoice->details;
         return response()->json($details);
     }
+
+    /**
+     * Get customers for sales form
+     */
+    public function getCustomers()
+    {
+        try {
+            $customers = MCust::select(
+                'kodecust as id',
+                'kodecust as code', 
+                'namacust as name',
+                'alamat as address',
+                'telp as phone'
+            )
+            ->where('status', 'Active')
+            ->orderBy('namacust')
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Customers retrieved successfully',
+                'data' => $customers
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch customers',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get sales persons for sales form
+     */
+    public function getSalesPersons()
+    {
+        try {
+            $salesPersons = MSales::select(
+                'kodesales as id',
+                'kodesales as code',
+                'namasales as name',
+                'alamat as address'
+            )
+            ->where('status', 'Active')
+            ->orderBy('namasales')
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sales persons retrieved successfully',
+                'data' => $salesPersons
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch sales persons',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get products for sales form
+     */
+    public function getBarang(Request $request)
+    {
+        try {
+            $search = $request->get('search', '');
+            $limit = $request->get('limit', 50);
+
+            $query = MBarang::select(
+                'kodebarang as id',
+                'kodebarang as code',
+                'namabarang as name',
+                'satuan',
+                'hargajual as harga_jual',
+                'stok'
+            )
+            ->where('status', 'Active');
+
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('kodebarang', 'like', "%{$search}%")
+                      ->orWhere('namabarang', 'like', "%{$search}%");
+                });
+            }
+
+            $barangs = $query->orderBy('namabarang')
+                ->limit($limit)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Products retrieved successfully',
+                'data' => $barangs
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch products',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
