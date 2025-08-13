@@ -7,7 +7,7 @@ const SalesIndex = () => {
         {
             title: 'Form Penjualan',
             description: 'Buat transaksi penjualan baru',
-            path: '/transactions/sales/form',
+            path: '/transactions/sales/penjualan',
             icon: '📝',
             color: 'bg-blue-50 border-blue-200 hover:bg-blue-100'
         },

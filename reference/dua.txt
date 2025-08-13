@@ -1,0 +1,445 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <!-- PALETTE & BASE STYLES -->
+    <style><![CDATA[
+      text, tspan {
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, "Segoe UI Variable", "Roboto", "Noto Sans", Arial, sans-serif;
+        fill: #0f172a;
+        /* dominant-baseline: middle;  SVG attribute only, not CSS */
+      }
+      .caption { font-size:12px; fill: #475569;}
+      .label { font-size:13px; fill: #475569;}
+      .value { font-size:14px;}
+      .title { font-size:20px; font-weight:700;}
+      .btn-label { font-size:14px; font-weight:600; }
+      .small { font-size:12px; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+      .shadow { filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.08)); }
+      .ring { stroke: #e5e7eb; stroke-width:1; }
+      .divider { stroke: #e5e7eb; stroke-width:1; }
+      .pill { font-size:12px; font-weight:700; }
+      .icon { fill: none; stroke: #475569; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+      .icon-strong { stroke: #1e3a8a; }
+      .muted-fill { fill: #eef1f6; }
+      .muted2-fill { fill: #e6ebf2; }
+      .panel { fill: #ffffff; }
+      .bg { fill: #f7f8fb; }
+      .primary { /* gunakan solid primary di grup yang perlu teks putih */
+        /* color: #fff; */ /* Removed invalid property for SVG */
+      }
+      .primary-fill { fill: #1e3a8a; }       /* untuk rect background biru */
+      .primary-weak { fill: #e8f0fe; }
+      .success { fill: #10b981; }
+      .warn { fill: #fbbf24; }
+      .danger { fill: #ef4444; }
+      .focus { stroke: #6aa3ff; stroke-width:2; stroke-dasharray:2 3; }
+      .rounded { rx:10; ry:10; }
+      .rounded-lg { rx:14; ry:14; }
+      .rounded-xl { rx:18; ry:18; }
+      .rounded-2xl { rx:22; ry:22; }
+      .kbd { font-size:11px; font-weight:700; }
+
+      /* Semua teks di dalam grup .primary otomatis putih */
+      .primary text, .primary tspan, .primary .value, .primary .title, .primary .btn-label { fill: #fff; }
+    ]]></style>
+
+    <!-- ICONS (outline minimal) -->
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7" class="icon"/>
+      <line x1="21" y1="21" x2="16.6" y2="16.6" class="icon"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+      <line x1="12" y1="5" x2="12" y2="19" class="icon"/>
+      <line x1="5" y1="12" x2="19" y2="12" class="icon"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <polyline points="3 6 5 6 21 6" class="icon"/>
+      <path d="M8 6v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" class="icon"/>
+      <rect x="6" y="6" width="12" height="14" rx="2" class="icon"/>
+      <line x1="10" y1="11" x2="10" y2="17" class="icon"/>
+      <line x1="14" y1="11" x2="14" y2="17" class="icon"/>
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+      <path d="M3 21h6l12-12a2.1 2.1 0 0 0-6-6L3 15v6z" class="icon"/>
+    </symbol>
+    <symbol id="i-save" viewBox="0 0 24 24">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" class="icon"/>
+      <polyline points="17 21 17 13 7 13 7 21" class="icon"/>
+      <polyline points="7 3 7 8 15 8" class="icon"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24">
+      <line x1="18" y1="6" x2="6" y2="18" class="icon"/>
+      <line x1="6" y1="6" x2="18" y2="18" class="icon"/>
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24">
+      <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" class="icon"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" class="icon"/>
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="7" r="4" class="icon"/>
+      <path d="M5.5 21a8.38 8.38 0 0 1 13 0" class="icon"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24">
+      <polyline points="9 6 15 12 9 18" class="icon"/>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="18" rx="2" class="icon"/>
+      <line x1="16" y1="2" x2="16" y2="6" class="icon"/>
+      <line x1="8" y1="2" x2="8" y2="6" class="icon"/>
+      <line x1="3" y1="10" x2="21" y2="10" class="icon"/>
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+      <line x1="3" y1="6" x2="21" y2="6" class="icon"/>
+      <line x1="3" y1="12" x2="21" y2="12" class="icon"/>
+      <line x1="3" y1="18" x2="21" y2="18" class="icon"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <path d="M12 3v12" class="icon"/>
+      <polyline points="7 10 12 15 17 10" class="icon"/>
+      <rect x="3" y="17" width="18" height="4" rx="1" class="icon"/>
+    </symbol>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect x="0" y="0" width="1440" height="900" class="bg"/>
+
+  <!-- SIDEBAR -->
+  <g>
+    <rect x="0" y="0" width="240" height="900" class="panel shadow"/>
+    <!-- Sidebar header: biru tua solid + teks putih -->
+    <g class="primary">
+      <rect x="0" y="0" width="240" height="68" class="primary-fill"/>
+      <text x="24" y="34" class="title">STOK•PRO</text>
+    </g>
+
+    <!-- Nav items -->
+    <g transform="translate(0,84)">
+      <!-- Active -->
+      <rect x="12" y="0" width="216" height="44" class="primary-weak rounded"/>
+      <use href="#i-menu" x="28" y="22" width="24" height="24" transform="translate(0,-10)" class="icon-strong"/>
+      <text x="64" y="22" class="value" fill="#1e3a8a">Dashboard</text>
+
+      <g transform="translate(0,52)">
+        <rect x="12" y="0" width="216" height="44" fill="transparent" class="rounded"/>
+        <use href="#i-search" x="28" y="22" width="24" height="24" transform="translate(0,-10)"/>
+        <text x="64" y="22" class="value">Global Search</text>
+      </g>
+
+      <g transform="translate(0,104)">
+        <rect x="12" y="0" width="216" height="44" fill="transparent" class="rounded"/>
+        <use href="#i-download" x="28" y="22" width="24" height="24" transform="translate(0,-10)"/>
+        <text x="64" y="22" class="value">Transaksi</text>
+      </g>
+
+      <g transform="translate(0,156)">
+        <rect x="12" y="0" width="216" height="44" fill="transparent" class="rounded"/>
+        <use href="#i-user" x="28" y="22" width="24" height="24" transform="translate(0,-10)"/>
+        <text x="64" y="22" class="value">Customer</text>
+      </g>
+
+      <g transform="translate(0,208)">
+        <rect x="12" y="0" width="216" height="44" fill="transparent" class="rounded"/>
+        <use href="#i-calendar" x="28" y="22" width="24" height="24" transform="translate(0,-10)"/>
+        <text x="64" y="22" class="value">Laporan</text>
+      </g>
+    </g>
+
+    <!-- Footer sidebar -->
+    <g transform="translate(0,840)">
+      <rect x="12" y="0" width="216" height="48" class="muted-fill rounded"/>
+      <use href="#i-user" x="28" y="24" width="24" height="24" transform="translate(0,-12)"/>
+      <text x="64" y="14" class="small">Masuk sebagai</text>
+      <text x="64" y="34" class="value">Operator Gudang</text>
+    </g>
+  </g>
+
+  <!-- TOP BAR -->
+  <g transform="translate(240,0)" class="shadow">
+    <g class="primary">
+      <rect x="0" y="0" width="1200" height="68" class="primary-fill"/>
+      <!-- Judul halaman -->
+      <text x="24" y="34" class="title">Penjualan Bonus</text>
+
+      <!-- Global search (tetap abu, teks dark, jadi di luar grup .primary) -->
+    </g>
+    <g transform="translate(340,14)">
+      <rect x="0" y="0" width="520" height="40" class="muted-fill rounded-lg ring"/>
+      <use href="#i-search" x="12" y="20" width="24" height="24" transform="translate(0,-12)"/>
+      <text x="44" y="20" class="label">Cari cepat (Ctrl+K) — customer, barang, dokumen…</text>
+      <rect x="444" y="8" width="54" height="24" class="muted2-fill rounded"/>
+      <text x="471" y="20" class="kbd mono">Ctrl K</text>
+    </g>
+
+    <!-- Right actions -->
+    <g transform="translate(980,16)">
+      <rect x="0" y="0" width="36" height="36" class="muted-fill rounded"/>
+      <use href="#i-bell" x="6" y="18" width="24" height="24" transform="translate(0,-12)"/>
+      <!-- Tombol simpan biru + teks putih -->
+      <g transform="translate(44,0)" class="primary">
+        <rect x="0" y="0" width="140" height="36" class="primary-fill rounded"/>
+        <use href="#i-save" x="12" y="18" width="24" height="24" transform="translate(0,-12)" class="icon-strong"/>
+        <text x="86" y="18" class="btn-label">Simpan</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- CONTENT WRAPPER -->
+  <g transform="translate(240,84)">
+
+    <!-- HEADER FORM -->
+    <g class="shadow">
+      <rect x="24" y="0" width="1152" height="196" class="panel rounded-xl"/>
+      <text x="44" y="24" class="value" style="font-weight:700; fill:#1f2937;">Informasi Dokumen</text>
+
+      <!-- Row 1 -->
+      <!-- Kode Customer -->
+      <g transform="translate(44,52)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">Kode Customer</text>
+        <rect x="0" y="8" width="200" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">CST-000123</text>
+        <rect x="208" y="8" width="40" height="40" class="muted2-fill rounded-lg"/>
+        <use href="#i-search" x="216" y="28" width="24" height="24" transform="translate(0,-12)"/>
+      </g>
+
+      <!-- Nama Customer -->
+      <g transform="translate(312,52)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">Nama Customer</text>
+        <rect x="0" y="8" width="340" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">PT Lorem Ipsum Motor</text>
+      </g>
+
+      <!-- Sales/Channel -->
+      <g transform="translate(688,52)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">Sales / Channel</text>
+        <rect x="0" y="8" width="220" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">Outlet - Bandung</text>
+        <use href="#i-chevron" x="192" y="28" width="24" height="24" transform="translate(0,-12)"/>
+      </g>
+
+      <!-- Tanggal -->
+      <g transform="translate(944,52)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">Tanggal</text>
+        <rect x="0" y="8" width="188" height="40" class="muted-fill rounded-lg ring"/>
+        <use href="#i-calendar" x="152" y="28" width="24" height="24" transform="translate(0,-12)"/>
+        <text x="12" y="28" class="value">28/07/2025</text>
+      </g>
+
+      <!-- Row 2 -->
+      <!-- No Dokumen -->
+      <g transform="translate(44,116)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">No. Dokumen</text>
+        <rect x="0" y="8" width="200" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value mono">PB-2025-00789</text>
+      </g>
+
+      <!-- Referensi -->
+      <g transform="translate(268,116)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">Referensi</text>
+        <rect x="0" y="8" width="220" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">SO-2025-5531</text>
+      </g>
+
+      <!-- Catatan -->
+      <g transform="translate(508,116)">
+        <text x="0" y="-6" class="label" dominant-baseline="auto">Catatan</text>
+        <rect x="0" y="8" width="436" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">lorem ipsum dolor sit amet…</text>
+      </g>
+
+      <!-- Info Tempo/Limit -->
+      <g transform="translate(966,112)">
+        <rect x="0" y="0" width="190" height="48" class="primary-weak rounded-lg"/>
+        <circle cx="18" cy="24" r="6" class="success"/>
+        <text x="32" y="18" class="small" fill="#1e3a8a">Tempo: 30 hari</text>
+        <text x="32" y="34" class="small" fill="#1e3a8a">Sisa Limit: Rp 12.500.000</text>
+      </g>
+    </g>
+
+    <!-- INPUT ITEM BAR -->
+    <g transform="translate(24,212)" class="shadow">
+      <rect x="0" y="0" width="1152" height="70" class="panel rounded-xl"/>
+      <!-- Kode Barang -->
+      <g transform="translate(20,14)">
+        <text x="0" y="-2" class="label" dominant-baseline="auto">Kode Barang</text>
+        <rect x="0" y="8" width="220" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">BRG-001234</text>
+        <rect x="228" y="8" width="40" height="40" class="muted2-fill rounded-lg"/>
+        <use href="#i-search" x="236" y="28" width="24" height="24" transform="translate(0,-12)"/>
+      </g>
+
+      <!-- Nama Barang dropdown -->
+      <g transform="translate(312,14)">
+        <text x="0" y="-2" class="label" dominant-baseline="auto">Nama Barang</text>
+        <rect x="0" y="8" width="420" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">Pilih barang…</text>
+        <use href="#i-chevron" x="388" y="28" width="24" height="24" transform="translate(0,-12)"/>
+      </g>
+
+      <!-- Qty -->
+      <g transform="translate(750,14)">
+        <text x="0" y="-2" class="label" dominant-baseline="auto">Qty</text>
+        <rect x="0" y="8" width="120" height="40" class="muted-fill rounded-lg ring"/>
+        <text x="12" y="28" class="value">10</text>
+      </g>
+
+      <!-- Tambah -->
+      <g transform="translate(892,14)" class="primary">
+        <rect x="0" y="8" width="240" height="40" class="primary-fill rounded"/>
+        <use href="#i-plus" x="12" y="28" width="24" height="24" transform="translate(0,-12)" class="icon-strong"/>
+        <text x="132" y="28" class="btn-label" text-anchor="middle">Tambah ke Daftar</text>
+      </g>
+    </g>
+
+    <!-- TABLE DETAIL -->
+    <g transform="translate(24,296)" class="shadow">
+      <rect x="0" y="0" width="1152" height="384" class="panel rounded-xl"/>
+      <!-- Header row -->
+      <g transform="translate(0,0)">
+        <rect x="0" y="0" width="1152" height="48" class="muted-fill rounded-xl"/>
+        <text x="24" y="24" class="label">No</text>
+        <text x="80" y="24" class="label">Kode Barang</text>
+        <text x="220" y="24" class="label">Nama Barang</text>
+        <text x="640" y="24" class="label">Qty Supply</text>
+        <text x="760" y="24" class="label">Satuan</text>
+        <text x="860" y="24" class="label">Qty Bonus</text>
+        <text x="1010" y="24" class="label">Aksi</text>
+      </g>
+
+      <!-- Rows -->
+      <g transform="translate(0,56)">
+        <g>
+          <rect x="12" y="0" width="1128" height="48" fill="transparent"/>
+          <text x="24" y="24" class="value">1</text>
+          <text x="80" y="24" class="value mono">BRG-001234</text>
+          <text x="220" y="24" class="value">Filter Oli Premium 4T</text>
+          <text x="640" y="24" class="value">10</text>
+          <text x="760" y="24" class="value">pcs</text>
+          <text x="860" y="24" class="value">1</text>
+          <use href="#i-edit" x="1008" y="24" width="24" height="24" transform="translate(0,-12)"/>
+          <use href="#i-trash" x="1040" y="24" width="24" height="24" transform="translate(0,-12)"/>
+        </g>
+
+        <g transform="translate(0,56)">
+          <rect x="12" y="0" width="1128" height="48" class="primary-weak rounded"/>
+          <text x="24" y="24" class="value">2</text>
+          <text x="80" y="24" class="value mono">BRG-009876</text>
+          <text x="220" y="24" class="value">Kampas Rem Depan</text>
+          <text x="640" y="24" class="value">6</text>
+          <text x="760" y="24" class="value">set</text>
+          <text x="860" y="24" class="value">0</text>
+          <use href="#i-edit" x="1008" y="24" width="24" height="24" transform="translate(0,-12)"/>
+          <use href="#i-trash" x="1040" y="24" width="24" height="24" transform="translate(0,-12)"/>
+        </g>
+
+        <g transform="translate(0,112)">
+          <rect x="12" y="0" width="1128" height="48" fill="transparent"/>
+          <text x="24" y="24" class="value">3</text>
+          <text x="80" y="24" class="value mono">BRG-003210</text>
+          <text x="220" y="24" class="value">Busi Standar</text>
+          <text x="640" y="24" class="value">12</text>
+          <text x="760" y="24" class="value">pcs</text>
+          <text x="860" y="24" class="value">2</text>
+          <use href="#i-edit" x="1008" y="24" width="24" height="24" transform="translate(0,-12)"/>
+          <use href="#i-trash" x="1040" y="24" width="24" height="24" transform="translate(0,-12)"/>
+        </g>
+
+        <g transform="translate(0,168)">
+          <rect x="12" y="0" width="1128" height="48" class="primary-weak rounded"/>
+          <text x="24" y="24" class="value">4</text>
+          <text x="80" y="24" class="value mono">BRG-002244</text>
+          <text x="220" y="24" class="value">Aki MF 45Ah</text>
+          <text x="640" y="24" class="value">3</text>
+          <text x="760" y="24" class="value">unit</text>
+          <text x="860" y="24" class="value">0</text>
+          <use href="#i-edit" x="1008" y="24" width="24" height="24" transform="translate(0,-12)"/>
+          <use href="#i-trash" x="1040" y="24" width="24" height="24" transform="translate(0,-12)"/>
+        </g>
+
+        <g transform="translate(0,224)">
+          <rect x="12" y="0" width="1128" height="48" fill="transparent"/>
+          <text x="24" y="24" class="value">5</text>
+          <text x="80" y="24" class="value mono">BRG-005678</text>
+          <text x="220" y="24" class="value">Wiper Blade 16"</text>
+          <text x="640" y="24" class="value">8</text>
+          <text x="760" y="24" class="value">pcs</text>
+          <text x="860" y="24" class="value">1</text>
+          <use href="#i-edit" x="1008" y="24" width="24" height="24" transform="translate(0,-12)"/>
+          <use href="#i-trash" x="1040" y="24" width="24" height="24" transform="translate(0,-12)"/>
+        </g>
+
+        <g transform="translate(0,280)">
+          <rect x="12" y="0" width="1128" height="48" class="primary-weak rounded"/>
+          <text x="24" y="24" class="value">6</text>
+          <text x="80" y="24" class="value mono">BRG-001199</text>
+          <text x="220" y="24" class="value">Radiator Coolant</text>
+          <text x="640" y="24" class="value">5</text>
+          <text x="760" y="24" class="value">botol</text>
+          <text x="860" y="24" class="value">0</text>
+          <use href="#i-edit" x="1008" y="24" width="24" height="24" transform="translate(0,-12)"/>
+          <use href="#i-trash" x="1040" y="24" width="24" height="24" transform="translate(0,-12)"/>
+        </g>
+      </g>
+
+      <!-- Scroll hint line -->
+      <line x1="0" y1="336" x2="1152" y2="336" class="divider"/>
+      <text x="24" y="360" class="caption" dominant-baseline="auto">Menampilkan 1–6 dari 24 baris • Gulir untuk melihat lainnya</text>
+    </g>
+
+    <!-- SUMMARY + STATUS -->
+    <g transform="translate(24,692)" class="shadow">
+      <rect x="0" y="0" width="740" height="96" class="panel rounded-xl"/>
+      <text x="20" y="22" class="label" dominant-baseline="auto">Ringkasan</text>
+      <g transform="translate(20,36)">
+        <rect x="0" y="0" width="180" height="44" class="muted-fill rounded"/>
+        <text x="12" y="22" class="value">Subtotal Item: 44</text>
+      </g>
+      <g transform="translate(212,36)">
+        <rect x="0" y="0" width="180" height="44" class="muted-fill rounded"/>
+        <text x="12" y="22" class="value">Total Bonus: 4</text>
+      </g>
+      <g transform="translate(404,36)">
+        <rect x="0" y="0" width="180" height="44" class="muted-fill rounded"/>
+        <text x="12" y="22" class="value">Total Baris: 24</text>
+      </g>
+      <g transform="translate(596,36)">
+        <rect x="0" y="0" width="124" height="44" class="primary-weak rounded"/>
+        <circle cx="18" cy="22" r="6" class="warn"/>
+        <text x="56" y="22" class="pill" fill="#1e3a8a" text-anchor="middle">Draft</text>
+      </g>
+    </g>
+
+    <!-- ACTIONS BOTTOM RIGHT -->
+    <g transform="translate(940,692)" class="shadow">
+      <rect x="0" y="0" width="236" height="96" class="panel rounded-xl"/>
+      <g transform="translate(16,16)">
+        <rect x="0" y="0" width="98" height="32" class="muted-fill rounded"/>
+        <text x="49" y="16" class="small" text-anchor="middle">Batal</text>
+      </g>
+      <g transform="translate(122,16)">
+        <rect x="0" y="0" width="98" height="32" class="muted-fill rounded"/>
+        <text x="49" y="16" class="small" text-anchor="middle">Cetak</text>
+      </g>
+      <g transform="translate(16,56)" class="primary">
+        <rect x="0" y="0" width="204" height="32" class="primary-fill rounded"/>
+        <use href="#i-save" x="10" y="16" width="24" height="24" transform="translate(0,-12)" class="icon-strong"/>
+        <text x="120" y="16" class="btn-label" text-anchor="middle">Simpan Dokumen</text>
+      </g>
+    </g>
+
+    <!-- TOAST / SNACKBAR -->
+    <g transform="translate(930,628)" class="shadow">
+      <rect x="0" y="0" width="246" height="44" class="panel rounded-lg"/>
+      <circle cx="18" cy="22" r="6" class="success"/>
+      <text x="140" y="22" class="small" text-anchor="middle">Barang ditambahkan ke daftar</text>
+      <use href="#i-close" x="210" y="22" width="24" height="24" transform="translate(0,-12)"/>
+    </g>
+
+    <!-- FOCUS OUTLINE EXAMPLE -->
+    <rect x="64" y="60" width="200" height="40" class="focus rounded-lg" fill="none"/>
+  </g>
+
+  <!-- FOOTER HINTS -->
+  <g transform="translate(240,864)">
+    <text x="24" y="20" class="caption" dominant-baseline="auto">Tips: gunakan Tab untuk berpindah field, Enter untuk menambahkan item, dan Esc untuk membatalkan input aktif.</text>
+  </g>
+</svg>

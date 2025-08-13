@@ -40,11 +40,16 @@ const Sidebar = ({ collapsed, onToggle }) => {
       icon: CubeIcon,
       hasSubmenu: true,
       submenu: [
-        { label: 'Kategori Barang', path: '/master/categories' },
-        { label: 'Data Barang', path: '/master/barang' },
-        { label: 'Customer', path: '/master/customer' },
-        { label: 'Supplier', path: '/master/supplier' },
+        { label: 'Kategori', path: '/master/kategori' },
+        { label: 'Sparepart', path: '/master/sparepart' },
+        { label: 'Stock Min', path: '/master/stock-min' },
+        { label: 'Checklist', path: '/master/checklist' },
+        { label: 'Area', path: '/master/area' },
         { label: 'Sales', path: '/master/sales' },
+        { label: 'Supplier', path: '/master/supplier' },
+        { label: 'Customer', path: '/master/customer' },
+        { label: 'Bank', path: '/master/bank' },
+        { label: 'Rekening', path: '/master/rekening' },
       ]
     },
     {
@@ -53,10 +58,17 @@ const Sidebar = ({ collapsed, onToggle }) => {
       icon: DocumentTextIcon,
       hasSubmenu: true,
       submenu: [
-        { label: 'Form Pembelian', path: '/transactions/purchasing' },
-        { label: 'Form Retur Pembelian', path: '/transactions/purchasing/retur-pembelian' },
-        { label: 'Form Penjualan', path: '/transactions/sales/penjualan' },
-        { label: 'Form Retur Penjualan', path: '/transactions/sales/retur-penjualan' },
+        { label: 'Pembelian', path: '/transactions/pembelian' },
+        { label: 'Retur Pembelian', path: '/transactions/retur-pembelian' },
+        { label: 'Penjualan', path: '/transactions/penjualan' },
+        { label: 'Merge Barang', path: '/transactions/merge-barang' },
+        { label: 'Retur Penjualan', path: '/transactions/retur-penjualan' },
+        { label: 'Invoice Cancel', path: '/transactions/invoice-cancel' },
+        { label: 'Stok Opname', path: '/transactions/stok-opname' },
+        { label: 'Pembelian Bonus', path: '/transactions/pembelian-bonus' },
+        { label: 'Penjualan Bonus', path: '/transactions/penjualan-bonus' },
+        { label: 'Customer Claim', path: '/transactions/customer-claim' },
+        { label: 'Pengembalian Claim', path: '/transactions/pengembalian-claim' },
       ]
     },
     {
@@ -65,9 +77,13 @@ const Sidebar = ({ collapsed, onToggle }) => {
       icon: CurrencyDollarIcon,
       hasSubmenu: true,
       submenu: [
-        { label: 'Penerimaan Warkat', path: '/finance/penerimaan-warkat' },
-        { label: 'Resi Bank', path: '/finance/resi-bank' },
-        { label: 'Saldo Bank', path: '/finance/saldo-bank' },
+        { label: 'Penerimaan Giro', path: '/finance/penerimaan-giro' },
+        { label: 'Pencarian Giro', path: '/finance/pencarian-giro' },
+        { label: 'Penerimaan Resi', path: '/finance/penerimaan-resi' },
+        { label: 'Piutang Resi', path: '/finance/piutang-resi' },
+        { label: 'Piutang Retur', path: '/finance/piutang-retur' },
+        { label: 'Penambahan Saldo', path: '/finance/penambahan-saldo' },
+        { label: 'Pengurangan Saldo', path: '/finance/pengurangan-saldo' },
       ]
     },
     {
@@ -76,10 +92,19 @@ const Sidebar = ({ collapsed, onToggle }) => {
       icon: ChartBarIcon,
       hasSubmenu: true,
       submenu: [
-        { label: 'Laporan Stok Barang', path: '/reports/inventory/stok-barang' },
-        { label: 'Kartu Stok', path: '/reports/inventory/kartu-stok' },
-        { label: 'View COGS', path: '/reports/inventory/view-cogs' },
-        { label: 'View Penjualan', path: '/reports/sales/view-penjualan' },
+        { label: 'Stok Barang', path: '/reports/stok-barang' },
+        { label: 'Kartu Stok', path: '/reports/kartu-stok' },
+        { label: 'Pembelian', path: '/reports/pembelian' },
+        { label: 'Pembelian Item', path: '/reports/pembelian-item' },
+        { label: 'Penjualan', path: '/reports/penjualan' },
+        { label: 'COGS', path: '/reports/cogs' },
+        { label: 'Return Sales', path: '/reports/return-sales' },
+        { label: 'Tampil Invoice', path: '/reports/tampil-invoice' },
+        { label: 'Saldo Rekening', path: '/reports/saldo-rekening' },
+        { label: 'Pembayaran Customer', path: '/reports/pembayaran-customer' },
+        { label: 'Tagihan', path: '/reports/tagihan' },
+        { label: 'Pemotongan Return Customer', path: '/reports/pemotongan-return-customer' },
+        { label: 'Komisi Sales', path: '/reports/komisi-sales' },
       ]
     }
   ];
