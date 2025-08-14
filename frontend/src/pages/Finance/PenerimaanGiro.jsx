@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill, faPlus, faEdit, faTrash, faEye, faSearch, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import { financeAPI } from '../../services/api';
 
 const PenerimaanGiro = () => {
   const [giroData, setGiroData] = useState([]);
@@ -58,9 +59,22 @@ const PenerimaanGiro = () => {
   ];
 
   useEffect(() => {
-    setGiroData(sampleData);
-    setFilteredData(sampleData);
+    fetchGiroData();
   }, []);
+
+  const fetchGiroData = async () => {
+    try {
+      const response = await financeAPI.penerimaan.giro.getAll();
+      const data = response.data || sampleData;
+      setGiroData(data);
+      setFilteredData(data);
+    } catch (error) {
+      console.error('Error fetching giro data:', error);
+      // Fallback to sample data
+      setGiroData(sampleData);
+      setFilteredData(sampleData);
+    }
+  };
 
   useEffect(() => {
     let filtered = giroData;
@@ -87,23 +101,31 @@ const PenerimaanGiro = () => {
     setFilteredData(filtered);
   }, [searchTerm, selectedDateRange, giroData]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (editingId) {
-      setGiroData(prev => prev.map(item => 
-        item.id === editingId ? { ...formData, id: editingId, nominal: parseFloat(formData.nominal) } : item
-      ));
-    } else {
-      const newItem = {
-        ...formData,
-        id: Date.now(),
-        nominal: parseFloat(formData.nominal)
-      };
-      setGiroData(prev => [...prev, newItem]);
+    try {
+      if (editingId) {
+        await financeAPI.penerimaan.giro.update(editingId, formData);
+        setGiroData(prev => prev.map(item => 
+          item.id === editingId ? { ...formData, id: editingId, nominal: parseFloat(formData.nominal) } : item
+        ));
+      } else {
+        const response = await financeAPI.penerimaan.giro.create(formData);
+        const newItem = response.data || {
+          ...formData,
+          id: Date.now(),
+          nominal: parseFloat(formData.nominal)
+        };
+        setGiroData(prev => [...prev, newItem]);
+      }
+      
+      resetForm();
+      alert('Data berhasil disimpan!');
+    } catch (error) {
+      console.error('Error saving giro data:', error);
+      alert('Error saving data');
     }
-
-    resetForm();
   };
 
   const handleEdit = (item) => {

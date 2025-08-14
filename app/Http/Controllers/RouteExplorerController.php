@@ -16,9 +16,12 @@ class RouteExplorerController extends Controller
                 'action' => $route->getActionName(),
             ];
         })->filter(function ($route) {
+            // Filter untuk hanya menampilkan GET routes dan mengecualikan internal routes
             return !str_starts_with($route['uri'], '_') &&
                    !str_starts_with($route['uri'], 'sanctum') &&
-                   !str_starts_with($route['uri'], 'api/user');
+                   !str_starts_with($route['uri'], 'api/user') &&
+                   in_array('GET', $route['methods']) &&
+                   !in_array('HEAD', $route['methods']);
         });
 
         return view('home', compact('routes'));

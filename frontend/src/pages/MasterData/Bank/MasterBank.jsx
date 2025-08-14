@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { banksAPI } from '../../../services/api';
 import '../../../design-system.css';
 
 const MasterBank = () => {
@@ -21,15 +22,17 @@ const MasterBank = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Sample data
+      const response = await banksAPI.getAll();
+      setData(response.data || []);
+    } catch (error) {
+      console.error('Error fetching bank data:', error);
+      // Fallback to sample data if API fails
       const sampleData = [
         { id: 1, kode_bank: 'BCA', nama_bank: 'Bank Central Asia', alamat: 'Jakarta', telepon: '021-1500888', status: 'Aktif' },
         { id: 2, kode_bank: 'BNI', nama_bank: 'Bank Negara Indonesia', alamat: 'Jakarta', telepon: '021-500046', status: 'Aktif' },
         { id: 3, kode_bank: 'BRI', nama_bank: 'Bank Rakyat Indonesia', alamat: 'Jakarta', telepon: '021-57987400', status: 'Aktif' }
       ];
       setData(sampleData);
-    } catch (error) {
-      console.error('Error fetching bank data:', error);
     } finally {
       setLoading(false);
     }
@@ -44,15 +47,18 @@ const MasterBank = () => {
     e.preventDefault();
     try {
       if (editingItem) {
+        await banksAPI.update(editingItem.id, formData);
         setData(prev => prev.map(item => 
           item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
         ));
+        alert('Data bank berhasil diupdate!');
       } else {
-        const newItem = { ...formData, id: Date.now() };
+        const response = await banksAPI.create(formData);
+        const newItem = response.data || { ...formData, id: Date.now() };
         setData(prev => [...prev, newItem]);
+        alert('Data bank berhasil ditambahkan!');
       }
       resetForm();
-      alert('Data bank berhasil disimpan!');
     } catch (error) {
       console.error('Error saving bank:', error);
       alert('Error saving bank');
@@ -65,9 +71,16 @@ const MasterBank = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Yakin ingin menghapus data ini?')) {
-      setData(prev => prev.filter(item => item.id !== id));
+      try {
+        await banksAPI.delete(id);
+        setData(prev => prev.filter(item => item.id !== id));
+        alert('Data berhasil dihapus!');
+      } catch (error) {
+        console.error('Error deleting bank:', error);
+        alert('Error deleting bank');
+      }
     }
   };
 

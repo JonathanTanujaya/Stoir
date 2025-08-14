@@ -35,12 +35,36 @@ class InvoiceController extends Controller
     {
         try {
             $invoices = Invoice::orderBy('tglfaktur', 'desc')
+                             ->limit(100) // Limit for performance
                              ->get();
+            
+            // Transform data for frontend
+            $transformedInvoices = $invoices->map(function ($invoice) {
+                return [
+                    'id' => $invoice->noinvoice,
+                    'kodedivisi' => $invoice->kodedivisi,
+                    'noinvoice' => $invoice->noinvoice,
+                    'tglfaktur' => $invoice->tglfaktur,
+                    'kodecust' => $invoice->kodecust,
+                    'kodesales' => $invoice->kodesales,
+                    'tipe' => $invoice->tipe,
+                    'jatuhtempo' => $invoice->jatuhtempo,
+                    'total' => (float) $invoice->total,
+                    'disc' => (float) $invoice->disc,
+                    'pajak' => (float) $invoice->pajak,
+                    'grandtotal' => (float) $invoice->grandtotal,
+                    'sisainvoice' => (float) $invoice->sisainvoice,
+                    'ket' => $invoice->ket,
+                    'status' => $invoice->status,
+                    'username' => $invoice->username,
+                    'tt' => $invoice->tt
+                ];
+            });
             
             return response()->json([
                 'success' => true,
                 'message' => 'Data invoices retrieved successfully',
-                'data' => $invoices
+                'data' => $transformedInvoices
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -349,21 +373,17 @@ class InvoiceController extends Controller
             $query = MBarang::select(
                 'kodebarang as id',
                 'kodebarang as code',
-                'namabarang as name',
-                'satuan',
-                'hargajual as harga_jual',
+                'kodebarang as name', // Use kodebarang as name since namabarang doesn't exist
+                'kodedivisi',
+                'modal as harga_jual', // Use modal as price
                 'stok'
-            )
-            ->where('status', 'Active');
+            );
 
             if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('kodebarang', 'like', "%{$search}%")
-                      ->orWhere('namabarang', 'like', "%{$search}%");
-                });
+                $query->where('kodebarang', 'like', "%{$search}%");
             }
 
-            $barangs = $query->orderBy('namabarang')
+            $barangs = $query->orderBy('kodebarang')
                 ->limit($limit)
                 ->get();
 

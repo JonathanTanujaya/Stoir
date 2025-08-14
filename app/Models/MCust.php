@@ -11,8 +11,8 @@ class MCust extends Model
 
     protected $table = 'dbo.m_cust';
     
-        // Use first column as primary key for Laravel compatibility
-    protected $primaryKey = 'kodedivisi';
+    // Use kodecust as primary key for simplicity
+    protected $primaryKey = 'kodecust';
     public $incrementing = false;
     public $timestamps = false;
     protected $keyType = 'string';

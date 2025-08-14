@@ -297,7 +297,7 @@ const MasterSuppliers = () => {
                   </tr>
                 ) : (
                   currentSuppliers.map((supplier, index) => (
-                    <tr key={supplier.id} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr key={supplier.id || supplier.kodesupplier || index} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
                       <td className="py-4 px-6 font-mono text-sm">{supplier.kodesupplier || supplier.kode_supplier}</td>
                       <td className="py-4 px-6 font-medium">{supplier.namasupplier || supplier.nama}</td>
                       <td className="py-4 px-6">{supplier.telp || supplier.telepon || '-'}</td>

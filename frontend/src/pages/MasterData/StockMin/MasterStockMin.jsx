@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { stockMinAPI } from '../../../services/api';
 import '../../../design-system.css';
 
 const MasterStockMin = () => {
@@ -16,7 +17,12 @@ const MasterStockMin = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Sample data - replace with actual API call
+      const response = await stockMinAPI.getAll();
+      const dataArray = Array.isArray(response.data) ? response.data : [];
+      setData(dataArray);
+    } catch (error) {
+      console.error('Error fetching stock min data:', error);
+      // Fallback to sample data if API fails
       const sampleData = [
         {
           id: 1,
@@ -50,8 +56,6 @@ const MasterStockMin = () => {
         }
       ];
       setData(sampleData);
-    } catch (error) {
-      console.error('Error fetching stock min data:', error);
     } finally {
       setLoading(false);
     }
@@ -65,14 +69,23 @@ const MasterStockMin = () => {
     }));
   };
 
-  const filteredData = data.filter(item => {
+  const filteredData = Array.isArray(data) ? data.filter(item => {
     return (!filters.kategori || item.kategori === filters.kategori) &&
            (!filters.status || item.status === filters.status);
-  });
+  }) : [];
 
   const updateStockMin = async (id, newStockMin) => {
     try {
-      // Update stock minimum
+      // Update via API
+      const item = Array.isArray(data) ? data.find(d => d.id === id) : null;
+      if (item) {
+        await stockMinAPI.update(id, { 
+          ...item, 
+          stok_minimum: newStockMin 
+        });
+      }
+      
+      // Update local state
       setData(prev => prev.map(item => {
         if (item.id === id) {
           const updatedItem = { ...item, stok_minimum: newStockMin };

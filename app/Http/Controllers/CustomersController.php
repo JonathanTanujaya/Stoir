@@ -22,19 +22,32 @@ class CustomersController extends Controller
                     'id' => $customer->kodecust,
                     'nama' => $customer->namacust,
                     'kode_customer' => $customer->kodecust,
+                    'kodedivisi' => $customer->kodedivisi,
+                    'kodearea' => $customer->kodearea,
                     'alamat' => $customer->alamat,
-                    'telepon' => $customer->telepon,
-                    'email' => $customer->email ?? '',
-                    'status' => $customer->status ? 'aktif' : 'tidak aktif'
+                    'telepon' => $customer->telp,
+                    'contact' => $customer->contact,
+                    'creditlimit' => (float) ($customer->creditlimit ?? 0),
+                    'jatuhtempo' => $customer->jatuhtempo ?? 0,
+                    'email' => '', // Not available in database
+                    'status' => $customer->status ? 'aktif' : 'tidak aktif',
+                    'nonpwp' => $customer->nonpwp ?? '',
+                    'namapajak' => $customer->namapajak ?? '',
+                    'alamatpajak' => $customer->alamatpajak ?? '',
                 ];
             });
 
             return response()->json([
                 'success' => true,
-                'data' => $transformedCustomers,
+                'data' => [
+                    'data' => $transformedCustomers // Laravel pagination format
+                ],
                 'message' => 'Customers retrieved successfully'
             ]);
         } catch (\Exception $e) {
+            \Log::error('Customer API Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
                 'data' => [],

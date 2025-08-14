@@ -15,9 +15,24 @@ class AreaController extends Controller
     {
         try {
             $areas = MArea::all();
+            
+            // Transform data to match frontend expectations
+            $transformedAreas = $areas->map(function ($area) {
+                return [
+                    'id' => $area->kodearea, // Use kodearea as ID
+                    'kode_area' => $area->kodearea,
+                    'nama_area' => $area->area,
+                    'kodedivisi' => $area->kodedivisi,
+                    'wilayah' => $area->area, // Use area as wilayah
+                    'provinsi' => $area->area, // Use area as provinsi
+                    'keterangan' => 'Area ' . $area->area,
+                    'status' => $area->status ? 'Aktif' : 'Tidak Aktif'
+                ];
+            });
+            
             return response()->json([
                 'success' => true,
-                'data' => $areas
+                'data' => $transformedAreas
             ]);
         } catch (\Exception $e) {
             return response()->json([

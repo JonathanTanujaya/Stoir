@@ -83,6 +83,7 @@ Route::post('barang', [BarangsController::class, 'store']);
 Route::get('barang/{id}', [BarangsController::class, 'show']);
 Route::put('barang/{id}', [BarangsController::class, 'update']);
 Route::delete('barang/{id}', [BarangsController::class, 'destroy']);
+
 Route::get('invoices', [InvoiceController::class, 'index']);
 Route::get('sales', [SalesController::class, 'index']);
 
@@ -111,21 +112,19 @@ Route::get('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'show']);
 Route::put('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'update']);
 Route::delete('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'destroy']);
 
-// Barang routes with composite keys (Commented out - using BarangsController instead for proper data transformation)
-// Route::get('barang', [BarangController::class, 'index']);
-// Route::post('barang', [BarangController::class, 'store']);
+// Barang routes with composite keys
 Route::get('barang/{kodeDivisi}', [BarangController::class, 'showByDivisi']); 
 Route::get('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'show']);
 Route::put('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'update']);
 Route::delete('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'destroy']);
 
-// Customer routes with composite keys
-Route::get('customers', [CustomerController::class, 'index']);
-Route::post('customers', [CustomerController::class, 'store']);
-Route::get('customers/{kodeDivisi}', [CustomerController::class, 'showByDivisi']); 
-Route::get('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'show']);
-Route::put('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'update']);
-Route::delete('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'destroy']);
+// Customer routes with composite keys - COMMENTED OUT DUE TO ROUTE CONFLICT
+// Route::get('customers', [CustomerController::class, 'index']);
+// Route::post('customers', [CustomerController::class, 'store']);
+// Route::get('customers/{kodeDivisi}', [CustomerController::class, 'showByDivisi']); 
+// Route::get('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'show']);
+// Route::put('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'update']);
+// Route::delete('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'destroy']);
 
 // Sales routes with composite keys
 Route::get('sales', [SalesController::class, 'index']);
@@ -136,7 +135,7 @@ Route::put('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'update'])
 Route::delete('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'destroy']);
 
 // Sales Transaction/Form specific routes
-Route::get('customers', [InvoiceController::class, 'getCustomers']);
+// Route::get('customers', [InvoiceController::class, 'getCustomers']); // COMMENTED OUT DUE TO ROUTE CONFLICT
 Route::get('sales-persons', [InvoiceController::class, 'getSalesPersons']);
 Route::get('barang', [InvoiceController::class, 'getBarang']);
 Route::get('sales/transactions', [InvoiceController::class, 'index']);

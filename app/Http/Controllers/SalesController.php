@@ -15,10 +15,25 @@ class SalesController extends Controller
     {
         try {
             $sales = MSales::all();
+            
+            // Transform data for frontend
+            $transformedSales = $sales->map(function ($sale) {
+                return [
+                    'id' => $sale->kodesales,
+                    'kodedivisi' => $sale->kodedivisi,
+                    'kodesales' => $sale->kodesales,
+                    'namasales' => $sale->namasales,
+                    'alamat' => $sale->alamat,
+                    'nohp' => $sale->nohp,
+                    'target' => (float) $sale->target,
+                    'status' => $sale->status ? 'Aktif' : 'Tidak Aktif'
+                ];
+            });
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Data sales retrieved successfully',
-                'data' => $sales
+                'data' => $transformedSales
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([

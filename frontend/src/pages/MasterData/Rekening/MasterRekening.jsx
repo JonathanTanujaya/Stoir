@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { rekeningAPI } from '../../../services/api';
 import '../../../design-system.css';
 
 const MasterRekening = () => {
@@ -22,15 +23,17 @@ const MasterRekening = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Sample data
+      const response = await rekeningAPI.getAll();
+      setData(response.data || []);
+    } catch (error) {
+      console.error('Error fetching rekening data:', error);
+      // Fallback to sample data if API fails
       const sampleData = [
         { id: 1, no_rekening: '1234567890', nama_rekening: 'Kas Utama', bank: 'BCA', jenis_rekening: 'Tabungan', saldo_awal: 50000000, status: 'Aktif' },
         { id: 2, no_rekening: '0987654321', nama_rekening: 'Operasional', bank: 'BNI', jenis_rekening: 'Giro', saldo_awal: 25000000, status: 'Aktif' },
         { id: 3, no_rekening: '5555666677', nama_rekening: 'Investasi', bank: 'BRI', jenis_rekening: 'Deposito', saldo_awal: 100000000, status: 'Aktif' }
       ];
       setData(sampleData);
-    } catch (error) {
-      console.error('Error fetching rekening data:', error);
     } finally {
       setLoading(false);
     }
@@ -45,15 +48,18 @@ const MasterRekening = () => {
     e.preventDefault();
     try {
       if (editingItem) {
+        await rekeningAPI.update(editingItem.id, formData);
         setData(prev => prev.map(item => 
           item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
         ));
+        alert('Data rekening berhasil diupdate!');
       } else {
-        const newItem = { ...formData, id: Date.now() };
+        const response = await rekeningAPI.create(formData);
+        const newItem = response.data || { ...formData, id: Date.now() };
         setData(prev => [...prev, newItem]);
+        alert('Data rekening berhasil ditambahkan!');
       }
       resetForm();
-      alert('Data rekening berhasil disimpan!');
     } catch (error) {
       console.error('Error saving rekening:', error);
       alert('Error saving rekening');
@@ -66,9 +72,16 @@ const MasterRekening = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Yakin ingin menghapus data ini?')) {
-      setData(prev => prev.filter(item => item.id !== id));
+      try {
+        await rekeningAPI.delete(id);
+        setData(prev => prev.filter(item => item.id !== id));
+        alert('Data berhasil dihapus!');
+      } catch (error) {
+        console.error('Error deleting rekening:', error);
+        alert('Error deleting rekening');
+      }
     }
   };
 

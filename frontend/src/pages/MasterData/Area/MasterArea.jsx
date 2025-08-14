@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { areasAPI } from '../../../services/api';
 import '../../../design-system.css';
 
 const MasterArea = () => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,8 +21,21 @@ const MasterArea = () => {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
-      // Sample data - replace with actual API call
+      const response = await areasAPI.getAll();
+      console.log('Areas API response:', response);
+      
+      // Handle API response structure: {success: true, data: [...]}
+      let dataArray = [];
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        dataArray = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        dataArray = response.data;
+      }
+      
+      setData(dataArray);
+    } catch (error) {
+      console.error('Error fetching area data:', error);
+      // Fallback to sample data if API fails
       const sampleData = [
         {
           id: 1,
@@ -53,10 +66,6 @@ const MasterArea = () => {
         }
       ];
       setData(sampleData);
-    } catch (error) {
-      console.error('Error fetching area data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -72,18 +81,19 @@ const MasterArea = () => {
     e.preventDefault();
     try {
       if (editingItem) {
-        // Update existing item
+        await areasAPI.update(editingItem.id, formData);
         setData(prev => prev.map(item => 
           item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
         ));
+        alert('Data area berhasil diupdate!');
       } else {
-        // Add new item
-        const newItem = { ...formData, id: Date.now() };
+        const response = await areasAPI.create(formData);
+        const newItem = response.data || { ...formData, id: Date.now() };
         setData(prev => [...prev, newItem]);
+        alert('Data area berhasil ditambahkan!');
       }
       
       resetForm();
-      alert('Data area berhasil disimpan!');
     } catch (error) {
       console.error('Error saving area:', error);
       alert('Error saving area');
@@ -96,9 +106,16 @@ const MasterArea = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Yakin ingin menghapus data ini?')) {
-      setData(prev => prev.filter(item => item.id !== id));
+      try {
+        await areasAPI.delete(id);
+        setData(prev => prev.filter(item => item.id !== id));
+        alert('Data berhasil dihapus!');
+      } catch (error) {
+        console.error('Error deleting area:', error);
+        alert('Error deleting area');
+      }
     }
   };
 
@@ -114,14 +131,6 @@ const MasterArea = () => {
     setEditingItem(null);
     setShowForm(false);
   };
-
-  if (loading) {
-    return (
-      <div className="page-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="page-container">
@@ -257,7 +266,7 @@ const MasterArea = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((item) => (
+                {Array.isArray(data) && data.map((item) => (
                   <tr key={item.id}>
                     <td>{item.kode_area}</td>
                     <td>{item.nama_area}</td>
@@ -287,6 +296,13 @@ const MasterArea = () => {
                     </td>
                   </tr>
                 ))}
+                {(!Array.isArray(data) || data.length === 0) && (
+                  <tr>
+                    <td colSpan="7" className="text-center">
+                      {!Array.isArray(data) ? 'Error loading data' : 'Tidak ada data area.'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { sparepartsAPI } from '../../../services/api';
 import '../../../design-system.css';
 
 const MasterSparepart = () => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
-    kode_sparepart: '',
-    nama_sparepart: '',
-    kategori: '',
-    merk: '',
+    kode_divisi: '01',
+    kode_barang: '',
+    nama_barang: '',
+    kode_kategori: '',
+    harga_list: 0,
     satuan: '',
-    harga_beli: 0,
-    harga_jual: 0,
-    stok_min: 0,
-    keterangan: ''
+    merk: '',
+    diskon: 0,
+    lokasi: ''
   });
+  const [kategoriOptions, setKategoriOptions] = useState([
+    { kode: 'OLI', nama: 'Oli & Pelumas' },
+    { kode: 'ELK', nama: 'Kelistrikan' },
+    { kode: 'MSN', nama: 'Mesin' },
+    { kode: 'BDY', nama: 'Body' },
+    { kode: 'AKS', nama: 'Aksesoris' }
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -24,13 +31,53 @@ const MasterSparepart = () => {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
-      // Sample data - replace with actual API call
+      const response = await sparepartsAPI.getAll();
+      
+      if (response.data && response.data.data) {
+        setData(response.data.data);
+      } else if (response.data && Array.isArray(response.data)) {
+        setData(response.data);
+      } else {
+        // Fallback sample data
+        const sampleData = [
+          {
+            id: 1,
+            kode_divisi: 'DIV01',
+            kode_barang: 'SP001',
+            nama_barang: 'Motor Oil 10W-40',
+            kategori: 'Oli & Pelumas',
+            merk: 'Yamalube',
+            satuan: 'Botol',
+            harga_beli: 45000,
+            harga_jual: 55000,
+            stok_min: 10,
+            keterangan: 'Oli motor sintetik'
+          },
+          {
+            id: 2,
+            kode_divisi: 'DIV01',
+            kode_barang: 'SP002',
+            nama_barang: 'Spark Plug NGK',
+            kategori: 'Kelistrikan',
+            merk: 'NGK',
+            satuan: 'Pcs',
+            harga_beli: 25000,
+            harga_jual: 35000,
+            stok_min: 20,
+            keterangan: 'Busi motor'
+          }
+        ];
+        setData(sampleData);
+      }
+    } catch (error) {
+      console.error('Error fetching sparepart data:', error);
+      // Fallback to sample data on error
       const sampleData = [
         {
           id: 1,
-          kode_sparepart: 'SP001',
-          nama_sparepart: 'Motor Oil 10W-40',
+          kode_divisi: 'DIV01',
+          kode_barang: 'SP001',
+          nama_barang: 'Motor Oil 10W-40',
           kategori: 'Oli & Pelumas',
           merk: 'Yamalube',
           satuan: 'Botol',
@@ -38,25 +85,9 @@ const MasterSparepart = () => {
           harga_jual: 55000,
           stok_min: 10,
           keterangan: 'Oli motor sintetik'
-        },
-        {
-          id: 2,
-          kode_sparepart: 'SP002',
-          nama_sparepart: 'Spark Plug NGK',
-          kategori: 'Kelistrikan',
-          merk: 'NGK',
-          satuan: 'Pcs',
-          harga_beli: 25000,
-          harga_jual: 35000,
-          stok_min: 20,
-          keterangan: 'Busi motor'
         }
       ];
       setData(sampleData);
-    } catch (error) {
-      console.error('Error fetching sparepart data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -73,12 +104,14 @@ const MasterSparepart = () => {
     try {
       if (editingItem) {
         // Update existing item
+        await sparepartsAPI.update(formData.kode_divisi, formData.kode_barang, formData);
         setData(prev => prev.map(item => 
           item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
         ));
       } else {
         // Add new item
-        const newItem = { ...formData, id: Date.now() };
+        const response = await sparepartsAPI.create(formData);
+        const newItem = response.data || { ...formData, id: Date.now() };
         setData(prev => [...prev, newItem]);
       }
       
@@ -96,35 +129,37 @@ const MasterSparepart = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Yakin ingin menghapus data ini?')) {
-      setData(prev => prev.filter(item => item.id !== id));
+      try {
+        const item = data.find(d => d.id === id);
+        if (item && item.kode_divisi && item.kode_barang) {
+          await sparepartsAPI.delete(item.kode_divisi, item.kode_barang);
+        }
+        setData(prev => prev.filter(item => item.id !== id));
+        alert('Data berhasil dihapus!');
+      } catch (error) {
+        console.error('Error deleting sparepart:', error);
+        alert('Error deleting sparepart');
+      }
     }
   };
 
   const resetForm = () => {
     setFormData({
-      kode_sparepart: '',
-      nama_sparepart: '',
-      kategori: '',
-      merk: '',
+      kode_divisi: '01',
+      kode_barang: '',
+      nama_barang: '',
+      kode_kategori: '',
+      harga_list: 0,
       satuan: '',
-      harga_beli: 0,
-      harga_jual: 0,
-      stok_min: 0,
-      keterangan: ''
+      merk: '',
+      diskon: 0,
+      lokasi: ''
     });
     setEditingItem(null);
     setShowForm(false);
   };
-
-  if (loading) {
-    return (
-      <div className="page-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="page-container">
@@ -151,42 +186,73 @@ const MasterSparepart = () => {
             <form onSubmit={handleSubmit}>
               <div className="form-grid grid-cols-2">
                 <div className="form-group">
-                  <label className="form-label">Kode Sparepart</label>
+                  <label className="form-label">Kode Barang *</label>
                   <input
                     type="text"
-                    name="kode_sparepart"
-                    value={formData.kode_sparepart}
+                    name="kode_barang"
+                    value={formData.kode_barang}
                     onChange={handleInputChange}
                     className="form-control"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nama Sparepart</label>
+                  <label className="form-label">Nama Barang *</label>
                   <input
                     type="text"
-                    name="nama_sparepart"
-                    value={formData.nama_sparepart}
+                    name="nama_barang"
+                    value={formData.nama_barang}
                     onChange={handleInputChange}
                     className="form-control"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Kategori</label>
+                  <label className="form-label">Kode Kategori *</label>
                   <select
-                    name="kategori"
-                    value={formData.kategori}
+                    name="kode_kategori"
+                    value={formData.kode_kategori}
                     onChange={handleInputChange}
                     className="form-control"
                     required
                   >
                     <option value="">Pilih Kategori</option>
-                    <option value="Oli & Pelumas">Oli & Pelumas</option>
-                    <option value="Kelistrikan">Kelistrikan</option>
-                    <option value="Mesin">Mesin</option>
-                    <option value="Body">Body</option>
-                    <option value="Aksesoris">Aksesoris</option>
+                    {kategoriOptions.map(kategori => (
+                      <option key={kategori.kode} value={kategori.kode}>
+                        {kategori.kode} - {kategori.nama}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Harga List *</label>
+                  <input
+                    type="number"
+                    name="harga_list"
+                    value={formData.harga_list}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    min="0"
+                    step="1000"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Satuan *</label>
+                  <select
+                    name="satuan"
+                    value={formData.satuan}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    required
+                  >
+                    <option value="">Pilih Satuan</option>
+                    <option value="Pcs">Pcs</option>
+                    <option value="Set">Set</option>
+                    <option value="Botol">Botol</option>
+                    <option value="Liter">Liter</option>
+                    <option value="Meter">Meter</option>
+                    <option value="Unit">Unit</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -197,69 +263,36 @@ const MasterSparepart = () => {
                     value={formData.merk}
                     onChange={handleInputChange}
                     className="form-control"
+                    placeholder="Masukkan merk produk"
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Satuan</label>
-                  <select
-                    name="satuan"
-                    value={formData.satuan}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    required
-                  >
-                    <option value="">Pilih Satuan</option>
-                    <option value="Pcs">Pcs</option>
-                    <option value="Botol">Botol</option>
-                    <option value="Liter">Liter</option>
-                    <option value="Set">Set</option>
-                    <option value="Pasang">Pasang</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Stok Minimum</label>
+                  <label className="form-label">Diskon (%)</label>
                   <input
                     type="number"
-                    name="stok_min"
-                    value={formData.stok_min}
+                    name="diskon"
+                    value={formData.diskon}
                     onChange={handleInputChange}
                     className="form-control"
                     min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0"
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Harga Beli</label>
+                  <label className="form-label">Lokasi</label>
                   <input
-                    type="number"
-                    name="harga_beli"
-                    value={formData.harga_beli}
+                    type="text"
+                    name="lokasi"
+                    value={formData.lokasi}
                     onChange={handleInputChange}
                     className="form-control"
-                    min="0"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Harga Jual</label>
-                  <input
-                    type="number"
-                    name="harga_jual"
-                    value={formData.harga_jual}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    min="0"
+                    placeholder="Lokasi penyimpanan"
                   />
                 </div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Keterangan</label>
-                <textarea
-                  name="keterangan"
-                  value={formData.keterangan}
-                  onChange={handleInputChange}
-                  className="form-control"
-                  rows="3"
-                ></textarea>
-              </div>
+              
               <div className="form-actions">
                 <button type="submit" className="btn btn-primary">
                   {editingItem ? 'Update' : 'Simpan'}
@@ -282,28 +315,28 @@ const MasterSparepart = () => {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Kode</th>
-                  <th>Nama Sparepart</th>
+                  <th>Kode Barang</th>
+                  <th>Nama Barang</th>
                   <th>Kategori</th>
                   <th>Merk</th>
                   <th>Satuan</th>
-                  <th>Harga Beli</th>
-                  <th>Harga Jual</th>
-                  <th>Stok Min</th>
+                  <th>Harga List</th>
+                  <th>Diskon (%)</th>
+                  <th>Lokasi</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {data.map((item) => (
                   <tr key={item.id}>
-                    <td>{item.kode_sparepart}</td>
-                    <td>{item.nama_sparepart}</td>
-                    <td>{item.kategori}</td>
-                    <td>{item.merk}</td>
-                    <td>{item.satuan}</td>
-                    <td className="text-right">Rp {item.harga_beli.toLocaleString()}</td>
-                    <td className="text-right">Rp {item.harga_jual.toLocaleString()}</td>
-                    <td className="text-right">{item.stok_min}</td>
+                    <td>{item.kode_barang || item.kodebarang}</td>
+                    <td>{item.nama_barang || item.kodebarang}</td>
+                    <td>{item.kode_kategori || item.kategori || 'N/A'}</td>
+                    <td>{item.merk || 'N/A'}</td>
+                    <td>{item.satuan || 'N/A'}</td>
+                    <td className="text-right">Rp {(item.harga_list || item.modal || 0).toLocaleString()}</td>
+                    <td className="text-right">{item.diskon || 0}%</td>
+                    <td>{item.lokasi || 'N/A'}</td>
                     <td>
                       <div className="action-buttons">
                         <button 

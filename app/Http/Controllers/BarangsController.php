@@ -14,16 +14,17 @@ class BarangsController extends Controller
     public function index()
     {
         try {
-            $barangs = MBarang::with(['kategori'])->get();
+            $barangs = MBarang::all();
             
             // Transform data to match frontend expectations
             $transformedBarangs = $barangs->map(function ($barang) {
                 return [
                     'id' => $barang->id,
                     'kode_barang' => $barang->kodebarang,
-                    'nama_barang' => $barang->namabarang ?? $barang->kodebarang, // Use kodebarang as name if namabarang not available
+                    'nama_barang' => $barang->kodebarang, // Use kodebarang as name
                     'kodedivisi' => $barang->kodedivisi,
-                    'kategori' => $barang->kategori ? $barang->kategori->kategori : 'Tanpa Kategori',
+                    'kode_divisi' => $barang->kodedivisi,
+                    'kategori' => 'General', // Default category
                     'modal' => (float) ($barang->modal ?? 0),
                     'stok' => (int) ($barang->stok ?? 0),
                     'tanggal_masuk' => $barang->tglmasuk ? $barang->tglmasuk->format('Y-m-d') : null,
