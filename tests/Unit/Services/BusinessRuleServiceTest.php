@@ -21,10 +21,10 @@ class BusinessRuleServiceTest extends TestCase
         $this->businessRuleService = new BusinessRuleService();
 
         // Create test data
-        $this->createTestData();
+        $this->createBusinessRuleTestData();
     }
 
-    protected function createTestData()
+    protected function createBusinessRuleTestData()
     {
         // Create test customer
         MCust::create([

@@ -1,0 +1,76 @@
+{
+    "generated_at": "2025-08-18 15:35:59",
+    "total_issues": 10,
+    "n_plus_one_fixes": [
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "details",
+            "type": "hasMany",
+            "recommendation": "Use eager loading: with('details')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('details')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['details'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "customer",
+            "type": "belongsTo",
+            "recommendation": "Use eager loading: with('customer')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('customer')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['customer'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "divisi",
+            "type": "belongsTo",
+            "recommendation": "Use eager loading: with('divisi')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('divisi')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['divisi'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "hasOne",
+            "type": "hasOne",
+            "recommendation": "Use eager loading: with('hasOne')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('hasOne')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['hasOne'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "hasOneThrough",
+            "type": "hasOne",
+            "recommendation": "Use eager loading: with('hasOneThrough')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('hasOneThrough')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['hasOneThrough'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "belongsTo",
+            "type": "belongsTo",
+            "recommendation": "Use eager loading: with('belongsTo')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('belongsTo')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['belongsTo'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "morphTo",
+            "type": "unknown",
+            "recommendation": "Use eager loading: with('morphTo')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('morphTo')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['morphTo'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "hasMany",
+            "type": "hasMany",
+            "recommendation": "Use eager loading: with('hasMany')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('hasMany')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['hasMany'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "hasManyThrough",
+            "type": "hasMany",
+            "recommendation": "Use eager loading: with('hasManyThrough')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('hasManyThrough')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['hasManyThrough'];"
+        },
+        {
+            "model": "App\\Models\\ClaimPenjualan",
+            "relation": "morphMany",
+            "type": "unknown",
+            "recommendation": "Use eager loading: with('morphMany')",
+            "example_fix": "\/\/ In your controller:\nClaimPenjualan::with('morphMany')->get();\n\n\/\/ Or in your model relationship method:\nprotected $with = ['morphMany'];"
+        }
+    ]
+}

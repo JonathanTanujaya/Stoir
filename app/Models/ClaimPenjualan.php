@@ -23,6 +23,11 @@ class ClaimPenjualan extends Model
         'status',
     ];
 
+    /**
+     * The relationships that should always be loaded.
+     */
+    protected $with = ['details', 'customer', 'divisi', 'hasOneThrough', 'hasManyThrough'];
+
     protected $casts = [
         'tglclaim' => 'date',
     ];

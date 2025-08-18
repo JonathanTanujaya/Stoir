@@ -14,8 +14,10 @@ import {
   suppliersAPI, 
   barangAPI, 
   invoicesAPI, 
-  categoriesAPI 
-} from '../../services/api';
+  categoriesAPI,
+  handleAPIResponse,
+  handleAPIError 
+} from '../../services/unifiedAPI';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -36,45 +38,47 @@ const Dashboard = () => {
       setLoading(true);
       console.log('🔄 Fetching dashboard data from Laravel backend...');
       
-      // Fetch data from multiple endpoints
-      const [customers, suppliers, products, invoices, categories] = await Promise.all([
-        customersAPI.getAll().catch((error) => {
-          console.error('❌ Customers API Error:', error);
-          return { data: { data: [] } };
-        }),
-        suppliersAPI.getAll().catch((error) => {
-          console.error('❌ Suppliers API Error:', error);
-          return { data: { data: [] } };
-        }),
-        barangAPI.getAll().catch((error) => {
-          console.error('❌ Barang API Error:', error);
-          return { data: { data: [] } };
-        }),
-        invoicesAPI.getAll().catch((error) => {
-          console.error('❌ Invoices API Error:', error);
-          return { data: { data: [] } };
-        }),
-        categoriesAPI.getAll().catch((error) => {
-          console.error('❌ Categories API Error:', error);
-          return { data: { data: [] } };
-        })
+      // Fetch data from multiple endpoints with unified error handling
+      const responses = await Promise.allSettled([
+        customersAPI.getAll(),
+        suppliersAPI.getAll(),
+        barangAPI.getAll(),
+        invoicesAPI.getAll(),
+        categoriesAPI.getAll()
       ]);
 
-      console.log('📊 Laravel API Responses:', {
-        customers: customers.data,
-        suppliers: suppliers.data,
-        products: products.data,
-        invoices: invoices.data,
-        categories: categories.data
+      // Process responses with unified handler
+      const [customersRes, suppliersRes, productsRes, invoicesRes, categoriesRes] = responses.map(result => {
+        if (result.status === 'fulfilled') {
+          return handleAPIResponse(result.value);
+        } else {
+          console.error('❌ API Error:', result.reason);
+          return handleAPIError(result.reason);
+        }
       });
 
-      // Laravel returns data in response.data.data format
+      console.log('📊 Laravel API Responses:', {
+        customers: customersRes,
+        suppliers: suppliersRes,
+        products: productsRes,
+        invoices: invoicesRes,
+        categories: categoriesRes
+      });
+
+      // Process data with unified response format
+      const customersData = customersRes.success ? customersRes.data : [];
+      const suppliersData = suppliersRes.success ? suppliersRes.data : [];
+      const productsData = productsRes.success ? productsRes.data : [];
+      const invoicesData = invoicesRes.success ? invoicesRes.data : [];
+      const categoriesData = categoriesRes.success ? categoriesRes.data : [];
+
+      // Update stats with proper data handling
       setStats({
-        totalCustomers: customers.data?.data?.length || 0,
-        totalSuppliers: suppliers.data?.data?.length || 0,
-        totalProducts: products.data?.data?.length || 0,
-        totalInvoices: invoices.data?.data?.length || 0,
-        totalCategories: categories.data?.data?.length || 0
+        totalCustomers: Array.isArray(customersData) ? customersData.length : (customersData?.length || 0),
+        totalSuppliers: Array.isArray(suppliersData) ? suppliersData.length : (suppliersData?.length || 0),
+        totalProducts: Array.isArray(productsData) ? productsData.length : (productsData?.length || 0),
+        totalInvoices: Array.isArray(invoicesData) ? invoicesData.length : (invoicesData?.length || 0),
+        totalCategories: Array.isArray(categoriesData) ? categoriesData.length : (categoriesData?.length || 0)
       });
     } catch (error) {
       console.error('❌ Error fetching dashboard data:', error);

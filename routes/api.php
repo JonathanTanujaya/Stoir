@@ -9,7 +9,6 @@ use App\Http\Controllers\AuthController;
 // Master Data Controllers
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BarangController;
-use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CustomersController;
@@ -29,7 +28,10 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TmpPrintInvoiceController;
+use App\Http\Controllers\TmpPrintTTController;
 use App\Http\Controllers\KartuStokController;
+use App\Http\Controllers\SaldoBankController;
+use App\Http\Controllers\StokMinimumController;
 
 // Transaction Controllers
 use App\Http\Controllers\ClaimController;
@@ -47,6 +49,7 @@ use App\Http\Controllers\MergeBarangController;
 // Return/Retur controllers
 use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\ReturPenjualanController;
+use App\Http\Controllers\PurchasesController;
 
 // ===========================
 // AUTHENTICATION ROUTES (PUBLIC FOR DEVELOPMENT)
@@ -112,11 +115,11 @@ Route::get('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'show']);
 Route::put('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'update']);
 Route::delete('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'destroy']);
 
-// Barang routes with composite keys
-Route::get('barang/{kodeDivisi}', [BarangController::class, 'showByDivisi']); 
-Route::get('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'show']);
-Route::put('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'update']);
-Route::delete('barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'destroy']);
+// Barang routes with composite keys - Use different endpoint to avoid conflict
+Route::get('master-barang/{kodeDivisi}', [BarangController::class, 'showByDivisi']); 
+Route::get('master-barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'show']);
+Route::put('master-barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'update']);
+Route::delete('master-barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'destroy']);
 
 // Customer routes with composite keys - COMMENTED OUT DUE TO ROUTE CONFLICT
 // Route::get('customers', [CustomerController::class, 'index']);
@@ -142,13 +145,13 @@ Route::get('sales/transactions', [InvoiceController::class, 'index']);
 Route::post('sales/transactions', [InvoiceController::class, 'store']);
 Route::get('sales/transactions/{id}', [InvoiceController::class, 'show']);
 
-// Supplier routes with composite keys
-Route::get('suppliers', [SupplierController::class, 'index']);
-Route::post('suppliers', [SupplierController::class, 'store']);
-Route::get('suppliers/{kodeDivisi}', [SupplierController::class, 'showByDivisi']); 
-Route::get('suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'show']);
-Route::put('suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'update']);
-Route::delete('suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'destroy']);
+// Master Supplier routes with composite keys
+Route::get('master-suppliers', [SupplierController::class, 'index']);
+Route::post('master-suppliers', [SupplierController::class, 'store']);
+Route::get('master-suppliers/{kodeDivisi}', [SupplierController::class, 'showByDivisi']); 
+Route::get('master-suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'show']);
+Route::put('master-suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'update']);
+Route::delete('master-suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'destroy']);
 
 // Kategori routes
 Route::get('kategoris', [KategoriController::class, 'index']);
@@ -304,3 +307,43 @@ Route::delete('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::c
 // Invoice Details routes (assume handled by InvoiceController)
 Route::get('invoice-details', [InvoiceController::class, 'getAllDetails']);
 Route::get('invoices/{invoiceId}/details', [InvoiceController::class, 'getDetails']);
+
+// Additional Finance routes
+Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']);
+Route::get('penerimaan-finance/all', [PenerimaanFinanceController::class, 'getAllForFrontend']);
+Route::post('penerimaan-finance', [PenerimaanFinanceController::class, 'store']);
+Route::get('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'show']);
+Route::put('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'update']);
+Route::delete('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'destroy']);
+
+// Saldo Bank routes  
+Route::get('saldo-bank', [SaldoBankController::class, 'index']);
+Route::post('saldo-bank', [SaldoBankController::class, 'store']);
+Route::get('saldo-bank/{id}', [SaldoBankController::class, 'show']);
+Route::put('saldo-bank/{id}', [SaldoBankController::class, 'update']);
+Route::delete('saldo-bank/{id}', [SaldoBankController::class, 'destroy']);
+
+// Stock Claim routes
+Route::get('stok-claims', [StokClaimController::class, 'index']);
+Route::post('stok-claims', [StokClaimController::class, 'store']);
+Route::get('stok-claims/{id}', [StokClaimController::class, 'show']);
+Route::put('stok-claims/{id}', [StokClaimController::class, 'update']);
+Route::delete('stok-claims/{id}', [StokClaimController::class, 'destroy']);
+
+// Stock Minimum routes
+Route::get('stok-minimum', [StokMinimumController::class, 'index']);
+Route::post('stok-minimum', [StokMinimumController::class, 'store']);
+Route::get('stok-minimum/{id}', [StokMinimumController::class, 'show']);
+Route::put('stok-minimum/{id}', [StokMinimumController::class, 'update']);
+Route::delete('stok-minimum/{id}', [StokMinimumController::class, 'destroy']);
+
+// TmpPrintTT routes
+Route::get('tmp-print-tt', [TmpPrintTTController::class, 'index']);
+Route::post('tmp-print-tt', [TmpPrintTTController::class, 'store']);
+Route::get('tmp-print-tt/{id}', [TmpPrintTTController::class, 'show']);
+Route::put('tmp-print-tt/{id}', [TmpPrintTTController::class, 'update']);
+Route::delete('tmp-print-tt/{id}', [TmpPrintTTController::class, 'destroy']);
+
+// Additional view routes for Return Sales
+Route::get('v-cust-retur', [ReturnSalesController::class, 'getVCustRetur']);
+Route::get('v-return-sales-detail', [ReturnSalesController::class, 'getVReturnSalesDetail']);

@@ -21,27 +21,28 @@ class NullMigrationRepository implements MigrationRepositoryInterface
         return []; // Return empty array - no migrations to check
     }
 
-    public function getMigrations(int $steps): array
-    {
-        return [];
-    }
+   public function getMigrations($steps)
+{
+    return [];
+}
+
 
     public function getLast(): array
     {
         return [];
     }
 
-    public function getMigrationsByBatch(array $batches): array
+    public function getMigrationsByBatch($batch): array
     {
         return [];
     }
 
-    public function log(string $file, int $batch): void
+    public function log($file, $batch): void
     {
         // Do nothing - don't log migrations
     }
 
-    public function delete(object $migration): void
+    public function delete($migration): void
     {
         // Do nothing
     }
@@ -49,5 +50,20 @@ class NullMigrationRepository implements MigrationRepositoryInterface
     public function getNextBatchNumber(): int
     {
         return 1;
+    }
+
+    public function getMigrationBatches(): array
+    {
+        return [];
+    }
+
+    public function deleteRepository(): void
+    {
+        // Do nothing
+    }
+
+    public function setSource($name): void
+    {
+        // Do nothing
     }
 }

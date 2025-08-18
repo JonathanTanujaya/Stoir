@@ -1,6 +1,6 @@
 // Authentication Context untuk manage user state global
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/apiService';
+import { authAPI, handleAPIResponse, handleAPIError } from '../services/unifiedAPI';
 
 const AuthContext = createContext();
 

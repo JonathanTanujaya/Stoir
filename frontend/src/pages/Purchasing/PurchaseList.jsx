@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { purchasesAPI } from '../../services/api';
+import { purchasesAPI, handleAPIResponse, handleAPIError } from '../../services/unifiedAPI';
 import { toast } from 'react-toastify';
 import PageHeader from '../../components/Layout/PageHeader';
 

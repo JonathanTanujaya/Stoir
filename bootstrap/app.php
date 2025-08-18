@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.rate_limit' => \App\Http\Middleware\ApiRateLimit::class,
             'sanitize' => \App\Http\Middleware\SanitizeInput::class,
             'log.requests' => \App\Http\Middleware\RequestLogger::class,
+            'format.api' => \App\Http\Middleware\FormatApiResponse::class,
         ]);
 
         // Enable CORS for API routes
@@ -35,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.rate_limit:120,1', // 120 requests per minute
             'sanitize',
             'log.requests',
+            'format.api', // Format API responses consistently
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
