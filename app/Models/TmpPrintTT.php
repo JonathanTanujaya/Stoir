@@ -9,7 +9,7 @@ class TmpPrintTT extends Model
 {
     use HasFactory;
 
-    protected $table = 'tmp_print_tt';
+    protected $table = 'dbo.tmp_print_tt';
     public $incrementing = false;
     public $timestamps = false;
 

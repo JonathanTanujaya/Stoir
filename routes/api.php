@@ -81,11 +81,11 @@ Route::get('suppliers/{id}', [SuppliersController::class, 'show']);
 Route::put('suppliers/{id}', [SuppliersController::class, 'update']);
 Route::delete('suppliers/{id}', [SuppliersController::class, 'destroy']);
 
-Route::get('barang', [BarangsController::class, 'index']);
-Route::post('barang', [BarangsController::class, 'store']);
-Route::get('barang/{id}', [BarangsController::class, 'show']);
-Route::put('barang/{id}', [BarangsController::class, 'update']);
-Route::delete('barang/{id}', [BarangsController::class, 'destroy']);
+Route::get('barangs', [BarangsController::class, 'index']);
+Route::post('barangs', [BarangsController::class, 'store']);
+Route::get('barangs/{id}', [BarangsController::class, 'show']);
+Route::put('barangs/{id}', [BarangsController::class, 'update']);
+Route::delete('barangs/{id}', [BarangsController::class, 'destroy']);
 
 Route::get('invoices', [InvoiceController::class, 'index']);
 Route::get('sales', [SalesController::class, 'index']);

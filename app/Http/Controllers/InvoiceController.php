@@ -11,7 +11,7 @@ use App\Models\InvoiceDetail;
 use App\Models\MCust;
 use App\Models\MSales;
 use App\Models\MArea;
-use App\Models\MBarang;
+use App\Models\DBarang;
 use App\Models\MKategori;
 use App\Models\Company;
 use Illuminate\Support\Facades\DB;
@@ -368,12 +368,12 @@ class InvoiceController extends Controller
     {
         try {
             $search = $request->get('search', '');
-            $limit = $request->get('limit', 50);
+            $limit = $request->get('limit', 2000); // Increase limit untuk menampilkan lebih banyak data
 
-            $query = MBarang::select(
+            $query = DBarang::select(
                 'kodebarang as id',
                 'kodebarang as code',
-                'kodebarang as name', // Use kodebarang as name since namabarang doesn't exist
+                'kodebarang as name', // Use kodebarang as name
                 'kodedivisi',
                 'modal as harga_jual', // Use modal as price
                 'stok'
@@ -383,14 +383,15 @@ class InvoiceController extends Controller
                 $query->where('kodebarang', 'like', "%{$search}%");
             }
 
-            $barangs = $query->orderBy('kodebarang')
+            $barangs = $query->orderBy('kodebarang', 'asc') // Sort A-Z
                 ->limit($limit)
                 ->get();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Products retrieved successfully',
-                'data' => $barangs
+                'data' => $barangs,
+                'total_count' => $barangs->count()
             ]);
 
         } catch (\Exception $e) {

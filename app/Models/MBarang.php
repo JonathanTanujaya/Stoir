@@ -9,34 +9,46 @@ class MBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.d_barang';
-    
-    // Use id as primary key since it's the auto-increment field
-    protected $primaryKey = 'id';
-    public $incrementing = true;
+    protected $table = 'dbo.m_barang';
+    protected $primaryKey = 'kodebarang';
+    public $incrementing = false;
     public $timestamps = false;
-    protected $keyType = 'int';
+    protected $keyType = 'string';
 
     protected $fillable = [
         'kodedivisi',
         'kodebarang',
-        'tglmasuk',
-        'modal',
-        'stok',
-        'id'
+        'namabarang',
+        'kategori',
+        'satuan',
+        'hargajual',
+        'hargabeli',
+        'stok_min',
+        'aktif',
+        'deskripsi'
     ];
 
     protected $casts = [
-        'tglmasuk' => 'datetime',
-        'modal' => 'decimal:4',
-        'stok' => 'integer',
-        'id' => 'integer'
+        'hargajual' => 'decimal:2',
+        'hargabeli' => 'decimal:2',
+        'stok_min' => 'integer',
+        'aktif' => 'boolean'
     ];
 
     // Relationships
-    public function kategori()
+    public function kategoriDetail()
     {
-        return $this->belongsTo(MKategori::class, 'kodedivisi', 'kodedivisi');
+        return $this->belongsTo(MKategori::class, 'kategori', 'kodekategori');
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(MDivisi::class, 'kodedivisi', 'kodedivisi');
+    }
+
+    public function stokBarang()
+    {
+        return $this->hasMany(DBarang::class, 'kodebarang', 'kodebarang');
     }
 
     public function kartuStok()
@@ -44,48 +56,21 @@ class MBarang extends Model
         return $this->hasMany(KartuStok::class, 'kodebarang', 'kodebarang');
     }
 
-    public function invoiceDetails()
+    // Scope untuk mendapatkan barang aktif saja
+    public function scopeActive($query)
     {
-        return $this->hasMany(InvoiceDetail::class, 'KodeBarang', 'kodebarang');
+        return $query->where('aktif', 1);
     }
 
-    // Scopes
-    public function scopeByDivisi($query, $kodeDivisi)
+    // Scope untuk sorting alphabetical
+    public function scopeAlphabetical($query)
+    {
+        return $query->orderBy('namabarang', 'asc');
+    }
+
+    // Scope untuk filter by division
+    public function scopeByDivision($query, $kodeDivisi)
     {
         return $query->where('kodedivisi', $kodeDivisi);
-    }
-
-    public function scopeHasStock($query)
-    {
-        return $query->where('stok', '>', 0);
-    }
-
-    public function scopeByDateRange($query, $startDate, $endDate)
-    {
-        return $query->whereBetween('tglmasuk', [$startDate, $endDate]);
-    }
-
-    // Helper methods
-    public function hasStock()
-    {
-        return $this->stok > 0;
-    }
-
-    public function getStockValue()
-    {
-        return $this->stok * $this->modal;
-    }
-
-    public function isLowStock($minStock = 10)
-    {
-        return $this->stok <= $minStock;
-    }
-    
-    // Custom method to find by composite key
-    public static function findByCompositeKey($kodeDivisi, $kodeBarang)
-    {
-        return self::where('kodedivisi', $kodeDivisi)
-                   ->where('kodebarang', $kodeBarang)
-                   ->first();
     }
 }

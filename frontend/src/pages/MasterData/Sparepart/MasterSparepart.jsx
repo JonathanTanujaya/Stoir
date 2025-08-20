@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { sparepartsAPI } from '../../../services/api';
+import {
+  ensureArray,
+  generateUniqueKey,
+  safeGet,
+  standardizeApiResponse,
+  handleApiError,
+  createLoadingState,
+  safeFilter
+} from '../../../utils/apiResponseHandler';
+import { standardizeSparepart } from '../../../utils/fieldMapping';
+import { withErrorBoundary } from '../../../components/ErrorBoundary/MasterDataErrorBoundary';
 import '../../../design-system.css';
 
 const MasterSparepart = () => {
-  const [data, setData] = useState([]);
+  const [appState, setAppState] = useState(createLoadingState());
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
@@ -364,4 +375,4 @@ const MasterSparepart = () => {
   );
 };
 
-export default MasterSparepart;
+export default withErrorBoundary(MasterSparepart);

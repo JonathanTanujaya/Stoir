@@ -9,7 +9,7 @@ class ReturnSales extends Model
 {
     use HasFactory;
 
-    protected $table = 'return_sales';
+    protected $table = 'dbo.return_sales';
     protected $primaryKey = ['KodeDivisi', 'NoRetur'];
     public $incrementing = false;
     public $timestamps = false;

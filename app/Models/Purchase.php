@@ -9,7 +9,7 @@ class Purchase extends Model
 {
     use HasFactory;
 
-    protected $table = 'purchases';
+    protected $table = 'dbo.purchases';
     
     protected $fillable = [
         'invoice_number',

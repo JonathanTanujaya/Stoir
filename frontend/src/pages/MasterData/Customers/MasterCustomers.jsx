@@ -2,10 +2,20 @@ import React, { useState, useEffect } from 'react';
 import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { customersAPI } from '../../../services/api';
+import {
+  ensureArray,
+  generateUniqueKey,
+  safeGet,
+  standardizeApiResponse,
+  handleApiError,
+  createLoadingState,
+  safeFilter
+} from '../../../utils/apiResponseHandler';
+import { standardizeCustomer, mapField, customerFieldMap } from '../../../utils/fieldMapping';
+import { withErrorBoundary } from '../../../components/ErrorBoundary/MasterDataErrorBoundary';
 
 const MasterCustomers = () => {
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [appState, setAppState] = useState(createLoadingState());
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState({
@@ -26,21 +36,40 @@ const MasterCustomers = () => {
 
   const fetchCustomers = async () => {
     try {
-      setLoading(true);
-      console.log('🔄 Fetching customers from:', 'http://localhost:8000/api/customers');
+      setAppState(prev => ({ ...prev, loading: true, error: null }));
+      console.log('🔄 Fetching customers...');
+      
       const response = await customersAPI.getAll();
-      console.log('📊 Customers API Full Response:', response);
-      console.log('📊 Customers API Response Data:', response.data);
-      console.log('📊 Customers Array:', response.data?.data);
-      // Laravel returns data in response.data.data format
-      const customersData = response.data?.data || [];
-      console.log('📊 Final Customers Data:', customersData);
-      setCustomers(customersData);
+      console.log('📊 Raw API Response:', response);
+      
+      // Standardize API response
+      const standardResponse = standardizeApiResponse(response.data);
+      console.log('📊 Standardized Response:', standardResponse);
+      
+      if (standardResponse.success) {
+        // Standardize semua customer data
+        const standardizedCustomers = standardResponse.data.map(customer => 
+          standardizeCustomer(customer)
+        ).filter(customer => customer !== null);
+        
+        setAppState({
+          loading: false,
+          error: null,
+          data: standardizedCustomers,
+          total: standardizedCustomers.length
+        });
+      } else {
+        throw new Error(standardResponse.message);
+      }
     } catch (error) {
       console.error('❌ Error fetching customers:', error);
-      console.error('❌ Error response:', error.response);
-    } finally {
-      setLoading(false);
+      const errorResponse = handleApiError(error, 'MasterCustomers');
+      setAppState({
+        loading: false,
+        error: errorResponse.message,
+        data: [],
+        total: 0
+      });
     }
   };
 
@@ -102,13 +131,10 @@ const MasterCustomers = () => {
     });
   };
 
-  // Filter and pagination
-  const filteredCustomers = customers.filter(customer =>
-    (customer.namacust || customer.nama || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (customer.kodecust || customer.kode_customer || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (customer.alamat || customer.email || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  // Filter and pagination dengan safe operations
+  const searchFields = ['namacust', 'nama', 'kodecust', 'kode_customer', 'alamat', 'email'];
+  const filteredCustomers = safeFilter(appState.data, searchTerm, searchFields);
+  
   const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCustomers = filteredCustomers.slice(startIndex, startIndex + itemsPerPage);
@@ -297,34 +323,60 @@ const MasterCustomers = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {loading ? (
+                  {appState.loading ? (
                     <tr>
                       <td colSpan="5" className="px-6 py-8 text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                        <span className="mt-2 text-gray-600">Memuat data...</span>
+                      </td>
+                    </tr>
+                  ) : appState.error ? (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-8 text-center">
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                          <div className="text-red-600 font-semibold mb-2">⚠️ {appState.error}</div>
+                          <button
+                            onClick={fetchCustomers}
+                            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                          >
+                            🔄 Coba Lagi
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ) : paginatedCustomers.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                        Tidak ada data customer
+                        {searchTerm ? 'Tidak ada customer yang sesuai dengan pencarian' : 'Belum ada data customer'}
                       </td>
                     </tr>
                   ) : (
                     paginatedCustomers.map((customer, index) => (
-                      <tr key={customer.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <tr 
+                        key={generateUniqueKey(customer, index, 'customer')} 
+                        className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-indigo-50 transition-colors`}
+                      >
                         <td className="px-6 py-4 text-sm font-bold text-gray-900 border-b border-gray-100">
-                          {customer.kodecust || customer.kode_customer}
+                          {customer.kode || 'N/A'}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 border-b border-gray-100">
                           <div>
-                            <div className="font-semibold">{customer.namacust || customer.nama}</div>
-                            <div className="text-xs text-gray-500">{customer.alamat}</div>
+                            <div className="font-semibold">
+                              {customer.nama || 'Nama tidak tersedia'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {customer.alamat || 'Alamat tidak tersedia'}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 border-b border-gray-100">
                           <div>
-                            <div className="font-medium">{customer.telepon}</div>
-                            <div className="text-xs text-gray-500">{customer.email}</div>
+                            <div className="font-medium">
+                              {customer.telepon || 'Telepon tidak tersedia'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {customer.email || 'Email tidak tersedia'}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm border-b border-gray-100">
@@ -346,7 +398,7 @@ const MasterCustomers = () => {
                               <PencilIcon className="w-5 h-5" />
                             </button>
                             <button
-                              onClick={() => handleDelete(customer.id)}
+                              onClick={() => handleDelete(safeGet(customer, 'id'))}
                               className="p-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
                               title="Delete Customer"
                             >
@@ -392,4 +444,4 @@ const MasterCustomers = () => {
   );
 };
 
-export default MasterCustomers;
+export default withErrorBoundary(MasterCustomers);

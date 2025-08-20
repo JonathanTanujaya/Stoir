@@ -2,17 +2,25 @@ import React, { useState, useEffect } from 'react';
 import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { barangAPI, categoriesAPI } from '../../../services/api';
+import {
+  ensureArray,
+  generateUniqueKey,
+  safeGet,
+  standardizeApiResponse,
+  handleApiError,
+  createLoadingState,
+  safeFilter
+} from '../../../utils/apiResponseHandler';
+import { standardizeBarang } from '../../../utils/fieldMapping';
+import { withErrorBoundary } from '../../../components/ErrorBoundary/MasterDataErrorBoundary';
 
 const MasterBarang = () => {
-  const [barangs, setBarangs] = useState([]);
+  const [appState, setAppState] = useState(createLoadingState());
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState({
     kode_barang: '',
-    nama_barang: '',
-    kodedivisi: '',
     modal: '',
     stok: '',
     tanggal_masuk: ''
@@ -28,21 +36,38 @@ const MasterBarang = () => {
 
   const fetchBarangs = async () => {
     try {
-      setLoading(true);
-      console.log('🔄 Fetching barangs from:', 'http://localhost:8000/api/barang');
+      setAppState(prev => ({ ...prev, loading: true, error: null }));
+      console.log('🔄 Fetching barangs...');
+      
       const response = await barangAPI.getAll();
-      console.log('📊 Barangs API Full Response:', response);
-      console.log('📊 Barangs API Response Data:', response.data);
-      console.log('📊 Barangs Array:', response.data?.data);
-      // Laravel returns data in response.data.data format
-      const barangsData = response.data?.data || [];
-      console.log('📊 Final Barangs Data:', barangsData);
-      setBarangs(barangsData);
+      console.log('📊 Raw Barangs API Response:', response);
+      
+      // Standardize API response
+      const standardResponse = standardizeApiResponse(response.data);
+      console.log('📊 Standardized Barangs Response:', standardResponse);
+      
+      if (standardResponse.success) {
+        // Data sudah dalam format yang benar dari API baru
+        const barangsData = ensureArray(standardResponse.data);
+        
+        setAppState({
+          loading: false,
+          error: null,
+          data: barangsData,
+          total: standardResponse.total_count || barangsData.length
+        });
+      } else {
+        throw new Error(standardResponse.message);
+      }
     } catch (error) {
       console.error('❌ Error fetching barangs:', error);
-      console.error('❌ Error response:', error.response);
-    } finally {
-      setLoading(false);
+      const errorResponse = handleApiError(error, 'MasterBarang');
+      setAppState({
+        loading: false,
+        error: errorResponse.message,
+        data: [],
+        total: 0
+      });
     }
   };
 
@@ -67,8 +92,6 @@ const MasterBarang = () => {
       // Reset form
       setFormData({
         kode_barang: '',
-        nama_barang: '',
-        kodedivisi: '',
         modal: '',
         stok: '',
         tanggal_masuk: ''
@@ -85,13 +108,11 @@ const MasterBarang = () => {
   const handleEdit = (barang) => {
     setFormData({
       kode_barang: barang.kode_barang,
-      nama_barang: barang.nama_barang || '',
-      kodedivisi: barang.kodedivisi,
       modal: barang.modal.toString(),
       stok: barang.stok.toString(),
       tanggal_masuk: barang.tanggal_masuk || ''
     });
-    setEditingId(barang.id);
+    setEditingId(barang.kode_barang); // Use kode_barang as ID since we don't have 'id'
   };
 
   const handleDelete = async (id) => {
@@ -105,11 +126,9 @@ const MasterBarang = () => {
     }
   };
 
-  const filteredBarangs = barangs.filter(barang =>
-    (barang.kode_barang || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (barang.nama_barang || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (barang.kategori || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter dan pagination dengan safe operations
+  const searchFields = ['kode_barang'];
+  const filteredBarangs = safeFilter(appState.data, searchTerm, searchFields);
 
   const totalPages = Math.ceil(filteredBarangs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -137,7 +156,7 @@ const MasterBarang = () => {
             {editingId ? 'Edit Barang' : 'Tambah Barang Baru'}
           </h3>
           
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Kode Barang *
@@ -150,38 +169,6 @@ const MasterBarang = () => {
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Masukkan kode barang"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Nama Barang
-              </label>
-              <input
-                type="text"
-                value={formData.nama_barang}
-                onChange={(e) => setFormData({...formData, nama_barang: e.target.value})}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                placeholder="Masukkan nama barang"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Kategori *
-              </label>
-              <select
-                required
-                value={formData.kodedivisi}
-                onChange={(e) => setFormData({...formData, kodedivisi: e.target.value})}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              >
-                <option value="">Pilih Kategori</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.kodeKategori}>
-                    {category.namaKategori}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div>
@@ -227,7 +214,7 @@ const MasterBarang = () => {
               />
             </div>
 
-            <div className="md:col-span-2 lg:col-span-3 flex gap-4">
+            <div className="md:col-span-2 flex gap-4">
               <button
                 type="submit"
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 font-semibold shadow-lg"
@@ -242,8 +229,6 @@ const MasterBarang = () => {
                     setEditingId(null);
                     setFormData({
                       kode_barang: '',
-                      nama_barang: '',
-                      kodedivisi: '',
                       modal: '',
                       stok: '',
                       tanggal_masuk: ''
@@ -281,45 +266,58 @@ const MasterBarang = () => {
             <table className="w-full">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Kode</th>
-                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Nama Barang</th>
-                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Kategori</th>
+                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Kode Barang</th>
                   <th className="text-right py-4 px-6 font-semibold text-slate-700">Modal</th>
                   <th className="text-center py-4 px-6 font-semibold text-slate-700">Stok</th>
-                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Tgl. Masuk</th>
+                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Tanggal Masuk</th>
                   <th className="text-center py-4 px-6 font-semibold text-slate-700">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
+                {appState.loading ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-8">
+                    <td colSpan="5" className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                       <p className="mt-2 text-slate-600">Loading...</p>
                     </td>
                   </tr>
+                ) : appState.error ? (
+                  <tr>
+                    <td colSpan="5" className="text-center py-8">
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="text-red-600 font-semibold mb-2">⚠️ {appState.error}</div>
+                        <button
+                          onClick={fetchBarangs}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                          🔄 Coba Lagi
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ) : currentBarangs.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-8 text-slate-500">
-                      Belum ada data barang
+                    <td colSpan="5" className="text-center py-8 text-slate-500">
+                      {searchTerm ? 'Tidak ada barang yang sesuai dengan pencarian' : 'Belum ada data barang'}
                     </td>
                   </tr>
                 ) : (
                   currentBarangs.map((barang, index) => (
-                    <tr key={barang.id} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="py-4 px-6 font-mono text-sm">{barang.kode_barang}</td>
-                      <td className="py-4 px-6 font-medium">{barang.nama_barang || '-'}</td>
-                      <td className="py-4 px-6">{barang.kategori}</td>
-                      <td className="py-4 px-6 text-right font-mono">{formatCurrency(barang.modal)}</td>
+                    <tr 
+                      key={generateUniqueKey(barang, index, 'barang')} 
+                      className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="py-4 px-6 font-mono text-sm">{barang.kode_barang || 'N/A'}</td>
+                      <td className="py-4 px-6 text-right font-mono">{formatCurrency(barang.modal || 0)}</td>
                       <td className="py-4 px-6 text-center">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          barang.stok > 10 
+                          (barang.stok || 0) > 10 
                             ? 'bg-green-100 text-green-700' 
-                            : barang.stok > 0 
+                            : (barang.stok || 0) > 0 
                             ? 'bg-yellow-100 text-yellow-700'
                             : 'bg-red-100 text-red-700'
                         }`}>
-                          {barang.stok}
+                          {barang.stok || 0}
                         </span>
                       </td>
                       <td className="py-4 px-6">{barang.tanggal_masuk || '-'}</td>
@@ -333,7 +331,7 @@ const MasterBarang = () => {
                             <PencilIcon className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(barang.id)}
+                            onClick={() => handleDelete(barang.kode_barang)}
                             className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                             title="Hapus"
                           >
@@ -386,4 +384,4 @@ const MasterBarang = () => {
   );
 };
 
-export default MasterBarang;
+export default withErrorBoundary(MasterBarang);

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\MBarang;
+use App\Models\DBarang;
 use Illuminate\Support\Facades\Validator;
 
 class BarangsController extends Controller
@@ -14,34 +14,31 @@ class BarangsController extends Controller
     public function index()
     {
         try {
-            $barangs = MBarang::all();
+            // Ambil semua barang dengan sorting A-Z dan format tanggal yang benar
+            $barangs = DBarang::orderBy('kodebarang', 'asc')->get();
             
-            // Transform data to match frontend expectations
+            // Transform data to match frontend expectations - only show required fields
             $transformedBarangs = $barangs->map(function ($barang) {
                 return [
-                    'id' => $barang->id,
                     'kode_barang' => $barang->kodebarang,
-                    'nama_barang' => $barang->kodebarang, // Use kodebarang as name
-                    'kodedivisi' => $barang->kodedivisi,
-                    'kode_divisi' => $barang->kodedivisi,
-                    'kategori' => 'General', // Default category
                     'modal' => (float) ($barang->modal ?? 0),
                     'stok' => (int) ($barang->stok ?? 0),
-                    'tanggal_masuk' => $barang->tglmasuk ? $barang->tglmasuk->format('Y-m-d') : null,
-                    'status' => 'aktif'
+                    'tanggal_masuk' => $barang->tglmasuk ? date('Y-m-d', strtotime($barang->tglmasuk)) : null,
                 ];
             });
 
             return response()->json([
                 'success' => true,
                 'data' => $transformedBarangs,
-                'message' => 'Barangs retrieved successfully'
+                'message' => 'Barangs retrieved successfully',
+                'total_count' => $transformedBarangs->count()
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'data' => [],
-                'message' => 'Error retrieving barangs: ' . $e->getMessage()
+                'message' => 'Error retrieving barangs: ' . $e->getMessage(),
+                'total_count' => 0
             ], 500);
         }
     }
@@ -70,26 +67,21 @@ class BarangsController extends Controller
                 ], 422);
             }
 
-            $barang = MBarang::create([
+            $barang = DBarang::create([
                 'kodebarang' => $request->kode_barang,
-                'namabarang' => $request->nama_barang,
                 'kodedivisi' => $request->kodedivisi,
                 'modal' => $request->modal,
                 'stok' => $request->stok,
-                'tglmasuk' => $request->tanggal_masuk ? now() : null
+                'tglmasuk' => $request->tanggal_masuk ? $request->tanggal_masuk : now()
             ]);
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'id' => $barang->id,
                     'kode_barang' => $barang->kodebarang,
-                    'nama_barang' => $barang->namabarang,
-                    'kodedivisi' => $barang->kodedivisi,
                     'modal' => (float) $barang->modal,
                     'stok' => (int) $barang->stok,
-                    'tanggal_masuk' => $barang->tglmasuk ? $barang->tglmasuk->format('Y-m-d') : null,
-                    'status' => 'aktif'
+                    'tanggal_masuk' => $barang->tglmasuk ? date('Y-m-d', strtotime($barang->tglmasuk)) : null,
                 ],
                 'message' => 'Barang created successfully'
             ], 201);
@@ -108,7 +100,7 @@ class BarangsController extends Controller
     public function show($id)
     {
         try {
-            $barang = MBarang::with(['kategori'])->where('id', $id)->first();
+            $barang = DBarang::where('id', $id)->first();
 
             if (!$barang) {
                 return response()->json([
@@ -121,15 +113,10 @@ class BarangsController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'id' => $barang->id,
                     'kode_barang' => $barang->kodebarang,
-                    'nama_barang' => $barang->namabarang,
-                    'kodedivisi' => $barang->kodedivisi,
-                    'kategori' => $barang->kategori->kategori ?? 'N/A',
                     'modal' => (float) $barang->modal,
                     'stok' => (int) $barang->stok,
-                    'tanggal_masuk' => $barang->tglmasuk ? $barang->tglmasuk->format('Y-m-d') : null,
-                    'status' => 'aktif'
+                    'tanggal_masuk' => $barang->tglmasuk ? date('Y-m-d', strtotime($barang->tglmasuk)) : null,
                 ],
                 'message' => 'Barang retrieved successfully'
             ]);
@@ -148,7 +135,7 @@ class BarangsController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $barang = MBarang::where('id', $id)->first();
+            $barang = DBarang::where('id', $id)->first();
 
             if (!$barang) {
                 return response()->json([
@@ -178,7 +165,6 @@ class BarangsController extends Controller
 
             $barang->update([
                 'kodebarang' => $request->kode_barang,
-                'namabarang' => $request->nama_barang,
                 'kodedivisi' => $request->kodedivisi,
                 'modal' => $request->modal,
                 'stok' => $request->stok,
@@ -188,14 +174,10 @@ class BarangsController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'id' => $barang->id,
                     'kode_barang' => $barang->kodebarang,
-                    'nama_barang' => $barang->namabarang,
-                    'kodedivisi' => $barang->kodedivisi,
                     'modal' => (float) $barang->modal,
                     'stok' => (int) $barang->stok,
-                    'tanggal_masuk' => $barang->tglmasuk ? $barang->tglmasuk->format('Y-m-d') : null,
-                    'status' => 'aktif'
+                    'tanggal_masuk' => $barang->tglmasuk ? date('Y-m-d', strtotime($barang->tglmasuk)) : null,
                 ],
                 'message' => 'Barang updated successfully'
             ]);
@@ -214,7 +196,7 @@ class BarangsController extends Controller
     public function destroy($id)
     {
         try {
-            $barang = MBarang::where('id', $id)->first();
+            $barang = DBarang::where('id', $id)->first();
 
             if (!$barang) {
                 return response()->json([

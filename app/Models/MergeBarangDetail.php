@@ -9,7 +9,7 @@ class MergeBarangDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'merge_barang_detail';
+    protected $table = 'dbo.merge_barang_detail';
     protected $primaryKey = 'ID';
     public $incrementing = true;
     public $timestamps = false;
