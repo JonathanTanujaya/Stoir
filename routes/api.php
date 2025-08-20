@@ -51,6 +51,9 @@ use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\ReturPenjualanController;
 use App\Http\Controllers\PurchasesController;
 
+// Global Search Controller
+use App\Http\Controllers\Api\GlobalSearchController;
+
 // ===========================
 // AUTHENTICATION ROUTES (PUBLIC FOR DEVELOPMENT)
 // ===========================
@@ -58,6 +61,16 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('auth/register', [AuthController::class, 'register']); // Removed middleware for development
 Route::post('auth/logout', [AuthController::class, 'logout']); // Made public for development
 Route::get('auth/me', [AuthController::class, 'me']); // Made public for development
+
+// ===========================
+// GLOBAL SEARCH ROUTES
+// ===========================
+Route::prefix('search')->group(function () {
+    Route::get('/', [GlobalSearchController::class, 'search']);
+    Route::get('/suggestions', [GlobalSearchController::class, 'suggestions']);
+    Route::get('/analytics', [GlobalSearchController::class, 'analytics']);
+    Route::post('/clear-cache', [GlobalSearchController::class, 'clearCache']);
+});
 Route::post('auth/change-password', [AuthController::class, 'changePassword']); // Made public for development
 
 // ===========================

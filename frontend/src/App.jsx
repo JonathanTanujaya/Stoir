@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
 });
 
 // Layout Components
-import AppTailwind from './AppTailwind';
+import ModernLayout from './components/Layout/ModernLayout';
 import ErrorBoundary, { NotFound } from './components/ErrorBoundary';
 
 // Pages
@@ -53,9 +53,14 @@ import {
   StokOpnameForm,
   CustomerClaimForm,
   PembelianBonusForm,
-  PenjualanBonusForm,
   PengembalianClaimForm
 } from './pages/Transactions';
+
+// Import individual transaction component
+import PenjualanBonus from './pages/transactions/PenjualanBonus';
+
+// Search Components
+import SearchResultsPage from './pages/SearchResultsPage';
 
 // Finance Components
 import PenerimaanGiro from './pages/Finance/PenerimaanGiro';
@@ -94,10 +99,13 @@ function App() {
           <Router>
           <div className="App">
           <Routes>
-            {/* Main Application Routes with Layout */}
-            <Route path="/" element={<AppTailwind />}>
+            {/* Main Application Routes with Modern Layout */}
+            <Route path="/" element={<ModernLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
+              
+              {/* Search Route */}
+              <Route path="search" element={<SearchResultsPage />} />
             
             {/* Master Data Routes */}
             <Route path="master/categories" element={<MasterCategories />} />
@@ -138,7 +146,7 @@ function App() {
             <Route path="transactions/invoice-cancel" element={<InvoiceCancelForm />} />
             <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
             <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
-            <Route path="transactions/penjualan-bonus" element={<PenjualanBonusForm />} />
+            <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
             <Route path="transactions/customer-claim" element={<CustomerClaimForm />} />
             <Route path="transactions/pengembalian-claim" element={<PengembalianClaimForm />} />
             

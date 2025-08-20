@@ -1,0 +1,450 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Enhanced Gradients -->
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8FAFC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F1F5F9;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="activeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#EEF2FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0E7FF;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Enhanced Shadows -->
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+    
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+  
+  <!-- Main Background -->
+  <rect width="1400" height="900" fill="url(#bgGradient)"/>
+  
+  <!-- TOP NAVIGATION BAR -->
+  <rect x="0" y="0" width="1400" height="60" fill="#FFFFFF" filter="url(#cardShadow)"/>
+  
+  <!-- Logo Section -->
+  <rect x="24" y="18" width="24" height="24" rx="6" fill="url(#logoGradient)"/>
+  <text x="56" y="32" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#1E293B">Stoir</text>
+  
+  <!-- Top Navigation Items -->
+  <g transform="translate(150, 0)">
+    <!-- Dashboard -->
+    <rect x="0" y="20" width="20" height="20" rx="3" fill="#F1F5F9"/>
+    <rect x="4" y="24" width="4" height="8" fill="#64748B"/>
+    <rect x="9" y="26" width="4" height="6" fill="#64748B"/>
+    <rect x="14" y="28" width="4" height="4" fill="#64748B"/>
+    <text x="28" y="34" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" fill="#64748B">Dashboard</text>
+    
+    <!-- Master Data (Active) -->
+    <rect x="120" y="0" width="120" height="60" fill="url(#activeGradient)"/>
+    <rect x="132" y="20" width="20" height="20" rx="3" fill="#6366F1"/>
+    <rect x="136" y="24" width="12" height="2" fill="#FFFFFF"/>
+    <rect x="136" y="27" width="8" height="2" fill="#FFFFFF"/>
+    <rect x="136" y="30" width="10" height="2" fill="#FFFFFF"/>
+    <text x="160" y="34" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#6366F1">Master Data</text>
+    <rect x="228" y="26" width="16" height="16" rx="8" fill="#6366F1"/>
+    <text x="236" y="35" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF">10</text>
+    
+    <!-- Transaksi -->
+    <rect x="264" y="20" width="20" height="20" rx="3" fill="#F1F5F9"/>
+    <circle cx="274" cy="30" r="6" fill="transparent" stroke="#64748B" stroke-width="1.5"/>
+    <polyline points="271,30 274,33 277,27" fill="transparent" stroke="#64748B" stroke-width="1.5"/>
+    <text x="292" y="34" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" fill="#64748B">Transaksi</text>
+    <rect x="356" y="26" width="16" height="16" rx="8" fill="#10B981"/>
+    <text x="364" y="35" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF">11</text>
+    
+    <!-- Finance -->
+    <rect x="392" y="20" width="20" height="20" rx="3" fill="#F1F5F9"/>
+    <rect x="396" y="24" width="12" height="8" rx="2" fill="transparent" stroke="#64748B" stroke-width="1"/>
+    <line x1="399" y1="27" x2="405" y2="27" stroke="#64748B" stroke-width="1"/>
+    <line x1="399" y1="29" x2="405" y2="29" stroke="#64748B" stroke-width="1"/>
+    <text x="420" y="34" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" fill="#64748B">Finance</text>
+    <rect x="476" y="26" width="16" height="16" rx="8" fill="#F59E0B"/>
+    <text x="484" y="35" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF">7</text>
+    
+    <!-- Laporan -->
+    <rect x="512" y="20" width="20" height="20" rx="3" fill="#F1F5F9"/>
+    <rect x="516" y="24" width="12" height="12" rx="2" fill="transparent" stroke="#64748B" stroke-width="1"/>
+    <rect x="518" y="26" width="8" height="2" fill="#64748B"/>
+    <rect x="518" y="28" width="6" height="2" fill="#64748B"/>
+    <rect x="518" y="30" width="8" height="2" fill="#64748B"/>
+    <text x="540" y="34" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" fill="#64748B">Laporan</text>
+    <rect x="590" y="26" width="20" height="16" rx="8" fill="#8B5CF6"/>
+    <text x="600" y="35" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF">13</text>
+  </g>
+  
+  <!-- Search Bar -->
+  <rect x="800" y="18" width="280" height="24" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+  <circle cx="815" cy="30" r="6" fill="transparent" stroke="#94A3B8" stroke-width="1.5"/>
+  <line x1="820" y1="35" x2="822" y2="37" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="830" y="33" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#94A3B8">air filter</text>
+  
+  <!-- Top Right Icons -->
+  <g transform="translate(1100, 18)">
+    <!-- Notifications -->
+    <circle cx="15" cy="12" r="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+    <path d="M9 6a4 4 0 0 1 8 0c0 7 3 9 3 9H6s3-2 3-9" fill="transparent" stroke="#64748B" stroke-width="1.2"/>
+    <circle cx="21" cy="6" r="4" fill="#EF4444"/>
+    <text x="21" y="9" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="600" fill="#FFFFFF" text-anchor="middle">3</text>
+    
+    <!-- Profile -->
+    <circle cx="60" cy="12" r="12" fill="url(#logoGradient)"/>
+    <text x="60" y="16" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF" text-anchor="middle">AD</text>
+  </g>
+  
+  <!-- SIDE NAVIGATION -->
+  <rect x="0" y="60" width="280" height="840" fill="#FFFFFF" filter="url(#softShadow)"/>
+  
+  <!-- Breadcrumb -->
+  <g transform="translate(24, 80)">
+    <circle cx="6" cy="10" r="4" fill="#F1F5F9"/>
+    <text x="18" y="14" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#64748B">Dashboard</text>
+    <text x="80" y="14" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#CBD5E1">></text>
+    <text x="92" y="14" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#64748B">Master Data</text>
+    <text x="170" y="14" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#CBD5E1">></text>
+    <text x="182" y="14" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#6366F1">Kategori</text>
+  </g>
+  
+  <!-- Master Data Section -->
+  <text x="24" y="130" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#374151">Master Data</text>
+  
+  <!-- Recent Section -->
+  <g transform="translate(24, 150)">
+    <rect x="0" y="0" width="16" height="16" rx="4" fill="#EEF2FF"/>
+    <circle cx="8" cy="8" r="3" fill="#6366F1"/>
+    <text x="24" y="11" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Recent</text>
+    <rect x="220" y="0" width="20" height="16" rx="8" fill="#EEF2FF"/>
+    <text x="230" y="11" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#6366F1" text-anchor="middle">5</text>
+  </g>
+  
+  <!-- All Master Data Dropdown -->
+  <g transform="translate(24, 180)">
+    <text x="0" y="15" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#64748B">All Master Data</text>
+    <text x="210" y="15" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#94A3B8">10</text>
+    <polygon points="230,12 235,8 235,16" fill="#94A3B8"/>
+  </g>
+  
+  <!-- Master Data Items -->
+  <g transform="translate(24, 210)">
+    <!-- Kategori (Active) -->
+    <rect x="0" y="0" width="232" height="36" rx="6" fill="url(#activeGradient)"/>
+    <rect x="12" y="10" width="16" height="16" rx="4" fill="#6366F1"/>
+    <text x="18" y="19" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF" text-anchor="middle">K</text>
+    <text x="36" y="22" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#6366F1">Kategori</text>
+    <polygon points="208,18 212,14 212,22" fill="#6366F1"/>
+    
+    <!-- Sparepart -->
+    <rect x="12" y="46" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="55" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">S</text>
+    <text x="36" y="58" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Sparepart</text>
+    <polygon points="208,54 212,50 212,58" fill="#CBD5E1"/>
+    
+    <!-- Stock Min -->
+    <rect x="12" y="82" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="91" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">!</text>
+    <text x="36" y="94" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Stock Min</text>
+    <polygon points="208,90 212,86 212,94" fill="#CBD5E1"/>
+    
+    <!-- Checklist -->
+    <rect x="12" y="118" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <polyline points="16,126 19,129 24,124" fill="transparent" stroke="#10B981" stroke-width="2"/>
+    <text x="36" y="130" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Checklist</text>
+    <polygon points="208,126 212,122 212,130" fill="#CBD5E1"/>
+    
+    <!-- Area -->
+    <rect x="12" y="154" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="163" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">A</text>
+    <text x="36" y="166" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Area</text>
+    <polygon points="208,162 212,158 212,166" fill="#CBD5E1"/>
+    
+    <!-- Sales -->
+    <rect x="12" y="190" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="199" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">S</text>
+    <text x="36" y="202" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Sales</text>
+    <polygon points="208,198 212,194 212,202" fill="#CBD5E1"/>
+    
+    <!-- Supplier -->
+    <rect x="12" y="226" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="235" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">T</text>
+    <text x="36" y="238" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Supplier</text>
+    <polygon points="208,234 212,230 212,238" fill="#CBD5E1"/>
+    
+    <!-- Customer -->
+    <rect x="12" y="262" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="271" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">C</text>
+    <text x="36" y="274" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Customer</text>
+    <polygon points="208,270 212,266 212,274" fill="#CBD5E1"/>
+    
+    <!-- Bank -->
+    <rect x="12" y="298" width="16" height="16" rx="4" fill="#F1F5F9"/>
+    <text x="20" y="307" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#64748B" text-anchor="middle">B</text>
+    <text x="36" y="310" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748B">Bank</text>
+    <polygon points="208,306 212,302 212,310" fill="#CBD5E1"/>
+  </g>
+  
+  <!-- MAIN CONTENT AREA -->
+  <rect x="280" y="60" width="1120" height="840" fill="transparent"/>
+  
+  <!-- Main Header with Icon -->
+  <g transform="translate(320, 90)">
+    <rect x="0" y="0" width="32" height="32" rx="8" fill="#FEF3C7"/>
+    <rect x="8" y="8" width="16" height="16" rx="4" fill="#F59E0B"/>
+    <text x="16" y="19" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#FFFFFF" text-anchor="middle">📁</text>
+    
+    <text x="44" y="15" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="url(#titleGradient)">Master Kategori</text>
+    <text x="44" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#64748B">Kelola data kategori produk dengan mudah dan efisien</text>
+  </g>
+  
+  <!-- Category List Header -->
+  <g transform="translate(320, 160)">
+    <text x="0" y="15" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="600" fill="#1E293B">Daftar Kategori</text>
+    <text x="0" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#64748B">Total 57 kategori tersedia</text>
+    
+    <!-- Search and Add Button -->
+    <rect x="600" y="0" width="200" height="32" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+    <circle cx="615" cy="16" r="6" fill="transparent" stroke="#94A3B8" stroke-width="1.5"/>
+    <line x1="620" y1="21" x2="622" y2="23" stroke="#94A3B8" stroke-width="1.5"/>
+    <text x="628" y="19" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#94A3B8">Cari kategori...</text>
+    
+    <!-- Dropdown -->
+    <rect x="820" y="0" width="80" height="32" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+    <text x="830" y="19" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">15/hal</text>
+    <polygon points="885,16 890,12 890,20" fill="#94A3B8"/>
+    
+    <!-- Add Button -->
+    <rect x="920" y="0" width="120" height="32" rx="8" fill="#6366F1"/>
+    <text x="935" y="19" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#FFFFFF">+ Tambah Kategori</text>
+  </g>
+  
+  <!-- Enhanced Table -->
+  <rect x="320" y="220" width="1040" height="600" rx="12" fill="#FFFFFF" filter="url(#cardShadow)"/>
+  
+  <!-- Table Header -->
+  <rect x="320" y="220" width="1040" height="48" fill="#FAFBFC" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="340" y="240" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">KODE</text>
+  <text x="440" y="240" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">NAMA ▲</text>
+  <text x="720" y="240" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">DESKRIPSI</text>
+  <text x="1100" y="240" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">STATUS</text>
+  <text x="1220" y="240" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">AKSI</text>
+  
+  <!-- Table Rows -->
+  <!-- Row 1 -->
+  <rect x="320" y="268" width="1040" height="48" fill="#FFFFFF" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="340" y="288" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#1E293B">AF</text>
+  <text x="440" y="288" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1E293B">AIR FILTER</text>
+  <text x="720" y="288" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">AIR FILTER - 01</text>
+  <rect x="1100" y="278" width="50" height="20" rx="10" fill="#D1FAE5"/>
+  <text x="1125" y="290" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#065F46" text-anchor="middle">AKTIF</text>
+  
+  <!-- Action buttons -->
+  <rect x="1220" y="278" width="30" height="20" rx="4" fill="#F3F4F6"/>
+  <text x="1235" y="290" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">✏️</text>
+  <rect x="1260" y="278" width="30" height="20" rx="4" fill="#FEE2E2"/>
+  <text x="1275" y="290" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">🗑️</text>
+  
+  <!-- Row 2 -->
+  <rect x="320" y="316" width="1040" height="48" fill="#FAFBFC" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="340" y="336" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#1E293B">AS</text>
+  <text x="440" y="336" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1E293B">AS RODA</text>
+  <text x="720" y="336" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">AS RODA - 01</text>
+  <rect x="1100" y="326" width="50" height="20" rx="10" fill="#D1FAE5"/>
+  <text x="1125" y="338" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#065F46" text-anchor="middle">AKTIF</text>
+  
+  <rect x="1220" y="326" width="30" height="20" rx="4" fill="#F3F4F6"/>
+  <text x="1235" y="338" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">✏️</text>
+  <rect x="1260" y="326" width="30" height="20" rx="4" fill="#FEE2E2"/>
+  <text x="1275" y="338" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">🗑️</text>
+  
+  <!-- Row 3 -->
+  <rect x="320" y="364" width="1040" height="48" fill="#FFFFFF" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="340" y="384" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#1E293B">BJ</text>
+  <text x="440" y="384" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1E293B">BALL JOINT</text>
+  <text x="720" y="384" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">BALL JOINT - 01</text>
+  <rect x="1100" y="374" width="50" height="20" rx="10" fill="#D1FAE5"/>
+  <text x="1125" y="386" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#065F46" text-anchor="middle">AKTIF</text>
+  
+  <rect x="1220" y="374" width="30" height="20" rx="4" fill="#F3F4F6"/>
+  <text x="1235" y="386" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">✏️</text>
+  <rect x="1260" y="374" width="30" height="20" rx="4" fill="#FEE2E2"/>
+  <text x="1275" y="386" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">🗑️</text>
+  
+  <!-- Row 4 -->
+  <rect x="320" y="412" width="1040" height="48" fill="#FAFBFC" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="340" y="432" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#1E293B">BT</text>
+  <text x="440" y="432" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1E293B">BAUT</text>
+  <text x="720" y="432" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">BAUT - 01</text>
+  <rect x="1100" y="422" width="50" height="20" rx="10" fill="#D1FAE5"/>
+  <text x="1125" y="434" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#065F46" text-anchor="middle">AKTIF</text>
+  
+  <rect x="1220" y="422" width="30" height="20" rx="4" fill="#F3F4F6"/>
+  <text x="1235" y="434" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">✏️</text>
+  <rect x="1260" y="422" width="30" height="20" rx="4" fill="#FEE2E2"/>
+  <text x="1275" y="434" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">🗑️</text>
+  
+  <!-- Row 5 -->
+  <rect x="320" y="460" width="1040" height="48" fill="#FFFFFF" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="340" y="480" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#1E293B">BC</text>
+  <text x="440" y="480" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1E293B">BELL CRANK</text>
+  <text x="720" y="480" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">BELL CRANK - 01</text>
+  <rect x="1100" y="470" width="50" height="20" rx="10" fill="#D1FAE5"/>
+  <text x="1125" y="482" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#065F46" text-anchor="middle">AKTIF</text>
+  
+  <rect x="1220" y="470" width="30" height="20" rx="4" fill="#F3F4F6"/>
+  <text x="1235" y="482" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">✏️</text>
+  <rect x="1260" y="470" width="30" height="20" rx="4" fill="#FEE2E2"/>
+  <text x="1275" y="482" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">🗑️</text>
+  
+  <!-- Row 6 -->
+  <rect x="320" y="508" width="1040" height="48" fill="#FAFBFC" stroke="#F1F5F9" stroke-width="1"/>
+  <text x="340" y="528" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#1E293B">BDX</text>
+  <text x="440" y="528" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1E293B">BENDIX</text>
+  <text x="720" y="528" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">BENDIX - 01</text>
+  <rect x="1100" y="518" width="50" height="20" rx="10" fill="#D1FAE5"/>
+  <text x="1125" y="530" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#065F46" text-anchor="middle">AKTIF</text>
+  
+  <rect x="1220" y="518" width="30" height="20" rx="4" fill="#F3F4F6"/>
+  <text x="1235" y="530" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">✏️</text>
+  <rect x="1260" y="518" width="30" height="20" rx="4" fill="#FEE2E2"/>
+  <text x="1275" y="530" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">🗑️</text>
+  
+  <!-- Pagination -->
+  <g transform="translate(320, 580)">
+    <rect x="0" y="0" width="1040" height="48" fill="#FAFBFC" stroke="#E2E8F0" stroke-width="1"/>
+    
+    <!-- Page Info -->
+    <text x="24" y="28" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#64748B">Menampilkan 1-6 dari 57 kategori</text>
+    
+    <!-- Pagination Controls -->
+    <g transform="translate(800, 12)">
+      <!-- Previous Button -->
+      <rect x="0" y="0" width="32" height="24" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <polygon points="16,8 12,12 16,16" fill="#94A3B8"/>
+      
+      <!-- Page Numbers -->
+      <rect x="40" y="0" width="24" height="24" rx="6" fill="#6366F1"/>
+      <text x="52" y="15" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#FFFFFF" text-anchor="middle">1</text>
+      
+      <rect x="72" y="0" width="24" height="24" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="84" y="15" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#64748B" text-anchor="middle">2</text>
+      
+      <rect x="104" y="0" width="24" height="24" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="116" y="15" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#64748B" text-anchor="middle">3</text>
+      
+      <text x="140" y="15" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#94A3B8">...</text>
+      
+      <rect x="160" y="0" width="24" height="24" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="172" y="15" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#64748B" text-anchor="middle">10</text>
+      
+      <!-- Next Button -->
+      <rect x="192" y="0" width="32" height="24" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <polygon points="208,8 212,12 208,16" fill="#64748B"/>
+    </g>
+  </g>
+  
+  <!-- Footer Info -->
+  <g transform="translate(320, 650)">
+    <rect x="0" y="0" width="1040" height="120" rx="12" fill="url(#activeGradient)" stroke="#C7D2FE" stroke-width="1"/>
+    
+    <!-- Quick Stats -->
+    <g transform="translate(40, 30)">
+      <!-- Total Categories -->
+      <rect x="0" y="0" width="24" height="24" rx="6" fill="#6366F1"/>
+      <rect x="6" y="6" width="12" height="8" rx="2" fill="#FFFFFF"/>
+      <rect x="8" y="8" width="8" height="1" fill="#6366F1"/>
+      <rect x="8" y="10" width="6" height="1" fill="#6366F1"/>
+      
+      <text x="32" y="12" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Total Kategori</text>
+      <text x="32" y="28" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="#6366F1">57</text>
+      
+      <!-- Active Categories -->
+      <rect x="200" y="0" width="24" height="24" rx="6" fill="#10B981"/>
+      <circle cx="212" cy="12" r="6" fill="transparent" stroke="#FFFFFF" stroke-width="2"/>
+      <polyline points="209,12 212,15 216,9" fill="transparent" stroke="#FFFFFF" stroke-width="2"/>
+      
+      <text x="232" y="12" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Kategori Aktif</text>
+      <text x="232" y="28" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="#10B981">54</text>
+      
+      <!-- Inactive Categories -->
+      <rect x="400" y="0" width="24" height="24" rx="6" fill="#EF4444"/>
+      <circle cx="412" cy="12" r="6" fill="transparent" stroke="#FFFFFF" stroke-width="2"/>
+      <line x1="409" y1="9" x2="415" y2="15" stroke="#FFFFFF" stroke-width="2"/>
+      <line x1="415" y1="9" x2="409" y2="15" stroke="#FFFFFF" stroke-width="2"/>
+      
+      <text x="432" y="12" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Kategori Tidak Aktif</text>
+      <text x="432" y="28" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="700" fill="#EF4444">3</text>
+    </g>
+    
+    <!-- Last Updated -->
+    <text x="40" y="80" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#64748B">Terakhir diperbarui: 28 Juli 2025, 14:30 WIB</text>
+    
+    <!-- Quick Actions -->
+    <g transform="translate(700, 40)">
+      <!-- Export Button -->
+      <rect x="0" y="0" width="100" height="32" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <rect x="12" y="10" width="12" height="12" rx="2" fill="transparent" stroke="#64748B" stroke-width="1"/>
+      <polyline points="15,16 18,13 21,16" fill="transparent" stroke="#64748B" stroke-width="1"/>
+      <text x="32" y="19" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Export</text>
+      
+      <!-- Import Button -->
+      <rect x="120" y="0" width="100" height="32" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <rect x="132" y="10" width="12" height="12" rx="2" fill="transparent" stroke="#64748B" stroke-width="1"/>
+      <polyline points="135,13 138,16 141,13" fill="transparent" stroke="#64748B" stroke-width="1"/>
+      <text x="152" y="19" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Import</text>
+      
+      <!-- Settings Button -->
+      <rect x="240" y="0" width="80" height="32" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <circle cx="272" cy="16" r="6" fill="transparent" stroke="#64748B" stroke-width="1"/>
+      <circle cx="272" cy="16" r="2" fill="#64748B"/>
+      <text x="288" y="19" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748B">Settings</text>
+    </g>
+  </g>
+  
+  <!-- Floating Help Button -->
+  <g transform="translate(1320, 450)">
+    <circle cx="20" cy="20" r="20" fill="#6366F1" filter="url(#cardShadow)"/>
+    <text x="20" y="26" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="middle">?</text>
+    
+    <!-- Pulse Animation -->
+    <circle cx="20" cy="20" r="20" fill="transparent" stroke="#6366F1" stroke-width="2" opacity="0.6">
+      <animate attributeName="r" values="20;25;20" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Status Indicator -->
+  <g transform="translate(1200, 780)">
+    <rect x="0" y="0" width="120" height="32" rx="16" fill="#D1FAE5" stroke="#10B981" stroke-width="1"/>
+    <circle cx="20" cy="16" r="4" fill="#10B981"/>
+    <text x="32" y="19" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#065F46">System Online</text>
+  </g>
+  
+  <!-- Subtle Animations -->
+  <g opacity="0.3">
+    <!-- Loading dots for search -->
+    <circle cx="850" cy="30" r="2" fill="#6366F1">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="860" cy="30" r="2" fill="#6366F1">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+    <circle cx="870" cy="30" r="2" fill="#6366F1">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+    </circle>
+  </g>
+</svg>
