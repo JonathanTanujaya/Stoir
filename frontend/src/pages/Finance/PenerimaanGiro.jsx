@@ -77,14 +77,14 @@ const PenerimaanGiro = () => {
   };
 
   useEffect(() => {
-    let filtered = giroData;
+    let filtered = Array.isArray(giroData) ? giroData : [];
 
     // Filter berdasarkan pencarian
     if (searchTerm) {
       filtered = filtered.filter(item =>
-        item.noGiro.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.bank.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.penerbit.toLowerCase().includes(searchTerm.toLowerCase())
+        item.noGiro?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.bank?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.penerbit?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -368,16 +368,17 @@ const PenerimaanGiro = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.noGiro}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.bank}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.penerbit}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(item.nominal)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.tglTerima}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.tglJatuhTempo}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
+              {Array.isArray(filteredData) && filteredData.length > 0 ? (
+                filteredData.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.noGiro}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.bank}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.penerbit}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(item.nominal)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.tglTerima}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.tglJatuhTempo}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
                       {item.status}
                     </span>
                   </td>
@@ -400,7 +401,14 @@ const PenerimaanGiro = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                    Tidak ada data yang ditemukan
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

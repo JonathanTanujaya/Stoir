@@ -1,9 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import theme from './theme';
 import 'react-toastify/dist/ReactToastify.css';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Layout Components
 import AppTailwind from './AppTailwind';
+import ErrorBoundary, { NotFound } from './components/ErrorBoundary';
 
 // Pages
 import Dashboard from './pages/Dashboard/SimpleDashboard';
@@ -25,6 +40,7 @@ import PurchasingIndex from './pages/Purchasing/PurchasingIndex';
 import PurchaseList from './pages/Purchasing/PurchaseList';
 import SalesIndex from './pages/Sales/SalesIndex';
 import SalesForm from './pages/Sales/SalesForm';
+import SalesTransactionForm from './pages/Sales/SalesTransactionForm';
 
 // Return Forms
 import ReturPembelianForm from './pages/Purchasing/ReturPembelianForm';
@@ -71,13 +87,17 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Main Application Routes with Layout */}
-          <Route path="/" element={<AppTailwind />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Router>
+          <div className="App">
+          <Routes>
+            {/* Main Application Routes with Layout */}
+            <Route path="/" element={<AppTailwind />}>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
             
             {/* Master Data Routes */}
             <Route path="master/categories" element={<MasterCategories />} />
@@ -103,6 +123,7 @@ function App() {
             {/* Sales Module */}
             <Route path="transactions/sales" element={<SalesIndex />} />
             <Route path="transactions/sales/form" element={<SalesForm />} />
+            <Route path="transactions/sales/new" element={<SalesTransactionForm />} />
             <Route path="transactions/sales/penjualan" element={<SalesForm />} />
             <Route path="transactions/sales/return" element={<ReturPenjualanForm />} />
             <Route path="transactions/sales/retur-penjualan" element={<ReturPenjualanForm />} />
@@ -110,7 +131,8 @@ function App() {
             {/* New Transaction Routes */}
             <Route path="transactions/pembelian" element={<PurchaseForm />} />
             <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
-            <Route path="transactions/penjualan" element={<SalesForm />} />
+            <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
+            <Route path="transactions/penjualan-new" element={<SalesTransactionForm />} />
             <Route path="transactions/merge-barang" element={<MergeBarangForm />} />
             <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
             <Route path="transactions/invoice-cancel" element={<InvoiceCancelForm />} />
@@ -152,6 +174,9 @@ function App() {
             
             {/* Add more routes here as needed */}
           </Route>
+          
+          {/* Catch-all route for 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
         
         {/* Toast Notifications */}
@@ -167,8 +192,11 @@ function App() {
           pauseOnHover
           theme="light"
         />
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </ThemeProvider>
+    </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
