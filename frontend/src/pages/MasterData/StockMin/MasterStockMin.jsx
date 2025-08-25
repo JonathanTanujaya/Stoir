@@ -132,11 +132,6 @@ const MasterStockMin = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Master Stock Minimum</h1>
-        <p className="page-subtitle">Monitoring dan pengaturan stok minimum untuk semua barang</p>
-      </div>
-
       {/* Summary Cards */}
       <div className="form-grid grid-cols-4 mb-4">
         <div className="summary-box">

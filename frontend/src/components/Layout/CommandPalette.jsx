@@ -33,18 +33,15 @@ const CommandPalette = () => {
     commandPaletteOpen,
     setCommandPaletteOpen,
     searchItems,
-    recentItems,
-    favoriteItems,
-    setSearchQuery
+    favoriteItems
   } = useNavigation();
 
   // Get search results
   const searchResults = query.trim() ? searchItems(query) : [];
   
-  // Combine recent and favorites for empty query
+  // Combine favorites for empty query
   const quickAccess = query.trim() ? [] : [
-    ...favoriteItems.slice(0, 3).map(item => ({ ...item, type: 'favorite' })),
-    ...recentItems.slice(0, 3).map(item => ({ ...item, type: 'recent' }))
+    ...favoriteItems.slice(0, 5).map(item => ({ ...item, type: 'favorite' }))
   ].filter((item, index, self) => 
     index === self.findIndex(t => t.path === item.path)
   );

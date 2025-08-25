@@ -94,13 +94,10 @@ const MasterBank = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Master Bank</h1>
-        <div className="page-actions">
-          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Tutup Form' : 'Tambah Bank'}
-          </button>
-        </div>
+      <div className="page-actions">
+        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Tutup Form' : 'Tambah Bank'}
+        </button>
       </div>
 
       {showForm && (

@@ -24,7 +24,6 @@ function TmpPrintTTPage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Manajemen Tmp Print TT</h1>
       {view === 'list' ? (
         <>
           <button onClick={handleNew} style={{ marginBottom: '10px' }}>

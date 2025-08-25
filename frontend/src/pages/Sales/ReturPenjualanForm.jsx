@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import PageHeader from '../../components/Layout/PageHeader';
 
 const ReturPenjualanForm = () => {
     // State for form data
@@ -212,11 +211,6 @@ const ReturPenjualanForm = () => {
 
     return (
         <div className="form-container">
-            <PageHeader 
-                title="Form Return Penjualan" 
-                subtitle="Buat return penjualan untuk barang yang dikembalikan oleh customer"
-            />
-            
             <form onSubmit={handleSubmit} className="return-form">
                 {/* Header Section */}
                 <div className="form-section">

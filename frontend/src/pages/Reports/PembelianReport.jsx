@@ -55,14 +55,6 @@ const PembelianReport = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Laporan Pembelian</h1>
-        <div className="page-actions">
-          <button className="btn btn-secondary" onClick={() => window.print()}>Print</button>
-          <button className="btn btn-primary" onClick={() => alert('Export functionality will be implemented')}>Export Excel</button>
-        </div>
-      </div>
-
       <div className="card mb-4">
         <div className="card-header"><h3 className="card-title">Filter</h3></div>
         <div className="card-body">
@@ -92,7 +84,6 @@ const PembelianReport = () => {
       </div>
 
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Data Pembelian</h3></div>
         <div className="card-body">
           <div className="table-responsive">
             <table className="table">

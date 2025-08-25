@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { purchasesAPI, handleAPIResponse, handleAPIError } from '../../services/unifiedAPI';
 import { toast } from 'react-toastify';
-import PageHeader from '../../components/Layout/PageHeader';
 
 function PurchaseList() {
   const [purchases, setPurchases] = useState([]);
@@ -66,27 +65,23 @@ function PurchaseList() {
 
   return (
     <div className="page-content">
-      <PageHeader 
-        actions={
-          <div className="flex gap-3 items-center">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Cari invoice atau supplier..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="search-input"
-              />
-            </div>
-            <button 
-              onClick={() => window.location.href = '/transactions/purchasing/form'} 
-              className="btn-primary"
-            >
-              Buat Pembelian
-            </button>
-          </div>
-        }
-      />
+      <div className="flex gap-3 items-center mb-6">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Cari invoice atau supplier..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        <button 
+          onClick={() => window.location.href = '/transactions/purchasing/form'} 
+          className="btn-primary"
+        >
+          Buat Pembelian
+        </button>
+      </div>
       
       <div className="content-body">
         <div className="table-container">

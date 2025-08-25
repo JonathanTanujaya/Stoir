@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import PageHeader from '../../components/Layout/PageHeader';
 
 const ReturPembelianForm = () => {
     // State for form data based on backend structure
@@ -176,11 +175,6 @@ const ReturPembelianForm = () => {
 
     return (
         <div className="container">
-            <PageHeader 
-                title="Form Retur Pembelian"
-                subtitle="Buat retur pembelian baru"
-            />
-
             <div className="form-card">
                 <form onSubmit={handleSubmit}>
                     {/* Header Section */}

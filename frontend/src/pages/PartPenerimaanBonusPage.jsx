@@ -24,7 +24,6 @@ function PartPenerimaanBonusPage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Manajemen Part Penerimaan Bonus</h1>
       {view === 'list' ? (
         <>
           <button onClick={handleNew} style={{ marginBottom: '10px' }}>

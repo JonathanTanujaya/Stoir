@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { purchasesAPI, suppliersAPI, barangAPI, handleAPIResponse, handleAPIError } from '../../services/unifiedAPI';
 import { toast } from 'react-toastify';
-import PageHeader from '../../components/Layout/PageHeader';
 
 // Helpers
 const todayStr = () => new Date().toISOString().slice(0,10);
@@ -294,8 +293,6 @@ function PurchaseForm() {
 
   return (
     <div className={`purchase-form ${printMode ? 'print-mode' : ''}`}>
-      <PageHeader />
-      
       <div className="pf-header">
         <div className="pf-controls no-print">
           <label className="checkbox-label">

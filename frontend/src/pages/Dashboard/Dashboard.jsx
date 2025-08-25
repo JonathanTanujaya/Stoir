@@ -1,23 +1,179 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Button,
-  Chip,
-  Divider,
-  Avatar,
-  LinearProgress,
-  Alert,
-  Tooltip,
-  Paper,
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import StatCard from '../../components/StatCard';
+import '../../design-system.css';
+
+const Dashboard = () => {
+  const [salesData, setSalesData] = useState([]);
+  const [kpiData, setKpiData] = useState({
+    todaySales: 0,
+    pendingTransactions: 0,
+    lowStockItems: 0
+  });
+
+  // Data dummy untuk KPI
+  useEffect(() => {
+    setKpiData({
+      todaySales: 15750000, // Rp 15.750.000
+      pendingTransactions: 12,
+      lowStockItems: 8
+    });
+
+    // Data dummy untuk grafik penjualan 7 hari terakhir
+    const dummySalesData = [
+      { date: '2025-08-19', sales: 8500000, day: 'Sen' },
+      { date: '2025-08-20', sales: 12300000, day: 'Sel' },
+      { date: '2025-08-21', sales: 9800000, day: 'Rab' },
+      { date: '2025-08-22', sales: 14200000, day: 'Kam' },
+      { date: '2025-08-23', sales: 11500000, day: 'Jum' },
+      { date: '2025-08-24', sales: 16800000, day: 'Sab' },
+      { date: '2025-08-25', sales: 15750000, day: 'Min' }
+    ];
+    setSalesData(dummySalesData);
+  }, []);
+
+  // Format currency untuk tooltip
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
+  // Custom tooltip untuk grafik
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="text-sm font-medium text-gray-700">{`${data.day}, ${label}`}</p>
+          <p className="text-sm text-blue-600 font-semibold">
+            {`Penjualan: ${formatCurrency(payload[0].value)}`}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="page-container">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-gray-600">Ringkasan aktivitas bisnis hari ini</p>
+      </div>
+
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard
+          title="Penjualan Hari Ini"
+          value={formatCurrency(kpiData.todaySales)}
+          subtitle="Target: Rp 18.000.000"
+          icon="💰"
+          color="success"
+        />
+        
+        <StatCard
+          title="Transaksi Tertenda"
+          value={kpiData.pendingTransactions}
+          subtitle="Memerlukan tindak lanjut"
+          icon="⏳"
+          color="warning"
+        />
+        
+        <StatCard
+          title="Barang Akan Habis"
+          value={kpiData.lowStockItems}
+          subtitle="Di bawah stok minimum"
+          icon="📦"
+          color="danger"
+        />
+      </div>
+
+      {/* Sales Chart */}
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">Penjualan 7 Hari Terakhir</h3>
+          <p className="text-sm text-gray-600">Tren penjualan dalam seminggu</p>
+        </div>
+        <div className="card-body">
+          <div style={{ width: '100%', height: '400px' }}>
+            <ResponsiveContainer>
+              <LineChart
+                data={salesData}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="day" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#666' }}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#666' }}
+                  tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 5 }}
+                  activeDot={{ r: 7, stroke: '#3b82f6', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mt-8">
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Aksi Cepat</h3>
+          </div>
+          <div className="card-body">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button className="btn btn-outline-primary flex flex-col items-center p-4">
+                <span className="text-2xl mb-2">📝</span>
+                <span className="text-sm">Buat Invoice</span>
+              </button>
+              
+              <button className="btn btn-outline-primary flex flex-col items-center p-4">
+                <span className="text-2xl mb-2">📦</span>
+                <span className="text-sm">Cek Stok</span>
+              </button>
+              
+              <button className="btn btn-outline-primary flex flex-col items-center p-4">
+                <span className="text-2xl mb-2">📊</span>
+                <span className="text-sm">Laporan</span>
+              </button>
+              
+              <button className="btn btn-outline-primary flex flex-col items-center p-4">
+                <span className="text-2xl mb-2">⚙️</span>
+                <span className="text-sm">Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
   useTheme,
   useMediaQuery
 } from '@mui/material';

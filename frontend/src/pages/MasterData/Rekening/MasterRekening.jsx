@@ -95,13 +95,10 @@ const MasterRekening = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Master Rekening</h1>
-        <div className="page-actions">
-          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Tutup Form' : 'Tambah Rekening'}
-          </button>
-        </div>
+      <div className="page-actions">
+        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Tutup Form' : 'Tambah Rekening'}
+        </button>
       </div>
 
       {showForm && (

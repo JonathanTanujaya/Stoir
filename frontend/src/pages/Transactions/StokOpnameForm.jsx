@@ -83,11 +83,6 @@ const StokOpnameForm = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Stok Opname</h1>
-        <p className="page-subtitle">Perhitungan dan penyesuaian stok fisik dengan stok sistem</p>
-      </div>
-
       <form onSubmit={handleSubmit}>
         <div className="card">
           <div className="card-header">

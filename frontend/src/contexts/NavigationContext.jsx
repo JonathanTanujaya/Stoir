@@ -22,7 +22,6 @@ export const navigationConfig = {
     items: [
       { label: 'Kategori', path: '/master/kategori', icon: 'TagIcon' },
       { label: 'Sparepart', path: '/master/sparepart', icon: 'CogIcon' },
-      { label: 'Stock Min', path: '/master/stock-min', icon: 'ExclamationTriangleIcon' },
       { label: 'Checklist', path: '/master/checklist', icon: 'CheckCircleIcon' },
       { label: 'Area', path: '/master/area', icon: 'MapPinIcon' },
       { label: 'Sales', path: '/master/sales', icon: 'UserGroupIcon' },
@@ -41,9 +40,7 @@ export const navigationConfig = {
       { label: 'Pembelian', path: '/transactions/pembelian', icon: 'ShoppingCartIcon' },
       { label: 'Retur Pembelian', path: '/transactions/retur-pembelian', icon: 'ArrowUturnLeftIcon' },
       { label: 'Penjualan', path: '/transactions/penjualan', icon: 'CurrencyDollarIcon' },
-      { label: 'Merge Barang', path: '/transactions/merge-barang', icon: 'ArrowsPointingInIcon' },
       { label: 'Retur Penjualan', path: '/transactions/retur-penjualan', icon: 'ArrowUturnRightIcon' },
-      { label: 'Invoice Cancel', path: '/transactions/invoice-cancel', icon: 'XCircleIcon' },
       { label: 'Stok Opname', path: '/transactions/stok-opname', icon: 'ClipboardDocumentCheckIcon' },
       { label: 'Pembelian Bonus', path: '/transactions/pembelian-bonus', icon: 'GiftIcon' },
       { label: 'Penjualan Bonus', path: '/transactions/penjualan-bonus', icon: 'SparklesIcon' },
@@ -57,8 +54,6 @@ export const navigationConfig = {
     icon: 'CurrencyDollarIcon',
     color: 'yellow',
     items: [
-      { label: 'Penerimaan Giro', path: '/finance/penerimaan-giro', icon: 'DocumentCheckIcon' },
-      { label: 'Pencarian Giro', path: '/finance/pencarian-giro', icon: 'MagnifyingGlassIcon' },
       { label: 'Penerimaan Resi', path: '/finance/penerimaan-resi', icon: 'InboxIcon' },
       { label: 'Piutang Resi', path: '/finance/piutang-resi', icon: 'ClockIcon' },
       { label: 'Piutang Retur', path: '/finance/piutang-retur', icon: 'ArrowPathIcon' },
@@ -73,18 +68,8 @@ export const navigationConfig = {
     color: 'purple',
     items: [
       { label: 'Stok Barang', path: '/reports/stok-barang', icon: 'CubeIcon' },
-      { label: 'Kartu Stok', path: '/reports/kartu-stok', icon: 'IdentificationIcon' },
       { label: 'Pembelian', path: '/reports/pembelian', icon: 'ShoppingBagIcon' },
-      { label: 'Pembelian Item', path: '/reports/pembelian-item', icon: 'ListBulletIcon' },
-      { label: 'Penjualan', path: '/reports/penjualan', icon: 'BanknotesIcon' },
-      { label: 'COGS', path: '/reports/cogs', icon: 'CalculatorIcon' },
-      { label: 'Return Sales', path: '/reports/return-sales', icon: 'ArrowUturnDownIcon' },
-      { label: 'Tampil Invoice', path: '/reports/tampil-invoice', icon: 'DocumentDuplicateIcon' },
-      { label: 'Saldo Rekening', path: '/reports/saldo-rekening', icon: 'ScaleIcon' },
-      { label: 'Pembayaran Customer', path: '/reports/pembayaran-customer', icon: 'CreditCardIcon' },
-      { label: 'Tagihan', path: '/reports/tagihan', icon: 'DocumentTextIcon' },
-      { label: 'Pemotongan Return Customer', path: '/reports/pemotongan-return-customer', icon: 'ScissorsIcon' },
-      { label: 'Komisi Sales', path: '/reports/komisi-sales', icon: 'TrophyIcon' }
+      { label: 'Penjualan', path: '/reports/penjualan', icon: 'BanknotesIcon' }
     ]
   }
 };
@@ -102,9 +87,7 @@ export const useNavigation = () => {
 export const NavigationProvider = ({ children }) => {
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState('dashboard');
-  const [recentItems, setRecentItems] = useState([]);
   const [favoriteItems, setFavoriteItems] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   // Auto-detect active category based on current route
@@ -116,23 +99,6 @@ export const NavigationProvider = ({ children }) => {
       setActiveCategory(categoryFromPath);
     } else if (location.pathname === '/' || location.pathname === '/dashboard') {
       setActiveCategory('dashboard');
-    }
-  }, [location.pathname]);
-
-  // Add to recent items when navigating
-  useEffect(() => {
-    const currentPath = location.pathname;
-    if (currentPath !== '/' && currentPath !== '/dashboard') {
-      // Find the menu item
-      const allItems = Object.values(navigationConfig).flatMap(cat => cat.items || []);
-      const currentItem = allItems.find(item => item.path === currentPath);
-      
-      if (currentItem) {
-        setRecentItems(prev => {
-          const filtered = prev.filter(item => item.path !== currentPath);
-          return [{ ...currentItem, timestamp: Date.now() }, ...filtered].slice(0, 5);
-        });
-      }
     }
   }, [location.pathname]);
 
@@ -178,7 +144,6 @@ export const NavigationProvider = ({ children }) => {
       // Escape to close command palette
       if (e.key === 'Escape') {
         setCommandPaletteOpen(false);
-        setSearchQuery('');
       }
     };
 
@@ -189,14 +154,11 @@ export const NavigationProvider = ({ children }) => {
   const value = {
     // State
     activeCategory,
-    recentItems,
     favoriteItems,
-    searchQuery,
     commandPaletteOpen,
     
     // Actions
     setActiveCategory,
-    setSearchQuery,
     setCommandPaletteOpen,
     toggleFavorite,
     searchItems,

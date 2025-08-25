@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { categoriesAPI } from '../../../services/api';
 
@@ -172,12 +171,6 @@ const MasterCategories = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Enhanced Page Header */}
-      <div className="page-header">
-        <h1 className="page-title">📂 Master Kategori</h1>
-        <p className="page-subtitle">Kelola data kategori produk dengan mudah dan efisien</p>
-      </div>
-
       <div className="container mx-auto px-6 pb-8">
         {/* Enhanced Content Header */}
         <div className="content-header">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PageHeader from '../../../components/Layout/PageHeader';
-import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { salesAPI } from '../../../services/api';
 
 const MasterSales = () => {

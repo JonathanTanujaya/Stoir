@@ -128,11 +128,6 @@ const CustomerClaimForm = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Customer Claim</h1>
-        <p className="page-subtitle">Form pengajuan claim dari customer</p>
-      </div>
-
       <form onSubmit={handleSubmit}>
         <div className="card">
           <div className="card-header">

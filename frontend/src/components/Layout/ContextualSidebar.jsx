@@ -85,7 +85,6 @@ const ContextualSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedSections, setExpandedSections] = useState({
-    recent: true,
     favorites: true,
     items: true
   });
@@ -93,7 +92,6 @@ const ContextualSidebar = () => {
   const {
     activeItems,
     activeCategoryConfig,
-    recentItems,
     favoriteItems,
     toggleFavorite
   } = useNavigation();
@@ -197,35 +195,6 @@ const ContextualSidebar = () => {
 
       {/* Content */}
       <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
-        {/* Recent Items */}
-        {recentItems.length > 0 && (
-          <Box sx={{ mb: 2 }}>
-            <ListItemButton
-              onClick={() => handleSectionToggle('recent')}
-              sx={{ borderRadius: 1, py: 0.5 }}
-            >
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <ClockIcon className="w-4 h-4" />
-              </ListItemIcon>
-              <ListItemText
-                primary="Recent"
-                primaryTypographyProps={{ fontSize: '0.75rem', fontWeight: 600, color: 'text.secondary' }}
-              />
-              <Badge badgeContent={recentItems.length} color="primary" sx={{ mr: 1 }} />
-              {expandedSections.recent ? (
-                <ChevronDownIcon className="w-4 h-4" />
-              ) : (
-                <ChevronRightIcon className="w-4 h-4" />
-              )}
-            </ListItemButton>
-            <Collapse in={expandedSections.recent}>
-              <List sx={{ pl: 1 }}>
-                {recentItems.slice(0, 3).map(item => renderMenuItem(item, false))}
-              </List>
-            </Collapse>
-          </Box>
-        )}
-
         {/* Favorite Items */}
         {favoriteItems.length > 0 && (
           <Box sx={{ mb: 2 }}>
@@ -255,8 +224,8 @@ const ContextualSidebar = () => {
           </Box>
         )}
 
-        {/* Divider if we have recent or favorites */}
-        {(recentItems.length > 0 || favoriteItems.length > 0) && <Divider sx={{ my: 1 }} />}
+        {/* Divider if we have favorites */}
+        {favoriteItems.length > 0 && <Divider sx={{ my: 1 }} />}
 
         {/* Main Items */}
         {filteredItems.length > 0 && (

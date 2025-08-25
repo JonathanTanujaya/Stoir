@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,22 +11,29 @@ class MBarang extends Model
     use HasFactory;
 
     protected $table = 'dbo.m_barang';
-    protected $primaryKey = 'kodebarang';
+    protected $primaryKey = ['KodeDivisi', 'KodeBarang'];
     public $incrementing = false;
     public $timestamps = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'kodedivisi',
-        'kodebarang',
-        'namabarang',
-        'kategori',
-        'satuan',
-        'hargajual',
-        'hargabeli',
-        'stok_min',
-        'aktif',
-        'deskripsi'
+        'KodeDivisi',
+        'KodeBarang',
+        'NamaBarang',
+        'KodeKategori',
+        'HargaList',
+        'HargaJual',
+        'HargaList2',
+        'HargaJual2',
+        'Satuan',
+        'Disc1',
+        'Disc2',
+        'merk',
+        'Barcode',
+        'status',
+        'Lokasi',
+        'StokMin',
+        'Checklist'
     ];
 
     protected $casts = [

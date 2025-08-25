@@ -10,7 +10,6 @@ const PemotonganReturnCustomerReport = () => {
   return (
     <ReportTemplate title="Laporan Pemotongan Return Customer">
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Data Pemotongan Return Customer</h3></div>
         <div className="card-body">
           <div className="table-responsive">
             <table className="table">

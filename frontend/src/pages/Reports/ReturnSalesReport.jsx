@@ -10,7 +10,6 @@ const ReturnSalesReport = () => {
   return (
     <ReportTemplate title="Laporan Return Sales">
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Data Return Sales</h3></div>
         <div className="card-body">
           <div className="table-responsive">
             <table className="table">

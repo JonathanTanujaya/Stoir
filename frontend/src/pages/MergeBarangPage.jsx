@@ -24,7 +24,6 @@ function MergeBarangPage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Manajemen Merge Barang</h1>
       {view === 'list' ? (
         <>
           <button onClick={handleNew} style={{ marginBottom: '10px' }}>

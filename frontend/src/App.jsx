@@ -18,10 +18,11 @@ const queryClient = new QueryClient({
 
 // Layout Components
 import ModernLayout from './components/Layout/ModernLayout';
+import DashboardLayout from './components/Layout/DashboardLayout';
 import ErrorBoundary, { NotFound } from './components/ErrorBoundary';
 
 // Pages
-import Dashboard from './pages/Dashboard/SimpleDashboard';
+import Dashboard from './pages/Dashboard/BasicDashboard';
 import MasterCategories from './pages/MasterData/Categories/MasterCategoriesOptimized';
 import MasterCustomers from './pages/MasterData/Customers/MasterCustomersOptimized';
 import MasterSuppliers from './pages/MasterData/Suppliers/MasterSuppliers';
@@ -31,7 +32,6 @@ import PurchaseForm from './pages/Purchasing/PurchaseForm';
 
 // New Master Data Components
 import MasterSparepart from './pages/MasterData/Sparepart/MasterSparepart';
-import MasterStockMin from './pages/MasterData/StockMin/MasterStockMin';
 import MasterArea from './pages/MasterData/Area/MasterArea';
 import MasterChecklist from './pages/MasterData/Checklist/MasterChecklist';
 import MasterBank from './pages/MasterData/Bank/MasterBank';
@@ -48,8 +48,6 @@ import ReturPenjualanForm from './pages/Sales/ReturPenjualanForm';
 
 // New Transaction Components
 import {
-  MergeBarangForm,
-  InvoiceCancelForm,
   StokOpnameForm,
   CustomerClaimForm,
   PembelianBonusForm,
@@ -63,8 +61,6 @@ import PenjualanBonus from './pages/transactions/PenjualanBonus';
 import SearchResultsPage from './pages/SearchResultsPage';
 
 // Finance Components
-import PenerimaanGiro from './pages/Finance/PenerimaanGiro';
-import PencarianGiro from './pages/Finance/PencarianGiro';
 import PenerimaanResi from './pages/Finance/PenerimaanResi';
 import PiutangResi from './pages/Finance/PiutangResi';
 import PiutangRetur from './pages/Finance/PiutangRetur';
@@ -74,18 +70,8 @@ import PenguranganSaldo from './pages/Finance/PenguranganSaldo';
 // Reports
 import {
   StokBarangReport,
-  KartuStokReport,
   PembelianReport,
-  PembelianItemReport,
-  PenjualanReport,
-  COGSReport,
-  ReturnSalesReport,
-  TampilInvoiceReport,
-  SaldoRekeningReport,
-  PembayaranCustomerReport,
-  TagihanReport,
-  PemotonganReturnCustomerReport,
-  KomisiSalesReport
+  PenjualanReport
 } from './pages/Reports';
 
 import './App.css';
@@ -99,10 +85,14 @@ function App() {
           <Router>
           <div className="App">
           <Routes>
+            {/* Dashboard Route with Custom Layout */}
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+            </Route>
+            
             {/* Main Application Routes with Modern Layout */}
             <Route path="/" element={<ModernLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
               
               {/* Search Route */}
               <Route path="search" element={<SearchResultsPage />} />
@@ -115,7 +105,6 @@ function App() {
             <Route path="master/barang" element={<MasterBarang />} />
             <Route path="master/sales" element={<MasterSales />} />
             <Route path="master/sparepart" element={<MasterSparepart />} />
-            <Route path="master/stock-min" element={<MasterStockMin />} />
             <Route path="master/area" element={<MasterArea />} />
             <Route path="master/checklist" element={<MasterChecklist />} />
             <Route path="master/bank" element={<MasterBank />} />
@@ -141,9 +130,7 @@ function App() {
             <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
             <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
             <Route path="transactions/penjualan-new" element={<SalesTransactionForm />} />
-            <Route path="transactions/merge-barang" element={<MergeBarangForm />} />
             <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
-            <Route path="transactions/invoice-cancel" element={<InvoiceCancelForm />} />
             <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
             <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
             <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
@@ -158,22 +145,10 @@ function App() {
             
             {/* Reports Module */}
             <Route path="reports/stok-barang" element={<StokBarangReport />} />
-            <Route path="reports/kartu-stok" element={<KartuStokReport />} />
             <Route path="reports/pembelian" element={<PembelianReport />} />
-            <Route path="reports/pembelian-item" element={<PembelianItemReport />} />
             <Route path="reports/penjualan" element={<PenjualanReport />} />
-            <Route path="reports/cogs" element={<COGSReport />} />
-            <Route path="reports/return-sales" element={<ReturnSalesReport />} />
-            <Route path="reports/tampil-invoice" element={<TampilInvoiceReport />} />
-            <Route path="reports/saldo-rekening" element={<SaldoRekeningReport />} />
-            <Route path="reports/pembayaran-customer" element={<PembayaranCustomerReport />} />
-            <Route path="reports/tagihan" element={<TagihanReport />} />
-            <Route path="reports/pemotongan-return-customer" element={<PemotonganReturnCustomerReport />} />
-            <Route path="reports/komisi-sales" element={<KomisiSalesReport />} />
             
             {/* Finance Module */}
-            <Route path="finance/penerimaan-giro" element={<PenerimaanGiro />} />
-            <Route path="finance/pencarian-giro" element={<PencarianGiro />} />
             <Route path="finance/penerimaan-resi" element={<PenerimaanResi />} />
             <Route path="finance/piutang-resi" element={<PiutangResi />} />
             <Route path="finance/piutang-retur" element={<PiutangRetur />} />

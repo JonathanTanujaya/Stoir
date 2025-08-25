@@ -31,7 +31,6 @@ use App\Http\Controllers\TmpPrintInvoiceController;
 use App\Http\Controllers\TmpPrintTTController;
 use App\Http\Controllers\KartuStokController;
 use App\Http\Controllers\SaldoBankController;
-use App\Http\Controllers\StokMinimumController;
 
 // Transaction Controllers
 use App\Http\Controllers\ClaimController;
@@ -45,11 +44,11 @@ use App\Http\Controllers\ReturPenerimaanController;
 use App\Http\Controllers\SPVController;
 use App\Http\Controllers\StokClaimController;
 use App\Http\Controllers\OpnameController;
-use App\Http\Controllers\MergeBarangController;
 // Return/Retur controllers
 use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\ReturPenjualanController;
 use App\Http\Controllers\PurchasesController;
+use App\Http\Controllers\SparepartController;
 
 // Global Search Controller
 use App\Http\Controllers\Api\GlobalSearchController;
@@ -208,6 +207,14 @@ Route::get('divisis/{kodeDivisi}', [MDivisiController::class, 'show']);
 Route::put('divisis/{kodeDivisi}', [MDivisiController::class, 'update']);
 Route::delete('divisis/{kodeDivisi}', [MDivisiController::class, 'destroy']);
 
+// Sparepart routes (using barang data)
+Route::get('spareparts', [SparepartController::class, 'index']);
+Route::post('spareparts', [SparepartController::class, 'store']);
+Route::get('spareparts/search', [SparepartController::class, 'search']);
+Route::get('spareparts/{kodeDivisi}/{kodeBarang}', [SparepartController::class, 'show']);
+Route::put('spareparts/{kodeDivisi}/{kodeBarang}', [SparepartController::class, 'update']);
+Route::delete('spareparts/{kodeDivisi}/{kodeBarang}', [SparepartController::class, 'destroy']);
+
 // ===========================
 // TRANSACTION ROUTES
 // ===========================
@@ -342,13 +349,6 @@ Route::post('stok-claims', [StokClaimController::class, 'store']);
 Route::get('stok-claims/{id}', [StokClaimController::class, 'show']);
 Route::put('stok-claims/{id}', [StokClaimController::class, 'update']);
 Route::delete('stok-claims/{id}', [StokClaimController::class, 'destroy']);
-
-// Stock Minimum routes
-Route::get('stok-minimum', [StokMinimumController::class, 'index']);
-Route::post('stok-minimum', [StokMinimumController::class, 'store']);
-Route::get('stok-minimum/{id}', [StokMinimumController::class, 'show']);
-Route::put('stok-minimum/{id}', [StokMinimumController::class, 'update']);
-Route::delete('stok-minimum/{id}', [StokMinimumController::class, 'destroy']);
 
 // TmpPrintTT routes
 Route::get('tmp-print-tt', [TmpPrintTTController::class, 'index']);

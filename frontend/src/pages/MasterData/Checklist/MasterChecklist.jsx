@@ -146,11 +146,6 @@ const MasterChecklist = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Master Checklist</h1>
-        <p className="page-subtitle">Kelola checklist untuk berbagai proses bisnis</p>
-      </div>
-
       <div className="card">
         <div className="card-header">
           <div className="filter-section">

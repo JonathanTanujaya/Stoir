@@ -3,9 +3,6 @@ import React from 'react';
 const SimpleDashboard = () => {
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-slate-800 mb-6">
-        🎯 StockFlow Dashboard
-      </h1>
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Dashboard Test</h2>
         <p className="text-gray-600">

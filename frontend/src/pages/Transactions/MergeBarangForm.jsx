@@ -66,11 +66,6 @@ const MergeBarangForm = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Merge Barang</h1>
-        <p className="page-subtitle">Gabungkan stok barang dari satu item ke item lainnya</p>
-      </div>
-
       <form onSubmit={handleSubmit}>
         <div className="card">
           <div className="card-header">

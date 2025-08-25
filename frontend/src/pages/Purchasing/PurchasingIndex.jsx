@@ -1,12 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import PageHeader from '../../components/Layout/PageHeader';
 
 export default function PurchasingIndex(){
   return (
     <div className="purchasing-index">
-      <PageHeader />
-      
       <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
         <Link to="/transactions/purchasing/form" className="tile-action">
           <div className="tile-head">+ Faktur Pembelian Baru</div>

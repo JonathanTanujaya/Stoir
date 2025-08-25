@@ -22,7 +22,6 @@ import {
   CommandLineIcon
 } from '@heroicons/react/24/outline';
 import { useNavigation } from '../../contexts/NavigationContext';
-import GlobalSearchBar from '../Search/GlobalSearchBar';
 
 // Icon mapping
 const iconMap = {
@@ -52,8 +51,7 @@ const TopNavbar = () => {
     activeCategory,
     setActiveCategory,
     setCommandPaletteOpen,
-    navigationConfig,
-    recentItems
+    navigationConfig
   } = useNavigation();
 
   const handleCategoryChange = (event, newCategory) => {
@@ -191,19 +189,6 @@ const TopNavbar = () => {
             })}
           </Tabs>
         </Box>
-
-        {/* Global Search Bar - Only on Desktop */}
-        {!isMobile && (
-          <Box sx={{ mx: 2 }}>
-            <GlobalSearchBar 
-              size="medium"
-              placeholder="Search products, customers, invoices..."
-              onResultSelect={(result) => {
-                console.log('Selected:', result);
-              }}
-            />
-          </Box>
-        )}
 
         {/* Action Buttons */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

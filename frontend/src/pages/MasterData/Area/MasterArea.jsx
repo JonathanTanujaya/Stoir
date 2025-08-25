@@ -134,16 +134,13 @@ const MasterArea = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Master Area</h1>
-        <div className="page-actions">
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowForm(!showForm)}
-          >
-            {showForm ? 'Tutup Form' : 'Tambah Area'}
-          </button>
-        </div>
+      <div className="page-actions">
+        <button 
+          className="btn btn-primary"
+          onClick={() => setShowForm(!showForm)}
+        >
+          {showForm ? 'Tutup Form' : 'Tambah Area'}
+        </button>
       </div>
 
       {showForm && (

@@ -180,14 +180,6 @@ const PenerimaanResi = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <FontAwesomeIcon icon={faReceipt} className="text-blue-600 text-xl" />
-          <h1 className="text-2xl font-bold text-gray-800">Penerimaan Resi</h1>
-        </div>
-        <p className="text-gray-600">Kelola data penerimaan resi pengiriman</p>
-      </div>
-
       {/* Search and Filter */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

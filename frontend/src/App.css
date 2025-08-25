@@ -1,6 +1,17 @@
 /* Import Design System */
 @import './design-system.css';
 
+/* Hide debug/development text */
+.css-13q5uu1,
+.MuiBox-root:contains("flex") {
+  display: none !important;
+}
+
+/* Hide any standalone "flex" text */
+*:contains("flex"):not([class]):not([id]) {
+  display: none !important;
+}
+
 /* Application Layout - Optimized */
 #root {
   min-height: 100vh;

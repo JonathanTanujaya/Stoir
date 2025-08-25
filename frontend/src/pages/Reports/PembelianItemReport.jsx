@@ -10,7 +10,6 @@ const PembelianItemReport = () => {
   return (
     <ReportTemplate title="Laporan Pembelian Item">
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Data Pembelian Item</h3></div>
         <div className="card-body">
           <div className="table-responsive">
             <table className="table">

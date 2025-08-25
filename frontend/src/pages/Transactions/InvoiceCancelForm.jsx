@@ -84,11 +84,6 @@ const InvoiceCancelForm = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Invoice Cancel</h1>
-        <p className="page-subtitle">Batalkan invoice yang telah dibuat</p>
-      </div>
-
       <form onSubmit={handleSubmit}>
         <div className="card">
           <div className="card-header">

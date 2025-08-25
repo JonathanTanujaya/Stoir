@@ -24,7 +24,6 @@ function SPVPage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Manajemen SPV</h1>
       {view === 'list' ? (
         <>
           <button onClick={handleNew} style={{ marginBottom: '10px' }}>
