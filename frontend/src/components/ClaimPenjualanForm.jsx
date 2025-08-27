@@ -24,15 +24,15 @@ function ClaimPenjualanForm({ claim, onSave, onCancel }) {
     }
   }, [claim]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (claim) {
@@ -53,11 +53,23 @@ function ClaimPenjualanForm({ claim, onSave, onCancel }) {
       <h2>{claim ? 'Edit' : 'Tambah'} Klaim Penjualan</h2>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>No Klaim:</label>
-        <input type="text" name="NoClaim" value={formData.NoClaim} onChange={handleChange} required />
+        <input
+          type="text"
+          name="NoClaim"
+          value={formData.NoClaim}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Tgl Klaim:</label>
@@ -91,11 +103,18 @@ function ClaimPenjualanForm({ claim, onSave, onCancel }) {
       </div>
       <div>
         <label>Status Detail:</label>
-        <input type="text" name="StatusDetail" value={formData.StatusDetail} onChange={handleChange} />
+        <input
+          type="text"
+          name="StatusDetail"
+          value={formData.StatusDetail}
+          onChange={handleChange}
+        />
       </div>
 
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

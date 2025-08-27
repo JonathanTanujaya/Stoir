@@ -13,7 +13,7 @@ function InvoicePage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (invoice) => {
+  const handleEdit = invoice => {
     setSelectedInvoice(invoice);
     setShowForm(true);
   };

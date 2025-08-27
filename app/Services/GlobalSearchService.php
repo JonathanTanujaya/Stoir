@@ -22,17 +22,7 @@ class GlobalSearchService
      * Search configuration untuk each entity
      */
     private $searchConfig = [
-        'MBarang' => [
-            'model' => MBarang::class,
-            'title_field' => 'NamaBarang',
-            'subtitle_fields' => ['KodeBarang', 'merk'],
-            'searchable_fields' => ['KodeBarang', 'NamaBarang', 'merk', 'Barcode'],
-            'route_pattern' => '/master/sparepart',
-            'primary_key' => 'KodeBarang',
-            'display_name' => 'Sparepart',
-            'icon' => 'inventory',
-            'priority' => 1
-        ],
+
         'MCust' => [
             'model' => MCust::class,
             'title_field' => 'NamaCust',

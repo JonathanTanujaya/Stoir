@@ -13,7 +13,7 @@ function MasterUserPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (user) => {
+  const handleEdit = user => {
     setSelectedUser(user);
     setShowForm(true);
   };

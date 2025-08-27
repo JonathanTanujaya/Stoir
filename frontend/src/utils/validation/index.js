@@ -13,7 +13,7 @@ export {
   validateField,
   validateForm,
   sanitizeInput,
-  formatValidationMessage
+  formatValidationMessage,
 } from './validationRules';
 
 // Custom hooks for form management
@@ -25,7 +25,7 @@ export {
   useFormStepper,
   useAsyncValidation,
   useFormPersistence,
-  useFormAnalytics
+  useFormAnalytics,
 } from './formHooks';
 
 // Error handling components and utilities
@@ -41,7 +41,7 @@ export {
   FieldError,
   ErrorList,
   SuccessFeedback,
-  useGlobalErrorHandler
+  useGlobalErrorHandler,
 } from './errorHandling';
 
 // Enhanced form components
@@ -55,7 +55,7 @@ export {
   ValidatedSwitch,
   ValidatedArrayField,
   FormSection,
-  FormActions
+  FormActions,
 } from './formComponents';
 
 // API error mapping utilities
@@ -69,7 +69,7 @@ export {
   parseApiSuccess,
   apiRequest,
   createRetryableRequest,
-  processBatchValidationErrors
+  processBatchValidationErrors,
 } from './apiErrorMapper';
 
 // Internationalization utilities
@@ -83,7 +83,7 @@ export {
   formatDate,
   formatDateTime,
   formatPercentage,
-  getValidationRules
+  getValidationRules,
 } from '../locales/i18n';
 
 // Re-export commonly used validation schemas for convenience
@@ -96,45 +96,45 @@ export { default as transactionSchema } from './schemas/transactionSchema';
 export const VALIDATION_PRESETS = {
   // Basic field validations
   required: {
-    required: { value: true, message: 'This field is required' }
+    required: { value: true, message: 'This field is required' },
   },
-  
+
   email: {
     required: { value: true, message: 'Email is required' },
     pattern: {
       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-      message: 'Invalid email format'
-    }
+      message: 'Invalid email format',
+    },
   },
-  
+
   password: {
     required: { value: true, message: 'Password is required' },
     minLength: { value: 8, message: 'Password must be at least 8 characters' },
     pattern: {
       value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      message: 'Password must contain uppercase, lowercase, number, and special character'
-    }
+      message: 'Password must contain uppercase, lowercase, number, and special character',
+    },
   },
-  
+
   phone: {
     pattern: {
       value: /^(\+62|62|0)8[1-9][0-9]{6,9}$/,
-      message: 'Invalid phone number format'
-    }
+      message: 'Invalid phone number format',
+    },
   },
-  
+
   currency: {
     pattern: {
       value: /^\d+(\.\d{1,2})?$/,
-      message: 'Invalid currency format'
+      message: 'Invalid currency format',
     },
-    min: { value: 0, message: 'Amount must be positive' }
+    min: { value: 0, message: 'Amount must be positive' },
   },
-  
+
   percentage: {
     min: { value: 0, message: 'Percentage cannot be negative' },
-    max: { value: 100, message: 'Percentage cannot exceed 100' }
-  }
+    max: { value: 100, message: 'Percentage cannot exceed 100' },
+  },
 };
 
 // Quick validation setup functions
@@ -143,57 +143,63 @@ export const createQuickForm = (schema, defaultValues = {}) => {
     schema,
     defaultValues,
     mode: 'onChange',
-    reValidateMode: 'onChange'
+    reValidateMode: 'onChange',
   };
 };
 
-export const createBasicValidation = (rules) => {
+export const createBasicValidation = rules => {
   return { rules };
 };
 
 // Common validation combinations
 export const VALIDATION_COMBINATIONS = {
   userRegistration: {
-    username: [VALIDATION_PRESETS.required, { minLength: { value: 3, message: 'Username too short' } }],
+    username: [
+      VALIDATION_PRESETS.required,
+      { minLength: { value: 3, message: 'Username too short' } },
+    ],
     email: [VALIDATION_PRESETS.email],
     password: [VALIDATION_PRESETS.password],
     confirmPassword: [
       VALIDATION_PRESETS.required,
-      { validate: (value, { password }) => value === password || 'Passwords do not match' }
-    ]
+      { validate: (value, { password }) => value === password || 'Passwords do not match' },
+    ],
   },
-  
+
   productForm: {
     name: [VALIDATION_PRESETS.required, { maxLength: { value: 100, message: 'Name too long' } }],
     price: [VALIDATION_PRESETS.required, VALIDATION_PRESETS.currency],
     category: [VALIDATION_PRESETS.required],
-    description: [{ maxLength: { value: 500, message: 'Description too long' } }]
+    description: [{ maxLength: { value: 500, message: 'Description too long' } }],
   },
-  
+
   contactForm: {
     name: [VALIDATION_PRESETS.required],
     email: [VALIDATION_PRESETS.email],
     phone: [VALIDATION_PRESETS.phone],
-    message: [VALIDATION_PRESETS.required, { minLength: { value: 10, message: 'Message too short' } }]
-  }
+    message: [
+      VALIDATION_PRESETS.required,
+      { minLength: { value: 10, message: 'Message too short' } },
+    ],
+  },
 };
 
 // Accessibility helpers
 export const ACCESSIBILITY_PROPS = {
   required: {
     'aria-required': true,
-    'aria-invalid': false
+    'aria-invalid': false,
   },
-  
+
   error: {
     'aria-invalid': true,
-    'aria-describedby': 'field-error'
+    'aria-describedby': 'field-error',
   },
-  
+
   success: {
     'aria-invalid': false,
-    'aria-describedby': 'field-success'
-  }
+    'aria-describedby': 'field-success',
+  },
 };
 
 // Performance optimization utilities
@@ -202,7 +208,7 @@ export const PERFORMANCE_CONFIG = {
   throttleDelay: 100,
   maxAsyncValidationTime: 5000,
   cacheValidationResults: true,
-  batchValidationUpdates: true
+  batchValidationUpdates: true,
 };
 
 // Validation framework configuration
@@ -213,23 +219,23 @@ export const VALIDATION_CONFIG = {
   enableAnalytics: true,
   enablePersistence: true,
   autoSave: true,
-  autoSaveDelay: 2000
+  autoSaveDelay: 2000,
 };
 
 // Framework initialization helper
 export const initializeValidationFramework = (config = {}) => {
   const finalConfig = { ...VALIDATION_CONFIG, ...config };
-  
+
   // Setup global error handling
   if (finalConfig.enableDebugMode) {
     console.log('Validation Framework initialized with config:', finalConfig);
   }
-  
+
   // Initialize analytics if enabled
   if (finalConfig.enableAnalytics) {
     // Setup form analytics tracking
   }
-  
+
   return finalConfig;
 };
 
@@ -243,24 +249,24 @@ export const ValidationTypes = {
     min: '{ value: number, message: string }',
     max: '{ value: number, message: string }',
     pattern: '{ value: RegExp, message: string }',
-    validate: 'function | object'
+    validate: 'function | object',
   },
-  
+
   // Form configuration type
   FormConfig: {
     schema: 'Yup.Schema | Zod.Schema',
     defaultValues: 'object',
     mode: '"onChange" | "onBlur" | "onSubmit"',
-    reValidateMode: '"onChange" | "onBlur" | "onSubmit"'
+    reValidateMode: '"onChange" | "onBlur" | "onSubmit"',
   },
-  
+
   // Error type
   ValidationError: {
     type: 'string',
     message: 'string',
     field: 'string',
-    code: 'string | number'
-  }
+    code: 'string | number',
+  },
 };
 
 // Usage examples
@@ -306,7 +312,7 @@ const App = () => {
       <MyForm onError={handleError} />
     </ErrorBoundary>
   );
-};`
+};`,
 };
 
 // Default export for the entire validation framework
@@ -315,22 +321,22 @@ export default {
   VALIDATION_PATTERNS,
   VALIDATION_RULES,
   COMMON_SCHEMAS,
-  
+
   // Components
   ValidatedForm,
   ValidatedTextField,
   ErrorBoundary,
-  
+
   // Hooks
   useEnhancedForm,
   useFormField,
-  
+
   // Configuration
   VALIDATION_CONFIG,
   VALIDATION_PRESETS,
-  
+
   // Helpers
   initializeValidationFramework,
   createQuickForm,
-  formatValidationMessage
+  formatValidationMessage,
 };

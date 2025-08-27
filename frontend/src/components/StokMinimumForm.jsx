@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  TextField, 
-  Button, 
-  Paper, 
-  Typography, 
-  CircularProgress 
-} from '@mui/material';
+import { Box, TextField, Button, Paper, Typography, CircularProgress } from '@mui/material';
 import { toast } from 'react-toastify';
 
 const StokMinimumForm = ({ itemToEdit, onFormSuccess }) => {
@@ -30,22 +23,20 @@ const StokMinimumForm = ({ itemToEdit, onFormSuccess }) => {
     }
   }, [itemToEdit]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setFormData(prevData => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
     try {
       const method = itemToEdit ? 'PUT' : 'POST';
-      const url = itemToEdit 
-        ? `/api/stok-minimum/${itemToEdit.id}` 
-        : '/api/stok-minimum';
+      const url = itemToEdit ? `/api/stok-minimum/${itemToEdit.id}` : '/api/stok-minimum';
 
       const response = await fetch(url, {
         method,
@@ -62,7 +53,7 @@ const StokMinimumForm = ({ itemToEdit, onFormSuccess }) => {
       toast.success(`Data berhasil ${itemToEdit ? 'diperbarui' : 'ditambahkan'}!`);
       onFormSuccess();
     } catch (error) {
-      toast.error("Gagal menyimpan data: " + error.message);
+      toast.error('Gagal menyimpan data: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -93,14 +84,8 @@ const StokMinimumForm = ({ itemToEdit, onFormSuccess }) => {
           type="number"
           required
         />
-        <Button 
-          type="submit" 
-          variant="contained" 
-          color="primary" 
-          sx={{ mt: 2 }}
-          disabled={loading}
-        >
-          {loading ? <CircularProgress size={24} /> : (itemToEdit ? 'Update' : 'Simpan')}
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }} disabled={loading}>
+          {loading ? <CircularProgress size={24} /> : itemToEdit ? 'Update' : 'Simpan'}
         </Button>
       </form>
     </Paper>

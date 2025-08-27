@@ -13,7 +13,7 @@ function MModulePage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (module) => {
+  const handleEdit = module => {
     setSelectedModule(module);
     setShowForm(true);
   };

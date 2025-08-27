@@ -30,7 +30,7 @@ function MCOAList({ onEdit, onRefresh }) {
     fetchCoas();
   }, [onRefresh]);
 
-  const handleDelete = async (kodeCOA) => {
+  const handleDelete = async kodeCOA => {
     if (window.confirm('Apakah Anda yakin ingin menghapus COA ini?')) {
       try {
         const result = await mcoaService.delete(kodeCOA);

@@ -13,7 +13,7 @@ import {
   Fab,
   useTheme,
   useMediaQuery,
-  Slide
+  Slide,
 } from '@mui/material';
 import {
   CameraAlt,
@@ -22,7 +22,7 @@ import {
   CameraRear,
   CameraFront,
   Close,
-  QrCodeScanner
+  QrCodeScanner,
 } from '@mui/icons-material';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,12 +32,12 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const MobileBarcodeScanner = ({ 
-  open, 
-  onClose, 
-  onScanResult, 
-  title = "Scan Barcode",
-  description = "Point your camera at a barcode or QR code"
+const MobileBarcodeScanner = ({
+  open,
+  onClose,
+  onScanResult,
+  title = 'Scan Barcode',
+  description = 'Point your camera at a barcode or QR code',
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -66,18 +66,18 @@ const MobileBarcodeScanner = ({
     onSwipedLeft: () => switchCamera(),
     onSwipedRight: () => toggleFlash(),
     preventDefaultTouchmoveEvent: true,
-    trackMouse: false
+    trackMouse: false,
   });
 
   const requestCameraPermission = async () => {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
             facingMode: cameraFacing === 'back' ? 'environment' : 'user',
             width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          } 
+            height: { ideal: 1080 },
+          },
         });
         setPermissionGranted(true);
         setError('');
@@ -102,9 +102,9 @@ const MobileBarcodeScanner = ({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera
+        source: CameraSource.Camera,
       });
-      
+
       // Process the captured image for barcode detection
       processCapturedImage(image.dataUrl);
     } catch (error) {
@@ -113,22 +113,22 @@ const MobileBarcodeScanner = ({
     }
   };
 
-  const processCapturedImage = async (imageDataUrl) => {
+  const processCapturedImage = async imageDataUrl => {
     try {
       setIsScanning(true);
-      
+
       // Here you would integrate with a barcode detection library
       // For now, we'll simulate barcode detection
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Simulate barcode result
       const mockBarcode = '1234567890123';
       onScanResult({
         text: mockBarcode,
         format: 'EAN13',
-        source: 'camera'
+        source: 'camera',
       });
-      
+
       setIsScanning(false);
       onClose();
     } catch (error) {
@@ -146,7 +146,7 @@ const MobileBarcodeScanner = ({
     try {
       setIsScanning(true);
       setError('');
-      
+
       // Start barcode detection
       if (videoRef.current) {
         // Initialize barcode scanner (you would use a library like QuaggaJS or ZXing)
@@ -161,12 +161,13 @@ const MobileBarcodeScanner = ({
   const simulateBarcodeDetection = () => {
     // Simulate barcode detection for demo
     const detectionInterval = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance of "detecting" a barcode
+      if (Math.random() > 0.7) {
+        // 30% chance of "detecting" a barcode
         const mockBarcode = Math.floor(Math.random() * 1000000000000);
         onScanResult({
           text: mockBarcode.toString(),
           format: 'EAN13',
-          source: 'camera'
+          source: 'camera',
         });
         clearInterval(detectionInterval);
         setIsScanning(false);
@@ -193,7 +194,7 @@ const MobileBarcodeScanner = ({
   };
 
   const switchCamera = () => {
-    setCameraFacing(prev => prev === 'back' ? 'front' : 'back');
+    setCameraFacing(prev => (prev === 'back' ? 'front' : 'back'));
     stopCamera();
     setTimeout(() => {
       requestCameraPermission();
@@ -206,7 +207,7 @@ const MobileBarcodeScanner = ({
       const track = streamRef.current.getVideoTracks()[0];
       if (track && track.getCapabilities().torch) {
         track.applyConstraints({
-          advanced: [{ torch: !flashEnabled }]
+          advanced: [{ torch: !flashEnabled }],
         });
       }
     }
@@ -219,7 +220,7 @@ const MobileBarcodeScanner = ({
       onScanResult({
         text: manualCode,
         format: 'MANUAL',
-        source: 'manual'
+        source: 'manual',
       });
       onClose();
     }
@@ -239,19 +240,21 @@ const MobileBarcodeScanner = ({
           color: 'white',
           ...(!isMobile && {
             borderRadius: 2,
-            maxHeight: '90vh'
-          })
-        }
+            maxHeight: '90vh',
+          }),
+        },
       }}
       {...(isMobile ? swipeHandlers : {})}
     >
-      <DialogTitle sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        bgcolor: 'rgba(0,0,0,0.8)',
-        color: 'white'
-      }}>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          bgcolor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+        }}
+      >
         <Typography variant="h6">{title}</Typography>
         <IconButton onClick={onClose} sx={{ color: 'white' }}>
           <Close />
@@ -264,19 +267,10 @@ const MobileBarcodeScanner = ({
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
-            <Button 
-              variant="contained" 
-              onClick={requestCameraPermission}
-              fullWidth
-              sx={{ mb: 2 }}
-            >
+            <Button variant="contained" onClick={requestCameraPermission} fullWidth sx={{ mb: 2 }}>
               Retry Camera Access
             </Button>
-            <Button 
-              variant="outlined" 
-              onClick={handleManualEntry}
-              fullWidth
-            >
+            <Button variant="outlined" onClick={handleManualEntry} fullWidth>
               Enter Barcode Manually
             </Button>
           </Box>
@@ -291,10 +285,10 @@ const MobileBarcodeScanner = ({
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
                 }}
               />
-              
+
               {/* Scanning Overlay */}
               <AnimatePresence>
                 {isScanning && (
@@ -312,7 +306,7 @@ const MobileBarcodeScanner = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      flexDirection: 'column'
+                      flexDirection: 'column',
                     }}
                   >
                     <CircularProgress sx={{ color: 'white', mb: 2 }} />
@@ -343,8 +337,8 @@ const MobileBarcodeScanner = ({
                     bottom: -2,
                     border: '2px solid #4CAF50',
                     borderRadius: 2,
-                    animation: 'pulse 2s infinite'
-                  }
+                    animation: 'pulse 2s infinite',
+                  },
                 }}
               />
 
@@ -355,16 +349,16 @@ const MobileBarcodeScanner = ({
                   bottom: 20,
                   left: 20,
                   right: 20,
-                  textAlign: 'center'
+                  textAlign: 'center',
                 }}
               >
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
+                <Typography
+                  variant="body2"
+                  sx={{
                     color: 'white',
                     bgcolor: 'rgba(0,0,0,0.6)',
                     p: 1,
-                    borderRadius: 1
+                    borderRadius: 1,
                   }}
                 >
                   {description}
@@ -374,15 +368,17 @@ const MobileBarcodeScanner = ({
 
             {/* Mobile Gesture Hints */}
             {isMobile && (
-              <Box sx={{ 
-                position: 'absolute', 
-                top: 20, 
-                left: 20, 
-                right: 20, 
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                   Swipe ← → for flash • Swipe ↓ to close
                 </Typography>
@@ -393,11 +389,13 @@ const MobileBarcodeScanner = ({
       </DialogContent>
 
       {/* Camera Controls */}
-      <DialogActions sx={{ 
-        justifyContent: 'space-around', 
-        bgcolor: 'rgba(0,0,0,0.8)',
-        p: 2 
-      }}>
+      <DialogActions
+        sx={{
+          justifyContent: 'space-around',
+          bgcolor: 'rgba(0,0,0,0.8)',
+          p: 2,
+        }}
+      >
         <Fab
           size="small"
           onClick={switchCamera}
@@ -410,12 +408,12 @@ const MobileBarcodeScanner = ({
           size="large"
           onClick={isScanning ? () => setIsScanning(false) : startScanning}
           disabled={!permissionGranted}
-          sx={{ 
+          sx={{
             bgcolor: isScanning ? '#f44336' : '#4CAF50',
             color: 'white',
             '&:hover': {
-              bgcolor: isScanning ? '#d32f2f' : '#45a049'
-            }
+              bgcolor: isScanning ? '#d32f2f' : '#45a049',
+            },
           }}
         >
           {isScanning ? <Close /> : <QrCodeScanner />}
@@ -424,9 +422,9 @@ const MobileBarcodeScanner = ({
         <Fab
           size="small"
           onClick={toggleFlash}
-          sx={{ 
-            bgcolor: flashEnabled ? '#FFC107' : 'rgba(255,255,255,0.2)', 
-            color: flashEnabled ? 'black' : 'white' 
+          sx={{
+            bgcolor: flashEnabled ? '#FFC107' : 'rgba(255,255,255,0.2)',
+            color: flashEnabled ? 'black' : 'white',
           }}
         >
           {flashEnabled ? <FlashOn /> : <FlashOff />}
@@ -435,9 +433,15 @@ const MobileBarcodeScanner = ({
 
       <style jsx>{`
         @keyframes pulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.5; }
-          100% { opacity: 1; }
+          0% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+          100% {
+            opacity: 1;
+          }
         }
       `}</style>
     </Dialog>

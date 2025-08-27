@@ -20,20 +20,23 @@ function SupplierForm({ supplier, onSave, onCancel }) {
     }
   }, [supplier]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (supplier) {
         // Update existing supplier
-        await axios.put(`${API_URL}/supplier/${supplier.KodeDivisi}/${supplier.KodeSupplier}`, formData);
+        await axios.put(
+          `${API_URL}/supplier/${supplier.KodeDivisi}/${supplier.KodeSupplier}`,
+          formData
+        );
       } else {
         // Create new supplier
         await axios.post(`${API_URL}/supplier`, formData);
@@ -48,15 +51,32 @@ function SupplierForm({ supplier, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Kode Supplier:</label>
-        <input type="text" name="KodeSupplier" value={formData.KodeSupplier} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeSupplier"
+          value={formData.KodeSupplier}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Nama Supplier:</label>
-        <input type="text" name="NamaSupplier" value={formData.NamaSupplier} onChange={handleChange} />
+        <input
+          type="text"
+          name="NamaSupplier"
+          value={formData.NamaSupplier}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Alamat:</label>
@@ -75,7 +95,9 @@ function SupplierForm({ supplier, onSave, onCancel }) {
         <input type="checkbox" name="status" checked={formData.status} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

@@ -33,7 +33,7 @@ function MTransList({ onEdit, onRefresh }) {
     fetchMtrans();
   }, [onRefresh]);
 
-  const handleDelete = async (kodeTrans) => {
+  const handleDelete = async kodeTrans => {
     if (window.confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
       try {
         await axios.delete(`${API_URL}/trans/${kodeTrans}`); // Changed from /mtrans to /trans

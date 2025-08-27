@@ -11,7 +11,7 @@ const DashboardLayout = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         {/* Top Navigation Only */}
         <TopNavbar />
-        
+
         {/* Main Content - Full Width */}
         <Box
           component="main"
@@ -21,19 +21,19 @@ const DashboardLayout = () => {
             backgroundColor: 'background.default',
             p: 3,
             '& .css-13q5uu1': {
-              display: 'none !important'
+              display: 'none !important',
             },
             '& .MuiBox-root:contains("flex")': {
-              display: 'none !important'
+              display: 'none !important',
             },
             '& div:contains("flex")': {
-              display: 'none !important'
-            }
+              display: 'none !important',
+            },
           }}
         >
           <Outlet />
         </Box>
-        
+
         {/* Command Palette */}
         <CommandPalette />
       </Box>

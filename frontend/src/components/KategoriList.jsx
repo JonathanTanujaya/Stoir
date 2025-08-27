@@ -1,5 +1,5 @@
 import DataTable from './common/DataTable';
-import { useCrudOperations } from '../hooks/useDataFetch';
+import { useDataFetch } from '../hooks/useDataFetch';
 import { kategoriService } from '../config/apiService';
 import { useConfirmDialog } from './common/LoadingComponents';
 
@@ -7,17 +7,27 @@ function KategoriList({ onEdit, onRefresh }) {
   const {
     data: kategori,
     loading,
-    refresh
-  } = useCrudOperations(kategoriService, onRefresh);
-  
+    refresh,
+  } = useDataFetch(() => kategoriService.getAll(), [onRefresh], {
+    errorMessage: 'Gagal memuat data kategori',
+  });
+
+  // Debug log untuk melihat data yang diterima
+  console.log('KategoriList Debug:', {
+    kategori,
+    loading,
+    kategoriType: typeof kategori,
+    kategoriLength: Array.isArray(kategori) ? kategori.length : 'not array',
+  });
+
   const confirm = useConfirmDialog();
 
-  const handleDelete = async (item) => {
+  const handleDelete = async item => {
     const confirmed = await confirm({
       title: 'Hapus Kategori',
       message: `Apakah Anda yakin ingin menghapus kategori "${item.namakategori}"?`,
       confirmText: 'Hapus',
-      confirmButtonClass: 'btn btn-danger'
+      confirmButtonClass: 'btn btn-danger',
     });
 
     if (confirmed) {
@@ -27,27 +37,27 @@ function KategoriList({ onEdit, onRefresh }) {
   };
 
   const columns = [
-    { 
-      header: 'Kode Divisi', 
+    {
+      header: 'Kode Divisi',
       accessor: 'kodedivisi',
-      className: 'text-center'
+      className: 'text-center',
     },
-    { 
-      header: 'Kode Kategori', 
+    {
+      header: 'Kode Kategori',
       accessor: 'kodekategori',
-      className: 'font-monospace'
+      className: 'font-monospace',
     },
-    { 
-      header: 'Nama Kategori', 
+    {
+      header: 'Nama Kategori',
       accessor: 'namakategori',
-      className: 'text-start'
+      className: 'text-start',
     },
-    { 
-      header: 'Keterangan', 
+    {
+      header: 'Keterangan',
       accessor: 'keterangan',
-      render: (value) => value || '-',
-      className: 'text-start'
-    }
+      render: value => value || '-',
+      className: 'text-start',
+    },
   ];
 
   const actions = [
@@ -55,28 +65,28 @@ function KategoriList({ onEdit, onRefresh }) {
       label: 'Edit',
       onClick: onEdit,
       className: 'btn btn-primary btn-sm',
-      show: !!onEdit
+      show: !!onEdit,
     },
     {
       label: 'Hapus',
       onClick: handleDelete,
       className: 'btn btn-danger btn-sm',
-      show: true
-    }
+      show: true,
+    },
   ];
 
   return (
     <div>
       <DataTable
         title="Daftar Kategori"
-        data={kategori}
+        data={kategori || []}
         columns={columns}
         actions={actions}
         loading={loading}
         onRefresh={refresh}
         searchable={true}
         searchFields={['kodekategori', 'namakategori', 'keterangan']}
-        keyField="kodekategori"
+        keyField="id"
       />
     </div>
   );

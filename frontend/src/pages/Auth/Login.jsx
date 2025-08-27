@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { 
-  UserIcon, 
-  LockClosedIcon, 
-  EyeIcon, 
-  EyeSlashIcon 
-} from '@heroicons/react/24/outline';
+import { UserIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,29 +9,29 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
     if (error) setError('');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
     try {
       const result = await login(formData);
-      
+
       if (result.success) {
         // Login successful, redirect to dashboard
         navigate('/');
@@ -159,8 +154,12 @@ const Login = () => {
           <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
             <p className="text-blue-800 text-sm font-medium mb-2">🔧 Demo Credentials:</p>
             <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Email:</strong> admin@stockflow.com</p>
-              <p><strong>Password:</strong> password123</p>
+              <p>
+                <strong>Email:</strong> admin@stockflow.com
+              </p>
+              <p>
+                <strong>Password:</strong> password123
+              </p>
             </div>
           </div>
         </div>

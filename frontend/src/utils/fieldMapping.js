@@ -12,7 +12,7 @@ export const customerFieldMap = {
   alamat: ['alamat', 'address', 'alamat_customer'],
   telepon: ['telepon', 'phone', 'no_telepon', 'telp', 'hp'],
   email: ['email', 'email_customer', 'e_mail'],
-  status: ['status', 'active', 'is_active', 'customer_status']
+  status: ['status', 'active', 'is_active', 'customer_status'],
 };
 
 // Mapping untuk Barang fields
@@ -27,7 +27,7 @@ export const barangFieldMap = {
   stok: ['stok', 'stock', 'qty', 'quantity', 'jumlah'],
   stok_min: ['stok_min', 'stokmin', 'minimum_stock', 'min_stock', 'stock_minimum'],
   satuan: ['satuan', 'unit', 'uom', 'unit_measure'],
-  tanggal_masuk: ['tanggal_masuk', 'tglmasuk', 'created_at', 'entry_date']
+  tanggal_masuk: ['tanggal_masuk', 'tglmasuk', 'created_at', 'entry_date'],
 };
 
 // Mapping untuk Sparepart fields
@@ -38,7 +38,7 @@ export const sparepartFieldMap = {
   jenis: ['jenis', 'type', 'sparepart_type', 'kategori'],
   harga: ['harga', 'price', 'harga_sparepart', 'cost'],
   stok: ['stok', 'stock', 'qty', 'quantity'],
-  supplier: ['supplier', 'supplier_name', 'nama_supplier']
+  supplier: ['supplier', 'supplier_name', 'nama_supplier'],
 };
 
 // Mapping untuk Bank fields
@@ -48,7 +48,7 @@ export const bankFieldMap = {
   nama_bank: ['nama_bank', 'namabank', 'bank_name', 'nama'],
   no_rekening: ['no_rekening', 'norekening', 'account_number', 'rekening'],
   atas_nama: ['atas_nama', 'atasnama', 'account_name', 'nama_rekening'],
-  saldo: ['saldo', 'balance', 'current_balance']
+  saldo: ['saldo', 'balance', 'current_balance'],
 };
 
 // Mapping untuk Rekening fields
@@ -58,7 +58,7 @@ export const rekeningFieldMap = {
   nama_rekening: ['nama_rekening', 'namarekening', 'account_name', 'nama'],
   jenis: ['jenis', 'type', 'account_type', 'jenis_rekening'],
   bank: ['bank', 'bank_name', 'nama_bank'],
-  saldo: ['saldo', 'balance', 'current_balance', 'amount']
+  saldo: ['saldo', 'balance', 'current_balance', 'amount'],
 };
 
 /**
@@ -66,26 +66,26 @@ export const rekeningFieldMap = {
  */
 export const mapField = (data, fieldMap, targetField, defaultValue = null) => {
   if (!data || typeof data !== 'object') return defaultValue;
-  
+
   const possibleFields = fieldMap[targetField];
   if (!possibleFields || !Array.isArray(possibleFields)) return defaultValue;
-  
+
   // Cari field yang ada di data
   for (const field of possibleFields) {
     if (data.hasOwnProperty(field) && data[field] !== null && data[field] !== undefined) {
       return data[field];
     }
   }
-  
+
   return defaultValue;
 };
 
 /**
  * Standardize Customer object
  */
-export const standardizeCustomer = (customer) => {
+export const standardizeCustomer = customer => {
   if (!customer) return null;
-  
+
   return {
     id: mapField(customer, customerFieldMap, 'id'),
     kode: mapField(customer, customerFieldMap, 'kode', ''),
@@ -93,16 +93,16 @@ export const standardizeCustomer = (customer) => {
     alamat: mapField(customer, customerFieldMap, 'alamat', ''),
     telepon: mapField(customer, customerFieldMap, 'telepon', ''),
     email: mapField(customer, customerFieldMap, 'email', ''),
-    status: mapField(customer, customerFieldMap, 'status', 'aktif')
+    status: mapField(customer, customerFieldMap, 'status', 'aktif'),
   };
 };
 
 /**
  * Standardize Barang object
  */
-export const standardizeBarang = (barang) => {
+export const standardizeBarang = barang => {
   if (!barang) return null;
-  
+
   return {
     id: mapField(barang, barangFieldMap, 'id'),
     kode_barang: mapField(barang, barangFieldMap, 'kode_barang', ''),
@@ -114,16 +114,16 @@ export const standardizeBarang = (barang) => {
     stok: mapField(barang, barangFieldMap, 'stok', 0),
     stok_min: mapField(barang, barangFieldMap, 'stok_min', 0),
     satuan: mapField(barang, barangFieldMap, 'satuan', 'PCS'),
-    tanggal_masuk: mapField(barang, barangFieldMap, 'tanggal_masuk', '')
+    tanggal_masuk: mapField(barang, barangFieldMap, 'tanggal_masuk', ''),
   };
 };
 
 /**
  * Standardize Sparepart object
  */
-export const standardizeSparepart = (sparepart) => {
+export const standardizeSparepart = sparepart => {
   if (!sparepart) return null;
-  
+
   return {
     id: mapField(sparepart, sparepartFieldMap, 'id'),
     kode_sparepart: mapField(sparepart, sparepartFieldMap, 'kode_sparepart', ''),
@@ -131,39 +131,39 @@ export const standardizeSparepart = (sparepart) => {
     jenis: mapField(sparepart, sparepartFieldMap, 'jenis', ''),
     harga: mapField(sparepart, sparepartFieldMap, 'harga', 0),
     stok: mapField(sparepart, sparepartFieldMap, 'stok', 0),
-    supplier: mapField(sparepart, sparepartFieldMap, 'supplier', '')
+    supplier: mapField(sparepart, sparepartFieldMap, 'supplier', ''),
   };
 };
 
 /**
  * Standardize Bank object
  */
-export const standardizeBank = (bank) => {
+export const standardizeBank = bank => {
   if (!bank) return null;
-  
+
   return {
     id: mapField(bank, bankFieldMap, 'id'),
     kode_bank: mapField(bank, bankFieldMap, 'kode_bank', ''),
     nama_bank: mapField(bank, bankFieldMap, 'nama_bank', ''),
     no_rekening: mapField(bank, bankFieldMap, 'no_rekening', ''),
     atas_nama: mapField(bank, bankFieldMap, 'atas_nama', ''),
-    saldo: mapField(bank, bankFieldMap, 'saldo', 0)
+    saldo: mapField(bank, bankFieldMap, 'saldo', 0),
   };
 };
 
 /**
  * Standardize Rekening object
  */
-export const standardizeRekening = (rekening) => {
+export const standardizeRekening = rekening => {
   if (!rekening) return null;
-  
+
   return {
     id: mapField(rekening, rekeningFieldMap, 'id'),
     no_rekening: mapField(rekening, rekeningFieldMap, 'no_rekening', ''),
     nama_rekening: mapField(rekening, rekeningFieldMap, 'nama_rekening', ''),
     jenis: mapField(rekening, rekeningFieldMap, 'jenis', ''),
     bank: mapField(rekening, rekeningFieldMap, 'bank', ''),
-    saldo: mapField(rekening, rekeningFieldMap, 'saldo', 0)
+    saldo: mapField(rekening, rekeningFieldMap, 'saldo', 0),
   };
 };
 
@@ -172,7 +172,7 @@ export const standardizeRekening = (rekening) => {
  */
 export const autoStandardize = (data, dataType) => {
   if (!data) return null;
-  
+
   switch (dataType.toLowerCase()) {
     case 'customer':
     case 'customers':
@@ -208,5 +208,5 @@ export default {
   standardizeSparepart,
   standardizeBank,
   standardizeRekening,
-  autoStandardize
+  autoStandardize,
 };

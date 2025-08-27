@@ -12,8 +12,15 @@ class MdivisiController extends Controller
      */
     public function index()
     {
-        $mdivisis = Mdivisi::all();
-        return response()->json($mdivisis);
+        $items = Mdivisi::all()->map(fn($d)=>[
+            'id' => $d->id,
+            'namaDivisi' => $d->nama_divisi
+        ]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+            'totalCount' => $items->count()
+        ]);
     }
 
     /**
@@ -26,7 +33,11 @@ class MdivisiController extends Controller
         ]);
 
         $mdivisi = Mdivisi::create($request->all());
-        return response()->json($mdivisi, 201);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mdivisi->id, 'namaDivisi' => $mdivisi->nama_divisi ],
+            'message' => 'Divisi created'
+        ], 201);
     }
 
     /**
@@ -35,7 +46,10 @@ class MdivisiController extends Controller
     public function show(string $id)
     {
         $mdivisi = Mdivisi::findOrFail($id);
-        return response()->json($mdivisi);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mdivisi->id, 'namaDivisi' => $mdivisi->nama_divisi ]
+        ]);
     }
 
     /**
@@ -49,7 +63,11 @@ class MdivisiController extends Controller
 
         $mdivisi = Mdivisi::findOrFail($id);
         $mdivisi->update($request->all());
-        return response()->json($mdivisi);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mdivisi->id, 'namaDivisi' => $mdivisi->nama_divisi ],
+            'message' => 'Divisi updated'
+        ]);
     }
 
     /**
@@ -59,6 +77,9 @@ class MdivisiController extends Controller
     {
         $mdivisi = Mdivisi::findOrFail($id);
         $mdivisi->delete();
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true,
+            'message' => 'Divisi deleted'
+        ]);
     }
 }

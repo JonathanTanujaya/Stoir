@@ -18,7 +18,7 @@ import {
   FormControlLabel,
   Button,
   IconButton,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import {
   Check as CheckIcon,
@@ -28,12 +28,16 @@ import {
   Language as LanguageIcon,
   Speed as SpeedIcon,
   Security as SecurityIcon,
-  Accessibility as AccessibilityIcon
+  Accessibility as AccessibilityIcon,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 // Import validation framework components
-import { ErrorBoundary, ErrorProvider, useGlobalErrorHandler } from '../utils/validation/errorHandling';
+import {
+  ErrorBoundary,
+  ErrorProvider,
+  useGlobalErrorHandler,
+} from '../utils/validation/errorHandling';
 import {
   ValidatedForm,
   ValidatedTextField,
@@ -44,15 +48,28 @@ import {
   ValidatedSwitch,
   ValidatedArrayField,
   FormSection,
-  FormActions
+  FormActions,
 } from '../utils/validation/formComponents';
-import { COMMON_SCHEMAS, VALIDATION_RULES, ASYNC_VALIDATIONS } from '../utils/validation/validationRules';
-import { useEnhancedForm, useFormField, useConditionalValidation } from '../utils/validation/formHooks';
+import {
+  COMMON_SCHEMAS,
+  VALIDATION_RULES,
+  ASYNC_VALIDATIONS,
+} from '../utils/validation/validationRules';
+import {
+  useEnhancedForm,
+  useFormField,
+  useConditionalValidation,
+} from '../utils/validation/formHooks';
 import EnhancedBarangForm from './EnhancedBarangForm';
 
 // Import i18n
 import { useTranslation, Trans } from 'react-i18next';
-import { changeLanguage, getCurrentLanguage, formatCurrency, formatValidationMessage } from '../locales/i18n';
+import {
+  changeLanguage,
+  getCurrentLanguage,
+  formatCurrency,
+  formatValidationMessage,
+} from '../locales/i18n';
 
 // Demo data
 const demoOptions = {
@@ -61,13 +78,13 @@ const demoOptions = {
     { value: 'clothing', label: 'Clothing' },
     { value: 'food', label: 'Food & Beverage' },
     { value: 'books', label: 'Books' },
-    { value: 'sports', label: 'Sports' }
+    { value: 'sports', label: 'Sports' },
   ],
   priorities: [
     { value: 'low', label: 'Low Priority' },
     { value: 'medium', label: 'Medium Priority' },
     { value: 'high', label: 'High Priority' },
-    { value: 'urgent', label: 'Urgent' }
+    { value: 'urgent', label: 'Urgent' },
   ],
   skills: [
     { value: 'react', label: 'React' },
@@ -75,8 +92,8 @@ const demoOptions = {
     { value: 'angular', label: 'Angular' },
     { value: 'node', label: 'Node.js' },
     { value: 'python', label: 'Python' },
-    { value: 'java', label: 'Java' }
-  ]
+    { value: 'java', label: 'Java' },
+  ],
 };
 
 const ValidationDemo = () => {
@@ -92,7 +109,7 @@ const ValidationDemo = () => {
   const [advancedFormData, setAdvancedFormData] = useState({});
   const [barangFormVisible, setBarangFormVisible] = useState(false);
 
-  const handleLanguageChange = (newLanguage) => {
+  const handleLanguageChange = newLanguage => {
     changeLanguage(newLanguage);
     setLanguage(newLanguage);
     toast.success(`Language changed to ${newLanguage.toUpperCase()}`);
@@ -114,22 +131,19 @@ const ValidationDemo = () => {
         fullName: '',
         age: '',
         website: '',
-        bio: ''
+        bio: '',
       },
-      mode: realTimeValidation ? 'onChange' : 'onSubmit'
+      mode: realTimeValidation ? 'onChange' : 'onSubmit',
     });
 
-    const handleSubmit = (data) => {
+    const handleSubmit = data => {
       setBasicFormData(data);
       toast.success('Form submitted successfully!');
       console.log('Basic form data:', data);
     };
 
     return (
-      <ValidatedForm
-        onSubmit={handleSubmit}
-        formMethods={formMethods}
-      >
+      <ValidatedForm onSubmit={handleSubmit} formMethods={formMethods}>
         <FormSection
           title="User Information"
           subtitle="Basic form validation with real-time feedback"
@@ -143,13 +157,13 @@ const ValidationDemo = () => {
                   ...VALIDATION_RULES.required,
                   ...VALIDATION_RULES.alphanumeric,
                   minLength: { value: 3, message: 'Username must be at least 3 characters' },
-                  maxLength: { value: 20, message: 'Username must not exceed 20 characters' }
+                  maxLength: { value: 20, message: 'Username must not exceed 20 characters' },
                 }}
                 placeholder="Enter username"
                 tooltip="Username should be 3-20 characters, alphanumeric only"
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedTextField
                 name="email"
@@ -157,12 +171,12 @@ const ValidationDemo = () => {
                 type="email"
                 rules={{
                   ...VALIDATION_RULES.required,
-                  ...VALIDATION_RULES.email
+                  ...VALIDATION_RULES.email,
                 }}
                 placeholder="Enter email address"
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedTextField
                 name="password"
@@ -173,13 +187,14 @@ const ValidationDemo = () => {
                   minLength: { value: 8, message: 'Password must be at least 8 characters' },
                   pattern: {
                     value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-                    message: 'Password must contain uppercase, lowercase, number, and special character'
-                  }
+                    message:
+                      'Password must contain uppercase, lowercase, number, and special character',
+                  },
                 }}
                 placeholder="Enter password"
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedTextField
                 name="confirmPassword"
@@ -187,25 +202,24 @@ const ValidationDemo = () => {
                 type="password"
                 rules={{
                   ...VALIDATION_RULES.required,
-                  validate: (value, { password }) =>
-                    value === password || 'Passwords do not match'
+                  validate: (value, { password }) => value === password || 'Passwords do not match',
                 }}
                 placeholder="Confirm password"
               />
             </Grid>
-            
+
             <Grid item xs={12}>
               <ValidatedTextField
                 name="fullName"
                 label="Full Name"
                 rules={{
                   ...VALIDATION_RULES.required,
-                  maxLength: { value: 50, message: 'Full name must not exceed 50 characters' }
+                  maxLength: { value: 50, message: 'Full name must not exceed 50 characters' },
                 }}
                 placeholder="Enter full name"
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedTextField
                 name="age"
@@ -213,12 +227,12 @@ const ValidationDemo = () => {
                 type="number"
                 rules={{
                   min: { value: 13, message: 'Must be at least 13 years old' },
-                  max: { value: 120, message: 'Must be less than 120 years old' }
+                  max: { value: 120, message: 'Must be less than 120 years old' },
                 }}
                 placeholder="Enter age"
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedTextField
                 name="website"
@@ -227,7 +241,7 @@ const ValidationDemo = () => {
                 placeholder="https://example.com"
               />
             </Grid>
-            
+
             <Grid item xs={12}>
               <ValidatedTextField
                 name="bio"
@@ -235,7 +249,7 @@ const ValidationDemo = () => {
                 multiline
                 rows={3}
                 rules={{
-                  maxLength: { value: 500, message: 'Bio must not exceed 500 characters' }
+                  maxLength: { value: 500, message: 'Bio must not exceed 500 characters' },
                 }}
                 placeholder="Tell us about yourself..."
               />
@@ -263,16 +277,14 @@ const ValidationDemo = () => {
         notifications: {
           email: true,
           sms: false,
-          push: true
+          push: true,
         },
         preferences: {
           theme: 'light',
-          language: 'en'
+          language: 'en',
         },
-        items: [
-          { name: '', quantity: 1, price: 0 }
-        ]
-      }
+        items: [{ name: '', quantity: 1, price: 0 }],
+      },
     });
 
     // Conditional validation
@@ -280,11 +292,11 @@ const ValidationDemo = () => {
     const { conditionalRules } = useConditionalValidation({
       condition: category === 'electronics',
       rules: {
-        warranty: VALIDATION_RULES.required
-      }
+        warranty: VALIDATION_RULES.required,
+      },
     });
 
-    const handleSubmit = (data) => {
+    const handleSubmit = data => {
       setAdvancedFormData(data);
       toast.success('Advanced form submitted successfully!');
       console.log('Advanced form data:', data);
@@ -307,7 +319,7 @@ const ValidationDemo = () => {
             type="number"
             rules={{
               ...VALIDATION_RULES.required,
-              ...VALIDATION_RULES.positiveNumber
+              ...VALIDATION_RULES.positiveNumber,
             }}
           />
         </Grid>
@@ -318,7 +330,7 @@ const ValidationDemo = () => {
             type="number"
             rules={{
               ...VALIDATION_RULES.required,
-              ...VALIDATION_RULES.positiveNumber
+              ...VALIDATION_RULES.positiveNumber,
             }}
             prefix="$"
           />
@@ -327,10 +339,7 @@ const ValidationDemo = () => {
     );
 
     return (
-      <ValidatedForm
-        onSubmit={handleSubmit}
-        formMethods={formMethods}
-      >
+      <ValidatedForm onSubmit={handleSubmit} formMethods={formMethods}>
         <FormSection
           title="Advanced Validation Features"
           subtitle="Complex form with conditional validation, dynamic fields, and cross-field dependencies"
@@ -345,7 +354,7 @@ const ValidationDemo = () => {
                 helperText="Category affects other field requirements"
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedRadioGroup
                 name="priority"
@@ -355,7 +364,7 @@ const ValidationDemo = () => {
                 row
               />
             </Grid>
-            
+
             <Grid item xs={12}>
               <ValidatedAutocompleteField
                 name="skills"
@@ -382,10 +391,7 @@ const ValidationDemo = () => {
           </Grid>
         </FormSection>
 
-        <FormSection
-          title="Preferences"
-          subtitle="Checkbox groups and switches"
-        >
+        <FormSection title="Preferences" subtitle="Checkbox groups and switches">
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <ValidatedCheckboxGroup
@@ -394,18 +400,18 @@ const ValidationDemo = () => {
                 options={[
                   { value: 'email', label: 'Email Notifications' },
                   { value: 'sms', label: 'SMS Notifications' },
-                  { value: 'push', label: 'Push Notifications' }
+                  { value: 'push', label: 'Push Notifications' },
                 ]}
               />
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <ValidatedSwitch
                 name="preferences.theme"
                 label="Dark Mode"
                 helperText="Enable dark theme"
               />
-              
+
               <ValidatedSwitch
                 name="marketing"
                 label="Marketing Emails"
@@ -415,10 +421,7 @@ const ValidationDemo = () => {
           </Grid>
         </FormSection>
 
-        <FormSection
-          title="Dynamic Items"
-          subtitle="Array fields with add/remove functionality"
-        >
+        <FormSection title="Dynamic Items" subtitle="Array fields with add/remove functionality">
           <ValidatedArrayField
             name="items"
             label="Order Items"
@@ -463,12 +466,12 @@ const ValidationDemo = () => {
             <Typography variant="body2" paragraph>
               • Async validation for uniqueness checks
             </Typography>
-            
+
             <FormControlLabel
               control={
                 <Switch
                   checked={realTimeValidation}
-                  onChange={(e) => setRealTimeValidation(e.target.checked)}
+                  onChange={e => setRealTimeValidation(e.target.checked)}
                 />
               }
               label="Enable Real-time Validation"
@@ -497,7 +500,7 @@ const ValidationDemo = () => {
             <Typography variant="body2" paragraph>
               • Currency and date formatting
             </Typography>
-            
+
             <Box sx={{ mt: 2 }}>
               <Button
                 variant={language === 'id' ? 'contained' : 'outlined'}
@@ -576,9 +579,10 @@ const ValidationDemo = () => {
               Comprehensive Form Validation System
             </Typography>
             <Typography variant="h6" color="text.secondary" paragraph>
-              Enterprise-grade validation framework with real-time feedback, internationalization, and accessibility support
+              Enterprise-grade validation framework with real-time feedback, internationalization,
+              and accessibility support
             </Typography>
-            
+
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
               <Chip icon={<CheckIcon />} label="React Hook Form" color="success" />
               <Chip icon={<CheckIcon />} label="Yup/Zod Schemas" color="success" />
@@ -605,7 +609,8 @@ const ValidationDemo = () => {
                   Basic Validation Demo
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  Demonstrates basic field validation with real-time feedback, error handling, and form state management.
+                  Demonstrates basic field validation with real-time feedback, error handling, and
+                  form state management.
                 </Typography>
                 <BasicValidationDemo />
               </Paper>
@@ -617,7 +622,8 @@ const ValidationDemo = () => {
                   Advanced Validation Features
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  Shows conditional validation, dynamic arrays, cross-field dependencies, and complex form structures.
+                  Shows conditional validation, dynamic arrays, cross-field dependencies, and
+                  complex form structures.
                 </Typography>
                 <AdvancedValidationDemo />
               </Paper>
@@ -629,9 +635,10 @@ const ValidationDemo = () => {
                   Enhanced Barang Form
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  Real-world implementation of the validation framework in a complete form with business logic.
+                  Real-world implementation of the validation framework in a complete form with
+                  business logic.
                 </Typography>
-                
+
                 {!barangFormVisible ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Button

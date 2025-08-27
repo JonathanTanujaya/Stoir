@@ -12,43 +12,43 @@ const theme = createTheme({
       main: '#3B82F6',
       50: '#EFF6FF',
       100: '#DBEAFE',
-      700: '#1D4ED8'
+      700: '#1D4ED8',
     },
     background: {
       default: '#F8FAFC',
-      paper: '#FFFFFF'
+      paper: '#FFFFFF',
     },
     text: {
       primary: '#1F2937',
-      secondary: '#6B7280'
-    }
+      secondary: '#6B7280',
+    },
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h6: {
-      fontWeight: 600
-    }
+      fontWeight: 600,
+    },
   },
   shape: {
-    borderRadius: 8
+    borderRadius: 8,
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 6
-        }
-      }
+          borderRadius: 6,
+        },
+      },
     },
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 6
-        }
-      }
-    }
-  }
+          borderRadius: 6,
+        },
+      },
+    },
+  },
 });
 
 // Demo page components

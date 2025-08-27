@@ -12,7 +12,7 @@ function DPaketPage() {
     setView('form');
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setItemToEdit(item);
     setView('form');
   };
@@ -36,10 +36,7 @@ function DPaketPage() {
           <button onClick={() => setView('list')} style={{ marginBottom: '10px' }}>
             Kembali ke Daftar
           </button>
-          <DPaketForm 
-            itemToEdit={itemToEdit} 
-            onFormSuccess={handleFormSuccess} 
-          />
+          <DPaketForm itemToEdit={itemToEdit} onFormSuccess={handleFormSuccess} />
         </>
       )}
     </div>

@@ -36,7 +36,7 @@ import {
   Collapse,
   Tooltip,
   Fab,
-  Badge
+  Badge,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -56,7 +56,7 @@ import {
   Cancel,
   Edit,
   Calculate,
-  Refresh
+  Refresh,
 } from '@mui/icons-material';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { toast } from 'react-toastify';
@@ -65,48 +65,60 @@ import { format } from 'date-fns';
 import { customersAPI, salesAPI, barangAPI } from '../../services/api';
 import { PageLoading, LoadingSpinner } from '../../components/LoadingComponents';
 import { useResponsive } from '../../components/ResponsiveUtils';
-import { FormErrors, SuccessMessage, validateRequired, validatePositiveNumber } from '../../components/FormValidation';
+import {
+  FormErrors,
+  SuccessMessage,
+  validateRequired,
+  validatePositiveNumber,
+} from '../../components/FormValidation';
 
 // Step configuration
 const STEPS = [
   {
     label: 'Customer Selection',
     description: 'Select customer and sales person',
-    icon: <Person />
+    icon: <Person />,
   },
   {
     label: 'Product Selection',
     description: 'Add products to cart',
-    icon: <Inventory />
+    icon: <Inventory />,
   },
   {
     label: 'Pricing & Discounts',
     description: 'Apply discounts and calculate totals',
-    icon: <Calculate />
+    icon: <Calculate />,
   },
   {
     label: 'Payment Method',
     description: 'Choose payment terms',
-    icon: <Payment />
+    icon: <Payment />,
   },
   {
     label: 'Invoice Preview',
     description: 'Review transaction details',
-    icon: <Receipt />
+    icon: <Receipt />,
   },
   {
     label: 'Confirmation',
     description: 'Complete transaction',
-    icon: <CheckCircle />
-  }
+    icon: <CheckCircle />,
+  },
 ];
 
 const SalesTransactionForm = () => {
   const navigate = useNavigate();
   const { isMobile } = useResponsive();
-  
+
   // Form state
-  const { control, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       customer: null,
       salesPerson: null,
@@ -119,13 +131,18 @@ const SalesTransactionForm = () => {
       taxPercent: 11,
       taxAmount: 0,
       grandTotal: 0,
-      notes: ''
-    }
+      notes: '',
+    },
   });
 
-  const { fields: items, append: addItem, remove: removeItem, update: updateItem } = useFieldArray({
+  const {
+    fields: items,
+    append: addItem,
+    remove: removeItem,
+    update: updateItem,
+  } = useFieldArray({
     control,
-    name: 'items'
+    name: 'items',
   });
 
   // Component state
@@ -134,7 +151,7 @@ const SalesTransactionForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  
+
   // Data state
   const [customers, setCustomers] = useState([]);
   const [salesPersons, setSalesPersons] = useState([]);
@@ -142,15 +159,15 @@ const SalesTransactionForm = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productQuantity, setProductQuantity] = useState(1);
   const [productNotes, setProductNotes] = useState('');
-  
+
   // Search state
   const [customerSearch, setCustomerSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
-  
+
   // Validation state
   const [stepErrors, setStepErrors] = useState({});
   const [stockWarnings, setStockWarnings] = useState([]);
-  
+
   // Watch form values for calculations
   const watchedValues = watch();
   const currentItems = watch('items');
@@ -174,17 +191,17 @@ const SalesTransactionForm = () => {
       const [customersRes, salesRes, productsRes] = await Promise.allSettled([
         customersAPI.getAll(),
         salesAPI.getSalesPersons(),
-        barangAPI.getAll()
+        barangAPI.getAll(),
       ]);
 
       if (customersRes.status === 'fulfilled') {
         setCustomers(customersRes.value.data?.data || []);
       }
-      
+
       if (salesRes.status === 'fulfilled') {
         setSalesPersons(salesRes.value.data?.data || []);
       }
-      
+
       if (productsRes.status === 'fulfilled') {
         setProducts(productsRes.value.data?.data || []);
       }
@@ -201,13 +218,13 @@ const SalesTransactionForm = () => {
     const items = getValues('items');
     const subtotal = items.reduce((sum, item) => {
       const itemTotal = item.quantity * item.price;
-      const itemDiscount = itemTotal * (item.discount || 0) / 100;
+      const itemDiscount = (itemTotal * (item.discount || 0)) / 100;
       return sum + (itemTotal - itemDiscount);
     }, 0);
 
-    const discountAmount = subtotal * (discountPercent || 0) / 100;
+    const discountAmount = (subtotal * (discountPercent || 0)) / 100;
     const afterDiscount = subtotal - discountAmount;
-    const taxAmount = afterDiscount * (taxPercent || 0) / 100;
+    const taxAmount = (afterDiscount * (taxPercent || 0)) / 100;
     const grandTotal = afterDiscount + taxAmount;
 
     setValue('subtotal', subtotal);
@@ -217,7 +234,7 @@ const SalesTransactionForm = () => {
   };
 
   // Validate step
-  const validateStep = (stepIndex) => {
+  const validateStep = stepIndex => {
     const values = getValues();
     const errors = {};
 
@@ -226,21 +243,24 @@ const SalesTransactionForm = () => {
         if (!values.customer) errors.customer = 'Customer is required';
         if (!values.salesPerson) errors.salesPerson = 'Sales person is required';
         break;
-      
+
       case 1: // Product Selection
         if (!values.items || values.items.length === 0) {
           errors.items = 'At least one product is required';
         }
         break;
-      
+
       case 2: // Pricing & Discounts
         if (values.discountPercent < 0 || values.discountPercent > 100) {
           errors.discountPercent = 'Discount must be between 0 and 100%';
         }
         break;
-      
+
       case 3: // Payment Method
-        if (values.transactionType === 'credit' && (!values.paymentTerms || values.paymentTerms <= 0)) {
+        if (
+          values.transactionType === 'credit' &&
+          (!values.paymentTerms || values.paymentTerms <= 0)
+        ) {
           errors.paymentTerms = 'Payment terms are required for credit transactions';
         }
         break;
@@ -253,13 +273,13 @@ const SalesTransactionForm = () => {
   // Handle next step
   const handleNext = () => {
     if (validateStep(activeStep)) {
-      setActiveStep((prevStep) => prevStep + 1);
+      setActiveStep(prevStep => prevStep + 1);
     }
   };
 
   // Handle previous step
   const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
+    setActiveStep(prevStep => prevStep - 1);
   };
 
   // Add product to cart
@@ -277,21 +297,21 @@ const SalesTransactionForm = () => {
 
     // Check if product already exists in cart
     const existingIndex = currentItems.findIndex(item => item.productId === selectedProduct.id);
-    
+
     if (existingIndex >= 0) {
       // Update existing item
       const existingItem = currentItems[existingIndex];
       const newQuantity = existingItem.quantity + productQuantity;
-      
+
       if (newQuantity > selectedProduct.stok) {
         toast.error(`Total quantity would exceed stock. Available: ${selectedProduct.stok}`);
         return;
       }
-      
+
       updateItem(existingIndex, {
         ...existingItem,
         quantity: newQuantity,
-        notes: productNotes ? `${existingItem.notes || ''}; ${productNotes}` : existingItem.notes
+        notes: productNotes ? `${existingItem.notes || ''}; ${productNotes}` : existingItem.notes,
       });
     } else {
       // Add new item
@@ -303,7 +323,7 @@ const SalesTransactionForm = () => {
         quantity: productQuantity,
         discount: 0,
         notes: productNotes,
-        stock: selectedProduct.stok
+        stock: selectedProduct.stok,
       });
     }
 
@@ -312,12 +332,12 @@ const SalesTransactionForm = () => {
     setProductQuantity(1);
     setProductNotes('');
     setProductSearch('');
-    
+
     toast.success('Product added to cart');
   };
 
   // Remove product from cart
-  const handleRemoveProduct = (index) => {
+  const handleRemoveProduct = index => {
     removeItem(index);
     toast.info('Product removed from cart');
   };
@@ -325,34 +345,34 @@ const SalesTransactionForm = () => {
   // Update item quantity
   const handleUpdateQuantity = (index, newQuantity) => {
     const item = currentItems[index];
-    
+
     if (newQuantity <= 0) {
       handleRemoveProduct(index);
       return;
     }
-    
+
     if (newQuantity > item.stock) {
       toast.error(`Quantity cannot exceed stock: ${item.stock}`);
       return;
     }
-    
+
     updateItem(index, { ...item, quantity: newQuantity });
   };
 
   // Update item discount
   const handleUpdateDiscount = (index, discount) => {
     const item = currentItems[index];
-    
+
     if (discount < 0 || discount > 100) {
       toast.error('Discount must be between 0 and 100%');
       return;
     }
-    
+
     updateItem(index, { ...item, discount });
   };
 
   // Submit form
-  const onSubmit = async (data) => {
+  const onSubmit = async data => {
     setSubmitting(true);
     try {
       const payload = {
@@ -365,7 +385,7 @@ const SalesTransactionForm = () => {
           quantity: item.quantity,
           price: item.price,
           discount: item.discount || 0,
-          notes: item.notes
+          notes: item.notes,
         })),
         subtotal: data.subtotal,
         discount_percent: data.discountPercent,
@@ -373,11 +393,11 @@ const SalesTransactionForm = () => {
         tax_percent: data.taxPercent,
         tax_amount: data.taxAmount,
         grand_total: data.grandTotal,
-        notes: data.notes
+        notes: data.notes,
       };
 
       const response = await salesAPI.create(payload);
-      
+
       if (response.data.success) {
         toast.success('Sales transaction created successfully!');
         setConfirmDialogOpen(true);
@@ -393,19 +413,20 @@ const SalesTransactionForm = () => {
   };
 
   // Format currency
-  const formatCurrency = (amount) => {
+  const formatCurrency = amount => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount || 0);
   };
 
   // Filter products for search
   const filteredProducts = useMemo(() => {
-    return products.filter(product =>
-      product.nama_barang?.toLowerCase().includes(productSearch.toLowerCase()) ||
-      product.kode_barang?.toLowerCase().includes(productSearch.toLowerCase())
+    return products.filter(
+      product =>
+        product.nama_barang?.toLowerCase().includes(productSearch.toLowerCase()) ||
+        product.kode_barang?.toLowerCase().includes(productSearch.toLowerCase())
     );
   }, [products, productSearch]);
 
@@ -431,7 +452,7 @@ const SalesTransactionForm = () => {
         <Stepper activeStep={activeStep} orientation={isMobile ? 'vertical' : 'horizontal'}>
           {STEPS.map((step, index) => (
             <Step key={step.label}>
-              <StepLabel 
+              <StepLabel
                 icon={step.icon}
                 error={!!stepErrors && Object.keys(stepErrors).length > 0 && activeStep === index}
               >
@@ -440,11 +461,7 @@ const SalesTransactionForm = () => {
                   {step.description}
                 </Typography>
               </StepLabel>
-              {isMobile && (
-                <StepContent>
-                  {renderStepContent(index)}
-                </StepContent>
-              )}
+              {isMobile && <StepContent>{renderStepContent(index)}</StepContent>}
             </Step>
           ))}
         </Stepper>
@@ -479,7 +496,7 @@ const SalesTransactionForm = () => {
         >
           Back
         </Button>
-        
+
         <Box sx={{ display: 'flex', gap: 2 }}>
           {activeStep === STEPS.length - 1 ? (
             <Button
@@ -492,12 +509,7 @@ const SalesTransactionForm = () => {
               {submitting ? 'Processing...' : 'Complete Transaction'}
             </Button>
           ) : (
-            <Button
-              variant="contained"
-              onClick={handleNext}
-              endIcon={<Add />}
-              size="large"
-            >
+            <Button variant="contained" onClick={handleNext} endIcon={<Add />} size="large">
               Continue
             </Button>
           )}
@@ -552,7 +564,7 @@ const SalesTransactionForm = () => {
             👤 Select Customer & Sales Person
           </Typography>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Controller
             name="customer"
@@ -562,8 +574,8 @@ const SalesTransactionForm = () => {
               <Autocomplete
                 {...field}
                 options={customers}
-                getOptionLabel={(option) => `${option.nama || ''} (${option.kode || ''})`}
-                renderInput={(params) => (
+                getOptionLabel={option => `${option.nama || ''} (${option.kode || ''})`}
+                renderInput={params => (
                   <TextField
                     {...params}
                     label="Customer"
@@ -576,7 +588,7 @@ const SalesTransactionForm = () => {
                         <InputAdornment position="start">
                           <Person />
                         </InputAdornment>
-                      )
+                      ),
                     }}
                   />
                 )}
@@ -605,8 +617,8 @@ const SalesTransactionForm = () => {
               <Autocomplete
                 {...field}
                 options={salesPersons}
-                getOptionLabel={(option) => `${option.nama || ''} (${option.kode || ''})`}
-                renderInput={(params) => (
+                getOptionLabel={option => `${option.nama || ''} (${option.kode || ''})`}
+                renderInput={params => (
                   <TextField
                     {...params}
                     label="Sales Person"
@@ -675,8 +687,8 @@ const SalesTransactionForm = () => {
                     inputValue={productSearch}
                     onInputChange={(_, newInputValue) => setProductSearch(newInputValue)}
                     options={filteredProducts}
-                    getOptionLabel={(option) => `${option.nama_barang} (${option.kode_barang})`}
-                    renderInput={(params) => (
+                    getOptionLabel={option => `${option.nama_barang} (${option.kode_barang})`}
+                    renderInput={params => (
                       <TextField
                         {...params}
                         label="Search Product"
@@ -686,7 +698,7 @@ const SalesTransactionForm = () => {
                             <InputAdornment position="start">
                               <Search />
                             </InputAdornment>
-                          )
+                          ),
                         }}
                       />
                     )}
@@ -695,7 +707,8 @@ const SalesTransactionForm = () => {
                         <Box sx={{ flexGrow: 1 }}>
                           <Typography variant="body1">{option.nama_barang}</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {option.kode_barang} • Stock: {option.stok} • Price: {formatCurrency(option.modal)}
+                            {option.kode_barang} • Stock: {option.stok} • Price:{' '}
+                            {formatCurrency(option.modal)}
                           </Typography>
                         </Box>
                       </Box>
@@ -708,7 +721,7 @@ const SalesTransactionForm = () => {
                     type="number"
                     label="Quantity"
                     value={productQuantity}
-                    onChange={(e) => setProductQuantity(parseInt(e.target.value) || 1)}
+                    onChange={e => setProductQuantity(parseInt(e.target.value) || 1)}
                     inputProps={{ min: 1 }}
                     fullWidth
                   />
@@ -718,7 +731,7 @@ const SalesTransactionForm = () => {
                   <TextField
                     label="Notes (Optional)"
                     value={productNotes}
-                    onChange={(e) => setProductNotes(e.target.value)}
+                    onChange={e => setProductNotes(e.target.value)}
                     fullWidth
                   />
                 </Grid>
@@ -755,7 +768,7 @@ const SalesTransactionForm = () => {
               <Typography variant="h6" gutterBottom>
                 🛒 Shopping Cart ({currentItems.length} items)
               </Typography>
-              
+
               {currentItems.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
@@ -778,9 +791,9 @@ const SalesTransactionForm = () => {
                     <TableBody>
                       {currentItems.map((item, index) => {
                         const itemTotal = item.quantity * item.price;
-                        const discountAmount = itemTotal * (item.discount || 0) / 100;
+                        const discountAmount = (itemTotal * (item.discount || 0)) / 100;
                         const finalTotal = itemTotal - discountAmount;
-                        
+
                         return (
                           <TableRow key={index}>
                             <TableCell>
@@ -798,11 +811,15 @@ const SalesTransactionForm = () => {
                                 )}
                               </Box>
                             </TableCell>
+                            <TableCell align="center">{formatCurrency(item.price)}</TableCell>
                             <TableCell align="center">
-                              {formatCurrency(item.price)}
-                            </TableCell>
-                            <TableCell align="center">
-                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
                                 <IconButton
                                   size="small"
                                   onClick={() => handleUpdateQuantity(index, item.quantity - 1)}
@@ -829,7 +846,9 @@ const SalesTransactionForm = () => {
                                 type="number"
                                 size="small"
                                 value={item.discount || 0}
-                                onChange={(e) => handleUpdateDiscount(index, parseFloat(e.target.value) || 0)}
+                                onChange={e =>
+                                  handleUpdateDiscount(index, parseFloat(e.target.value) || 0)
+                                }
                                 inputProps={{ min: 0, max: 100, step: 0.1 }}
                                 sx={{ width: 80 }}
                               />
@@ -845,10 +864,7 @@ const SalesTransactionForm = () => {
                               )}
                             </TableCell>
                             <TableCell align="center">
-                              <IconButton
-                                color="error"
-                                onClick={() => handleRemoveProduct(index)}
-                              >
+                              <IconButton color="error" onClick={() => handleRemoveProduct(index)}>
                                 <Delete />
                               </IconButton>
                             </TableCell>
@@ -882,26 +898,26 @@ const SalesTransactionForm = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Order Summary
               </Typography>
-              
+
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>Subtotal:</Typography>
                 <Typography>{formatCurrency(watchedValues.subtotal)}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>Discount:</Typography>
                 <Typography color="error">
                   -{formatCurrency(watchedValues.discountAmount)}
                 </Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>Tax ({watchedValues.taxPercent}%):</Typography>
                 <Typography>{formatCurrency(watchedValues.taxAmount)}</Typography>
               </Box>
-              
+
               <Divider sx={{ my: 1 }} />
-              
+
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h6">Grand Total:</Typography>
                 <Typography variant="h6" color="primary">
@@ -918,7 +934,7 @@ const SalesTransactionForm = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Adjustments
               </Typography>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Controller
@@ -931,14 +947,14 @@ const SalesTransactionForm = () => {
                         type="number"
                         inputProps={{ min: 0, max: 100, step: 0.1 }}
                         fullWidth
-                        onChange={(e) => {
+                        onChange={e => {
                           field.onChange(parseFloat(e.target.value) || 0);
                         }}
                       />
                     )}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Controller
                     name="taxPercent"
@@ -950,7 +966,7 @@ const SalesTransactionForm = () => {
                         type="number"
                         inputProps={{ min: 0, max: 100, step: 0.1 }}
                         fullWidth
-                        onChange={(e) => {
+                        onChange={e => {
                           field.onChange(parseFloat(e.target.value) || 0);
                         }}
                       />
@@ -985,16 +1001,8 @@ const SalesTransactionForm = () => {
                   <FormControl component="fieldset">
                     <FormLabel component="legend">Transaction Type</FormLabel>
                     <RadioGroup {...field} row>
-                      <FormControlLabel
-                        value="cash"
-                        control={<Radio />}
-                        label="Cash"
-                      />
-                      <FormControlLabel
-                        value="credit"
-                        control={<Radio />}
-                        label="Credit"
-                      />
+                      <FormControlLabel value="cash" control={<Radio />} label="Cash" />
+                      <FormControlLabel value="credit" control={<Radio />} label="Credit" />
                     </RadioGroup>
                   </FormControl>
                 )}
@@ -1076,7 +1084,8 @@ const SalesTransactionForm = () => {
                     StockFlow Auto Parts
                   </Typography>
                   <Typography variant="body2">
-                    Jl. Raya Motor No. 123<br />
+                    Jl. Raya Motor No. 123
+                    <br />
                     Jakarta, Indonesia
                   </Typography>
                 </Box>
@@ -1089,7 +1098,8 @@ const SalesTransactionForm = () => {
                     Bill To:
                   </Typography>
                   <Typography variant="body2">
-                    {watchedValues.customer?.nama}<br />
+                    {watchedValues.customer?.nama}
+                    <br />
                     {watchedValues.customer?.alamat}
                   </Typography>
                 </Grid>
@@ -1097,9 +1107,7 @@ const SalesTransactionForm = () => {
                   <Typography variant="subtitle2" gutterBottom>
                     Sales Person:
                   </Typography>
-                  <Typography variant="body2">
-                    {watchedValues.salesPerson?.nama}
-                  </Typography>
+                  <Typography variant="body2">{watchedValues.salesPerson?.nama}</Typography>
                 </Grid>
               </Grid>
 
@@ -1118,9 +1126,9 @@ const SalesTransactionForm = () => {
                   <TableBody>
                     {currentItems.map((item, index) => {
                       const itemTotal = item.quantity * item.price;
-                      const discountAmount = itemTotal * (item.discount || 0) / 100;
+                      const discountAmount = (itemTotal * (item.discount || 0)) / 100;
                       const finalTotal = itemTotal - discountAmount;
-                      
+
                       return (
                         <TableRow key={index}>
                           <TableCell>
@@ -1149,7 +1157,7 @@ const SalesTransactionForm = () => {
                     <Typography>Subtotal:</Typography>
                     <Typography>{formatCurrency(watchedValues.subtotal)}</Typography>
                   </Box>
-                  
+
                   {watchedValues.discountPercent > 0 && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography>Discount ({watchedValues.discountPercent}%):</Typography>
@@ -1158,14 +1166,14 @@ const SalesTransactionForm = () => {
                       </Typography>
                     </Box>
                   )}
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography>Tax ({watchedValues.taxPercent}%):</Typography>
                     <Typography>{formatCurrency(watchedValues.taxAmount)}</Typography>
                   </Box>
-                  
+
                   <Divider sx={{ my: 1 }} />
-                  
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="h6">Grand Total:</Typography>
                     <Typography variant="h6" color="primary">
@@ -1181,20 +1189,17 @@ const SalesTransactionForm = () => {
                   Payment Terms:
                 </Typography>
                 <Typography variant="body2">
-                  {watchedValues.transactionType === 'cash' 
+                  {watchedValues.transactionType === 'cash'
                     ? 'Cash Payment - Due Immediately'
-                    : `Credit Payment - Due in ${watchedValues.paymentTerms} days`
-                  }
+                    : `Credit Payment - Due in ${watchedValues.paymentTerms} days`}
                 </Typography>
-                
+
                 {watchedValues.notes && (
                   <>
                     <Typography variant="subtitle2" sx={{ mt: 2 }} gutterBottom>
                       Notes:
                     </Typography>
-                    <Typography variant="body2">
-                      {watchedValues.notes}
-                    </Typography>
+                    <Typography variant="body2">{watchedValues.notes}</Typography>
                   </>
                 )}
               </Box>
@@ -1225,7 +1230,7 @@ const SalesTransactionForm = () => {
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
                 Please review all details before completing the transaction.
               </Typography>
-              
+
               <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
                 <Button
                   variant="outlined"
@@ -1268,7 +1273,8 @@ const SalesTransactionForm = () => {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body2">
-                    <strong>Payment:</strong> {watchedValues.transactionType === 'cash' ? 'Cash' : 'Credit'}
+                    <strong>Payment:</strong>{' '}
+                    {watchedValues.transactionType === 'cash' ? 'Cash' : 'Credit'}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -1295,16 +1301,10 @@ const SalesTransactionForm = () => {
           maxWidth="md"
           fullWidth
         >
-          <DialogTitle>
-            Invoice Preview
-          </DialogTitle>
-          <DialogContent>
-            {renderInvoicePreview()}
-          </DialogContent>
+          <DialogTitle>Invoice Preview</DialogTitle>
+          <DialogContent>{renderInvoicePreview()}</DialogContent>
           <DialogActions>
-            <Button onClick={() => setPreviewDialogOpen(false)}>
-              Close
-            </Button>
+            <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
             <Button variant="contained" startIcon={<Print />}>
               Print
             </Button>
@@ -1312,13 +1312,8 @@ const SalesTransactionForm = () => {
         </Dialog>
 
         {/* Success Dialog */}
-        <Dialog
-          open={confirmDialogOpen}
-          onClose={() => setConfirmDialogOpen(false)}
-        >
-          <DialogTitle>
-            Transaction Completed Successfully!
-          </DialogTitle>
+        <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
+          <DialogTitle>Transaction Completed Successfully!</DialogTitle>
           <DialogContent>
             <Box sx={{ textAlign: 'center', py: 2 }}>
               <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
@@ -1331,9 +1326,7 @@ const SalesTransactionForm = () => {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => navigate('/sales')}>
-              Back to Sales
-            </Button>
+            <Button onClick={() => navigate('/sales')}>Back to Sales</Button>
             <Button variant="contained" startIcon={<Print />}>
               Print Invoice
             </Button>

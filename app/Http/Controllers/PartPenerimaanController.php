@@ -19,12 +19,17 @@ class PartPenerimaanController extends Controller
             $partPenerimaans = PartPenerimaan::orderBy('tglpenerimaan', 'desc')
                                            ->limit(10)
                                            ->get();
-            
+            $data = $partPenerimaans->map(fn($p)=>[
+                'kodeDivisi' => $p->kodedivisi,
+                'noPenerimaan' => $p->nopenerimaan,
+                'tglPenerimaan' => $p->tglpenerimaan,
+                'kodeSupplier' => $p->kodesupplier
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Data part penerimaan retrieved successfully',
-                'data' => $partPenerimaans,
-                'total_shown' => $partPenerimaans->count(),
+                'data' => $data,
+                'totalCount' => $data->count(),
                 'note' => 'Showing latest 10 records for testing purposes'
             ]);
         } catch (\Exception $e) {
@@ -42,14 +47,18 @@ class PartPenerimaanController extends Controller
     public function getAllForFrontend()
     {
         try {
-            $partPenerimaans = PartPenerimaan::orderBy('tglpenerimaan', 'desc')
-                                           ->get();
-            
+            $partPenerimaans = PartPenerimaan::orderBy('tglpenerimaan', 'desc')->get();
+            $data = $partPenerimaans->map(fn($p)=>[
+                'kodeDivisi' => $p->kodedivisi,
+                'noPenerimaan' => $p->nopenerimaan,
+                'tglPenerimaan' => $p->tglpenerimaan,
+                'kodeSupplier' => $p->kodesupplier
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'All part penerimaan data retrieved successfully',
-                'data' => $partPenerimaans,
-                'total_records' => $partPenerimaans->count()
+                'data' => $data,
+                'totalCount' => $data->count()
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -130,10 +139,21 @@ class PartPenerimaanController extends Controller
                 ], 404);
             }
 
+            $p = $partPenerimaan;
             return response()->json([
                 'success' => true,
                 'message' => 'Part penerimaan retrieved successfully',
-                'data' => $partPenerimaan
+                'data' => [
+                    'kodeDivisi' => $p->kodedivisi,
+                    'noPenerimaan' => $p->nopenerimaan,
+                    'tglPenerimaan' => $p->tglpenerimaan,
+                    'kodeSupplier' => $p->kodesupplier,
+                    'details' => $p->details->map(fn($d)=>[
+                        'kodeBarang' => $d->kodebarang,
+                        'qty' => (float)$d->qty,
+                        'harga' => (float)$d->harga
+                    ])
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -168,10 +188,16 @@ class PartPenerimaanController extends Controller
 
             $partPenerimaan->update($request->only(['tglpenerimaan', 'kodesupplier']));
 
+            $p = $partPenerimaan;
             return response()->json([
                 'success' => true,
                 'message' => 'Part penerimaan updated successfully',
-                'data' => $partPenerimaan
+                'data' => [
+                    'kodeDivisi' => $p->kodedivisi,
+                    'noPenerimaan' => $p->nopenerimaan,
+                    'tglPenerimaan' => $p->tglpenerimaan,
+                    'kodeSupplier' => $p->kodesupplier
+                ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

@@ -12,7 +12,7 @@ function MVoucherPage() {
     setView('form');
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setItemToEdit(item);
     setView('form');
   };
@@ -36,10 +36,7 @@ function MVoucherPage() {
           <button onClick={() => setView('list')} style={{ marginBottom: '10px' }}>
             Kembali ke Daftar
           </button>
-          <MVoucherForm 
-            itemToEdit={itemToEdit} 
-            onFormSuccess={handleFormSuccess} 
-          />
+          <MVoucherForm itemToEdit={itemToEdit} onFormSuccess={handleFormSuccess} />
         </>
       )}
     </div>

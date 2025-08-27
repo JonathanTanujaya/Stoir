@@ -12,7 +12,7 @@ export const useDataFetch = (fetchFunction, dependencies = [], options = {}) => 
     showSuccessToast = false,
     successMessage = 'Data berhasil dimuat',
     errorMessage = 'Gagal memuat data',
-    initialData = []
+    initialData = [],
   } = options;
 
   const [data, setData] = useState(initialData);
@@ -22,14 +22,14 @@ export const useDataFetch = (fetchFunction, dependencies = [], options = {}) => 
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const result = await fetchFunction();
-      
+
       if (result.success) {
         const responseData = Array.isArray(result.data) ? result.data : [];
         setData(responseData);
-        
+
         if (showSuccessToast) {
           toast.success(result.message || successMessage);
         }
@@ -62,7 +62,7 @@ export const useDataFetch = (fetchFunction, dependencies = [], options = {}) => 
     loading,
     error,
     refresh,
-    setData // For manual data updates
+    setData, // For manual data updates
   };
 };
 
@@ -72,46 +72,58 @@ export const useDataFetch = (fetchFunction, dependencies = [], options = {}) => 
 export const useCrudOperations = (service, refreshCallback) => {
   const [loading, setLoading] = useState(false);
 
-  const performOperation = useCallback(async (operation, successMessage, ...args) => {
-    setLoading(true);
-    try {
-      const result = await operation(...args);
-      
-      if (result.success) {
-        toast.success(result.message || successMessage);
-        if (refreshCallback) refreshCallback();
-        return { success: true, data: result.data };
-      } else {
-        toast.error(result.message || 'Operasi gagal');
-        return { success: false, error: result.message };
+  const performOperation = useCallback(
+    async (operation, successMessage, ...args) => {
+      setLoading(true);
+      try {
+        const result = await operation(...args);
+
+        if (result.success) {
+          toast.success(result.message || successMessage);
+          if (refreshCallback) refreshCallback();
+          return { success: true, data: result.data };
+        } else {
+          toast.error(result.message || 'Operasi gagal');
+          return { success: false, error: result.message };
+        }
+      } catch (error) {
+        const errorMsg = error.response?.data?.message || error.message || 'Terjadi kesalahan';
+        toast.error(errorMsg);
+        console.error('CRUD operation error:', error);
+        return { success: false, error: errorMsg };
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || error.message || 'Terjadi kesalahan';
-      toast.error(errorMsg);
-      console.error('CRUD operation error:', error);
-      return { success: false, error: errorMsg };
-    } finally {
-      setLoading(false);
-    }
-  }, [refreshCallback]);
+    },
+    [refreshCallback]
+  );
 
-  const create = useCallback((data, successMessage = 'Data berhasil dibuat') => {
-    return performOperation(service.create, successMessage, data);
-  }, [service.create, performOperation]);
+  const create = useCallback(
+    (data, successMessage = 'Data berhasil dibuat') => {
+      return performOperation(service.create, successMessage, data);
+    },
+    [service.create, performOperation]
+  );
 
-  const update = useCallback((id1, id2, data, successMessage = 'Data berhasil diperbarui') => {
-    return performOperation(service.update, successMessage, id1, id2, data);
-  }, [service.update, performOperation]);
+  const update = useCallback(
+    (id1, id2, data, successMessage = 'Data berhasil diperbarui') => {
+      return performOperation(service.update, successMessage, id1, id2, data);
+    },
+    [service.update, performOperation]
+  );
 
-  const remove = useCallback((id1, id2, successMessage = 'Data berhasil dihapus') => {
-    return performOperation(service.delete, successMessage, id1, id2);
-  }, [service.delete, performOperation]);
+  const remove = useCallback(
+    (id1, id2, successMessage = 'Data berhasil dihapus') => {
+      return performOperation(service.delete, successMessage, id1, id2);
+    },
+    [service.delete, performOperation]
+  );
 
   return {
     loading,
     create,
     update,
-    remove
+    remove,
   };
 };
 

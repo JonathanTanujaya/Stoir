@@ -24,38 +24,23 @@ export const SuspenseWrapper = ({ children, fallback = null }) => {
     </Container>
   );
 
-  return (
-    <Suspense fallback={fallback || defaultFallback}>
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={fallback || defaultFallback}>{children}</Suspense>;
 };
 
 // Page-specific suspense wrapper
 export const PageSuspense = ({ children }) => (
-  <SuspenseWrapper fallback={<PageLoading />}>
-    {children}
-  </SuspenseWrapper>
+  <SuspenseWrapper fallback={<PageLoading />}>{children}</SuspenseWrapper>
 );
 
 // Component-level suspense wrapper
 export const ComponentSuspense = ({ children, height = '200px' }) => {
   const componentFallback = (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      height={height}
-    >
+    <Box display="flex" alignItems="center" justifyContent="center" height={height}>
       <LinearProgress sx={{ width: '60%' }} />
     </Box>
   );
 
-  return (
-    <SuspenseWrapper fallback={componentFallback}>
-      {children}
-    </SuspenseWrapper>
-  );
+  return <SuspenseWrapper fallback={componentFallback}>{children}</SuspenseWrapper>;
 };
 
 export default SuspenseWrapper;

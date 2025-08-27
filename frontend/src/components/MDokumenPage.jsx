@@ -13,7 +13,7 @@ function MDokumenPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (dokumen) => {
+  const handleEdit = dokumen => {
     setSelectedDokumen(dokumen);
     setShowForm(true);
   };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function PurchasingIndex(){
+export default function PurchasingIndex() {
   return (
     <div className="purchasing-index">
       <div className="grid gap-4 grid-cols-1 md:grid-cols-3">

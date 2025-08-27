@@ -20,11 +20,11 @@ class SalesController extends Controller
             $transformedSales = $sales->map(function ($sale) {
                 return [
                     'id' => $sale->kodesales,
-                    'kodedivisi' => $sale->kodedivisi,
-                    'kodesales' => $sale->kodesales,
-                    'namasales' => $sale->namasales,
+                    'kodeDivisi' => $sale->kodedivisi,
+                    'kodeSales' => $sale->kodesales,
+                    'namaSales' => $sale->namasales,
                     'alamat' => $sale->alamat,
-                    'nohp' => $sale->nohp,
+                    'noHp' => $sale->nohp,
                     'target' => (float) $sale->target,
                     'status' => $sale->status ? 'Aktif' : 'Tidak Aktif'
                 ];

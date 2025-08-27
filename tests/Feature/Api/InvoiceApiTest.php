@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use PHPUnit\Framework\Attributes\Test;
+
+
+
 use Tests\TestCase;
 use App\Models\MasterUser;
 use App\Models\MCust;
@@ -24,10 +28,10 @@ class InvoiceApiTest extends TestCase
         $this->user = $this->createAuthenticatedUser('Administrator');
         $this->headers = $this->authenticateAs($this->user);
         
-        $this->createTestData();
+        $this->createInvoiceTestData();
     }
 
-    protected function createTestData()
+    protected function createInvoiceTestData()
     {
         // Create test customer
         MCust::create([
@@ -66,8 +70,7 @@ class InvoiceApiTest extends TestCase
             'status' => 'Active'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_create_valid_invoice()
     {
         $invoiceData = [
@@ -114,8 +117,7 @@ class InvoiceApiTest extends TestCase
             'total' => 150000
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_required_fields()
     {
         $invalidData = [
@@ -143,8 +145,7 @@ class InvoiceApiTest extends TestCase
                     'status'
                 ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_stock_availability()
     {
         $invoiceData = [
@@ -171,8 +172,7 @@ class InvoiceApiTest extends TestCase
         $response->assertStatus(422)
                 ->assertJsonValidationErrors(['details.0.qty']);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_credit_limit()
     {
         $invoiceData = [
@@ -199,8 +199,7 @@ class InvoiceApiTest extends TestCase
         $response->assertStatus(422);
         // Should contain business rule error about credit limit
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_minimum_price()
     {
         $invoiceData = [
@@ -227,8 +226,7 @@ class InvoiceApiTest extends TestCase
         $response->assertStatus(422);
         // Should contain business rule error about minimum price
     }
-
-    /** @test */
+    #[Test]
     public function it_requires_authentication()
     {
         $invoiceData = [
@@ -246,8 +244,7 @@ class InvoiceApiTest extends TestCase
 
         $response->assertStatus(401);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_get_invoice_list()
     {
         // Create test invoices
@@ -290,8 +287,7 @@ class InvoiceApiTest extends TestCase
 
         $this->assertCount(2, $response->json('data'));
     }
-
-    /** @test */
+    #[Test]
     public function it_can_get_single_invoice()
     {
         $invoice = Invoice::create([
@@ -316,8 +312,7 @@ class InvoiceApiTest extends TestCase
                     ]
                 ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_update_invoice()
     {
         $invoice = Invoice::create([
@@ -347,8 +342,7 @@ class InvoiceApiTest extends TestCase
             'keterangan' => 'Updated via API'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_delete_invoice()
     {
         $invoice = Invoice::create([
@@ -371,8 +365,7 @@ class InvoiceApiTest extends TestCase
             'noinvoice' => 'INV001'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_respects_rate_limiting()
     {
         // Make multiple requests to test rate limiting
@@ -384,8 +377,7 @@ class InvoiceApiTest extends TestCase
         $response = $this->getJson('/api/invoices');
         $response->assertStatus(429); // Too Many Requests
     }
-
-    /** @test */
+    #[Test]
     public function it_sanitizes_input()
     {
         $maliciousData = [

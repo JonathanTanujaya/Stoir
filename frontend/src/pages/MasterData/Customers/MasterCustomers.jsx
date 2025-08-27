@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { customersAPI } from '../../../services/api';
 import {
@@ -9,7 +8,7 @@ import {
   standardizeApiResponse,
   handleApiError,
   createLoadingState,
-  safeFilter
+  safeFilter,
 } from '../../../utils/apiResponseHandler';
 import { standardizeCustomer, mapField, customerFieldMap } from '../../../utils/fieldMapping';
 import { withErrorBoundary } from '../../../components/ErrorBoundary/MasterDataErrorBoundary';
@@ -24,7 +23,7 @@ const MasterCustomers = () => {
     alamat: '',
     telepon: '',
     email: '',
-    status: 'aktif'
+    status: 'aktif',
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -38,25 +37,25 @@ const MasterCustomers = () => {
     try {
       setAppState(prev => ({ ...prev, loading: true, error: null }));
       console.log('🔄 Fetching customers...');
-      
+
       const response = await customersAPI.getAll();
       console.log('📊 Raw API Response:', response);
-      
+
       // Standardize API response
       const standardResponse = standardizeApiResponse(response.data);
       console.log('📊 Standardized Response:', standardResponse);
-      
+
       if (standardResponse.success) {
         // Standardize semua customer data
-        const standardizedCustomers = standardResponse.data.map(customer => 
-          standardizeCustomer(customer)
-        ).filter(customer => customer !== null);
-        
+        const standardizedCustomers = standardResponse.data
+          .map(customer => standardizeCustomer(customer))
+          .filter(customer => customer !== null);
+
         setAppState({
           loading: false,
           error: null,
           data: standardizedCustomers,
-          total: standardizedCustomers.length
+          total: standardizedCustomers.length,
         });
       } else {
         throw new Error(standardResponse.message);
@@ -68,12 +67,12 @@ const MasterCustomers = () => {
         loading: false,
         error: errorResponse.message,
         data: [],
-        total: 0
+        total: 0,
       });
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingId) {
@@ -81,7 +80,7 @@ const MasterCustomers = () => {
       } else {
         await customersAPI.create(formData);
       }
-      
+
       resetForm();
       fetchCustomers();
     } catch (error) {
@@ -89,19 +88,19 @@ const MasterCustomers = () => {
     }
   };
 
-  const handleEdit = (customer) => {
+  const handleEdit = customer => {
     setFormData({
       nama: customer.namacust || customer.nama,
       kode_customer: customer.kodecust || customer.kode_customer,
       alamat: customer.alamat,
       telepon: customer.telp || customer.telepon,
       email: customer.email || '',
-      status: customer.status === true ? 'aktif' : 'nonaktif'
+      status: customer.status === true ? 'aktif' : 'nonaktif',
     });
     setEditingId(customer.id);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Apakah Anda yakin ingin menghapus customer ini?')) {
       try {
         await customersAPI.delete(id);
@@ -119,22 +118,22 @@ const MasterCustomers = () => {
       alamat: '',
       telepon: '',
       email: '',
-      status: 'aktif'
+      status: 'aktif',
     });
     setEditingId(null);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   // Filter and pagination dengan safe operations
   const searchFields = ['namacust', 'nama', 'kodecust', 'kode_customer', 'alamat', 'email'];
   const filteredCustomers = safeFilter(appState.data, searchTerm, searchFields);
-  
+
   const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCustomers = filteredCustomers.slice(startIndex, startIndex + itemsPerPage);
@@ -147,8 +146,8 @@ const MasterCustomers = () => {
           key={i}
           onClick={() => setCurrentPage(i)}
           className={`w-10 h-10 rounded-xl font-bold transition-all duration-300 ${
-            currentPage === i 
-              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
+            currentPage === i
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
               : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-indigo-400 hover:text-indigo-600'
           }`}
         >
@@ -161,11 +160,6 @@ const MasterCustomers = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <PageHeader 
-        title="📋 Master Customer" 
-        subtitle="Kelola data customer perusahaan"
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Form Panel - Left */}
         <div className="lg:col-span-1">
@@ -206,9 +200,7 @@ const MasterCustomers = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Alamat
-                </label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Alamat</label>
                 <textarea
                   name="alamat"
                   value={formData.alamat}
@@ -220,9 +212,7 @@ const MasterCustomers = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Telepon
-                </label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Telepon</label>
                 <input
                   type="text"
                   name="telepon"
@@ -234,9 +224,7 @@ const MasterCustomers = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   name="email"
@@ -248,9 +236,7 @@ const MasterCustomers = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Status
-                </label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Status</label>
                 <select
                   name="status"
                   value={formData.status}
@@ -269,7 +255,7 @@ const MasterCustomers = () => {
                 >
                   {editingId ? '📝 Update Customer' : '💾 Simpan Customer'}
                 </button>
-                
+
                 {editingId && (
                   <button
                     type="button"
@@ -297,14 +283,14 @@ const MasterCustomers = () => {
                   Total: {filteredCustomers.length} customer
                 </p>
               </div>
-              
+
               <div className="relative">
                 <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Cari customer..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all duration-300 bg-white shadow-sm font-medium w-64"
                 />
               </div>
@@ -315,11 +301,21 @@ const MasterCustomers = () => {
               <table className="w-full">
                 <thead>
                   <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
-                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">Kode</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">Nama Customer</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">Kontak</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">Status</th>
-                    <th className="px-6 py-4 text-center text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">Aksi</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">
+                      Kode
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">
+                      Nama Customer
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">
+                      Kontak
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-bold text-gray-800 uppercase tracking-wider border-b-2 border-gray-200">
+                      Aksi
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -347,13 +343,15 @@ const MasterCustomers = () => {
                   ) : paginatedCustomers.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                        {searchTerm ? 'Tidak ada customer yang sesuai dengan pencarian' : 'Belum ada data customer'}
+                        {searchTerm
+                          ? 'Tidak ada customer yang sesuai dengan pencarian'
+                          : 'Belum ada data customer'}
                       </td>
                     </tr>
                   ) : (
                     paginatedCustomers.map((customer, index) => (
-                      <tr 
-                        key={generateUniqueKey(customer, index, 'customer')} 
+                      <tr
+                        key={generateUniqueKey(customer, index, 'customer')}
                         className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-indigo-50 transition-colors`}
                       >
                         <td className="px-6 py-4 text-sm font-bold text-gray-900 border-b border-gray-100">
@@ -380,11 +378,13 @@ const MasterCustomers = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm border-b border-gray-100">
-                          <span className={`px-3 py-2 rounded-xl text-xs font-bold ${
-                            customer.status === 'aktif'
-                              ? 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 border border-emerald-300'
-                              : 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border border-red-300'
-                          }`}>
+                          <span
+                            className={`px-3 py-2 rounded-xl text-xs font-bold ${
+                              customer.status === 'aktif'
+                                ? 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 border border-emerald-300'
+                                : 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border border-red-300'
+                            }`}
+                          >
                             {customer.status === 'aktif' ? '✅ Aktif' : '⏸️ Non Aktif'}
                           </span>
                         </td>
@@ -423,11 +423,9 @@ const MasterCustomers = () => {
                 >
                   ← Previous
                 </button>
-                
-                <div className="flex gap-2">
-                  {renderPagination()}
-                </div>
-                
+
+                <div className="flex gap-2">{renderPagination()}</div>
+
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}

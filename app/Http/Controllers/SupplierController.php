@@ -14,7 +14,17 @@ class SupplierController extends Controller
     public function index()
     {
         try {
-            $suppliers = MSupplier::active()->get();
+            $suppliers = MSupplier::active()->get()->map(function ($s) {
+                return [
+                    'kodeDivisi' => $s->kodedivisi ?? $s->KodeDivisi ?? null,
+                    'kodeSupplier' => $s->kodesupplier ?? $s->KodeSupplier ?? null,
+                    'namaSupplier' => $s->namasupplier ?? $s->NamaSupplier ?? null,
+                    'alamat' => $s->alamat,
+                    'telepon' => $s->telp ?? $s->telepon ?? null,
+                    'contact' => $s->contact,
+                    'status' => $s->status
+                ];
+            });
             
             return response()->json([
                 'success' => true,
@@ -74,7 +84,17 @@ class SupplierController extends Controller
     public function showByDivisi($kodeDivisi)
     {
         try {
-            $suppliers = MSupplier::byDivisi($kodeDivisi)->active()->get();
+            $suppliers = MSupplier::byDivisi($kodeDivisi)->active()->get()->map(function ($s) {
+                return [
+                    'kodeDivisi' => $s->kodedivisi ?? $s->KodeDivisi ?? null,
+                    'kodeSupplier' => $s->kodesupplier ?? $s->KodeSupplier ?? null,
+                    'namaSupplier' => $s->namasupplier ?? $s->NamaSupplier ?? null,
+                    'alamat' => $s->alamat,
+                    'telepon' => $s->telp ?? $s->telepon ?? null,
+                    'contact' => $s->contact,
+                    'status' => $s->status
+                ];
+            });
             
             return response()->json([
                 'success' => true,
@@ -108,7 +128,15 @@ class SupplierController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Supplier retrieved successfully',
-                'data' => $supplier
+                'data' => [
+                    'kodeDivisi' => $supplier->kodedivisi ?? $supplier->KodeDivisi,
+                    'kodeSupplier' => $supplier->kodesupplier ?? $supplier->KodeSupplier,
+                    'namaSupplier' => $supplier->namasupplier ?? $supplier->NamaSupplier,
+                    'alamat' => $supplier->alamat,
+                    'telepon' => $supplier->telp ?? $supplier->telepon,
+                    'contact' => $supplier->contact,
+                    'status' => $supplier->status
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -147,7 +175,15 @@ class SupplierController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Supplier updated successfully',
-                'data' => $supplier
+                'data' => [
+                    'kodeDivisi' => $supplier->kodedivisi ?? $supplier->KodeDivisi,
+                    'kodeSupplier' => $supplier->kodesupplier ?? $supplier->KodeSupplier,
+                    'namaSupplier' => $supplier->namasupplier ?? $supplier->NamaSupplier,
+                    'alamat' => $supplier->alamat,
+                    'telepon' => $supplier->telp ?? $supplier->telepon,
+                    'contact' => $supplier->contact,
+                    'status' => $supplier->status
+                ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

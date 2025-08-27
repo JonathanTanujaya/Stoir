@@ -5,16 +5,19 @@ import { useConfirmDialog } from './common/LoadingComponents.jsx';
 import DataTable, { StatusBadge } from './common/DataTable.jsx';
 
 function CustomerList({ onEdit, onRefresh }) {
-  const { data: customers, loading, error, refresh } = useDataFetch(
-    customerService.getAll,
-    [onRefresh],
-    { errorMessage: 'Gagal memuat data pelanggan' }
-  );
+  const {
+    data: customers,
+    loading,
+    error,
+    refresh,
+  } = useDataFetch(customerService.getAll, [onRefresh], {
+    errorMessage: 'Gagal memuat data pelanggan',
+  });
 
   const { loading: operationLoading, remove } = useCrudOperations(customerService, refresh);
   const { confirmDelete } = useConfirmDialog();
 
-  const handleDelete = async (customer) => {
+  const handleDelete = async customer => {
     if (!customer.kodedivisi || !customer.kodecust) {
       return;
     }
@@ -25,7 +28,7 @@ function CustomerList({ onEdit, onRefresh }) {
     }
   };
 
-  const handleEdit = (customer) => {
+  const handleEdit = customer => {
     if (!customer.kodedivisi || !customer.kodecust) {
       return;
     }
@@ -36,43 +39,43 @@ function CustomerList({ onEdit, onRefresh }) {
   const columns = [
     {
       key: 'kodedivisi',
-      header: 'Kode Divisi'
+      header: 'Kode Divisi',
     },
     {
       key: 'kodecust',
-      header: 'Kode Customer'
+      header: 'Kode Customer',
     },
     {
       key: 'namacust',
-      header: 'Nama Customer'
+      header: 'Nama Customer',
     },
     {
       key: 'kodearea',
-      header: 'Area'
+      header: 'Area',
     },
     {
       key: 'alamat',
-      header: 'Alamat'
+      header: 'Alamat',
     },
     {
       key: 'telp',
-      header: 'Telepon'
+      header: 'Telepon',
     },
     {
       key: 'contact',
-      header: 'Contact'
+      header: 'Contact',
     },
     {
       key: 'status',
       header: 'Status',
-      render: (customer) => <StatusBadge active={customer.status} />
-    }
+      render: customer => <StatusBadge active={customer.status} />,
+    },
   ];
 
   // Key extractor untuk unique keys
   const keyExtractor = (customer, index) => {
-    return customer.kodedivisi && customer.kodecust 
-      ? `${customer.kodedivisi}-${customer.kodecust}` 
+    return customer.kodedivisi && customer.kodecust
+      ? `${customer.kodedivisi}-${customer.kodecust}`
       : `customer-${index}`;
   };
 

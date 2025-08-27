@@ -22,20 +22,23 @@ function KategoriForm({ kategori, onSave, onCancel }) {
     }
   }, [kategori]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (kategori) {
         // Update existing kategori
-        await axios.put(`${API_BASE_URL}/kategori/${kategori.kodedivisi}/${kategori.kodekategori}`, formData);
+        await axios.put(
+          `${API_BASE_URL}/kategori/${kategori.kodedivisi}/${kategori.kodekategori}`,
+          formData
+        );
       } else {
         // Create new kategori
         await axios.post(`${API_BASE_URL}/kategori`, formData);
@@ -50,11 +53,23 @@ function KategoriForm({ kategori, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Kode Kategori:</label>
-        <input type="text" name="KodeKategori" value={formData.KodeKategori} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeKategori"
+          value={formData.KodeKategori}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Kategori:</label>
@@ -65,7 +80,9 @@ function KategoriForm({ kategori, onSave, onCancel }) {
         <input type="checkbox" name="Status" checked={formData.Status} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

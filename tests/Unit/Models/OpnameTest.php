@@ -2,6 +2,10 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
+
+
+
 use Tests\TestCase;
 use App\Models\Opname;
 use App\Models\OpnameDetail;

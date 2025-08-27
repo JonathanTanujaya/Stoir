@@ -18,7 +18,7 @@ const MasterCustomers = () => {
     alamat: '',
     telepon: '',
     email: '',
-    status: 'aktif'
+    status: 'aktif',
   });
   const [editingId, setEditingId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
@@ -46,7 +46,7 @@ const MasterCustomers = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingId) {
@@ -61,20 +61,20 @@ const MasterCustomers = () => {
     }
   };
 
-  const handleEdit = (customer) => {
+  const handleEdit = customer => {
     setFormData({
       nama: customer.nama || '',
       kode_customer: customer.kode_customer || '',
       alamat: customer.alamat || '',
       telepon: customer.telepon || '',
       email: customer.email || '',
-      status: customer.status || 'aktif'
+      status: customer.status || 'aktif',
     });
     setEditingId(customer.id);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Yakin ingin menghapus customer ini?')) {
       try {
         await customersAPI.delete(id);
@@ -85,10 +85,10 @@ const MasterCustomers = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -99,7 +99,7 @@ const MasterCustomers = () => {
       alamat: '',
       telepon: '',
       email: '',
-      status: 'aktif'
+      status: 'aktif',
     });
     setEditingId(null);
     setShowForm(false);
@@ -109,19 +109,20 @@ const MasterCustomers = () => {
   const filteredCustomers = useMemo(() => {
     if (!debouncedSearch) return customers;
     const q = debouncedSearch.toLowerCase();
-    return customers.filter(c => (
-      c.nama?.toLowerCase().includes(q) ||
-      c.kode_customer?.toLowerCase().includes(q) ||
-      c.alamat?.toLowerCase().includes(q) ||
-      c.telepon?.toLowerCase().includes(q) ||
-      c.email?.toLowerCase().includes(q)
-    ));
+    return customers.filter(
+      c =>
+        c.nama?.toLowerCase().includes(q) ||
+        c.kode_customer?.toLowerCase().includes(q) ||
+        c.alamat?.toLowerCase().includes(q) ||
+        c.telepon?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q)
+    );
   }, [customers, debouncedSearch]);
 
   // Sorting
   const sortedCustomers = useMemo(() => {
     const data = [...filteredCustomers];
-    data.sort((a,b) => {
+    data.sort((a, b) => {
       const va = (a[sortKey] ?? '').toString().toLowerCase();
       const vb = (b[sortKey] ?? '').toString().toLowerCase();
       if (va < vb) return sortDir === 'asc' ? -1 : 1;
@@ -137,15 +138,20 @@ const MasterCustomers = () => {
     return sortedCustomers.slice(start, start + pageSize);
   }, [sortedCustomers, currentPage, pageSize]);
 
-  useEffect(() => { setCurrentPage(1); }, [debouncedSearch, pageSize, sortKey, sortDir]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, pageSize, sortKey, sortDir]);
 
-  const toggleSort = (key) => {
+  const toggleSort = key => {
     if (sortKey === key) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else { setSortKey(key); setSortDir('asc'); }
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
   };
 
-  const highlight = (text) => {
+  const highlight = text => {
     if (!debouncedSearch) return text || '-';
     const safe = (text || '').toString();
     const idx = safe.toLowerCase().indexOf(debouncedSearch.toLowerCase());
@@ -153,19 +159,30 @@ const MasterCustomers = () => {
     const before = safe.slice(0, idx);
     const match = safe.slice(idx, idx + debouncedSearch.length);
     const after = safe.slice(idx + debouncedSearch.length);
-    return (<span>{before}<mark className="hl-match">{match}</mark>{after}</span>);
+    return (
+      <span>
+        {before}
+        <mark className="hl-match">{match}</mark>
+        {after}
+      </span>
+    );
   };
 
-  const toggleStatusInline = async (customer) => {
-    const newStatus = (customer.status === 'aktif' || customer.status === true) ? 'nonaktif' : 'aktif';
-    setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, status: newStatus } : c));
+  const toggleStatusInline = async customer => {
+    const newStatus =
+      customer.status === 'aktif' || customer.status === true ? 'nonaktif' : 'aktif';
+    setCustomers(prev => prev.map(c => (c.id === customer.id ? { ...c, status: newStatus } : c)));
     setUpdatingId(customer.id);
     try {
       await customersAPI.update(customer.id, { ...customer, status: newStatus });
     } catch (e) {
-      setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, status: customer.status } : c));
+      setCustomers(prev =>
+        prev.map(c => (c.id === customer.id ? { ...c, status: customer.status } : c))
+      );
       console.error('Gagal toggle status', e);
-    } finally { setUpdatingId(null); }
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   return (
@@ -177,7 +194,7 @@ const MasterCustomers = () => {
             <h2>Daftar Customer</h2>
             <p>Total {filteredCustomers.length} customer tersedia</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             {/* Enhanced Search */}
             <div className="search-container">
@@ -185,7 +202,7 @@ const MasterCustomers = () => {
                 type="text"
                 placeholder="Cari customer..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="search-input"
               />
               <MagnifyingGlassIcon className="search-icon" />
@@ -195,9 +212,13 @@ const MasterCustomers = () => {
               onChange={e => setPageSize(Number(e.target.value))}
               className="page-size-select"
             >
-              {[10,15,25,50].map(s => <option key={s} value={s}>{s}/hal</option>)}
+              {[10, 15, 25, 50].map(s => (
+                <option key={s} value={s}>
+                  {s}/hal
+                </option>
+              ))}
             </select>
-            
+
             {/* Enhanced Add Button */}
             <button
               onClick={() => {
@@ -217,13 +238,8 @@ const MasterCustomers = () => {
           <div className="modal-overlay">
             <div className="modal-content">
               <div className="modal-header">
-                <h3 className="modal-title">
-                  {editingId ? 'Edit Customer' : 'Tambah Customer'}
-                </h3>
-                <button 
-                  onClick={resetForm}
-                  className="modal-close"
-                >
+                <h3 className="modal-title">{editingId ? 'Edit Customer' : 'Tambah Customer'}</h3>
+                <button onClick={resetForm} className="modal-close">
                   ×
                 </button>
               </div>
@@ -307,17 +323,10 @@ const MasterCustomers = () => {
                 </div>
 
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    onClick={resetForm}
-                    className="btn btn-secondary"
-                  >
+                  <button type="button" onClick={resetForm} className="btn btn-secondary">
                     Batal
                   </button>
-                  <button 
-                    type="submit"
-                    className="btn btn-primary"
-                  >
+                  <button type="submit" className="btn btn-primary">
                     {editingId ? 'Update' : 'Simpan'}
                   </button>
                 </div>
@@ -341,15 +350,29 @@ const MasterCustomers = () => {
                   <col className="col-actions" />
                 </colgroup>
                 <tbody>
-                  {Array.from({ length: 6 }).map((_,i) => (
+                  {Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i} className="table-row skeleton-row">
-                      <td><div className="sk-box w-16" /></td>
-                      <td><div className="sk-box w-40" /></td>
-                      <td><div className="sk-box w-56" /></td>
-                      <td><div className="sk-box w-20" /></td>
-                      <td><div className="sk-box w-32" /></td>
-                      <td><div className="sk-badge" /></td>
-                      <td><div className="sk-actions" /></td>
+                      <td>
+                        <div className="sk-box w-16" />
+                      </td>
+                      <td>
+                        <div className="sk-box w-40" />
+                      </td>
+                      <td>
+                        <div className="sk-box w-56" />
+                      </td>
+                      <td>
+                        <div className="sk-box w-20" />
+                      </td>
+                      <td>
+                        <div className="sk-box w-32" />
+                      </td>
+                      <td>
+                        <div className="sk-badge" />
+                      </td>
+                      <td>
+                        <div className="sk-actions" />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -372,12 +395,54 @@ const MasterCustomers = () => {
                   <tbody>
                     {paginatedCustomers.length > 0 && (
                       <tr className="pseudo-header-row">
-                        <td onClick={() => toggleSort('kode_customer')} className="ph-cell clickable center">Kode {sortKey==='kode_customer' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('nama')} className="ph-cell clickable">Nama {sortKey==='nama' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('alamat')} className="ph-cell clickable">Alamat {sortKey==='alamat' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('telepon')} className="ph-cell clickable center">Telepon {sortKey==='telepon' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('email')} className="ph-cell clickable center">Email {sortKey==='email' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('status')} className="ph-cell clickable center">Status {sortKey==='status' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
+                        <td
+                          onClick={() => toggleSort('kode_customer')}
+                          className="ph-cell clickable center"
+                        >
+                          Kode{' '}
+                          {sortKey === 'kode_customer' && (
+                            <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </td>
+                        <td onClick={() => toggleSort('nama')} className="ph-cell clickable">
+                          Nama{' '}
+                          {sortKey === 'nama' && (
+                            <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </td>
+                        <td onClick={() => toggleSort('alamat')} className="ph-cell clickable">
+                          Alamat{' '}
+                          {sortKey === 'alamat' && (
+                            <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </td>
+                        <td
+                          onClick={() => toggleSort('telepon')}
+                          className="ph-cell clickable center"
+                        >
+                          Telepon{' '}
+                          {sortKey === 'telepon' && (
+                            <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </td>
+                        <td
+                          onClick={() => toggleSort('email')}
+                          className="ph-cell clickable center"
+                        >
+                          Email{' '}
+                          {sortKey === 'email' && (
+                            <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </td>
+                        <td
+                          onClick={() => toggleSort('status')}
+                          className="ph-cell clickable center"
+                        >
+                          Status{' '}
+                          {sortKey === 'status' && (
+                            <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </td>
                         <td className="ph-cell center">Aksi</td>
                       </tr>
                     )}
@@ -387,19 +452,17 @@ const MasterCustomers = () => {
                           <div className="flex flex-col items-center">
                             <div className="text-6xl mb-4 opacity-50">👥</div>
                             <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                              {searchTerm ? 'Tidak ada customer yang ditemukan' : 'Belum ada data customer'}
+                              {searchTerm
+                                ? 'Tidak ada customer yang ditemukan'
+                                : 'Belum ada data customer'}
                             </h3>
                             <p className="text-sm text-gray-500 mb-4">
-                              {searchTerm 
+                              {searchTerm
                                 ? `Tidak ada customer yang cocok dengan "${searchTerm}"`
-                                : 'Mulai dengan menambahkan customer baru untuk bisnis Anda'
-                              }
+                                : 'Mulai dengan menambahkan customer baru untuk bisnis Anda'}
                             </p>
                             {!searchTerm && (
-                              <button
-                                onClick={() => setShowForm(true)}
-                                className="btn-primary"
-                              >
+                              <button onClick={() => setShowForm(true)} className="btn-primary">
                                 <PlusIcon className="btn-icon" />
                                 Tambah Customer Pertama
                               </button>
@@ -430,10 +493,14 @@ const MasterCustomers = () => {
                               type="button"
                               onClick={() => toggleStatusInline(customer)}
                               disabled={updatingId === customer.id}
-                              className={`status-badge btn-status-toggle ${(customer.status === 'aktif' || customer.status === true) ? 'status-active' : 'status-inactive'} ${updatingId === customer.id ? 'is-loading' : ''}`}
+                              className={`status-badge btn-status-toggle ${customer.status === 'aktif' || customer.status === true ? 'status-active' : 'status-inactive'} ${updatingId === customer.id ? 'is-loading' : ''}`}
                               title="Klik untuk toggle status"
                             >
-                              {updatingId === customer.id ? '...' : ((customer.status === 'aktif' || customer.status === true) ? 'AKTIF' : 'NONAKTIF')}
+                              {updatingId === customer.id
+                                ? '...'
+                                : customer.status === 'aktif' || customer.status === true
+                                  ? 'AKTIF'
+                                  : 'NONAKTIF'}
                             </button>
                           </td>
                           <td className="col-actions">

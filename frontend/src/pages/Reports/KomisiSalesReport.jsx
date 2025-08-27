@@ -3,9 +3,42 @@ import ReportTemplate from './ReportTemplate';
 
 const KomisiSalesReport = () => {
   const sampleData = [
-    { id: 1, periode: 'Januari 2025', sales: 'Ahmad', target: 10000000, realisasi: 12500000, persentase: 125, komisi_persen: 5, komisi: 625000, bonus: 100000, total: 725000 },
-    { id: 2, periode: 'Januari 2025', sales: 'Budi', target: 8000000, realisasi: 7500000, persentase: 94, komisi_persen: 3, komisi: 225000, bonus: 0, total: 225000 },
-    { id: 3, periode: 'Januari 2025', sales: 'Cici', target: 12000000, realisasi: 15000000, persentase: 125, komisi_persen: 5, komisi: 750000, bonus: 150000, total: 900000 }
+    {
+      id: 1,
+      periode: 'Januari 2025',
+      sales: 'Ahmad',
+      target: 10000000,
+      realisasi: 12500000,
+      persentase: 125,
+      komisi_persen: 5,
+      komisi: 625000,
+      bonus: 100000,
+      total: 725000,
+    },
+    {
+      id: 2,
+      periode: 'Januari 2025',
+      sales: 'Budi',
+      target: 8000000,
+      realisasi: 7500000,
+      persentase: 94,
+      komisi_persen: 3,
+      komisi: 225000,
+      bonus: 0,
+      total: 225000,
+    },
+    {
+      id: 3,
+      periode: 'Januari 2025',
+      sales: 'Cici',
+      target: 12000000,
+      realisasi: 15000000,
+      persentase: 125,
+      komisi_persen: 5,
+      komisi: 750000,
+      bonus: 150000,
+      total: 900000,
+    },
   ];
 
   return (
@@ -28,7 +61,7 @@ const KomisiSalesReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleData.map((item) => (
+                {sampleData.map(item => (
                   <tr key={item.id}>
                     <td>{item.periode}</td>
                     <td>{item.sales}</td>

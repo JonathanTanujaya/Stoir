@@ -24,7 +24,7 @@ import {
   Tooltip,
   Badge,
   Card,
-  CardContent
+  CardContent,
 } from '@mui/material';
 import { useResponsive } from './components/ResponsiveUtils';
 import {
@@ -54,7 +54,7 @@ import {
   PieChart,
   Notifications,
   Search,
-  FilterList
+  FilterList,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -65,7 +65,7 @@ const navigationItems = [
     title: 'Dashboard',
     icon: <DashboardIcon />,
     path: '/dashboard',
-    exact: true
+    exact: true,
   },
   {
     title: 'Master Data',
@@ -81,8 +81,8 @@ const navigationItems = [
       { title: 'Areas', path: '/master/area', icon: <Business /> },
       { title: 'Checklist', path: '/master/checklist', icon: <Assignment /> },
       { title: 'Banks', path: '/master/bank', icon: <AccountBalance /> },
-      { title: 'Bank Accounts', path: '/master/rekening', icon: <MonetizationOn /> }
-    ]
+      { title: 'Bank Accounts', path: '/master/rekening', icon: <MonetizationOn /> },
+    ],
   },
   {
     title: 'Transactions',
@@ -101,8 +101,8 @@ const navigationItems = [
       { title: 'Purchase Bonus', path: '/transactions/pembelian-bonus', icon: <MonetizationOn /> },
       { title: 'Sales Bonus', path: '/transactions/penjualan-bonus', icon: <MonetizationOn /> },
       { title: 'Customer Claim', path: '/transactions/customer-claim', icon: <Assignment /> },
-      { title: 'Claim Return', path: '/transactions/pengembalian-claim', icon: <TrendingUp /> }
-    ]
+      { title: 'Claim Return', path: '/transactions/pengembalian-claim', icon: <TrendingUp /> },
+    ],
   },
   {
     title: 'Finance',
@@ -114,8 +114,8 @@ const navigationItems = [
       { title: 'Delivery Receivables', path: '/finance/piutang-resi', icon: <AttachMoney /> },
       { title: 'Return Receivables', path: '/finance/piutang-retur', icon: <TrendingUp /> },
       { title: 'Add Balance', path: '/finance/penambahan-saldo', icon: <MonetizationOn /> },
-      { title: 'Reduce Balance', path: '/finance/pengurangan-saldo', icon: <MonetizationOn /> }
-    ]
+      { title: 'Reduce Balance', path: '/finance/pengurangan-saldo', icon: <MonetizationOn /> },
+    ],
   },
   {
     title: 'Reports',
@@ -132,10 +132,14 @@ const navigationItems = [
       { title: 'Account Balance', path: '/reports/saldo-rekening', icon: <AccountBalance /> },
       { title: 'Customer Payment', path: '/reports/pembayaran-customer', icon: <MonetizationOn /> },
       { title: 'Bills Report', path: '/reports/tagihan', icon: <Receipt /> },
-      { title: 'Customer Return Deduction', path: '/reports/pemotongan-return-customer', icon: <TrendingUp /> },
-      { title: 'Sales Commission', path: '/reports/komisi-sales', icon: <AttachMoney /> }
-    ]
-  }
+      {
+        title: 'Customer Return Deduction',
+        path: '/reports/pemotongan-return-customer',
+        icon: <TrendingUp />,
+      },
+      { title: 'Sales Commission', path: '/reports/komisi-sales', icon: <AttachMoney /> },
+    ],
+  },
 ];
 
 const AppTailwind = () => {
@@ -143,7 +147,7 @@ const AppTailwind = () => {
   const [expandedItems, setExpandedItems] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState(3); // Demo notification count
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const location = useLocation();
@@ -153,18 +157,16 @@ const AppTailwind = () => {
   useEffect(() => {
     const currentPath = location.pathname;
     const newExpanded = {};
-    
+
     navigationItems.forEach((item, index) => {
       if (item.children) {
-        const hasActiveChild = item.children.some(child => 
-          currentPath.startsWith(child.path)
-        );
+        const hasActiveChild = item.children.some(child => currentPath.startsWith(child.path));
         if (hasActiveChild) {
           newExpanded[index] = true;
         }
       }
     });
-    
+
     setExpandedItems(newExpanded);
   }, [location.pathname]);
 
@@ -172,14 +174,14 @@ const AppTailwind = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleExpandClick = (index) => {
+  const handleExpandClick = index => {
     setExpandedItems(prev => ({
       ...prev,
-      [index]: !prev[index]
+      [index]: !prev[index],
     }));
   };
 
-  const handleProfileMenuOpen = (event) => {
+  const handleProfileMenuOpen = event => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -187,7 +189,7 @@ const AppTailwind = () => {
     setAnchorEl(null);
   };
 
-  const handleNavigation = (path) => {
+  const handleNavigation = path => {
     navigate(path);
     if (isMobile) {
       setMobileOpen(false);
@@ -203,17 +205,15 @@ const AppTailwind = () => {
 
   const generateBreadcrumbs = () => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs = [
-      { label: 'Home', path: '/dashboard' }
-    ];
+    const breadcrumbs = [{ label: 'Home', path: '/dashboard' }];
 
     let currentPath = '';
     pathSegments.forEach((segment, index) => {
       currentPath += `/${segment}`;
-      
+
       // Find the corresponding navigation item
       let label = segment.charAt(0).toUpperCase() + segment.slice(1);
-      
+
       // Search through navigation structure for better labels
       navigationItems.forEach(item => {
         if (item.path === currentPath) {
@@ -230,7 +230,7 @@ const AppTailwind = () => {
 
       breadcrumbs.push({
         label: label.replace(/-/g, ' '),
-        path: currentPath
+        path: currentPath,
       });
     });
 
@@ -254,7 +254,7 @@ const AppTailwind = () => {
                 backgroundColor: isActive ? 'action.selected' : 'transparent',
                 '&:hover': {
                   backgroundColor: 'action.hover',
-                }
+                },
               }}
             >
               <ListItemIcon
@@ -262,20 +262,20 @@ const AppTailwind = () => {
                   minWidth: 0,
                   mr: 3,
                   justifyContent: 'center',
-                  color: isActive ? 'primary.main' : 'text.secondary'
+                  color: isActive ? 'primary.main' : 'text.secondary',
                 }}
               >
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.title} 
-                sx={{ 
+              <ListItemText
+                primary={item.title}
+                sx={{
                   opacity: 1,
                   '& .MuiListItemText-primary': {
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? 'primary.main' : 'text.primary'
-                  }
-                }} 
+                    color: isActive ? 'primary.main' : 'text.primary',
+                  },
+                }}
               />
               {isExpanded ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
@@ -294,7 +294,7 @@ const AppTailwind = () => {
                         backgroundColor: isChildActive ? 'primary.light' : 'transparent',
                         '&:hover': {
                           backgroundColor: isChildActive ? 'primary.light' : 'action.hover',
-                        }
+                        },
                       }}
                     >
                       <ListItemIcon
@@ -304,20 +304,20 @@ const AppTailwind = () => {
                           justifyContent: 'center',
                           color: isChildActive ? 'primary.main' : 'text.secondary',
                           '& .MuiSvgIcon-root': {
-                            fontSize: '1.2rem'
-                          }
+                            fontSize: '1.2rem',
+                          },
                         }}
                       >
                         {child.icon}
                       </ListItemIcon>
-                      <ListItemText 
+                      <ListItemText
                         primary={child.title}
                         sx={{
                           '& .MuiListItemText-primary': {
                             fontSize: '0.875rem',
                             fontWeight: isChildActive ? 600 : 400,
-                            color: isChildActive ? 'primary.main' : 'text.primary'
-                          }
+                            color: isChildActive ? 'primary.main' : 'text.primary',
+                          },
                         }}
                       />
                     </ListItemButton>
@@ -340,7 +340,7 @@ const AppTailwind = () => {
             backgroundColor: isActive ? 'primary.light' : 'transparent',
             '&:hover': {
               backgroundColor: isActive ? 'primary.light' : 'action.hover',
-            }
+            },
           }}
         >
           <ListItemIcon
@@ -348,18 +348,18 @@ const AppTailwind = () => {
               minWidth: 0,
               mr: 3,
               justifyContent: 'center',
-              color: isActive ? 'primary.main' : 'text.secondary'
+              color: isActive ? 'primary.main' : 'text.secondary',
             }}
           >
             {item.icon}
           </ListItemIcon>
-          <ListItemText 
+          <ListItemText
             primary={item.title}
             sx={{
               '& .MuiListItemText-primary': {
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? 'primary.main' : 'text.primary'
-              }
+                color: isActive ? 'primary.main' : 'text.primary',
+              },
             }}
           />
         </ListItemButton>
@@ -371,19 +371,27 @@ const AppTailwind = () => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Logo Section */}
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Typography variant="h6" noWrap component="div" sx={{ 
-          fontWeight: 'bold',
-          color: 'primary.main',
-          textAlign: 'center'
-        }}>
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{
+            fontWeight: 'bold',
+            color: 'primary.main',
+            textAlign: 'center',
+          }}
+        >
           StockFlow ERP
         </Typography>
-        <Typography variant="caption" sx={{ 
-          display: 'block',
-          textAlign: 'center',
-          color: 'text.secondary',
-          mt: 0.5
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            textAlign: 'center',
+            color: 'text.secondary',
+            mt: 0.5,
+          }}
+        >
           Inventory Management System
         </Typography>
       </Box>
@@ -421,7 +429,7 @@ const AppTailwind = () => {
           ml: { lg: `${drawerWidth}px` },
           zIndex: theme.zIndex.drawer + 1,
           backgroundColor: 'primary.main',
-          boxShadow: 1
+          boxShadow: 1,
         }}
       >
         <Toolbar>
@@ -437,23 +445,23 @@ const AppTailwind = () => {
 
           {/* Breadcrumbs */}
           <Box sx={{ flexGrow: 1, ml: { xs: 0, lg: 2 } }}>
-            <Breadcrumbs 
-              aria-label="breadcrumb" 
-              sx={{ 
-                '& .MuiBreadcrumbs-ol': { 
-                  color: 'white' 
+            <Breadcrumbs
+              aria-label="breadcrumb"
+              sx={{
+                '& .MuiBreadcrumbs-ol': {
+                  color: 'white',
                 },
                 '& .MuiBreadcrumbs-separator': {
-                  color: 'rgba(255, 255, 255, 0.7)'
-                }
+                  color: 'rgba(255, 255, 255, 0.7)',
+                },
               }}
             >
-              <Link 
-                color="inherit" 
+              <Link
+                color="inherit"
                 onClick={() => handleNavigation('/dashboard')}
-                sx={{ 
+                sx={{
                   cursor: 'pointer',
-                  '&:hover': { textDecoration: 'underline' }
+                  '&:hover': { textDecoration: 'underline' },
                 }}
               >
                 <Home sx={{ mr: 0.5, fontSize: '1rem' }} />
@@ -480,10 +488,7 @@ const AppTailwind = () => {
 
             {/* User Profile */}
             <Tooltip title="Account settings">
-              <IconButton
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
+              <IconButton onClick={handleProfileMenuOpen} color="inherit">
                 <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
                   <AccountCircle />
                 </Avatar>
@@ -522,21 +527,20 @@ const AppTailwind = () => {
         <MenuItem onClick={handleProfileMenuClose}>
           <Avatar sx={{ bgcolor: 'secondary.main' }}>
             <Settings fontSize="small" />
-          </Avatar> Settings
+          </Avatar>{' '}
+          Settings
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleProfileMenuClose}>
           <Avatar sx={{ bgcolor: 'error.main' }}>
             <Logout fontSize="small" />
-          </Avatar> Logout
+          </Avatar>{' '}
+          Logout
         </MenuItem>
       </Menu>
 
       {/* Navigation Drawer */}
-      <Box
-        component="nav"
-        sx={{ width: { lg: drawerWidth }, flexShrink: { lg: 0 } }}
-      >
+      <Box component="nav" sx={{ width: { lg: drawerWidth }, flexShrink: { lg: 0 } }}>
         {/* Mobile Drawer */}
         <Drawer
           variant="temporary"
@@ -547,27 +551,27 @@ const AppTailwind = () => {
           }}
           sx={{
             display: { xs: 'block', lg: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
               borderRight: 1,
-              borderColor: 'divider'
+              borderColor: 'divider',
             },
           }}
         >
           {drawer}
         </Drawer>
-        
+
         {/* Desktop Drawer */}
         <Drawer
           variant="permanent"
           sx={{
             display: { xs: 'none', lg: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
               borderRight: 1,
-              borderColor: 'divider'
+              borderColor: 'divider',
             },
           }}
           open
@@ -584,11 +588,10 @@ const AppTailwind = () => {
           p: 3,
           width: { lg: `calc(100% - ${drawerWidth}px)` },
           minHeight: '100vh',
-          backgroundColor: 'background.default'
+          backgroundColor: 'background.default',
         }}
       >
         <Toolbar /> {/* Spacer for AppBar */}
-        
         {/* Page Content */}
         <Box sx={{ mt: 2 }}>
           <Outlet />

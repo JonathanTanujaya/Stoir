@@ -47,8 +47,9 @@ import StokBarangReport from './pages/Reports/StokBarangReport';
 Semua laporan dapat diakses melalui sidebar menu "Laporan" dengan 13 submenu.
 
 Routes:
+
 - `/reports/stok-barang`
-- `/reports/kartu-stok` 
+- `/reports/kartu-stok`
 - `/reports/pembelian`
 - `/reports/pembelian-item`
 - `/reports/penjualan`

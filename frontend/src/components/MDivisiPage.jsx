@@ -13,7 +13,7 @@ function MDivisiPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (divisi) => {
+  const handleEdit = divisi => {
     setSelectedDivisi(divisi);
     setShowForm(true);
   };

@@ -19,7 +19,7 @@ class StockEngine {
       averageDailyUsage = this.getAverageDailyUsage(product.id),
       leadTimeDays = product.leadTimeDays || 7,
       safetyStockDays = product.safetyStockDays || 3,
-      seasonalFactor = 1.0
+      seasonalFactor = 1.0,
     } = options;
 
     const baseReorderPoint = averageDailyUsage * leadTimeDays;
@@ -37,7 +37,7 @@ class StockEngine {
     const zScore = this.getZScore(serviceLevel);
     const leadTime = product.leadTimeDays || 7;
     const demandStdDev = this.getDemandStandardDeviation(product.id);
-    
+
     const safetyStock = zScore * Math.sqrt(leadTime) * demandStdDev;
     return this.roundToDecimal(Math.max(0, safetyStock));
   }
@@ -66,7 +66,7 @@ class StockEngine {
   calculateInventoryTurnover(product, period = 365) {
     const cogs = this.getCOGS(product.id, period);
     const avgInventoryValue = this.getAverageInventoryValue(product.id, period);
-    
+
     if (avgInventoryValue === 0) return 0;
     return this.roundToDecimal(cogs / avgInventoryValue);
   }
@@ -78,7 +78,7 @@ class StockEngine {
     // Calculate annual value for each product
     const productsWithValue = products.map(product => ({
       ...product,
-      annualValue: this.getAnnualDemand(product.id) * (product.cost || 0)
+      annualValue: this.getAnnualDemand(product.id) * (product.cost || 0),
     }));
 
     // Sort by annual value descending
@@ -121,21 +121,21 @@ class StockEngine {
           quantity: movement.quantity,
           unitCost: movement.unitCost,
           date: movement.date,
-          lotNumber: movement.lotNumber
+          lotNumber: movement.lotNumber,
         });
         totalQuantity += movement.quantity;
         totalValue += movement.quantity * movement.unitCost;
       } else if (movement.type === 'OUT') {
         let remainingToDeduct = movement.quantity;
-        
+
         while (remainingToDeduct > 0 && inventory.length > 0) {
           const oldestLot = inventory[0];
           const deductFromLot = Math.min(remainingToDeduct, oldestLot.quantity);
-          
+
           totalValue -= deductFromLot * oldestLot.unitCost;
           totalQuantity -= deductFromLot;
           remainingToDeduct -= deductFromLot;
-          
+
           oldestLot.quantity -= deductFromLot;
           if (oldestLot.quantity === 0) {
             inventory.shift();
@@ -150,8 +150,8 @@ class StockEngine {
       averageUnitCost: totalQuantity > 0 ? this.roundToDecimal(totalValue / totalQuantity) : 0,
       inventory: inventory.map(lot => ({
         ...lot,
-        quantity: this.roundToDecimal(lot.quantity)
-      }))
+        quantity: this.roundToDecimal(lot.quantity),
+      })),
     };
   }
 
@@ -169,21 +169,21 @@ class StockEngine {
           quantity: movement.quantity,
           unitCost: movement.unitCost,
           date: movement.date,
-          lotNumber: movement.lotNumber
+          lotNumber: movement.lotNumber,
         });
         totalQuantity += movement.quantity;
         totalValue += movement.quantity * movement.unitCost;
       } else if (movement.type === 'OUT') {
         let remainingToDeduct = movement.quantity;
-        
+
         while (remainingToDeduct > 0 && inventory.length > 0) {
           const newestLot = inventory[inventory.length - 1];
           const deductFromLot = Math.min(remainingToDeduct, newestLot.quantity);
-          
+
           totalValue -= deductFromLot * newestLot.unitCost;
           totalQuantity -= deductFromLot;
           remainingToDeduct -= deductFromLot;
-          
+
           newestLot.quantity -= deductFromLot;
           if (newestLot.quantity === 0) {
             inventory.pop();
@@ -198,8 +198,8 @@ class StockEngine {
       averageUnitCost: totalQuantity > 0 ? this.roundToDecimal(totalValue / totalQuantity) : 0,
       inventory: inventory.map(lot => ({
         ...lot,
-        quantity: this.roundToDecimal(lot.quantity)
-      }))
+        quantity: this.roundToDecimal(lot.quantity),
+      })),
     };
   }
 
@@ -214,19 +214,19 @@ class StockEngine {
     stockMovements.forEach(movement => {
       if (movement.type === 'IN') {
         const newTotalQuantity = totalQuantity + movement.quantity;
-        const newTotalValue = totalValue + (movement.quantity * movement.unitCost);
-        
+        const newTotalValue = totalValue + movement.quantity * movement.unitCost;
+
         totalQuantity = newTotalQuantity;
         totalValue = newTotalValue;
         averageUnitCost = totalQuantity > 0 ? totalValue / totalQuantity : 0;
       } else if (movement.type === 'OUT') {
         totalQuantity -= movement.quantity;
         totalValue -= movement.quantity * averageUnitCost;
-        
+
         // Ensure no negative values
         totalQuantity = Math.max(0, totalQuantity);
         totalValue = Math.max(0, totalValue);
-        
+
         if (totalQuantity === 0) {
           averageUnitCost = 0;
           totalValue = 0;
@@ -237,7 +237,7 @@ class StockEngine {
     return {
       totalQuantity: this.roundToDecimal(totalQuantity),
       totalValue: this.roundToDecimal(totalValue),
-      averageUnitCost: this.roundToDecimal(averageUnitCost)
+      averageUnitCost: this.roundToDecimal(averageUnitCost),
     };
   }
 
@@ -248,7 +248,7 @@ class StockEngine {
    */
   checkExpiryStatus(lots, alertDays = 30) {
     const now = new Date();
-    const alertDate = new Date(now.getTime() + (alertDays * 24 * 60 * 60 * 1000));
+    const alertDate = new Date(now.getTime() + alertDays * 24 * 60 * 60 * 1000);
 
     return lots.map(lot => {
       const expiryDate = new Date(lot.expiryDate);
@@ -266,7 +266,7 @@ class StockEngine {
         status,
         daysToExpiry,
         isExpired: status === 'EXPIRED',
-        isNearExpiry: status === 'NEAR_EXPIRY'
+        isNearExpiry: status === 'NEAR_EXPIRY',
       };
     });
   }
@@ -296,7 +296,7 @@ class StockEngine {
     if (outMovements.length === 0) return 0;
 
     let forecast = outMovements[0].quantity;
-    
+
     for (let i = 1; i < outMovements.length; i++) {
       forecast = alpha * outMovements[i].quantity + (1 - alpha) * forecast;
     }
@@ -311,12 +311,12 @@ class StockEngine {
    */
   calculateOptimalAllocation(totalStock, locations) {
     const totalDemand = locations.reduce((sum, loc) => sum + loc.demandRate, 0);
-    
+
     if (totalDemand === 0) {
       const equalAllocation = totalStock / locations.length;
       return locations.map(loc => ({
         ...loc,
-        allocatedStock: this.roundToDecimal(equalAllocation)
+        allocatedStock: this.roundToDecimal(equalAllocation),
       }));
     }
 
@@ -324,10 +324,10 @@ class StockEngine {
       const demandRatio = location.demandRate / totalDemand;
       const baseAllocation = totalStock * demandRatio;
       const minStock = location.minStock || 0;
-      
+
       return {
         ...location,
-        allocatedStock: this.roundToDecimal(Math.max(baseAllocation, minStock))
+        allocatedStock: this.roundToDecimal(Math.max(baseAllocation, minStock)),
       };
     });
   }
@@ -340,9 +340,21 @@ class StockEngine {
 
   getZScore(serviceLevel) {
     const zScores = {
-      0.50: 0.00, 0.55: 0.13, 0.60: 0.25, 0.65: 0.39, 0.70: 0.52,
-      0.75: 0.67, 0.80: 0.84, 0.85: 1.04, 0.90: 1.28, 0.95: 1.65,
-      0.97: 1.88, 0.98: 2.05, 0.99: 2.33, 0.995: 2.58, 0.999: 3.09
+      0.5: 0.0,
+      0.55: 0.13,
+      0.6: 0.25,
+      0.65: 0.39,
+      0.7: 0.52,
+      0.75: 0.67,
+      0.8: 0.84,
+      0.85: 1.04,
+      0.9: 1.28,
+      0.95: 1.65,
+      0.97: 1.88,
+      0.98: 2.05,
+      0.99: 2.33,
+      0.995: 2.58,
+      0.999: 3.09,
     };
     return zScores[serviceLevel] || 1.65; // Default to 95%
   }
@@ -379,11 +391,11 @@ class StockEngine {
     const auditEntry = {
       id: Date.now() + Math.random(),
       timestamp: new Date().toISOString(),
-      ...entry
+      ...entry,
     };
-    
+
     this.auditTrail.push(auditEntry);
-    
+
     // Keep only last 1000 entries
     if (this.auditTrail.length > 1000) {
       this.auditTrail = this.auditTrail.slice(-1000);
@@ -404,15 +416,11 @@ class StockEngine {
     }
 
     if (filters.startDate) {
-      filtered = filtered.filter(entry => 
-        new Date(entry.timestamp) >= new Date(filters.startDate)
-      );
+      filtered = filtered.filter(entry => new Date(entry.timestamp) >= new Date(filters.startDate));
     }
 
     if (filters.endDate) {
-      filtered = filtered.filter(entry => 
-        new Date(entry.timestamp) <= new Date(filters.endDate)
-      );
+      filtered = filtered.filter(entry => new Date(entry.timestamp) <= new Date(filters.endDate));
     }
 
     return filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -424,7 +432,7 @@ class StockEngine {
     if (typeof Worker !== 'undefined') {
       const worker = new Worker('/workers/stock-calculator.js');
       worker.postMessage({ type: 'START_CALCULATIONS' });
-      worker.onmessage = (e) => {
+      worker.onmessage = e => {
         this.handleWorkerMessage(e.data);
       };
       this.workers.set('calculator', worker);
@@ -464,32 +472,32 @@ class StockEngine {
 
   async batchCalculateReorderPoints(products) {
     const results = new Map();
-    
+
     for (const product of products) {
       try {
         const reorderPoint = this.calculateReorderPoint(product);
         const safetyStock = this.calculateSafetyStock(product);
         const eoq = this.calculateEOQ(product);
-        
+
         results.set(product.id, {
           reorderPoint,
           safetyStock,
           eoq,
-          calculatedAt: new Date().toISOString()
+          calculatedAt: new Date().toISOString(),
         });
-        
+
         this.addAuditEntry({
           type: 'CALCULATION',
           productId: product.id,
           action: 'REORDER_POINT_CALCULATED',
-          data: { reorderPoint, safetyStock, eoq }
+          data: { reorderPoint, safetyStock, eoq },
         });
       } catch (error) {
         console.error(`Error calculating for product ${product.id}:`, error);
         results.set(product.id, { error: error.message });
       }
     }
-    
+
     return results;
   }
 }

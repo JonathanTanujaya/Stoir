@@ -12,7 +12,7 @@ function ReturPenerimaanPage() {
     setView('form');
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setItemToEdit(item);
     setView('form');
   };
@@ -36,10 +36,7 @@ function ReturPenerimaanPage() {
           <button onClick={() => setView('list')} style={{ marginBottom: '10px' }}>
             Kembali ke Daftar
           </button>
-          <ReturPenerimaanForm 
-            itemToEdit={itemToEdit} 
-            onFormSuccess={handleFormSuccess} 
-          />
+          <ReturPenerimaanForm itemToEdit={itemToEdit} onFormSuccess={handleFormSuccess} />
         </>
       )}
     </div>

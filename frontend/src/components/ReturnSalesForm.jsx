@@ -27,20 +27,23 @@ function ReturnSalesForm({ returnSales, onSave, onCancel }) {
     }
   }, [returnSales]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (returnSales) {
         // Update existing return sales
-        await axios.put(`${API_URL}/return-sales/${returnSales.KodeDivisi}/${returnSales.NoRetur}`, formData);
+        await axios.put(
+          `${API_URL}/return-sales/${returnSales.KodeDivisi}/${returnSales.NoRetur}`,
+          formData
+        );
       } else {
         // Create new return sales
         await axios.post(`${API_URL}/return-sales`, formData);
@@ -56,11 +59,23 @@ function ReturnSalesForm({ returnSales, onSave, onCancel }) {
       <h2>{returnSales ? 'Edit' : 'Tambah'} Retur Penjualan</h2>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>No Retur:</label>
-        <input type="text" name="NoRetur" value={formData.NoRetur} onChange={handleChange} required />
+        <input
+          type="text"
+          name="NoRetur"
+          value={formData.NoRetur}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Tgl Retur:</label>
@@ -110,7 +125,9 @@ function ReturnSalesForm({ returnSales, onSave, onCancel }) {
       </div>
 
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

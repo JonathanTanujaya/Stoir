@@ -3,8 +3,28 @@ import ReportTemplate from './ReportTemplate';
 
 const ReturnSalesReport = () => {
   const sampleData = [
-    { id: 1, tanggal: '2025-01-17', no_retur: 'RET-001', no_invoice: 'INV-001', customer: 'PT Customer Motor', kode_barang: 'BRG001', qty: 5, alasan: 'Barang Rusak', nilai: 275000 },
-    { id: 2, tanggal: '2025-01-16', no_retur: 'RET-002', no_invoice: 'INV-002', customer: 'CV Parts Motor', kode_barang: 'BRG002', qty: 3, alasan: 'Salah Order', nilai: 105000 }
+    {
+      id: 1,
+      tanggal: '2025-01-17',
+      no_retur: 'RET-001',
+      no_invoice: 'INV-001',
+      customer: 'PT Customer Motor',
+      kode_barang: 'BRG001',
+      qty: 5,
+      alasan: 'Barang Rusak',
+      nilai: 275000,
+    },
+    {
+      id: 2,
+      tanggal: '2025-01-16',
+      no_retur: 'RET-002',
+      no_invoice: 'INV-002',
+      customer: 'CV Parts Motor',
+      kode_barang: 'BRG002',
+      qty: 3,
+      alasan: 'Salah Order',
+      nilai: 105000,
+    },
   ];
 
   return (
@@ -26,7 +46,7 @@ const ReturnSalesReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleData.map((item) => (
+                {sampleData.map(item => (
                   <tr key={item.id}>
                     <td>{new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
                     <td>{item.no_retur}</td>

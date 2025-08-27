@@ -33,20 +33,23 @@ function PartPenerimaanForm({ penerimaan, onSave, onCancel }) {
     }
   }, [penerimaan]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (penerimaan) {
         // Update existing penerimaan
-        await axios.put(`${API_URL}/part-penerimaan/${penerimaan.KodeDivisi}/${penerimaan.NoPenerimaan}`, formData);
+        await axios.put(
+          `${API_URL}/part-penerimaan/${penerimaan.KodeDivisi}/${penerimaan.NoPenerimaan}`,
+          formData
+        );
       } else {
         // Create new penerimaan
         await axios.post(`${API_URL}/part-penerimaan`, formData);
@@ -62,15 +65,32 @@ function PartPenerimaanForm({ penerimaan, onSave, onCancel }) {
       <h2>{penerimaan ? 'Edit' : 'Tambah'} Penerimaan Barang</h2>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>No Penerimaan:</label>
-        <input type="text" name="NoPenerimaan" value={formData.NoPenerimaan} onChange={handleChange} required />
+        <input
+          type="text"
+          name="NoPenerimaan"
+          value={formData.NoPenerimaan}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Tgl Penerimaan:</label>
-        <input type="date" name="TglPenerimaan" value={formData.TglPenerimaan} onChange={handleChange} />
+        <input
+          type="date"
+          name="TglPenerimaan"
+          value={formData.TglPenerimaan}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Kode Valas:</label>
@@ -82,7 +102,12 @@ function PartPenerimaanForm({ penerimaan, onSave, onCancel }) {
       </div>
       <div>
         <label>Kode Supplier:</label>
-        <input type="text" name="KodeSupplier" value={formData.KodeSupplier} onChange={handleChange} />
+        <input
+          type="text"
+          name="KodeSupplier"
+          value={formData.KodeSupplier}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Jatuh Tempo:</label>
@@ -106,7 +131,12 @@ function PartPenerimaanForm({ penerimaan, onSave, onCancel }) {
       </div>
       <div>
         <label>Grand Total:</label>
-        <input type="number" name="GrandTotal" value={formData.GrandTotal} onChange={handleChange} />
+        <input
+          type="number"
+          name="GrandTotal"
+          value={formData.GrandTotal}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Status:</label>
@@ -140,7 +170,9 @@ function PartPenerimaanForm({ penerimaan, onSave, onCancel }) {
       </div>
 
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

@@ -4,20 +4,16 @@ import { bankService } from '../config/apiService';
 import { useConfirmDialog } from './common/LoadingComponents';
 
 function MBankList({ onEdit, onRefresh }) {
-  const {
-    data: banks,
-    loading,
-    refresh
-  } = useCrudOperations(bankService, onRefresh);
-  
+  const { data: banks, loading, refresh } = useCrudOperations(bankService, onRefresh);
+
   const confirm = useConfirmDialog();
 
-  const handleDelete = async (item) => {
+  const handleDelete = async item => {
     const confirmed = await confirm({
       title: 'Hapus Bank',
       message: `Apakah Anda yakin ingin menghapus bank "${item.namabank}"?`,
       confirmText: 'Hapus',
-      confirmButtonClass: 'btn btn-danger'
+      confirmButtonClass: 'btn btn-danger',
     });
 
     if (confirmed) {
@@ -33,39 +29,39 @@ function MBankList({ onEdit, onRefresh }) {
   );
 
   const columns = [
-    { 
-      header: 'Kode Divisi', 
+    {
+      header: 'Kode Divisi',
       accessor: 'kodedivisi',
-      className: 'text-center'
+      className: 'text-center',
     },
-    { 
-      header: 'Kode Bank', 
+    {
+      header: 'Kode Bank',
       accessor: 'kodebank',
-      className: 'font-monospace'
+      className: 'font-monospace',
     },
-    { 
-      header: 'Nama Bank', 
+    {
+      header: 'Nama Bank',
       accessor: 'namabank',
-      className: 'text-start'
+      className: 'text-start',
     },
-    { 
-      header: 'No. Rekening', 
+    {
+      header: 'No. Rekening',
       accessor: 'norekening',
-      render: (value) => value || '-',
-      className: 'font-monospace'
+      render: value => value || '-',
+      className: 'font-monospace',
     },
-    { 
-      header: 'Atas Nama', 
+    {
+      header: 'Atas Nama',
       accessor: 'atasnama',
-      render: (value) => value || '-',
-      className: 'text-start'
+      render: value => value || '-',
+      className: 'text-start',
     },
-    { 
-      header: 'Status', 
+    {
+      header: 'Status',
       accessor: 'status',
-      render: (value) => <StatusBadge status={value} />,
-      className: 'text-center'
-    }
+      render: value => <StatusBadge status={value} />,
+      className: 'text-center',
+    },
   ];
 
   const actions = [
@@ -73,14 +69,14 @@ function MBankList({ onEdit, onRefresh }) {
       label: 'Edit',
       onClick: onEdit,
       className: 'btn btn-primary btn-sm',
-      show: !!onEdit
+      show: !!onEdit,
     },
     {
       label: 'Hapus',
       onClick: handleDelete,
       className: 'btn btn-danger btn-sm',
-      show: true
-    }
+      show: true,
+    },
   ];
 
   return (

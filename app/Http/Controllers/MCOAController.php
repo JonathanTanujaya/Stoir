@@ -12,8 +12,16 @@ class MCOAController extends Controller
      */
     public function index()
     {
-        $mcoas = MCOA::all();
-        return response()->json($mcoas);
+        $items = MCOA::all()->map(fn($c)=>[
+            'id' => $c->id,
+            'kodeCoa' => $c->kode_coa,
+            'namaCoa' => $c->nama_coa
+        ]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+            'totalCount' => $items->count()
+        ]);
     }
 
     /**
@@ -27,7 +35,11 @@ class MCOAController extends Controller
         ]);
 
         $mcoa = MCOA::create($request->all());
-        return response()->json($mcoa, 201);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mcoa->id, 'kodeCoa' => $mcoa->kode_coa, 'namaCoa' => $mcoa->nama_coa ],
+            'message' => 'COA created'
+        ], 201);
     }
 
     /**
@@ -36,7 +48,10 @@ class MCOAController extends Controller
     public function show(string $id)
     {
         $mcoa = MCOA::findOrFail($id);
-        return response()->json($mcoa);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mcoa->id, 'kodeCoa' => $mcoa->kode_coa, 'namaCoa' => $mcoa->nama_coa ]
+        ]);
     }
 
     /**
@@ -51,7 +66,11 @@ class MCOAController extends Controller
 
         $mcoa = MCOA::findOrFail($id);
         $mcoa->update($request->all());
-        return response()->json($mcoa);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mcoa->id, 'kodeCoa' => $mcoa->kode_coa, 'namaCoa' => $mcoa->nama_coa ],
+            'message' => 'COA updated'
+        ]);
     }
 
     /**
@@ -61,6 +80,9 @@ class MCOAController extends Controller
     {
         $mcoa = MCOA::findOrFail($id);
         $mcoa->delete();
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true,
+            'message' => 'COA deleted'
+        ]);
     }
 }

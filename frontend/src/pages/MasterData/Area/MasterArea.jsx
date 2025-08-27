@@ -12,7 +12,7 @@ const MasterArea = () => {
     wilayah: '',
     provinsi: '',
     keterangan: '',
-    status: 'Aktif'
+    status: 'Aktif',
   });
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const MasterArea = () => {
     try {
       const response = await areasAPI.getAll();
       console.log('Areas API response:', response);
-      
+
       // Handle API response structure: {success: true, data: [...]}
       let dataArray = [];
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
@@ -31,7 +31,7 @@ const MasterArea = () => {
       } else if (Array.isArray(response.data)) {
         dataArray = response.data;
       }
-      
+
       setData(dataArray);
     } catch (error) {
       console.error('Error fetching area data:', error);
@@ -44,7 +44,7 @@ const MasterArea = () => {
           wilayah: 'DKI Jakarta',
           provinsi: 'DKI Jakarta',
           keterangan: 'Area Jakarta dan sekitarnya',
-          status: 'Aktif'
+          status: 'Aktif',
         },
         {
           id: 2,
@@ -53,7 +53,7 @@ const MasterArea = () => {
           wilayah: 'Jawa Barat',
           provinsi: 'Jawa Barat',
           keterangan: 'Area Bandung dan sekitarnya',
-          status: 'Aktif'
+          status: 'Aktif',
         },
         {
           id: 3,
@@ -62,29 +62,31 @@ const MasterArea = () => {
           wilayah: 'Jawa Timur',
           provinsi: 'Jawa Timur',
           keterangan: 'Area Surabaya dan sekitarnya',
-          status: 'Aktif'
-        }
+          status: 'Aktif',
+        },
       ];
       setData(sampleData);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingItem) {
         await areasAPI.update(editingItem.id, formData);
-        setData(prev => prev.map(item => 
-          item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
-        ));
+        setData(prev =>
+          prev.map(item =>
+            item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
+          )
+        );
         alert('Data area berhasil diupdate!');
       } else {
         const response = await areasAPI.create(formData);
@@ -92,7 +94,7 @@ const MasterArea = () => {
         setData(prev => [...prev, newItem]);
         alert('Data area berhasil ditambahkan!');
       }
-      
+
       resetForm();
     } catch (error) {
       console.error('Error saving area:', error);
@@ -100,13 +102,13 @@ const MasterArea = () => {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setEditingItem(item);
     setFormData(item);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (confirm('Yakin ingin menghapus data ini?')) {
       try {
         await areasAPI.delete(id);
@@ -126,7 +128,7 @@ const MasterArea = () => {
       wilayah: '',
       provinsi: '',
       keterangan: '',
-      status: 'Aktif'
+      status: 'Aktif',
     });
     setEditingItem(null);
     setShowForm(false);
@@ -135,10 +137,7 @@ const MasterArea = () => {
   return (
     <div className="page-container">
       <div className="page-actions">
-        <button 
-          className="btn btn-primary"
-          onClick={() => setShowForm(!showForm)}
-        >
+        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
           {showForm ? 'Tutup Form' : 'Tambah Area'}
         </button>
       </div>
@@ -146,9 +145,7 @@ const MasterArea = () => {
       {showForm && (
         <div className="card mb-4">
           <div className="card-header">
-            <h3 className="card-title">
-              {editingItem ? 'Edit Area' : 'Tambah Area'}
-            </h3>
+            <h3 className="card-title">{editingItem ? 'Edit Area' : 'Tambah Area'}</h3>
           </div>
           <div className="card-body">
             <form onSubmit={handleSubmit}>
@@ -263,36 +260,39 @@ const MasterArea = () => {
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(data) && data.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.kode_area}</td>
-                    <td>{item.nama_area}</td>
-                    <td>{item.wilayah}</td>
-                    <td>{item.provinsi}</td>
-                    <td>
-                      <span className={`badge ${item.status === 'Aktif' ? 'badge-success' : 'badge-secondary'}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td>{item.keterangan}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button 
-                          className="btn btn-sm btn-secondary"
-                          onClick={() => handleEdit(item)}
+                {Array.isArray(data) &&
+                  data.map(item => (
+                    <tr key={item.id}>
+                      <td>{item.kode_area}</td>
+                      <td>{item.nama_area}</td>
+                      <td>{item.wilayah}</td>
+                      <td>{item.provinsi}</td>
+                      <td>
+                        <span
+                          className={`badge ${item.status === 'Aktif' ? 'badge-success' : 'badge-secondary'}`}
                         >
-                          Edit
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {item.status}
+                        </span>
+                      </td>
+                      <td>{item.keterangan}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <button
+                            className="btn btn-sm btn-secondary"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 {(!Array.isArray(data) || data.length === 0) && (
                   <tr>
                     <td colSpan="7" className="text-center">

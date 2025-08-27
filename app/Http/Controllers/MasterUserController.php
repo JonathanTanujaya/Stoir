@@ -12,8 +12,17 @@ class MasterUserController extends Controller
      */
     public function index()
     {
-        $masterUsers = MasterUser::all();
-        return response()->json($masterUsers);
+        $items = MasterUser::all()->map(fn($u)=>[
+            'id' => $u->id,
+            'kodeDivisi' => $u->kodedivisi,
+            'username' => $u->username,
+            'nama' => $u->nama
+        ]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+            'totalCount' => $items->count()
+        ]);
     }
 
     /**
@@ -43,7 +52,12 @@ class MasterUserController extends Controller
         $masterUser = MasterUser::create($request->all());
         return response()->json([
             'success' => true,
-            'data' => $masterUser,
+            'data' => [
+                'id' => $masterUser->id,
+                'kodeDivisi' => $masterUser->kodedivisi,
+                'username' => $masterUser->username,
+                'nama' => $masterUser->nama
+            ],
             'message' => 'Master user created successfully'
         ], 201);
     }
@@ -64,7 +78,12 @@ class MasterUserController extends Controller
         
         return response()->json([
             'success' => true,
-            'data' => $masterUser
+            'data' => [
+                'id' => $masterUser->id,
+                'kodeDivisi' => $masterUser->kodedivisi,
+                'username' => $masterUser->username,
+                'nama' => $masterUser->nama
+            ]
         ]);
     }
 
@@ -91,7 +110,12 @@ class MasterUserController extends Controller
         $masterUser->update($request->all());
         return response()->json([
             'success' => true,
-            'data' => $masterUser,
+            'data' => [
+                'id' => $masterUser->id,
+                'kodeDivisi' => $masterUser->kodedivisi,
+                'username' => $masterUser->username,
+                'nama' => $masterUser->nama
+            ],
             'message' => 'Master user updated successfully'
         ]);
     }

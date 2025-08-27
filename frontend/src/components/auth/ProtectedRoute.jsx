@@ -10,12 +10,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <Container>
-        <Box 
-          display="flex" 
-          justifyContent="center" 
-          alignItems="center" 
-          minHeight="50vh"
-        >
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
           <CircularProgress />
         </Box>
       </Container>

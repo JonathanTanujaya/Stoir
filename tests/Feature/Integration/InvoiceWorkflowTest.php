@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\Integration;
 
+use PHPUnit\Framework\Attributes\Test;
+
+
+
 use Tests\TestCase;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
@@ -23,10 +27,10 @@ class InvoiceWorkflowTest extends TestCase
         parent::setUp();
         
         $this->user = $this->createAuthenticatedUser('Administrator');
-        $this->createTestData();
+        $this->createWorkflowTestData();
     }
 
-    protected function createTestData()
+    protected function createWorkflowTestData()
     {
         // Create test customer
         MCust::create([
@@ -65,8 +69,7 @@ class InvoiceWorkflowTest extends TestCase
             'status' => 'Active'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_complete_invoice_creation_workflow()
     {
         // Step 1: Create invoice via API
@@ -147,8 +150,7 @@ class InvoiceWorkflowTest extends TestCase
             'keterangan' => 'Sales Invoice INV001'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_handles_invoice_cancellation_workflow()
     {
         // Create and approve an invoice first
@@ -206,8 +208,7 @@ class InvoiceWorkflowTest extends TestCase
             'noreferensi' => 'REV-INV002'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_handles_credit_invoice_workflow()
     {
         // Create credit invoice
@@ -269,8 +270,7 @@ class InvoiceWorkflowTest extends TestCase
             $this->assertEquals(150000, $invoice->saldo); // 300000 - 150000
         }
     }
-
-    /** @test */
+    #[Test]
     public function it_handles_stock_transfer_workflow()
     {
         // Create destination division
@@ -320,8 +320,7 @@ class InvoiceWorkflowTest extends TestCase
             }
         }
     }
-
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_stock_operations()
     {
         // Simulate concurrent invoice creation that might affect the same item

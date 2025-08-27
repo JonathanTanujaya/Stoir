@@ -19,12 +19,10 @@ class AreaController extends Controller
             // Transform data to match frontend expectations
             $transformedAreas = $areas->map(function ($area) {
                 return [
-                    'id' => $area->kodearea, // Use kodearea as ID
-                    'kode_area' => $area->kodearea,
-                    'nama_area' => $area->area,
-                    'kodedivisi' => $area->kodedivisi,
-                    'wilayah' => $area->area, // Use area as wilayah
-                    'provinsi' => $area->area, // Use area as provinsi
+                    'id' => $area->kodearea,
+                    'kodedivisi' => $area->kodedivisi,          // Frontend expects lowercase
+                    'kodearea' => $area->kodearea,              // Frontend expects lowercase
+                    'namaarea' => $area->area,                  // Frontend expects lowercase
                     'keterangan' => 'Area ' . $area->area,
                     'status' => $area->status ? 'Aktif' : 'Tidak Aktif'
                 ];
@@ -138,8 +136,13 @@ class AreaController extends Controller
             
             return response()->json([
                 'success' => true,
-                'data' => $areas,
-                'count' => $areas->count(),
+                'data' => $areas->map(fn($a)=>[
+                    'kodeArea' => $a->kodearea,
+                    'namaArea' => $a->area,
+                    'kodeDivisi' => $a->kodedivisi,
+                    'status' => (bool)$a->status
+                ]),
+                'totalCount' => $areas->count(),
                 'message' => "Found {$areas->count()} areas for division {$kodeDivisi}"
             ]);
         } catch (\Exception $e) {

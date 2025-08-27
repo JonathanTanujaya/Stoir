@@ -12,7 +12,7 @@ function MergeBarangPage() {
     setView('form');
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setItemToEdit(item);
     setView('form');
   };
@@ -36,10 +36,7 @@ function MergeBarangPage() {
           <button onClick={() => setView('list')} style={{ marginBottom: '10px' }}>
             Kembali ke Daftar
           </button>
-          <MergeBarangForm 
-            itemToEdit={itemToEdit} 
-            onFormSuccess={handleFormSuccess} 
-          />
+          <MergeBarangForm itemToEdit={itemToEdit} onFormSuccess={handleFormSuccess} />
         </>
       )}
     </div>

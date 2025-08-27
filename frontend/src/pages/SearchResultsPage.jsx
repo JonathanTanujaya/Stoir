@@ -20,7 +20,7 @@ import {
   InputAdornment,
   Tabs,
   Tab,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -30,7 +30,7 @@ import {
   Receipt as ReceiptIcon,
   ShoppingCart as ShoppingCartIcon,
   TrendingUp as TrendingIcon,
-  AccessTime as TimeIcon
+  AccessTime as TimeIcon,
 } from '@mui/icons-material';
 
 const ICON_MAP = {
@@ -38,14 +38,14 @@ const ICON_MAP = {
   people: PeopleIcon,
   business: BusinessIcon,
   receipt: ReceiptIcon,
-  shopping_cart: ShoppingCartIcon
+  shopping_cart: ShoppingCartIcon,
 };
 
 const SearchResultsPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [currentQuery, setCurrentQuery] = useState(searchParams.get('q') || '');
@@ -61,7 +61,7 @@ const SearchResultsPage = () => {
       const params = new URLSearchParams({
         q: query,
         limit: 20,
-        page: page
+        page: page,
       });
 
       if (category !== 'all') {
@@ -70,7 +70,7 @@ const SearchResultsPage = () => {
 
       const response = await fetch(`/api/search?${params}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setResults(data.data);
       } else {
@@ -98,13 +98,13 @@ const SearchResultsPage = () => {
   }, [searchParams]);
 
   // Handle new search
-  const handleSearch = (event) => {
+  const handleSearch = event => {
     event.preventDefault();
     if (currentQuery.trim()) {
       setSearchParams({
         q: currentQuery,
         category: activeCategory,
-        page: 1
+        page: 1,
       });
     }
   };
@@ -115,7 +115,7 @@ const SearchResultsPage = () => {
     setSearchParams({
       q: currentQuery,
       category: newCategory,
-      page: 1
+      page: 1,
     });
   };
 
@@ -125,12 +125,12 @@ const SearchResultsPage = () => {
     setSearchParams({
       q: currentQuery,
       category: activeCategory,
-      page: page
+      page: page,
     });
   };
 
   // Handle result click
-  const handleResultClick = (result) => {
+  const handleResultClick = result => {
     if (result.deepLink) {
       navigate(result.deepLink);
     }
@@ -139,14 +139,14 @@ const SearchResultsPage = () => {
   // Render result icon
   const renderResultIcon = (iconName, category) => {
     const IconComponent = ICON_MAP[iconName] || InventoryIcon;
-    
+
     return (
       <Avatar
         sx={{
           width: 40,
           height: 40,
           bgcolor: theme.palette.primary.main,
-          color: 'white'
+          color: 'white',
         }}
       >
         <IconComponent />
@@ -163,7 +163,7 @@ const SearchResultsPage = () => {
   // Get filtered results
   const getFilteredResults = () => {
     if (!results) return [];
-    
+
     if (activeCategory === 'all') {
       // Flatten all categories
       const allResults = [];
@@ -192,7 +192,7 @@ const SearchResultsPage = () => {
           <TextField
             fullWidth
             value={currentQuery}
-            onChange={(e) => setCurrentQuery(e.target.value)}
+            onChange={e => setCurrentQuery(e.target.value)}
             placeholder="Search products, customers, invoices..."
             InputProps={{
               startAdornment: (
@@ -205,7 +205,7 @@ const SearchResultsPage = () => {
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
                 backgroundColor: theme.palette.background.default,
-              }
+              },
             }}
           />
         </form>
@@ -214,14 +214,10 @@ const SearchResultsPage = () => {
         {results && (
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-              Found <strong>{results.totalResults}</strong> results for "<strong>{results.query}</strong>"
+              Found <strong>{results.totalResults}</strong> results for "
+              <strong>{results.query}</strong>"
             </Typography>
-            <Chip
-              icon={<TimeIcon />}
-              label={results.searchTime}
-              size="small"
-              variant="outlined"
-            />
+            <Chip icon={<TimeIcon />} label={results.searchTime} size="small" variant="outlined" />
           </Box>
         )}
       </Paper>
@@ -237,7 +233,7 @@ const SearchResultsPage = () => {
             sx={{ px: 2 }}
           >
             <Tab label="All Results" value="all" />
-            {getCategories().map((category) => (
+            {getCategories().map(category => (
               <Tab
                 key={category}
                 label={`${category} (${results.categories[category].count})`}
@@ -283,15 +279,15 @@ const SearchResultsPage = () => {
                         '&:hover': {
                           bgcolor: theme.palette.action.hover,
                           transform: 'translateY(-1px)',
-                          boxShadow: theme.shadows[2]
+                          boxShadow: theme.shadows[2],
                         },
-                        transition: 'all 0.2s ease-in-out'
+                        transition: 'all 0.2s ease-in-out',
                       }}
                     >
                       <ListItemAvatar>
                         {renderResultIcon(result.icon, result.category)}
                       </ListItemAvatar>
-                      
+
                       <ListItemText
                         primary={
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -315,16 +311,16 @@ const SearchResultsPage = () => {
                               {result.subtitle}
                             </Typography>
                             <Box sx={{ display: 'flex', gap: 0.5 }}>
-                              {result.matchedFields.map((field) => (
+                              {result.matchedFields.map(field => (
                                 <Chip
                                   key={field}
                                   label={field}
                                   size="small"
-                                  sx={{ 
-                                    height: 20, 
+                                  sx={{
+                                    height: 20,
                                     fontSize: '0.7rem',
                                     bgcolor: theme.palette.info.light,
-                                    color: theme.palette.info.contrastText
+                                    color: theme.palette.info.contrastText,
                                   }}
                                 />
                               ))}

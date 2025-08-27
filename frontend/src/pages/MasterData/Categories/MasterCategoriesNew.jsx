@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { categoriesAPI } from '../../../services/api';
 
@@ -12,7 +11,7 @@ const MasterCategories = () => {
     namaKategori: '',
     kodeKategori: '',
     deskripsi: '',
-    status: 'Aktif'
+    status: 'Aktif',
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -36,7 +35,7 @@ const MasterCategories = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingId) {
@@ -44,12 +43,12 @@ const MasterCategories = () => {
       } else {
         await categoriesAPI.create(formData);
       }
-      
+
       setFormData({
         namaKategori: '',
         kodeKategori: '',
         deskripsi: '',
-        status: 'Aktif'
+        status: 'Aktif',
       });
       setEditingId(null);
       fetchCategories();
@@ -58,17 +57,17 @@ const MasterCategories = () => {
     }
   };
 
-  const handleEdit = (category) => {
+  const handleEdit = category => {
     setFormData({
       namaKategori: category.kategori || category.namaKategori || '',
       kodeKategori: category.kodekategori || category.kodeKategori || '',
       deskripsi: category.deskripsi || '',
-      status: category.status === true || category.status === 'Aktif' ? 'Aktif' : 'Nonaktif'
+      status: category.status === true || category.status === 'Aktif' ? 'Aktif' : 'Nonaktif',
     });
     setEditingId(category.id);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
       try {
         await categoriesAPI.delete(id);
@@ -84,14 +83,19 @@ const MasterCategories = () => {
       namaKategori: '',
       kodeKategori: '',
       deskripsi: '',
-      status: 'Aktif'
+      status: 'Aktif',
     });
     setEditingId(null);
   };
 
-  const filteredCategories = categories.filter(category =>
-    (category.kategori || category.namaKategori || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (category.kodekategori || category.kodeKategori || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = categories.filter(
+    category =>
+      (category.kategori || category.namaKategori || '')
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (category.kodekategori || category.kodeKategori || '')
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
@@ -112,13 +116,6 @@ const MasterCategories = () => {
   return (
     <div className="page-content">
       <div className="content-wrapper">
-        <PageHeader 
-          title="Master Kategori"
-          subtitle="Kelola data kategori barang"
-          breadcrumb={['Master Data', 'Kategori']}
-          showAddButton={false}
-        />
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Form Panel */}
           <div className="lg:col-span-1">
@@ -126,7 +123,7 @@ const MasterCategories = () => {
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
                 {editingId ? 'Edit Kategori' : 'Tambah Kategori'}
               </h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -137,7 +134,7 @@ const MasterCategories = () => {
                     className="input"
                     placeholder="Masukkan nama kategori"
                     value={formData.namaKategori}
-                    onChange={(e) => setFormData({...formData, namaKategori: e.target.value})}
+                    onChange={e => setFormData({ ...formData, namaKategori: e.target.value })}
                     required
                   />
                 </div>
@@ -151,31 +148,27 @@ const MasterCategories = () => {
                     className={`input ${!editingId ? 'bg-gray-100' : ''}`}
                     placeholder="Auto generated"
                     value={formData.kodeKategori}
-                    onChange={(e) => setFormData({...formData, kodeKategori: e.target.value})}
+                    onChange={e => setFormData({ ...formData, kodeKategori: e.target.value })}
                     disabled={!editingId}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Deskripsi
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                   <textarea
                     className="input h-20 resize-none"
                     placeholder="Deskripsi kategori..."
                     value={formData.deskripsi}
-                    onChange={(e) => setFormData({...formData, deskripsi: e.target.value})}
+                    onChange={e => setFormData({ ...formData, deskripsi: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                   <select
                     className="input"
                     value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    onChange={e => setFormData({ ...formData, status: e.target.value })}
                   >
                     <option value="Aktif">Aktif</option>
                     <option value="Nonaktif">Nonaktif</option>
@@ -207,12 +200,12 @@ const MasterCategories = () => {
                       className="input pl-10 w-64"
                       placeholder="Cari kategori..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={e => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
               </div>
-              
+
               <div className="table-wrapper">
                 <table className="table">
                   <thead>
@@ -226,7 +219,7 @@ const MasterCategories = () => {
                   </thead>
                   <tbody>
                     {currentData.length > 0 ? (
-                      currentData.map((category) => (
+                      currentData.map(category => (
                         <tr key={category.id}>
                           <td className="font-medium">
                             {category.kodekategori || category.kodeKategori || '-'}
@@ -234,21 +227,21 @@ const MasterCategories = () => {
                           <td className="font-medium">
                             {category.kategori || category.namaKategori || '-'}
                           </td>
-                          <td className="text-gray-600">
-                            {category.deskripsi || '-'}
-                          </td>
+                          <td className="text-gray-600">{category.deskripsi || '-'}</td>
                           <td>
-                            <span className={`badge ${
-                              (category.status || category.status_aktif) === 'Aktif' || 
-                              (category.status || category.status_aktif) === 1 || 
+                            <span
+                              className={`badge ${
+                                (category.status || category.status_aktif) === 'Aktif' ||
+                                (category.status || category.status_aktif) === 1 ||
+                                (category.status || category.status_aktif) === true
+                                  ? 'badge-success'
+                                  : 'badge-neutral'
+                              }`}
+                            >
+                              {(category.status || category.status_aktif) === 'Aktif' ||
+                              (category.status || category.status_aktif) === 1 ||
                               (category.status || category.status_aktif) === true
-                                ? 'badge-success' 
-                                : 'badge-neutral'
-                            }`}>
-                              {(category.status || category.status_aktif) === 'Aktif' || 
-                               (category.status || category.status_aktif) === 1 || 
-                               (category.status || category.status_aktif) === true
-                                ? 'Aktif' 
+                                ? 'Aktif'
                                 : 'Tidak Aktif'}
                             </span>
                           </td>
@@ -287,7 +280,9 @@ const MasterCategories = () => {
               {totalPages > 1 && (
                 <div className="flex justify-between items-center p-6 border-t border-gray-200">
                   <span className="text-sm text-gray-500">
-                    Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredCategories.length)} dari {filteredCategories.length} data
+                    Menampilkan {startIndex + 1}-
+                    {Math.min(startIndex + itemsPerPage, filteredCategories.length)} dari{' '}
+                    {filteredCategories.length} data
                   </span>
                   <div className="flex gap-2">
                     <button
@@ -317,14 +312,14 @@ const MasterCategories = () => {
             <h3 className="text-sm font-medium text-gray-600 mb-2">Total Kategori</h3>
             <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
           </div>
-          
+
           <div className="card p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Kategori Aktif</h3>
             <p className="text-2xl font-bold text-success">
               {categories.filter(cat => cat.status === true || cat.status === 'Aktif').length}
             </p>
           </div>
-          
+
           <div className="card p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Kategori Nonaktif</h3>
             <p className="text-2xl font-bold text-gray-500">

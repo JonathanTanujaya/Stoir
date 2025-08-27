@@ -49,7 +49,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  ListItemSecondary
+  ListItemSecondary,
 } from '@mui/material';
 import {
   Assignment,
@@ -85,7 +85,7 @@ import {
   Pause,
   Stop,
   Forward,
-  Reply
+  Reply,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -106,7 +106,7 @@ const PO_STATUSES = {
   shipped: { label: 'Shipped', color: 'info', icon: <LocalShipping /> },
   delivered: { label: 'Delivered', color: 'success', icon: <Receipt /> },
   completed: { label: 'Completed', color: 'success', icon: <CheckCircle /> },
-  cancelled: { label: 'Cancelled', color: 'error', icon: <Stop /> }
+  cancelled: { label: 'Cancelled', color: 'error', icon: <Stop /> },
 };
 
 // Approval levels
@@ -115,7 +115,7 @@ const APPROVAL_LEVELS = [
   { level: 2, role: 'Finance', title: 'Finance Manager', threshold: 10000000 },
   { level: 3, role: 'Operations', title: 'Operations Manager', threshold: 50000000 },
   { level: 4, role: 'Executive', title: 'General Manager', threshold: 100000000 },
-  { level: 5, role: 'CEO', title: 'Chief Executive Officer', threshold: 500000000 }
+  { level: 5, role: 'CEO', title: 'Chief Executive Officer', threshold: 500000000 },
 ];
 
 // Filter options
@@ -123,13 +123,13 @@ const FILTER_OPTIONS = {
   status: Object.keys(PO_STATUSES),
   priority: ['urgent', 'high', 'normal', 'low'],
   dateRange: ['today', 'week', 'month', 'quarter', 'year'],
-  approval: ['pending', 'approved', 'rejected']
+  approval: ['pending', 'approved', 'rejected'],
 };
 
 const PurchaseOrderManagement = () => {
   const { isMobile } = useResponsive();
   const queryClient = useQueryClient();
-  
+
   // Component state
   const [currentTab, setCurrentTab] = useState(0);
   const [selectedPO, setSelectedPO] = useState(null);
@@ -137,7 +137,7 @@ const PurchaseOrderManagement = () => {
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const [workflowDialogOpen, setWorkflowDialogOpen] = useState(false);
   const [bulkActionMenuAnchor, setBulkActionMenuAnchor] = useState(null);
-  
+
   // Filter state
   const [filters, setFilters] = useState({
     status: '',
@@ -146,27 +146,27 @@ const PurchaseOrderManagement = () => {
     approval: '',
     search: '',
     supplierId: '',
-    departmentId: ''
+    departmentId: '',
   });
-  
+
   // Selection state
   const [selectedPOs, setSelectedPOs] = useState([]);
-  
+
   // Approval state
   const [approvalComment, setApprovalComment] = useState('');
   const [approvalAction, setApprovalAction] = useState('approve');
 
   // Fetch PO data with React Query
-  const { 
-    data: purchaseOrders = [], 
-    isLoading, 
+  const {
+    data: purchaseOrders = [],
+    isLoading,
     error,
-    refetch 
+    refetch,
   } = useQuery({
     queryKey: ['purchaseOrders', filters],
     queryFn: () => purchasesAPI.getAll(filters),
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
-    select: (data) => data.data?.data || []
+    select: data => data.data?.data || [],
   });
 
   // Fetch dashboard statistics
@@ -174,19 +174,19 @@ const PurchaseOrderManagement = () => {
     queryKey: ['purchaseOrderStats'],
     queryFn: () => purchasesAPI.getDashboardStats(),
     refetchInterval: 60000,
-    select: (data) => data.data || {}
+    select: data => data.data || {},
   });
 
   // Fetch workflow templates
   const { data: workflowTemplates = [] } = useQuery({
     queryKey: ['workflowTemplates'],
     queryFn: () => workflowAPI.getTemplates(),
-    select: (data) => data.data || []
+    select: data => data.data || [],
   });
 
   // Approval mutation
   const approvalMutation = useMutation({
-    mutationFn: ({ poId, action, comment, level }) => 
+    mutationFn: ({ poId, action, comment, level }) =>
       purchasesAPI.processApproval(poId, { action, comment, level }),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['purchaseOrders']);
@@ -195,37 +195,35 @@ const PurchaseOrderManagement = () => {
       setApprovalDialogOpen(false);
       setApprovalComment('');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to process approval');
-    }
+    },
   });
 
   // Bulk action mutation
   const bulkActionMutation = useMutation({
-    mutationFn: ({ action, poIds, data }) => 
-      purchasesAPI.bulkAction(action, poIds, data),
+    mutationFn: ({ action, poIds, data }) => purchasesAPI.bulkAction(action, poIds, data),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['purchaseOrders']);
       toast.success(`Bulk ${variables.action} completed successfully`);
       setSelectedPOs([]);
       setBulkActionMenuAnchor(null);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Bulk action failed');
-    }
+    },
   });
 
   // Status update mutation
   const statusUpdateMutation = useMutation({
-    mutationFn: ({ poId, status, data }) => 
-      purchasesAPI.updateStatus(poId, status, data),
+    mutationFn: ({ poId, status, data }) => purchasesAPI.updateStatus(poId, status, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['purchaseOrders']);
       toast.success('Status updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update status');
-    }
+    },
   });
 
   // Filter and search logic
@@ -245,10 +243,11 @@ const PurchaseOrderManagement = () => {
     // Apply search filter
     if (filters.search) {
       const search = filters.search.toLowerCase();
-      filtered = filtered.filter(po => 
-        po.po_number?.toLowerCase().includes(search) ||
-        po.supplier?.name?.toLowerCase().includes(search) ||
-        po.description?.toLowerCase().includes(search)
+      filtered = filtered.filter(
+        po =>
+          po.po_number?.toLowerCase().includes(search) ||
+          po.supplier?.name?.toLowerCase().includes(search) ||
+          po.description?.toLowerCase().includes(search)
       );
     }
 
@@ -260,9 +259,9 @@ const PurchaseOrderManagement = () => {
         week: 7,
         month: 30,
         quarter: 90,
-        year: 365
+        year: 365,
       };
-      
+
       const daysBack = ranges[filters.dateRange];
       if (daysBack) {
         filtered = filtered.filter(po => {
@@ -281,13 +280,13 @@ const PurchaseOrderManagement = () => {
       all: filteredPOs,
       pending: filteredPOs.filter(po => po.status === 'pending_approval'),
       approved: filteredPOs.filter(po => po.status === 'approved'),
-      in_progress: filteredPOs.filter(po => 
+      in_progress: filteredPOs.filter(po =>
         ['sent_to_supplier', 'acknowledged', 'in_production', 'shipped'].includes(po.status)
       ),
       completed: filteredPOs.filter(po => po.status === 'completed'),
-      cancelled: filteredPOs.filter(po => po.status === 'cancelled')
+      cancelled: filteredPOs.filter(po => po.status === 'cancelled'),
     };
-    
+
     return groups;
   }, [filteredPOs]);
 
@@ -303,31 +302,37 @@ const PurchaseOrderManagement = () => {
   }, []);
 
   // Handle select all
-  const handleSelectAll = useCallback((checked) => {
-    if (checked) {
-      const currentTabPOs = Object.values(groupedPOs)[currentTab] || [];
-      setSelectedPOs(currentTabPOs.map(po => po.id));
-    } else {
-      setSelectedPOs([]);
-    }
-  }, [groupedPOs, currentTab]);
+  const handleSelectAll = useCallback(
+    checked => {
+      if (checked) {
+        const currentTabPOs = Object.values(groupedPOs)[currentTab] || [];
+        setSelectedPOs(currentTabPOs.map(po => po.id));
+      } else {
+        setSelectedPOs([]);
+      }
+    },
+    [groupedPOs, currentTab]
+  );
 
   // Handle approval action
-  const handleApprovalAction = useCallback(async (action) => {
-    if (!selectedPO) return;
-    
-    const level = determineApprovalLevel(selectedPO.total_amount);
-    
-    approvalMutation.mutate({
-      poId: selectedPO.id,
-      action,
-      comment: approvalComment,
-      level
-    });
-  }, [selectedPO, approvalComment, approvalMutation]);
+  const handleApprovalAction = useCallback(
+    async action => {
+      if (!selectedPO) return;
+
+      const level = determineApprovalLevel(selectedPO.total_amount);
+
+      approvalMutation.mutate({
+        poId: selectedPO.id,
+        action,
+        comment: approvalComment,
+        level,
+      });
+    },
+    [selectedPO, approvalComment, approvalMutation]
+  );
 
   // Determine required approval level based on amount
-  const determineApprovalLevel = useCallback((amount) => {
+  const determineApprovalLevel = useCallback(amount => {
     for (let i = APPROVAL_LEVELS.length - 1; i >= 0; i--) {
       if (amount >= APPROVAL_LEVELS[i].threshold) {
         return APPROVAL_LEVELS[i].level;
@@ -337,59 +342,62 @@ const PurchaseOrderManagement = () => {
   }, []);
 
   // Handle bulk actions
-  const handleBulkAction = useCallback((action) => {
-    if (selectedPOs.length === 0) {
-      toast.warning('Please select purchase orders first');
-      return;
-    }
+  const handleBulkAction = useCallback(
+    action => {
+      if (selectedPOs.length === 0) {
+        toast.warning('Please select purchase orders first');
+        return;
+      }
 
-    const actionData = {};
-    
-    switch (action) {
-      case 'approve':
-        actionData.comment = 'Bulk approval';
-        break;
-      case 'reject':
-        actionData.comment = 'Bulk rejection';
-        break;
-      case 'send_to_supplier':
-        actionData.notification = true;
-        break;
-    }
+      const actionData = {};
 
-    bulkActionMutation.mutate({
-      action,
-      poIds: selectedPOs,
-      data: actionData
-    });
-  }, [selectedPOs, bulkActionMutation]);
+      switch (action) {
+        case 'approve':
+          actionData.comment = 'Bulk approval';
+          break;
+        case 'reject':
+          actionData.comment = 'Bulk rejection';
+          break;
+        case 'send_to_supplier':
+          actionData.notification = true;
+          break;
+      }
+
+      bulkActionMutation.mutate({
+        action,
+        poIds: selectedPOs,
+        data: actionData,
+      });
+    },
+    [selectedPOs, bulkActionMutation]
+  );
 
   // Format currency
-  const formatCurrency = (amount) => {
+  const formatCurrency = amount => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount || 0);
   };
 
   // Get status chip props
-  const getStatusChip = (status) => {
+  const getStatusChip = status => {
     const statusConfig = PO_STATUSES[status] || PO_STATUSES.draft;
     return {
       label: statusConfig.label,
       color: statusConfig.color,
-      icon: statusConfig.icon
+      icon: statusConfig.icon,
     };
   };
 
   // Get priority color
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = priority => {
     const colors = {
       urgent: 'error',
       high: 'warning',
       normal: 'info',
-      low: 'success'
+      low: 'success',
     };
     return colors[priority] || 'default';
   };
@@ -434,9 +442,7 @@ const PurchaseOrderManagement = () => {
                   <Typography variant="h6" color="primary">
                     {dashboardStats.total_pos || 0}
                   </Typography>
-                  <Typography variant="caption">
-                    Total POs
-                  </Typography>
+                  <Typography variant="caption">Total POs</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -446,9 +452,7 @@ const PurchaseOrderManagement = () => {
                   <Typography variant="h6" color="warning.main">
                     {dashboardStats.pending_approval || 0}
                   </Typography>
-                  <Typography variant="caption">
-                    Pending Approval
-                  </Typography>
+                  <Typography variant="caption">Pending Approval</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -458,9 +462,7 @@ const PurchaseOrderManagement = () => {
                   <Typography variant="h6" color="success.main">
                     {formatCurrency(dashboardStats.total_value || 0)}
                   </Typography>
-                  <Typography variant="caption">
-                    Total Value
-                  </Typography>
+                  <Typography variant="caption">Total Value</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -470,9 +472,7 @@ const PurchaseOrderManagement = () => {
                   <Typography variant="h6" color="info.main">
                     {dashboardStats.avg_approval_time || 0}h
                   </Typography>
-                  <Typography variant="caption">
-                    Avg Approval Time
-                  </Typography>
+                  <Typography variant="caption">Avg Approval Time</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -489,22 +489,20 @@ const PurchaseOrderManagement = () => {
               size="small"
               placeholder="Search POs, suppliers..."
               value={filters.search}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
               InputProps={{
-                startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+                startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
               }}
             />
           </Grid>
-          
+
           <Grid item xs={6} md={2}>
             <Autocomplete
               size="small"
               options={FILTER_OPTIONS.status}
               value={filters.status}
               onChange={(_, value) => setFilters(prev => ({ ...prev, status: value }))}
-              renderInput={(params) => (
-                <TextField {...params} label="Status" />
-              )}
+              renderInput={params => <TextField {...params} label="Status" />}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   <Chip size="small" {...getStatusChip(option)} />
@@ -519,9 +517,7 @@ const PurchaseOrderManagement = () => {
               options={FILTER_OPTIONS.priority}
               value={filters.priority}
               onChange={(_, value) => setFilters(prev => ({ ...prev, priority: value }))}
-              renderInput={(params) => (
-                <TextField {...params} label="Priority" />
-              )}
+              renderInput={params => <TextField {...params} label="Priority" />}
             />
           </Grid>
 
@@ -531,26 +527,19 @@ const PurchaseOrderManagement = () => {
               options={FILTER_OPTIONS.dateRange}
               value={filters.dateRange}
               onChange={(_, value) => setFilters(prev => ({ ...prev, dateRange: value }))}
-              renderInput={(params) => (
-                <TextField {...params} label="Date Range" />
-              )}
+              renderInput={params => <TextField {...params} label="Date Range" />}
             />
           </Grid>
 
           <Grid item xs={6} md={2}>
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<Refresh />}
-              onClick={() => refetch()}
-            >
+            <Button variant="outlined" fullWidth startIcon={<Refresh />} onClick={() => refetch()}>
               Refresh
             </Button>
           </Grid>
 
           <Grid item xs={12} md={1}>
             <IconButton
-              onClick={(e) => setBulkActionMenuAnchor(e.currentTarget)}
+              onClick={e => setBulkActionMenuAnchor(e.currentTarget)}
               disabled={selectedPOs.length === 0}
             >
               <Badge badgeContent={selectedPOs.length} color="primary">
@@ -570,13 +559,13 @@ const PurchaseOrderManagement = () => {
           scrollButtons="auto"
         >
           <Tab label={`All (${groupedPOs.all?.length || 0})`} />
-          <Tab 
+          <Tab
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 Pending
                 <Chip size="small" color="warning" label={groupedPOs.pending?.length || 0} />
               </Box>
-            } 
+            }
           />
           <Tab label={`Approved (${groupedPOs.approved?.length || 0})`} />
           <Tab label={`In Progress (${groupedPOs.in_progress?.length || 0})`} />
@@ -593,9 +582,15 @@ const PurchaseOrderManagement = () => {
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedPOs.length > 0 && selectedPOs.length === (Object.values(groupedPOs)[currentTab]?.length || 0)}
-                    indeterminate={selectedPOs.length > 0 && selectedPOs.length < (Object.values(groupedPOs)[currentTab]?.length || 0)}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    checked={
+                      selectedPOs.length > 0 &&
+                      selectedPOs.length === (Object.values(groupedPOs)[currentTab]?.length || 0)
+                    }
+                    indeterminate={
+                      selectedPOs.length > 0 &&
+                      selectedPOs.length < (Object.values(groupedPOs)[currentTab]?.length || 0)
+                    }
+                    onChange={e => handleSelectAll(e.target.checked)}
                   />
                 </TableCell>
                 <TableCell>PO Number</TableCell>
@@ -610,15 +605,15 @@ const PurchaseOrderManagement = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(Object.values(groupedPOs)[currentTab] || []).map((po) => (
+              {(Object.values(groupedPOs)[currentTab] || []).map(po => (
                 <TableRow key={po.id} hover>
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectedPOs.includes(po.id)}
-                      onChange={(e) => handlePOSelection(po.id, e.target.checked)}
+                      onChange={e => handlePOSelection(po.id, e.target.checked)}
                     />
                   </TableCell>
-                  
+
                   <TableCell>
                     <Box>
                       <Typography variant="body2" fontWeight="bold">
@@ -629,7 +624,7 @@ const PurchaseOrderManagement = () => {
                       </Typography>
                     </Box>
                   </TableCell>
-                  
+
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Avatar sx={{ width: 32, height: 32 }}>
@@ -643,19 +638,15 @@ const PurchaseOrderManagement = () => {
                       </Box>
                     </Box>
                   </TableCell>
-                  
+
                   <TableCell>
                     <Chip size="small" {...getStatusChip(po.status)} />
                   </TableCell>
-                  
+
                   <TableCell>
-                    <Chip 
-                      size="small" 
-                      label={po.priority} 
-                      color={getPriorityColor(po.priority)}
-                    />
+                    <Chip size="small" label={po.priority} color={getPriorityColor(po.priority)} />
                   </TableCell>
-                  
+
                   <TableCell align="right">
                     <Typography variant="body2" fontWeight="bold">
                       {formatCurrency(po.total_amount)}
@@ -664,7 +655,7 @@ const PurchaseOrderManagement = () => {
                       {po.items_count} items
                     </Typography>
                   </TableCell>
-                  
+
                   <TableCell>
                     <Typography variant="body2">
                       {format(new Date(po.created_at), 'dd MMM yyyy')}
@@ -673,7 +664,7 @@ const PurchaseOrderManagement = () => {
                       {format(new Date(po.created_at), 'HH:mm')}
                     </Typography>
                   </TableCell>
-                  
+
                   <TableCell>
                     <Typography variant="body2">
                       {format(new Date(po.delivery_date), 'dd MMM yyyy')}
@@ -682,7 +673,7 @@ const PurchaseOrderManagement = () => {
                       <Chip size="small" label="Overdue" color="error" />
                     )}
                   </TableCell>
-                  
+
                   <TableCell align="center">
                     {po.status === 'pending_approval' && (
                       <Box sx={{ display: 'flex', gap: 1 }}>
@@ -710,18 +701,22 @@ const PurchaseOrderManagement = () => {
                         </IconButton>
                       </Box>
                     )}
-                    
+
                     {po.approval_progress && (
-                      <Tooltip title={`${po.approval_progress.completed}/${po.approval_progress.total} approvals`}>
+                      <Tooltip
+                        title={`${po.approval_progress.completed}/${po.approval_progress.total} approvals`}
+                      >
                         <LinearProgress
                           variant="determinate"
-                          value={(po.approval_progress.completed / po.approval_progress.total) * 100}
+                          value={
+                            (po.approval_progress.completed / po.approval_progress.total) * 100
+                          }
                           sx={{ width: 60, height: 6, borderRadius: 3 }}
                         />
                       </Tooltip>
                     )}
                   </TableCell>
-                  
+
                   <TableCell align="center">
                     <IconButton
                       size="small"
@@ -732,7 +727,7 @@ const PurchaseOrderManagement = () => {
                     >
                       <Visibility />
                     </IconButton>
-                    
+
                     <IconButton
                       size="small"
                       onClick={() => {
@@ -742,11 +737,8 @@ const PurchaseOrderManagement = () => {
                     >
                       <TimelineIcon />
                     </IconButton>
-                    
-                    <IconButton
-                      size="small"
-                      onClick={() => purchasesAPI.printPO(po.id)}
-                    >
+
+                    <IconButton size="small" onClick={() => purchasesAPI.printPO(po.id)}>
                       <Print />
                     </IconButton>
                   </TableCell>
@@ -755,7 +747,7 @@ const PurchaseOrderManagement = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         {(Object.values(groupedPOs)[currentTab]?.length || 0) === 0 && (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Typography variant="body2" color="text.secondary">
@@ -772,20 +764,28 @@ const PurchaseOrderManagement = () => {
         onClose={() => setBulkActionMenuAnchor(null)}
       >
         <MenuItem onClick={() => handleBulkAction('approve')}>
-          <ListItemIcon><CheckCircle color="success" /></ListItemIcon>
+          <ListItemIcon>
+            <CheckCircle color="success" />
+          </ListItemIcon>
           <ListItemText>Bulk Approve</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => handleBulkAction('reject')}>
-          <ListItemIcon><Cancel color="error" /></ListItemIcon>
+          <ListItemIcon>
+            <Cancel color="error" />
+          </ListItemIcon>
           <ListItemText>Bulk Reject</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => handleBulkAction('send_to_supplier')}>
-          <ListItemIcon><Send color="primary" /></ListItemIcon>
+          <ListItemIcon>
+            <Send color="primary" />
+          </ListItemIcon>
           <ListItemText>Send to Suppliers</ListItemText>
         </MenuItem>
         <Divider />
         <MenuItem onClick={() => handleBulkAction('export')}>
-          <ListItemIcon><Download /></ListItemIcon>
+          <ListItemIcon>
+            <Download />
+          </ListItemIcon>
           <ListItemText>Export Selected</ListItemText>
         </MenuItem>
       </Menu>
@@ -808,15 +808,11 @@ const PurchaseOrderManagement = () => {
         >
           <DialogTitle>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6">
-                Purchase Order Details - {selectedPO?.po_number}
-              </Typography>
+              <Typography variant="h6">Purchase Order Details - {selectedPO?.po_number}</Typography>
               <Chip {...getStatusChip(selectedPO?.status)} />
             </Box>
           </DialogTitle>
-          <DialogContent>
-            {selectedPO && renderPODetails(selectedPO)}
-          </DialogContent>
+          <DialogContent>{selectedPO && renderPODetails(selectedPO)}</DialogContent>
           <DialogActions>
             <Button onClick={() => setDetailDialogOpen(false)}>Close</Button>
             <Button variant="contained" startIcon={<Print />}>
@@ -836,39 +832,44 @@ const PurchaseOrderManagement = () => {
             {approvalAction === 'approve' ? 'Approve' : 'Reject'} Purchase Order
           </DialogTitle>
           <DialogContent>
-            <Alert 
-              severity={approvalAction === 'approve' ? 'success' : 'warning'} 
-              sx={{ mb: 2 }}
-            >
-              You are about to {approvalAction} PO #{selectedPO?.po_number} 
+            <Alert severity={approvalAction === 'approve' ? 'success' : 'warning'} sx={{ mb: 2 }}>
+              You are about to {approvalAction} PO #{selectedPO?.po_number}
               with amount {formatCurrency(selectedPO?.total_amount)}
             </Alert>
-            
+
             <TextField
               fullWidth
               multiline
               rows={3}
               label="Comment"
               value={approvalComment}
-              onChange={(e) => setApprovalComment(e.target.value)}
+              onChange={e => setApprovalComment(e.target.value)}
               placeholder={`Enter reason for ${approvalAction}ing this purchase order...`}
               required
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setApprovalDialogOpen(false)}>
-              Cancel
-            </Button>
+            <Button onClick={() => setApprovalDialogOpen(false)}>Cancel</Button>
             <Button
               variant="contained"
               color={approvalAction === 'approve' ? 'success' : 'error'}
               onClick={() => handleApprovalAction(approvalAction)}
               disabled={!approvalComment.trim() || approvalMutation.isPending}
-              startIcon={approvalMutation.isPending ? <LoadingSpinner size={20} /> : 
-                         approvalAction === 'approve' ? <CheckCircle /> : <Cancel />}
+              startIcon={
+                approvalMutation.isPending ? (
+                  <LoadingSpinner size={20} />
+                ) : approvalAction === 'approve' ? (
+                  <CheckCircle />
+                ) : (
+                  <Cancel />
+                )
+              }
             >
-              {approvalMutation.isPending ? 'Processing...' : 
-               approvalAction === 'approve' ? 'Approve' : 'Reject'}
+              {approvalMutation.isPending
+                ? 'Processing...'
+                : approvalAction === 'approve'
+                  ? 'Approve'
+                  : 'Reject'}
             </Button>
           </DialogActions>
         </Dialog>
@@ -880,12 +881,8 @@ const PurchaseOrderManagement = () => {
           maxWidth="md"
           fullWidth
         >
-          <DialogTitle>
-            Workflow Timeline - {selectedPO?.po_number}
-          </DialogTitle>
-          <DialogContent>
-            {selectedPO && renderWorkflowTimeline(selectedPO)}
-          </DialogContent>
+          <DialogTitle>Workflow Timeline - {selectedPO?.po_number}</DialogTitle>
+          <DialogContent>{selectedPO && renderWorkflowTimeline(selectedPO)}</DialogContent>
           <DialogActions>
             <Button onClick={() => setWorkflowDialogOpen(false)}>Close</Button>
           </DialogActions>
@@ -904,21 +901,29 @@ const PurchaseOrderManagement = () => {
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">PO Number</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    PO Number
+                  </Typography>
                   <Typography variant="h6">{po.po_number}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Total Amount</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Amount
+                  </Typography>
                   <Typography variant="h6" color="primary">
                     {formatCurrency(po.total_amount)}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Supplier</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Supplier
+                  </Typography>
                   <Typography variant="body1">{po.supplier?.name}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Delivery Date</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Delivery Date
+                  </Typography>
                   <Typography variant="body1">
                     {format(new Date(po.delivery_date), 'dd MMMM yyyy')}
                   </Typography>
@@ -930,7 +935,9 @@ const PurchaseOrderManagement = () => {
 
         {/* Items */}
         <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>Items</Typography>
+          <Typography variant="h6" gutterBottom>
+            Items
+          </Typography>
           <TableContainer component={Paper} variant="outlined">
             <Table size="small">
               <TableHead>
@@ -969,14 +976,51 @@ const PurchaseOrderManagement = () => {
   function renderWorkflowTimeline(po) {
     const workflowSteps = [
       { label: 'Request Created', status: 'completed', date: po.created_at },
-      { label: 'Pending Approval', status: po.status === 'pending_approval' ? 'active' : 'completed', date: po.created_at },
-      { label: 'Approved', status: po.status === 'approved' ? 'active' : po.status === 'pending_approval' ? 'pending' : 'completed', date: po.approved_at },
-      { label: 'Sent to Supplier', status: po.status === 'sent_to_supplier' ? 'active' : 'pending', date: po.sent_at },
-      { label: 'Acknowledged', status: po.status === 'acknowledged' ? 'active' : 'pending', date: po.acknowledged_at },
-      { label: 'In Production', status: po.status === 'in_production' ? 'active' : 'pending', date: po.production_start },
-      { label: 'Shipped', status: po.status === 'shipped' ? 'active' : 'pending', date: po.shipped_at },
-      { label: 'Delivered', status: po.status === 'delivered' ? 'active' : 'pending', date: po.delivered_at },
-      { label: 'Completed', status: po.status === 'completed' ? 'active' : 'pending', date: po.completed_at }
+      {
+        label: 'Pending Approval',
+        status: po.status === 'pending_approval' ? 'active' : 'completed',
+        date: po.created_at,
+      },
+      {
+        label: 'Approved',
+        status:
+          po.status === 'approved'
+            ? 'active'
+            : po.status === 'pending_approval'
+              ? 'pending'
+              : 'completed',
+        date: po.approved_at,
+      },
+      {
+        label: 'Sent to Supplier',
+        status: po.status === 'sent_to_supplier' ? 'active' : 'pending',
+        date: po.sent_at,
+      },
+      {
+        label: 'Acknowledged',
+        status: po.status === 'acknowledged' ? 'active' : 'pending',
+        date: po.acknowledged_at,
+      },
+      {
+        label: 'In Production',
+        status: po.status === 'in_production' ? 'active' : 'pending',
+        date: po.production_start,
+      },
+      {
+        label: 'Shipped',
+        status: po.status === 'shipped' ? 'active' : 'pending',
+        date: po.shipped_at,
+      },
+      {
+        label: 'Delivered',
+        status: po.status === 'delivered' ? 'active' : 'pending',
+        date: po.delivered_at,
+      },
+      {
+        label: 'Completed',
+        status: po.status === 'completed' ? 'active' : 'pending',
+        date: po.completed_at,
+      },
     ];
 
     return (
@@ -984,14 +1028,22 @@ const PurchaseOrderManagement = () => {
         {workflowSteps.map((step, index) => (
           <TimelineItem key={index}>
             <TimelineSeparator>
-              <TimelineDot 
+              <TimelineDot
                 color={
-                  step.status === 'completed' ? 'success' :
-                  step.status === 'active' ? 'primary' : 'grey'
+                  step.status === 'completed'
+                    ? 'success'
+                    : step.status === 'active'
+                      ? 'primary'
+                      : 'grey'
                 }
               >
-                {step.status === 'completed' ? <CheckCircle /> :
-                 step.status === 'active' ? <Schedule /> : <Circle />}
+                {step.status === 'completed' ? (
+                  <CheckCircle />
+                ) : step.status === 'active' ? (
+                  <Schedule />
+                ) : (
+                  <Circle />
+                )}
               </TimelineDot>
               {index < workflowSteps.length - 1 && <TimelineConnector />}
             </TimelineSeparator>

@@ -21,7 +21,7 @@ const PurchasingRouter = () => {
     queryKey: ['purchasingNotifications'],
     queryFn: () => purchasingAPI.getNotificationCounts(),
     refetchInterval: 30000, // Refresh every 30 seconds
-    select: (data) => data.data || {}
+    select: data => data.data || {},
   });
 
   const tabs = [
@@ -29,26 +29,26 @@ const PurchasingRouter = () => {
       label: 'Purchase Requests',
       path: '/purchasing/requests',
       component: PurchaseRequestForm,
-      badge: notifications.pendingRequests || 0
+      badge: notifications.pendingRequests || 0,
     },
     {
       label: 'Purchase Orders',
       path: '/purchasing/orders',
       component: PurchaseOrderManagement,
-      badge: notifications.pendingApprovals || 0
+      badge: notifications.pendingApprovals || 0,
     },
     {
       label: 'Goods Receiving',
       path: '/purchasing/receiving',
       component: GoodsReceiving,
-      badge: notifications.pendingReceiving || 0
+      badge: notifications.pendingReceiving || 0,
     },
     {
       label: 'Supplier Dashboard',
       path: '/purchasing/suppliers',
       component: SupplierDashboard,
-      badge: notifications.supplierAlerts || 0
-    }
+      badge: notifications.supplierAlerts || 0,
+    },
   ];
 
   return (

@@ -17,15 +17,15 @@ function MBankForm({ bank, onSave, onCancel }) {
     }
   }, [bank]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (bank) {
@@ -45,11 +45,23 @@ function MBankForm({ bank, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Kode Bank:</label>
-        <input type="text" name="KodeBank" value={formData.KodeBank} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeBank"
+          value={formData.KodeBank}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Nama Bank:</label>
@@ -60,7 +72,9 @@ function MBankForm({ bank, onSave, onCancel }) {
         <input type="checkbox" name="Status" checked={formData.Status} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

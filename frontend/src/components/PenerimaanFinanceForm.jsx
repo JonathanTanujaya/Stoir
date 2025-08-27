@@ -33,20 +33,23 @@ function PenerimaanFinanceForm({ penerimaan, onSave, onCancel }) {
     }
   }, [penerimaan]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (penerimaan) {
         // Update existing penerimaan finance
-        await axios.put(`${API_URL}/penerimaan-finance/${penerimaan.KodeDivisi}/${penerimaan.NoPenerimaan}`, formData);
+        await axios.put(
+          `${API_URL}/penerimaan-finance/${penerimaan.KodeDivisi}/${penerimaan.NoPenerimaan}`,
+          formData
+        );
       } else {
         // Create new penerimaan finance
         await axios.post(`${API_URL}/penerimaan-finance`, formData);
@@ -62,15 +65,32 @@ function PenerimaanFinanceForm({ penerimaan, onSave, onCancel }) {
       <h2>{penerimaan ? 'Edit' : 'Tambah'} Penerimaan Finance</h2>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>No Penerimaan:</label>
-        <input type="text" name="NoPenerimaan" value={formData.NoPenerimaan} onChange={handleChange} required />
+        <input
+          type="text"
+          name="NoPenerimaan"
+          value={formData.NoPenerimaan}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Tgl Penerimaan:</label>
-        <input type="date" name="TglPenerimaan" value={formData.TglPenerimaan} onChange={handleChange} />
+        <input
+          type="date"
+          name="TglPenerimaan"
+          value={formData.TglPenerimaan}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Tipe:</label>
@@ -86,7 +106,12 @@ function PenerimaanFinanceForm({ penerimaan, onSave, onCancel }) {
       </div>
       <div>
         <label>Tgl Pencairan:</label>
-        <input type="date" name="TglPencairan" value={formData.TglPencairan} onChange={handleChange} />
+        <input
+          type="date"
+          name="TglPencairan"
+          value={formData.TglPencairan}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Bank Ref:</label>
@@ -94,7 +119,12 @@ function PenerimaanFinanceForm({ penerimaan, onSave, onCancel }) {
       </div>
       <div>
         <label>No Rek Tujuan:</label>
-        <input type="text" name="NoRekTujuan" value={formData.NoRekTujuan} onChange={handleChange} />
+        <input
+          type="text"
+          name="NoRekTujuan"
+          value={formData.NoRekTujuan}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Kode Customer:</label>
@@ -120,27 +150,54 @@ function PenerimaanFinanceForm({ penerimaan, onSave, onCancel }) {
       </div>
       <div>
         <label>Jumlah Invoice:</label>
-        <input type="number" name="JumlahInvoice" value={formData.JumlahInvoice} onChange={handleChange} />
+        <input
+          type="number"
+          name="JumlahInvoice"
+          value={formData.JumlahInvoice}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Sisa Invoice:</label>
-        <input type="number" name="SisaInvoice" value={formData.SisaInvoice} onChange={handleChange} />
+        <input
+          type="number"
+          name="SisaInvoice"
+          value={formData.SisaInvoice}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Jumlah Bayar:</label>
-        <input type="number" name="JumlahBayar" value={formData.JumlahBayar} onChange={handleChange} />
+        <input
+          type="number"
+          name="JumlahBayar"
+          value={formData.JumlahBayar}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Jumlah Dispensasi:</label>
-        <input type="number" name="JumlahDispensasi" value={formData.JumlahDispensasi} onChange={handleChange} />
+        <input
+          type="number"
+          name="JumlahDispensasi"
+          value={formData.JumlahDispensasi}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Status Detail:</label>
-        <input type="text" name="StatusDetail" value={formData.StatusDetail} onChange={handleChange} />
+        <input
+          type="text"
+          name="StatusDetail"
+          value={formData.StatusDetail}
+          onChange={handleChange}
+        />
       </div>
 
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PageHeader from '../../../components/Layout/PageHeader';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { barangAPI, categoriesAPI } from '../../../services/api';
 import {
@@ -9,7 +8,7 @@ import {
   standardizeApiResponse,
   handleApiError,
   createLoadingState,
-  safeFilter
+  safeFilter,
 } from '../../../utils/apiResponseHandler';
 import { standardizeBarang } from '../../../utils/fieldMapping';
 import { withErrorBoundary } from '../../../components/ErrorBoundary/MasterDataErrorBoundary';
@@ -23,7 +22,7 @@ const MasterBarang = () => {
     kode_barang: '',
     modal: '',
     stok: '',
-    tanggal_masuk: ''
+    tanggal_masuk: '',
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -38,23 +37,23 @@ const MasterBarang = () => {
     try {
       setAppState(prev => ({ ...prev, loading: true, error: null }));
       console.log('🔄 Fetching barangs...');
-      
+
       const response = await barangAPI.getAll();
       console.log('📊 Raw Barangs API Response:', response);
-      
+
       // Standardize API response
       const standardResponse = standardizeApiResponse(response.data);
       console.log('📊 Standardized Barangs Response:', standardResponse);
-      
+
       if (standardResponse.success) {
         // Data sudah dalam format yang benar dari API baru
         const barangsData = ensureArray(standardResponse.data);
-        
+
         setAppState({
           loading: false,
           error: null,
           data: barangsData,
-          total: standardResponse.total_count || barangsData.length
+          total: standardResponse.total_count || barangsData.length,
         });
       } else {
         throw new Error(standardResponse.message);
@@ -66,7 +65,7 @@ const MasterBarang = () => {
         loading: false,
         error: errorResponse.message,
         data: [],
-        total: 0
+        total: 0,
       });
     }
   };
@@ -80,7 +79,7 @@ const MasterBarang = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingId) {
@@ -88,16 +87,16 @@ const MasterBarang = () => {
       } else {
         await barangAPI.create(formData);
       }
-      
+
       // Reset form
       setFormData({
         kode_barang: '',
         modal: '',
         stok: '',
-        tanggal_masuk: ''
+        tanggal_masuk: '',
       });
       setEditingId(null);
-      
+
       // Refresh data
       fetchBarangs();
     } catch (error) {
@@ -105,17 +104,17 @@ const MasterBarang = () => {
     }
   };
 
-  const handleEdit = (barang) => {
+  const handleEdit = barang => {
     setFormData({
       kode_barang: barang.kode_barang,
       modal: barang.modal.toString(),
       stok: barang.stok.toString(),
-      tanggal_masuk: barang.tanggal_masuk || ''
+      tanggal_masuk: barang.tanggal_masuk || '',
     });
     setEditingId(barang.kode_barang); // Use kode_barang as ID since we don't have 'id'
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
       try {
         await barangAPI.delete(id);
@@ -134,28 +133,22 @@ const MasterBarang = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentBarangs = filteredBarangs.slice(startIndex, startIndex + itemsPerPage);
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = amount => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
-      currency: 'IDR'
+      currency: 'IDR',
     }).format(amount);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <PageHeader 
-        title="Master Barang" 
-        description="Kelola data barang dan inventori"
-        breadcrumb={['Master Data', 'Barang']}
-      />
-      
       <div className="p-6 space-y-6">
         {/* Form Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
           <h3 className="text-xl font-bold text-slate-800 mb-6">
             {editingId ? 'Edit Barang' : 'Tambah Barang Baru'}
           </h3>
-          
+
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -165,7 +158,7 @@ const MasterBarang = () => {
                 type="text"
                 required
                 value={formData.kode_barang}
-                onChange={(e) => setFormData({...formData, kode_barang: e.target.value})}
+                onChange={e => setFormData({ ...formData, kode_barang: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Masukkan kode barang"
               />
@@ -181,22 +174,20 @@ const MasterBarang = () => {
                 min="0"
                 step="0.01"
                 value={formData.modal}
-                onChange={(e) => setFormData({...formData, modal: e.target.value})}
+                onChange={e => setFormData({ ...formData, modal: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Masukkan modal barang"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Stok *
-              </label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Stok *</label>
               <input
                 type="number"
                 required
                 min="0"
                 value={formData.stok}
-                onChange={(e) => setFormData({...formData, stok: e.target.value})}
+                onChange={e => setFormData({ ...formData, stok: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Masukkan jumlah stok"
               />
@@ -209,7 +200,7 @@ const MasterBarang = () => {
               <input
                 type="date"
                 value={formData.tanggal_masuk}
-                onChange={(e) => setFormData({...formData, tanggal_masuk: e.target.value})}
+                onChange={e => setFormData({ ...formData, tanggal_masuk: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               />
             </div>
@@ -221,7 +212,7 @@ const MasterBarang = () => {
               >
                 {editingId ? 'Update Barang' : 'Simpan Barang'}
               </button>
-              
+
               {editingId && (
                 <button
                   type="button"
@@ -231,7 +222,7 @@ const MasterBarang = () => {
                       kode_barang: '',
                       modal: '',
                       stok: '',
-                      tanggal_masuk: ''
+                      tanggal_masuk: '',
                     });
                   }}
                   className="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-200"
@@ -248,14 +239,14 @@ const MasterBarang = () => {
           <div className="p-6 border-b border-slate-200">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <h3 className="text-xl font-bold text-slate-800">Daftar Barang</h3>
-              
+
               <div className="relative w-full sm:w-96">
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Cari barang..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
@@ -269,7 +260,9 @@ const MasterBarang = () => {
                   <th className="text-left py-4 px-6 font-semibold text-slate-700">Kode Barang</th>
                   <th className="text-right py-4 px-6 font-semibold text-slate-700">Modal</th>
                   <th className="text-center py-4 px-6 font-semibold text-slate-700">Stok</th>
-                  <th className="text-left py-4 px-6 font-semibold text-slate-700">Tanggal Masuk</th>
+                  <th className="text-left py-4 px-6 font-semibold text-slate-700">
+                    Tanggal Masuk
+                  </th>
                   <th className="text-center py-4 px-6 font-semibold text-slate-700">Aksi</th>
                 </tr>
               </thead>
@@ -298,25 +291,31 @@ const MasterBarang = () => {
                 ) : currentBarangs.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="text-center py-8 text-slate-500">
-                      {searchTerm ? 'Tidak ada barang yang sesuai dengan pencarian' : 'Belum ada data barang'}
+                      {searchTerm
+                        ? 'Tidak ada barang yang sesuai dengan pencarian'
+                        : 'Belum ada data barang'}
                     </td>
                   </tr>
                 ) : (
                   currentBarangs.map((barang, index) => (
-                    <tr 
-                      key={generateUniqueKey(barang, index, 'barang')} 
+                    <tr
+                      key={generateUniqueKey(barang, index, 'barang')}
                       className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
                     >
                       <td className="py-4 px-6 font-mono text-sm">{barang.kode_barang || 'N/A'}</td>
-                      <td className="py-4 px-6 text-right font-mono">{formatCurrency(barang.modal || 0)}</td>
+                      <td className="py-4 px-6 text-right font-mono">
+                        {formatCurrency(barang.modal || 0)}
+                      </td>
                       <td className="py-4 px-6 text-center">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          (barang.stok || 0) > 10 
-                            ? 'bg-green-100 text-green-700' 
-                            : (barang.stok || 0) > 0 
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            (barang.stok || 0) > 10
+                              ? 'bg-green-100 text-green-700'
+                              : (barang.stok || 0) > 0
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-red-100 text-red-700'
+                          }`}
+                        >
                           {barang.stok || 0}
                         </span>
                       </td>
@@ -351,9 +350,11 @@ const MasterBarang = () => {
             <div className="p-6 border-t border-slate-200">
               <div className="flex justify-between items-center">
                 <p className="text-slate-600">
-                  Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredBarangs.length)} dari {filteredBarangs.length} barang
+                  Menampilkan {startIndex + 1}-
+                  {Math.min(startIndex + itemsPerPage, filteredBarangs.length)} dari{' '}
+                  {filteredBarangs.length} barang
                 </p>
-                
+
                 <div className="flex gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -362,11 +363,9 @@ const MasterBarang = () => {
                   >
                     Previous
                   </button>
-                  
-                  <span className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                    {currentPage}
-                  </span>
-                  
+
+                  <span className="px-4 py-2 bg-blue-600 text-white rounded-lg">{currentPage}</span>
+
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}

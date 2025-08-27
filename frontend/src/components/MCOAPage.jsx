@@ -13,7 +13,7 @@ function MCOAPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (coa) => {
+  const handleEdit = coa => {
     setSelectedCOA(coa);
     setShowForm(true);
   };

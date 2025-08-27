@@ -1,45 +1,215 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MagnifyingGlassIcon, PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { categoriesAPI } from '../../../services/api';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TablePagination,
+  Tooltip,
+  Alert,
+  CircularProgress,
+  InputAdornment,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Search as SearchIcon,
+  KeyboardArrowUp as ArrowUpIcon,
+  KeyboardArrowDown as ArrowDownIcon,
+} from '@mui/icons-material';
+import { categoriesAPI } from '../../../services/categoriesAPI';
 
 const MasterCategories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(15);
-  const [sortKey, setSortKey] = useState('namaKategori');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortKey, setSortKey] = useState('namakategori');
   const [sortDir, setSortDir] = useState('asc');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    namaKategori: '',
-    kodeKategori: '',
-    deskripsi: '',
-    status: 'Aktif'
+    namakategori: '',
+    kodekategori: '',
+    keterangan: '',
+    status: 'Aktif',
   });
   const [editingId, setEditingId] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  // Debounce search term
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 350);
-    return () => clearTimeout(t);
-  }, [searchTerm]);
+  // Handle sorting
+  const handleSort = (column) => {
+    if (sortKey === column) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(column);
+      setSortDir('asc');
+    }
+  };
+
+  // Data dummy untuk testing
+  const dummyCategories = [
+    {
+      id: 1,
+      kodeKategori: 'KAT001',
+      namaKategori: 'Elektronik',
+      deskripsi: 'Kategori untuk produk elektronik',
+      status: 'Aktif'
+    },
+    {
+      id: 2,
+      kodeKategori: 'KAT002',
+      namaKategori: 'Fashion',
+      deskripsi: 'Kategori untuk produk fashion',
+      status: 'Aktif'
+    },
+    {
+      id: 3,
+      kodeKategori: 'KAT003',
+      namaKategori: 'Makanan',
+      deskripsi: 'Kategori untuk produk makanan dan minuman',
+      status: 'Tidak Aktif'
+    }
+  ];
 
   useEffect(() => {
+    console.log('Component mounted, fetching categories...');
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await categoriesAPI.getAll();
-      const categoriesData = response.data?.data || [];
-      setCategories(categoriesData);
+      console.log('Full API Response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data keys:', Object.keys(response.data || {}));
+      
+      // Handle different response structures
+      let categoriesData = [];
+      if (response.data) {
+        // Try different possible structures
+        if (Array.isArray(response.data.data)) {
+          categoriesData = response.data.data;
+          console.log('Using response.data.data (Laravel format)');
+        } else if (Array.isArray(response.data)) {
+          categoriesData = response.data;
+          console.log('Using response.data (direct array)');
+        } else if (response.data.categories && Array.isArray(response.data.categories)) {
+          categoriesData = response.data.categories;
+          console.log('Using response.data.categories');
+        } else {
+          console.log('Response structure:', response.data);
+          // Try to extract any array from the response
+          const values = Object.values(response.data);
+          const arrayValue = values.find(val => Array.isArray(val));
+          if (arrayValue) {
+            categoriesData = arrayValue;
+            console.log('Found array in response values');
+          }
+        }
+      }
+      
+      console.log('=== DEBUGGING API RESPONSE ===');
+      console.log('Full response:', response);
+      console.log('Response.data:', response.data);
+      console.log('Response.data type:', typeof response.data);
+      
+      // Handle different response structures
+      let rawData = [];
+      if (response.data) {
+        console.log('Response.data exists');
+        
+        // Check all possible structures
+        if (Array.isArray(response.data)) {
+          console.log('response.data is direct array');
+          rawData = response.data;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          console.log('response.data.data is array');
+          rawData = response.data.data;
+        } else if (response.data.categories && Array.isArray(response.data.categories)) {
+          console.log('response.data.categories is array');
+          rawData = response.data.categories;
+        } else {
+          console.log('Searching for arrays in response.data...');
+          console.log('Response.data keys:', Object.keys(response.data));
+          const values = Object.values(response.data);
+          const arrayValue = values.find(val => Array.isArray(val));
+          if (arrayValue) {
+            rawData = arrayValue;
+            console.log('Found array in values');
+          }
+        }
+      }
+      
+      console.log('=== EXTRACTED DATA ===');
+      console.log('rawData:', rawData);
+      console.log('rawData length:', rawData.length);
+      console.log('First 3 items:', rawData.slice(0, 3));
+      
+      // If we have data, examine structure
+      if (rawData.length > 0) {
+        const firstItem = rawData[0];
+        console.log('=== FIRST ITEM ANALYSIS ===');
+        console.log('First item:', firstItem);
+        console.log('First item type:', typeof firstItem);
+        console.log('Is array:', Array.isArray(firstItem));
+        console.log('Is object:', typeof firstItem === 'object' && !Array.isArray(firstItem));
+        
+        if (Array.isArray(firstItem)) {
+          console.log('=== ARRAY STRUCTURE ===');
+          firstItem.forEach((val, idx) => {
+            console.log(`[${idx}]: "${val}" (${typeof val})`);
+          });
+        } else if (typeof firstItem === 'object') {
+          console.log('=== OBJECT STRUCTURE ===');
+          console.log('Keys:', Object.keys(firstItem));
+          Object.entries(firstItem).forEach(([key, val]) => {
+            console.log(`${key}: "${val}" (${typeof val})`);
+          });
+        }
+      }
+      
+      // Always set the data as-is first
+      console.log('Setting raw data to state...');
+      setCategories(rawData);
+      
+      if (categoriesData.length > 0) {
+        setSuccess(`Berhasil memuat ${categoriesData.length} kategori dari API`);
+      } else {
+        setSuccess('Data kategori kosong dari API');
+        // Don't use dummy data, show actual empty state
+      }
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setError('Gagal memuat dari API: ' + (error.response?.data?.message || error.message));
       setCategories([]);
+      setTimeout(() => setError(null), 3000);
     } finally {
       setLoading(false);
     }
@@ -50,22 +220,27 @@ const MasterCategories = () => {
     try {
       if (editingId) {
         await categoriesAPI.update(editingId, formData);
+        setSuccess('Kategori berhasil diupdate');
       } else {
         await categoriesAPI.create(formData);
+        setSuccess('Kategori berhasil ditambahkan');
       }
       fetchCategories();
       resetForm();
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error('Error saving category:', error);
+      setError('Gagal menyimpan kategori');
+      setTimeout(() => setError(null), 3000);
     }
   };
 
   const handleEdit = (category) => {
     setFormData({
-      namaKategori: category.namaKategori || '',
-      kodeKategori: category.kodeKategori || '',
-      deskripsi: category.deskripsi || '',
-      status: category.status || 'Aktif'
+      namakategori: category.namakategori || '',
+      kodekategori: category.kodekategori || '',
+      keterangan: category.keterangan || '',
+      status: category.status || 'Aktif',
     });
     setEditingId(category.id);
     setShowForm(true);
@@ -75,389 +250,394 @@ const MasterCategories = () => {
     if (window.confirm('Yakin ingin menghapus kategori ini?')) {
       try {
         await categoriesAPI.delete(id);
+        setSuccess('Kategori berhasil dihapus');
         fetchCategories();
+        setTimeout(() => setSuccess(null), 3000);
       } catch (error) {
         console.error('Error deleting category:', error);
+        setError('Gagal menghapus kategori');
+        setTimeout(() => setError(null), 3000);
       }
     }
   };
 
-  const toggleStatusInline = async (category) => {
-    const newStatus = category.status === 'Aktif' ? 'Tidak Aktif' : 'Aktif';
-    // Optimistic update
-    setCategories(prev => prev.map(c => c.id === category.id ? { ...c, status: newStatus } : c));
-    setUpdatingId(category.id);
-    try {
-      await categoriesAPI.update(category.id, { ...category, status: newStatus });
-    } catch (e) {
-      // revert on error
-      setCategories(prev => prev.map(c => c.id === category.id ? { ...c, status: category.status } : c));
-      console.error('Toggle status gagal', e);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   const resetForm = () => {
     setFormData({
-      namaKategori: '',
-      kodeKategori: '',
-      deskripsi: '',
-      status: 'Aktif'
+      namakategori: '',
+      kodekategori: '',
+      keterangan: '',
+      status: 'Aktif',
     });
     setEditingId(null);
     setShowForm(false);
   };
 
-  // Memoized filtered list
-  const filteredCategories = useMemo(() => {
-    if (!debouncedSearch) return categories;
-    const q = debouncedSearch.toLowerCase();
-    return categories.filter(c => (
-      c.namaKategori?.toLowerCase().includes(q) ||
-      c.kodeKategori?.toLowerCase().includes(q) ||
-      c.deskripsi?.toLowerCase().includes(q)
-    ));
-  }, [categories, debouncedSearch]);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-  // Sorting
-  const sortedCategories = useMemo(() => {
-    const data = [...filteredCategories];
-    data.sort((a, b) => {
-      const va = (a[sortKey] ?? '').toString().toLowerCase();
-      const vb = (b[sortKey] ?? '').toString().toLowerCase();
-      if (va < vb) return sortDir === 'asc' ? -1 : 1;
-      if (va > vb) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return data;
-  }, [filteredCategories, sortKey, sortDir]);
-
-  const totalPages = Math.ceil(sortedCategories.length / pageSize) || 1;
-  const paginatedCategories = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return sortedCategories.slice(start, start + pageSize);
-  }, [sortedCategories, currentPage, pageSize]);
-
-  // Reset page when filters or pageSize change
-  useEffect(() => { setCurrentPage(1); }, [debouncedSearch, pageSize, sortKey, sortDir]);
-
-  const toggleSort = (key) => {
-    if (sortKey === key) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
+  // Filter dan sort data
+  const filteredAndSortedCategories = useMemo(() => {
+    console.log('Processing categories in useMemo:', categories);
+    console.log('Categories length:', categories.length);
+    console.log('Search term:', searchTerm);
+    
+    if (!Array.isArray(categories) || categories.length === 0) {
+      console.log('Categories is not array or empty');
+      return [];
     }
+
+    // Apply search filter
+    let filtered = categories;
+    if (searchTerm && searchTerm.trim() !== '') {
+      const search = searchTerm.toLowerCase();
+      filtered = categories.filter(category => {
+        const nama = (category.namakategori || '').toLowerCase();
+        const kode = (category.kodekategori || '').toLowerCase();
+        const desc = (category.keterangan || '').toLowerCase();
+        
+        return nama.includes(search) || kode.includes(search) || desc.includes(search);
+      });
+    }
+
+    console.log('Filtered categories:', filtered);
+    console.log('Filtered length:', filtered.length);
+
+    // Sort data
+    if (sortKey && filtered.length > 0) {
+      filtered.sort((a, b) => {
+        let aVal = a[sortKey] || a.nama_kategori || a.name || '';
+        let bVal = b[sortKey] || b.nama_kategori || b.name || '';
+        
+        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+        
+        const compareResult = aVal.toString().localeCompare(bVal.toString());
+        return sortDir === 'asc' ? compareResult : -compareResult;
+      });
+    }
+
+    console.log('Final sorted categories:', filtered);
+    return filtered;
+  }, [categories, searchTerm, sortKey, sortDir]);
+
+  // Pagination
+  const paginatedCategories = useMemo(() => {
+    const startIndex = currentPage * pageSize;
+    const result = filteredAndSortedCategories.slice(startIndex, startIndex + pageSize);
+    console.log('Paginated categories:', result);
+    console.log('Paginated length:', result.length);
+    return result;
+  }, [filteredAndSortedCategories, currentPage, pageSize]);
+
+  const handleChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
   };
 
-  const highlight = (text) => {
-    if (!debouncedSearch) return text || '-';
-    const safe = (text || '').toString();
-    const idx = safe.toLowerCase().indexOf(debouncedSearch.toLowerCase());
-    if (idx === -1) return safe || '-';
-    const before = safe.slice(0, idx);
-    const match = safe.slice(idx, idx + debouncedSearch.length);
-    const after = safe.slice(idx + debouncedSearch.length);
-    return (<span>{before}<mark className="hl-match">{match}</mark>{after}</span>);
+  const handleChangeRowsPerPage = (event) => {
+    setPageSize(parseInt(event.target.value, 10));
+    setCurrentPage(0);
   };
+
+  // Debug log current state
+  console.log('=== MasterCategories Render ===');
+  console.log('categories state:', categories);
+  console.log('loading state:', loading);
+  console.log('categories length:', categories.length);
+  console.log('filteredAndSortedCategories length:', filteredAndSortedCategories.length);
+  console.log('paginatedCategories length:', paginatedCategories.length);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-6 pb-8">
-        {/* Enhanced Content Header */}
-        <div className="content-header">
-          <div className="content-title-section">
-            <h2>Daftar Kategori</h2>
-            <p>Total {filteredCategories.length} kategori tersedia</p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Enhanced Search */}
-            <div className="search-container">
-              <input
-                type="text"
+    <Box p={3}>
+      {/* Alert Messages */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
+          {success}
+        </Alert>
+      )}
+
+      {/* Search */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
                 placeholder="Cari kategori..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
               />
-              <MagnifyingGlassIcon className="search-icon" />
-            </div>
-            <select
-              value={pageSize}
-              onChange={e => setPageSize(Number(e.target.value))}
-              className="page-size-select"
-            >
-              {[10,15,25,50].map(s => <option key={s} value={s}>{s}/hal</option>)}
-            </select>
-            
-            {/* Enhanced Add Button */}
-            <button
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Data Table */}
+      <Card>
+        <CardContent>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6">
+              Data Kategori ({filteredAndSortedCategories.length} item)
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
               onClick={() => {
                 resetForm();
                 setShowForm(true);
               }}
-              className="btn-primary"
             >
-              <PlusIcon className="btn-icon" />
               Tambah Kategori
-            </button>
-          </div>
-        </div>
-
-        {/* Form Modal - Compact */}
-        {showForm && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h3 className="modal-title">
-                  {editingId ? 'Edit Kategori' : 'Tambah Kategori'}
-                </h3>
-                <button 
-                  onClick={resetForm}
-                  className="modal-close"
-                >
-                  ×
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="modal-body">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">Kode Kategori *</label>
-                    <input
-                      type="text"
-                      name="kodeKategori"
-                      value={formData.kodeKategori}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      placeholder="KAT001"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Nama Kategori *</label>
-                    <input
-                      type="text"
-                      name="namaKategori"
-                      value={formData.namaKategori}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      placeholder="Nama kategori"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group col-span-2">
-                    <label className="form-label">Deskripsi</label>
-                    <textarea
-                      name="deskripsi"
-                      value={formData.deskripsi}
-                      onChange={handleInputChange}
-                      className="form-textarea"
-                      rows="2"
-                      placeholder="Deskripsi kategori"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Status</label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      className="form-select"
-                    >
-                      <option value="Aktif">Aktif</option>
-                      <option value="Tidak Aktif">Tidak Aktif</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    onClick={resetForm}
-                    className="btn btn-secondary"
-                  >
-                    Batal
-                  </button>
-                  <button 
-                    type="submit"
-                    className="btn btn-primary"
-                  >
-                    {editingId ? 'Update' : 'Simpan'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Compact Data Table */}
-        <div className="data-table-container">
+            </Button>
+          </Box>
+          
           {loading ? (
-            <div className="table-wrapper">
-              <table className="data-table categories-table">
-                <colgroup>
-                  <col className="col-code" />
-                  <col className="col-name" />
-                  <col className="col-desc" />
-                  <col className="col-status" />
-                  <col className="col-actions" />
-                </colgroup>
-                <tbody>
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <tr key={i} className="table-row skeleton-row">
-                      <td><div className="sk-box w-16" /></td>
-                      <td><div className="sk-box w-40" /></td>
-                      <td><div className="sk-box w-64" /></td>
-                      <td><div className="sk-badge" /></td>
-                      <td><div className="sk-actions" /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Box display="flex" justifyContent="center" p={4}>
+              <CircularProgress />
+            </Box>
           ) : (
             <>
-              <div className="table-wrapper">
-                <table className="data-table categories-table">
-                  {/* Structural column sizing for consistent header/body alignment */}
-                  <colgroup>
-                    <col className="col-code" />
-                    <col className="col-name" />
-                    <col className="col-desc" />
-                    <col className="col-status" />
-                    <col className="col-actions" />
-                  </colgroup>
-                  {/* Header dihapus sesuai permintaan */}
-                  <tbody>
-                    {paginatedCategories.length > 0 && (
-                      <tr className="pseudo-header-row">
-                        <td onClick={() => toggleSort('kodeKategori')} className="ph-cell clickable">Kode {sortKey==='kodeKategori' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('namaKategori')} className="ph-cell clickable">Nama {sortKey==='namaKategori' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('deskripsi')} className="ph-cell clickable">Deskripsi {sortKey==='deskripsi' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td onClick={() => toggleSort('status')} className="ph-cell clickable center">Status {sortKey==='status' && (<span className="sort-indicator">{sortDir==='asc'?'▲':'▼'}</span>)}</td>
-                        <td className="ph-cell center">Aksi</td>
-                      </tr>
-                    )}
-                    {paginatedCategories.length === 0 ? (
-                      <tr>
-                        <td colSpan="5" className="text-center py-16">
-                          <div className="flex flex-col items-center">
-                            <div className="text-6xl mb-4 opacity-50">📂</div>
-                            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                              {searchTerm ? 'Tidak ada kategori yang ditemukan' : 'Belum ada data kategori'}
-                            </h3>
-                            <p className="text-sm text-gray-500 mb-4">
-                              {searchTerm 
-                                ? `Tidak ada kategori yang cocok dengan "${searchTerm}"`
-                                : 'Mulai dengan menambahkan kategori baru untuk produk Anda'
-                              }
-                            </p>
-                            {!searchTerm && (
-                              <button
-                                onClick={() => setShowForm(true)}
-                                className="btn-primary"
-                              >
-                                <PlusIcon className="btn-icon" />
-                                Tambah Kategori Pertama
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-          paginatedCategories.map((category, index) => (
-                        <tr key={category.id} className="table-row">
-                          <td className="col-code font-mono font-medium text-primary-600">
-            {highlight(category.kodeKategori)}
-                          </td>
-                          <td className="col-name text-gray-900">
-            {highlight(category.namaKategori)}
-                          </td>
-                          <td className="col-desc text-gray-600 truncate" title={category.deskripsi || category.namaKategori}>
-                            {(!category.deskripsi || category.deskripsi === category.namaKategori) ? '-' : highlight(category.deskripsi)}
-                          </td>
-                          <td className="col-status">
-                            <button
-                              type="button"
-                              onClick={() => toggleStatusInline(category)}
-                              disabled={updatingId === category.id}
-                              className={`status-badge btn-status-toggle ${category.status === 'Aktif' ? 'status-active' : 'status-inactive'} ${updatingId === category.id ? 'is-loading' : ''}`}
-                              title="Klik untuk toggle status"
-                            >
-                              {updatingId === category.id ? '...' : (category.status || 'Aktif')}
-                            </button>
-                          </td>
-                          <td className="col-actions">
-                            <div className="action-buttons">
-                              <button
-                                onClick={() => handleEdit(category)}
-                                className="btn-icon-sm btn-edit"
-                                title="Edit Kategori"
-                              >
-                                <PencilIcon className="icon-sm" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(category.id)}
-                                className="btn-icon-sm btn-delete"
-                                title="Hapus Kategori"
-                              >
-                                <TrashIcon className="icon-sm" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Compact Pagination */}
-              {totalPages > 1 && (
-                <div className="pagination">
-                  <span className="pagination-info">
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: 'grey.50' }}>
+                      <TableCell><strong>No</strong></TableCell>
+                      
+                      <TableCell 
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                        onClick={() => handleSort('kodekategori')}
+                      >
+                        <Box display="flex" alignItems="center">
+                          <strong>Kode Kategori</strong>
+                          {sortKey === 'kodekategori' && (
+                            sortDir === 'asc' ? <ArrowUpIcon fontSize="small" /> : <ArrowDownIcon fontSize="small" />
+                          )}
+                        </Box>
+                      </TableCell>
+                      
+                      <TableCell 
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                        onClick={() => handleSort('namakategori')}
+                      >
+                        <Box display="flex" alignItems="center">
+                          <strong>Nama Kategori</strong>
+                          {sortKey === 'namakategori' && (
+                            sortDir === 'asc' ? <ArrowUpIcon fontSize="small" /> : <ArrowDownIcon fontSize="small" />
+                          )}
+                        </Box>
+                      </TableCell>
+                      
+                      <TableCell><strong>Deskripsi</strong></TableCell>
+                      
+                      <TableCell 
+                        sx={{ cursor: 'pointer', userSelect: 'none' }}
+                        onClick={() => handleSort('status')}
+                      >
+                        <Box display="flex" alignItems="center">
+                          <strong>Status</strong>
+                          {sortKey === 'status' && (
+                            sortDir === 'asc' ? <ArrowUpIcon fontSize="small" /> : <ArrowDownIcon fontSize="small" />
+                          )}
+                        </Box>
+                      </TableCell>
+                      
+                      <TableCell align="center"><strong>Aksi</strong></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
                     {(() => {
-                      const start = (currentPage - 1) * pageSize + 1;
-                      const end = Math.min(currentPage * pageSize, filteredCategories.length);
-                      return `Menampilkan ${start}-${end} dari ${filteredCategories.length} data | Halaman ${currentPage} / ${totalPages}`;
+                      console.log('=== TABLE RENDER ===');
+                      console.log('paginatedCategories in render:', paginatedCategories);
+                      console.log('paginatedCategories.length in render:', paginatedCategories.length);
+                      console.log('categories.length:', categories.length);
+                      console.log('filteredAndSortedCategories.length:', filteredAndSortedCategories.length);
+                      
+                      if (paginatedCategories.length === 0) {
+                        return (
+                          <TableRow>
+                            <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                              <Typography color="textSecondary">
+                                {categories.length > 0 
+                                  ? `Debug: Total ${categories.length} kategori, Filtered ${filteredAndSortedCategories.length}, Paginated ${paginatedCategories.length}`
+                                  : 'Tidak ada data kategori'
+                                }
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+                      
+                      return paginatedCategories.map((category, index) => {
+                        console.log(`Rendering category ${index}:`, category);
+                        
+                        // Use the correct field names from API response
+                        const kodeKategori = category.kodekategori || '-';
+                        const namaKategori = category.namakategori || '-';
+                        const deskripsi = category.keterangan || '-';
+                        const status = category.status || 'Aktif';
+                        
+                        return (
+                          <TableRow key={category.id || index} hover>
+                            <TableCell>{currentPage * pageSize + index + 1}</TableCell>
+                            <TableCell>
+                              <Typography variant="body2" fontWeight="medium">
+                                {kodeKategori}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body1">
+                                {namaKategori}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" color="textSecondary">
+                                {deskripsi}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={status}
+                                color={status === 'Aktif' ? 'success' : 'default'}
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell align="center">
+                              <Tooltip title="Edit">
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => handleEdit(category)}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Hapus">
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDelete(category.id)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      });
                     })()}
-                  </span>
-                  <div className="pagination-controls">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="pagination-btn"
-                    >
-                      ‹ Prev
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="pagination-btn"
-                    >
-                      Next ›
-                    </button>
-                  </div>
-                </div>
-              )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* Pagination */}
+              <TablePagination
+                component="div"
+                count={filteredAndSortedCategories.length}
+                page={currentPage}
+                onPageChange={handleChangePage}
+                rowsPerPage={pageSize}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                labelRowsPerPage="Baris per halaman:"
+                labelDisplayedRows={({ from, to, count }) =>
+                  `${from}-${to} dari ${count !== -1 ? count : `lebih dari ${to}`}`
+                }
+              />
             </>
           )}
-        </div>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+
+      {/* Form Dialog */}
+      <Dialog
+        open={showForm}
+        onClose={resetForm}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {editingId ? 'Edit Kategori' : 'Tambah Kategori Baru'}
+        </DialogTitle>
+        <form onSubmit={handleSubmit}>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Kode Kategori"
+                  name="kodekategori"
+                  value={formData.kodekategori}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="contoh: KAT001"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Nama Kategori"
+                  name="namakategori"
+                  value={formData.namakategori}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="contoh: Elektronik"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Keterangan"
+                  name="keterangan"
+                  value={formData.keterangan}
+                  onChange={handleInputChange}
+                  multiline
+                  rows={3}
+                  placeholder="Keterangan kategori (opsional)"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    label="Status"
+                  >
+                    <MenuItem value="Aktif">Aktif</MenuItem>
+                    <MenuItem value="Tidak Aktif">Tidak Aktif</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={resetForm}>
+              Batal
+            </Button>
+            <Button type="submit" variant="contained">
+              {editingId ? 'Update' : 'Simpan'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </Box>
   );
 };
 

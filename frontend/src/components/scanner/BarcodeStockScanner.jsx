@@ -32,7 +32,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Fab
+  Fab,
 } from '@mui/material';
 import {
   QrCodeScanner,
@@ -59,7 +59,7 @@ import {
   Inventory,
   Search,
   Visibility,
-  VisibilityOff
+  VisibilityOff,
 } from '@mui/icons-material';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import StockEngine from '../../services/StockEngine';
@@ -93,7 +93,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
     initializeScanner();
     loadProducts();
     requestPermissions();
-    
+
     return () => {
       cleanup();
     };
@@ -119,12 +119,12 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
   const requestPermissions = async () => {
     try {
       // Request camera permission
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
       });
       setCameraPermission('granted');
       stream.getTracks().forEach(track => track.stop());
-      
+
       // Request notification permission
       if ('Notification' in window) {
         await Notification.requestPermission();
@@ -146,7 +146,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           currentStock: 45,
           location: 'Warehouse A',
           unitCost: 100,
-          category: 'Electronics'
+          category: 'Electronics',
         },
         {
           id: 2,
@@ -155,7 +155,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           currentStock: 120,
           location: 'Warehouse B',
           unitCost: 200,
-          category: 'Tools'
+          category: 'Tools',
         },
         {
           id: 3,
@@ -164,8 +164,8 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           currentStock: 0,
           location: 'Warehouse A',
           unitCost: 50,
-          category: 'Consumables'
-        }
+          category: 'Consumables',
+        },
       ];
 
       setProducts(mockProducts);
@@ -187,9 +187,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           fps: 10,
           qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
-          supportedScanTypes: [
-            Html5QrcodeScanner.SCAN_TYPE_CAMERA
-          ]
+          supportedScanTypes: [Html5QrcodeScanner.SCAN_TYPE_CAMERA],
         },
         false
       );
@@ -198,7 +196,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
         (decodedText, decodedResult) => {
           handleScanSuccess(decodedText, decodedResult);
         },
-        (error) => {
+        error => {
           // Handle scan failure (usually can be ignored)
           // console.warn('Scan error:', error);
         }
@@ -235,24 +233,24 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
   const handleScanSuccess = async (decodedText, decodedResult) => {
     try {
       setScanResult(decodedText);
-      
+
       // Play success sound
       if (soundEnabled) {
         playSuccessSound();
       }
-      
+
       // Vibrate if enabled and supported
       if (vibrationEnabled && 'vibrate' in navigator) {
         navigator.vibrate(200);
       }
-      
+
       // Find product by barcode
       const product = products.find(p => p.barcode === decodedText);
-      
+
       if (product) {
         setCurrentProduct(product);
         await processStockOperation(product);
-        
+
         // Add to scan history
         const historyEntry = {
           id: Date.now(),
@@ -261,18 +259,18 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           operation: operation,
           quantity: quantity,
           timestamp: new Date().toISOString(),
-          location: location
+          location: location,
         };
-        
+
         setScanHistory(prev => [historyEntry, ...prev.slice(0, 49)]); // Keep last 50 scans
-        
+
         // Notify parent components
         if (onProductScanned) {
           onProductScanned(product, operation, quantity);
         }
-        
+
         addNotification(`${operation}: ${product.name} (${quantity})`, 'success');
-        
+
         // Auto-continue scanning in continuous mode
         if (!continuousMode) {
           setDialogOpen(true);
@@ -287,10 +285,10 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
     }
   };
 
-  const processStockOperation = async (product) => {
+  const processStockOperation = async product => {
     try {
       let updatedStock = product.currentStock;
-      
+
       switch (operation) {
         case 'ADD':
           updatedStock += quantity;
@@ -306,11 +304,9 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
       }
 
       // Update local product data
-      setProducts(prev => prev.map(p => 
-        p.id === product.id 
-          ? { ...p, currentStock: updatedStock }
-          : p
-      ));
+      setProducts(prev =>
+        prev.map(p => (p.id === product.id ? { ...p, currentStock: updatedStock } : p))
+      );
 
       // Notify parent component
       if (onStockUpdate) {
@@ -321,7 +317,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           operation,
           quantity,
           location,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -334,8 +330,8 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           operation,
           quantity,
           location,
-          barcode: product.barcode
-        })
+          barcode: product.barcode,
+        }),
       });
 
       // Check for low stock alerts
@@ -343,21 +339,20 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
         id: product.id,
         averageDemand: 10, // Mock data
         leadTime: 7,
-        serviceLevel: 0.95
+        serviceLevel: 0.95,
       });
 
       if (updatedStock <= reorderPoint) {
         addNotification(`Low stock alert: ${product.name} (${updatedStock} remaining)`, 'warning');
-        
+
         // Send system notification
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification('Low Stock Alert', {
             body: `${product.name} is below reorder point`,
-            icon: '/favicon.ico'
+            icon: '/favicon.ico',
           });
         }
       }
-
     } catch (error) {
       console.error('Failed to process stock operation:', error);
       addNotification('Failed to update stock', 'error');
@@ -367,19 +362,19 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
   const playSuccessSound = () => {
     try {
       if (!audioContext.current) return;
-      
+
       const oscillator = audioContext.current.createOscillator();
       const gainNode = audioContext.current.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.current.destination);
-      
+
       oscillator.frequency.value = 800;
       oscillator.type = 'sine';
-      
+
       gainNode.gain.setValueAtTime(0.1, audioContext.current.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.current.currentTime + 0.2);
-      
+
       oscillator.start(audioContext.current.currentTime);
       oscillator.stop(audioContext.current.currentTime + 0.2);
     } catch (error) {
@@ -392,18 +387,18 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
       id: Date.now(),
       message,
       severity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
+
     setNotifications(prev => [notification, ...prev.slice(0, 9)]); // Keep last 10 notifications
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
     }, 5000);
   };
 
-  const removeNotification = (id) => {
+  const removeNotification = id => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
@@ -412,21 +407,29 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
     addNotification('Scan history cleared', 'info');
   };
 
-  const getSeverityColor = (severity) => {
+  const getSeverityColor = severity => {
     switch (severity) {
-      case 'success': return 'success';
-      case 'warning': return 'warning';
-      case 'error': return 'error';
-      default: return 'info';
+      case 'success':
+        return 'success';
+      case 'warning':
+        return 'warning';
+      case 'error':
+        return 'error';
+      default:
+        return 'info';
     }
   };
 
-  const getOperationIcon = (op) => {
+  const getOperationIcon = op => {
     switch (op) {
-      case 'ADD': return <Add color="success" />;
-      case 'REMOVE': return <Remove color="error" />;
-      case 'COUNT': return <Inventory color="primary" />;
-      default: return <Search />;
+      case 'ADD':
+        return <Add color="success" />;
+      case 'REMOVE':
+        return <Remove color="error" />;
+      case 'COUNT':
+        return <Inventory color="primary" />;
+      default:
+        return <Search />;
     }
   };
 
@@ -450,23 +453,20 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
             </Tooltip>
           </Box>
         </Box>
-        
+
         {/* Scanner Controls */}
         <Grid container spacing={2} sx={{ mb: 2 }}>
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Operation</InputLabel>
-              <Select
-                value={operation}
-                onChange={(e) => setOperation(e.target.value)}
-              >
+              <Select value={operation} onChange={e => setOperation(e.target.value)}>
                 <MenuItem value="ADD">Add Stock</MenuItem>
                 <MenuItem value="REMOVE">Remove Stock</MenuItem>
                 <MenuItem value="COUNT">Stock Count</MenuItem>
               </Select>
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
@@ -474,18 +474,15 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
               label="Quantity"
               type="number"
               value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+              onChange={e => setQuantity(parseInt(e.target.value) || 1)}
               inputProps={{ min: 1 }}
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Location</InputLabel>
-              <Select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              >
+              <Select value={location} onChange={e => setLocation(e.target.value)}>
                 <MenuItem value="">Select Location</MenuItem>
                 <MenuItem value="Warehouse A">Warehouse A</MenuItem>
                 <MenuItem value="Warehouse B">Warehouse B</MenuItem>
@@ -493,12 +490,12 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
               </Select>
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Button
               fullWidth
-              variant={scanning ? "contained" : "outlined"}
-              color={scanning ? "error" : "primary"}
+              variant={scanning ? 'contained' : 'outlined'}
+              color={scanning ? 'error' : 'primary'}
               onClick={() => setScanning(!scanning)}
               startIcon={scanning ? <Stop /> : <PlayArrow />}
               disabled={cameraPermission !== 'granted'}
@@ -507,7 +504,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
             </Button>
           </Grid>
         </Grid>
-        
+
         {/* Scanner Options */}
         <Grid container spacing={1} sx={{ mb: 2 }}>
           <Grid item xs={12} sm={6} md={3}>
@@ -515,46 +512,46 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
               control={
                 <Switch
                   checked={continuousMode}
-                  onChange={(e) => setContinuousMode(e.target.checked)}
+                  onChange={e => setContinuousMode(e.target.checked)}
                   size="small"
                 />
               }
               label="Continuous"
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <FormControlLabel
               control={
                 <Switch
                   checked={batchMode}
-                  onChange={(e) => setBatchMode(e.target.checked)}
+                  onChange={e => setBatchMode(e.target.checked)}
                   size="small"
                 />
               }
               label="Batch Mode"
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <FormControlLabel
               control={
                 <Switch
                   checked={soundEnabled}
-                  onChange={(e) => setSoundEnabled(e.target.checked)}
+                  onChange={e => setSoundEnabled(e.target.checked)}
                   size="small"
                 />
               }
               label="Sound"
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <FormControlLabel
               control={
                 <Switch
                   checked={vibrationEnabled}
-                  onChange={(e) => setVibrationEnabled(e.target.checked)}
+                  onChange={e => setVibrationEnabled(e.target.checked)}
                   size="small"
                 />
               }
@@ -562,14 +559,15 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
             />
           </Grid>
         </Grid>
-        
+
         {/* Camera Permission Alert */}
         {cameraPermission !== 'granted' && (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Camera permission is required for barcode scanning. Please allow camera access and refresh the page.
+            Camera permission is required for barcode scanning. Please allow camera access and
+            refresh the page.
           </Alert>
         )}
-        
+
         {/* Scanner Display */}
         <Paper sx={{ p: 2, textAlign: 'center', minHeight: 300 }}>
           {scanning ? (
@@ -577,7 +575,13 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
               <div id="qr-reader" style={{ width: '100%' }}></div>
             </Box>
           ) : (
-            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" sx={{ height: 250 }}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              sx={{ height: 250 }}
+            >
               <QrCodeScanner sx={{ fontSize: 80, color: 'grey.400', mb: 2 }} />
               <Typography variant="h6" color="text.secondary">
                 Click "Start Scan" to begin scanning
@@ -588,7 +592,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
             </Box>
           )}
         </Paper>
-        
+
         {/* Current Product Display */}
         {currentProduct && (
           <Card sx={{ mt: 2, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
@@ -609,7 +613,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
 
   const renderNotifications = () => (
     <Box sx={{ position: 'fixed', top: 80, right: 16, zIndex: 1000, maxWidth: 400 }}>
-      {notifications.map((notification) => (
+      {notifications.map(notification => (
         <Alert
           key={notification.id}
           severity={getSeverityColor(notification.severity)}
@@ -641,20 +645,22 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
           </Typography>
         ) : (
           <List>
-            {scanHistory.map((entry) => (
+            {scanHistory.map(entry => (
               <ListItem key={entry.id} divider>
-                <ListItemIcon>
-                  {getOperationIcon(entry.operation)}
-                </ListItemIcon>
+                <ListItemIcon>{getOperationIcon(entry.operation)}</ListItemIcon>
                 <ListItemText
                   primary={
                     <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="subtitle2">
-                        {entry.product.name}
-                      </Typography>
-                      <Chip 
+                      <Typography variant="subtitle2">{entry.product.name}</Typography>
+                      <Chip
                         label={`${entry.operation} ${entry.quantity}`}
-                        color={entry.operation === 'ADD' ? 'success' : entry.operation === 'REMOVE' ? 'error' : 'primary'}
+                        color={
+                          entry.operation === 'ADD'
+                            ? 'success'
+                            : entry.operation === 'REMOVE'
+                              ? 'error'
+                              : 'primary'
+                        }
                         size="small"
                       />
                     </Box>
@@ -687,26 +693,24 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
       <DialogContent>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Camera Settings</Typography>
+            <Typography variant="h6" gutterBottom>
+              Camera Settings
+            </Typography>
             <FormControlLabel
               control={
-                <Switch
-                  checked={flashEnabled}
-                  onChange={(e) => setFlashEnabled(e.target.checked)}
-                />
+                <Switch checked={flashEnabled} onChange={e => setFlashEnabled(e.target.checked)} />
               }
               label="Flash/Torch"
             />
           </Grid>
-          
+
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Feedback Settings</Typography>
+            <Typography variant="h6" gutterBottom>
+              Feedback Settings
+            </Typography>
             <FormControlLabel
               control={
-                <Switch
-                  checked={soundEnabled}
-                  onChange={(e) => setSoundEnabled(e.target.checked)}
-                />
+                <Switch checked={soundEnabled} onChange={e => setSoundEnabled(e.target.checked)} />
               }
               label="Success Sound"
             />
@@ -714,30 +718,29 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
               control={
                 <Switch
                   checked={vibrationEnabled}
-                  onChange={(e) => setVibrationEnabled(e.target.checked)}
+                  onChange={e => setVibrationEnabled(e.target.checked)}
                 />
               }
               label="Vibration Feedback"
             />
           </Grid>
-          
+
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Scanning Behavior</Typography>
+            <Typography variant="h6" gutterBottom>
+              Scanning Behavior
+            </Typography>
             <FormControlLabel
               control={
                 <Switch
                   checked={continuousMode}
-                  onChange={(e) => setContinuousMode(e.target.checked)}
+                  onChange={e => setContinuousMode(e.target.checked)}
                 />
               }
               label="Continuous Scanning"
             />
             <FormControlLabel
               control={
-                <Switch
-                  checked={batchMode}
-                  onChange={(e) => setBatchMode(e.target.checked)}
-                />
+                <Switch checked={batchMode} onChange={e => setBatchMode(e.target.checked)} />
               }
               label="Batch Processing Mode"
             />
@@ -746,20 +749,22 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setSettingsOpen(false)}>Cancel</Button>
-        <Button variant="contained" onClick={() => setSettingsOpen(false)}>Save</Button>
+        <Button variant="contained" onClick={() => setSettingsOpen(false)}>
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
 
   const renderProductDialog = () => (
     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {scanResult ? 'Scan Result' : 'Product Information'}
-      </DialogTitle>
+      <DialogTitle>{scanResult ? 'Scan Result' : 'Product Information'}</DialogTitle>
       <DialogContent>
         {currentProduct ? (
           <Box>
-            <Typography variant="h6" gutterBottom>{currentProduct.name}</Typography>
+            <Typography variant="h6" gutterBottom>
+              {currentProduct.name}
+            </Typography>
             <Typography variant="body2" gutterBottom>
               Barcode: {currentProduct.barcode}
             </Typography>
@@ -772,13 +777,13 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
             <Typography variant="body2" gutterBottom>
               Category: {currentProduct.category}
             </Typography>
-            
+
             <Divider sx={{ my: 2 }} />
-            
+
             <Typography variant="subtitle1" gutterBottom>
               Operation: {operation} {quantity} units
             </Typography>
-            
+
             {operation === 'REMOVE' && currentProduct.currentStock < quantity && (
               <Alert severity="warning" sx={{ mt: 2 }}>
                 Insufficient stock! Current: {currentProduct.currentStock}, Requested: {quantity}
@@ -788,7 +793,9 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
         ) : (
           <Box textAlign="center" py={4}>
             <Error sx={{ fontSize: 60, color: 'error.main', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>Product Not Found</Typography>
+            <Typography variant="h6" gutterBottom>
+              Product Not Found
+            </Typography>
             <Typography variant="body2" color="text.secondary">
               Barcode: {scanResult}
             </Typography>
@@ -798,8 +805,8 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
       <DialogActions>
         <Button onClick={() => setDialogOpen(false)}>Close</Button>
         {currentProduct && (
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => {
               setDialogOpen(false);
               if (continuousMode) {
@@ -821,7 +828,7 @@ const BarcodeStockScanner = ({ onStockUpdate, onProductScanned }) => {
       {renderScanHistory()}
       {renderSettings()}
       {renderProductDialog()}
-      
+
       {/* Floating Action Button for Quick Scan */}
       <Fab
         color="primary"

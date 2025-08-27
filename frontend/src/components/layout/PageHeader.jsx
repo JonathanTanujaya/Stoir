@@ -15,25 +15,27 @@ function PageHeader({ title, subtitle, actions }) {
       '/master/supplier': 'Master Supplier',
       '/master/barang': 'Master Barang',
       '/master/sales': 'Master Sales',
-      '/dashboard': 'Dashboard'
+      '/dashboard': 'Dashboard',
     };
-    
+
     return pathMap[location.pathname] || title || 'Halaman';
   };
 
   const getAutoSubtitle = () => {
     const subtitleMap = {
       '/transactions/purchasing': 'Kelola transaksi pembelian dan penerimaan barang',
-      '/transactions/purchasing/form': 'Buat faktur pembelian baru dengan interface yang mudah digunakan',
-      '/transactions/purchasing/list': 'Lihat dan kelola semua transaksi pembelian yang telah dibuat',
+      '/transactions/purchasing/form':
+        'Buat faktur pembelian baru dengan interface yang mudah digunakan',
+      '/transactions/purchasing/list':
+        'Lihat dan kelola semua transaksi pembelian yang telah dibuat',
       '/master/categories': 'Kelola kategori produk',
       '/master/customer': 'Kelola data customer',
       '/master/supplier': 'Kelola data supplier',
       '/master/barang': 'Kelola data barang',
       '/master/sales': 'Kelola data sales',
-      '/dashboard': 'Ringkasan aktivitas dan statistik'
+      '/dashboard': 'Ringkasan aktivitas dan statistik',
     };
-    
+
     return subtitle || subtitleMap[location.pathname] || '';
   };
 
@@ -46,11 +48,7 @@ function PageHeader({ title, subtitle, actions }) {
             <p className="page-header-subtitle">{subtitle || getAutoSubtitle()}</p>
           )}
         </div>
-        {actions && (
-          <div className="page-header-actions">
-            {actions}
-          </div>
-        )}
+        {actions && <div className="page-header-actions">{actions}</div>}
       </div>
     </div>
   );

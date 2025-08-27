@@ -13,7 +13,6 @@ Route::get('/test-db', function () {
     try {
         // Test database connection
         $companiesCount = DB::table('company')->count();
-        $barangCount = DB::table('m_barang')->count();
         $custCount = DB::table('m_cust')->count();
         
         return response()->json([
@@ -26,7 +25,6 @@ Route::get('/test-db', function () {
             ],
             'data_counts' => [
                 'companies' => $companiesCount,
-                'barang' => $barangCount,
                 'customers' => $custCount
             ],
             'migration_system' => 'COMPLETELY BYPASSED - File-based storage for cache/sessions'
@@ -73,14 +71,6 @@ Route::get('/test-crud', function () {
             'count' => DB::table('m_area')->count(),
             'sample' => $areas,
             'crud_test' => 'GET /api/areas working'
-        ];
-        
-        // Test Barang  
-        $barang = DB::table('m_barang')->limit(3)->get(['kodedivisi', 'kodebarang', 'namabarang']);
-        $results['barang'] = [
-            'count' => DB::table('m_barang')->count(),
-            'sample' => $barang,
-            'crud_test' => 'GET /api/barang working'
         ];
         
         // Test Customers

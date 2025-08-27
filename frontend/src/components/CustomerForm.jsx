@@ -27,20 +27,23 @@ function CustomerForm({ customer, onSave, onCancel }) {
     }
   }, [customer]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (customer) {
         // Update existing customer
-        await axios.put(`${API_URL}/customers/${customer.KodeDivisi}/${customer.KodeCust}`, formData);
+        await axios.put(
+          `${API_URL}/customers/${customer.KodeDivisi}/${customer.KodeCust}`,
+          formData
+        );
       } else {
         // Create new customer
         await axios.post(`${API_URL}/customers`, formData);
@@ -55,11 +58,23 @@ function CustomerForm({ customer, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Kode Customer:</label>
-        <input type="text" name="KodeCust" value={formData.KodeCust} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeCust"
+          value={formData.KodeCust}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Nama Customer:</label>
@@ -83,11 +98,21 @@ function CustomerForm({ customer, onSave, onCancel }) {
       </div>
       <div>
         <label>Credit Limit:</label>
-        <input type="number" name="CreditLimit" value={formData.CreditLimit} onChange={handleChange} />
+        <input
+          type="number"
+          name="CreditLimit"
+          value={formData.CreditLimit}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Jatuh Tempo:</label>
-        <input type="number" name="JatuhTempo" value={formData.JatuhTempo} onChange={handleChange} />
+        <input
+          type="number"
+          name="JatuhTempo"
+          value={formData.JatuhTempo}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Status:</label>
@@ -107,10 +132,17 @@ function CustomerForm({ customer, onSave, onCancel }) {
       </div>
       <div>
         <label>Alamat Pajak:</label>
-        <input type="text" name="AlamatPajak" value={formData.AlamatPajak} onChange={handleChange} />
+        <input
+          type="text"
+          name="AlamatPajak"
+          value={formData.AlamatPajak}
+          onChange={handleChange}
+        />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

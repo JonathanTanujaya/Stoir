@@ -4,20 +4,16 @@ import { mdivisiService } from '../config/apiService';
 import { useConfirmDialog } from './LoadingComponents';
 
 function MDivisiList({ onEdit, onRefresh }) {
-  const {
-    data: divisi,
-    loading,
-    refresh
-  } = useCrudOperations(mdivisiService, onRefresh);
-  
+  const { data: divisi, loading, refresh } = useCrudOperations(mdivisiService, onRefresh);
+
   const confirm = useConfirmDialog();
 
-  const handleDelete = async (item) => {
+  const handleDelete = async item => {
     const confirmed = await confirm({
       title: 'Hapus Divisi',
       message: `Apakah Anda yakin ingin menghapus divisi "${item.namadivisi}"?`,
       confirmText: 'Hapus',
-      confirmButtonClass: 'btn btn-danger'
+      confirmButtonClass: 'btn btn-danger',
     });
 
     if (confirmed) {
@@ -33,34 +29,34 @@ function MDivisiList({ onEdit, onRefresh }) {
   );
 
   const columns = [
-    { 
-      header: 'Kode Divisi', 
+    {
+      header: 'Kode Divisi',
       accessor: 'kodedivisi',
-      className: 'text-center font-monospace'
+      className: 'text-center font-monospace',
     },
-    { 
-      header: 'Nama Divisi', 
+    {
+      header: 'Nama Divisi',
       accessor: 'namadivisi',
-      className: 'text-start'
+      className: 'text-start',
     },
-    { 
-      header: 'Alamat', 
+    {
+      header: 'Alamat',
       accessor: 'alamat',
-      render: (value) => value || '-',
-      className: 'text-start'
+      render: value => value || '-',
+      className: 'text-start',
     },
-    { 
-      header: 'Telepon', 
+    {
+      header: 'Telepon',
       accessor: 'telepon',
-      render: (value) => value || '-',
-      className: 'text-center'
+      render: value => value || '-',
+      className: 'text-center',
     },
-    { 
-      header: 'Status', 
+    {
+      header: 'Status',
       accessor: 'status',
-      render: (value) => <StatusBadge status={value} />,
-      className: 'text-center'
-    }
+      render: value => <StatusBadge status={value} />,
+      className: 'text-center',
+    },
   ];
 
   const actions = [
@@ -68,14 +64,14 @@ function MDivisiList({ onEdit, onRefresh }) {
       label: 'Edit',
       onClick: onEdit,
       className: 'btn btn-primary btn-sm',
-      show: !!onEdit
+      show: !!onEdit,
     },
     {
       label: 'Hapus',
       onClick: handleDelete,
       className: 'btn btn-danger btn-sm',
-      show: true
-    }
+      show: true,
+    },
   ];
 
   return (

@@ -3,12 +3,12 @@
 
 /* Hide debug/development text */
 .css-13q5uu1,
-.MuiBox-root:contains("flex") {
+.MuiBox-root:contains('flex') {
   display: none !important;
 }
 
 /* Hide any standalone "flex" text */
-*:contains("flex"):not([class]):not([id]) {
+*:contains('flex'):not([class]):not([id]) {
   display: none !important;
 }
 
@@ -188,7 +188,7 @@ h3 {
   .page-header {
     padding: var(--space-3) var(--space-4);
   }
-  
+
   .header-title {
     font-size: 1.5rem;
   }

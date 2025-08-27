@@ -79,10 +79,6 @@ class ClaimController extends Controller
             $join->on('claim_penjualan_detail.KodeDivisi', '=', 'claim_penjualan.KodeDivisi')
                  ->on('claim_penjualan_detail.NoClaim', '=', 'claim_penjualan.NoClaim');
         })
-        ->leftJoin('m_barang', function ($join) {
-            $join->on('claim_penjualan_detail.KodeDivisi', '=', 'm_barang.KodeDivisi')
-                 ->on('claim_penjualan_detail.KodeBarang', '=', 'm_barang.KodeBarang');
-        })
         ->leftJoin('m_cust', function ($join) {
             $join->on('claim_penjualan.KodeDivisi', '=', 'm_cust.KodeDivisi')
                  ->on('claim_penjualan.KodeCust', '=', 'm_cust.KodeCust');
@@ -95,13 +91,10 @@ class ClaimController extends Controller
             'claim_penjualan.Keterangan',
             'claim_penjualan_detail.NoInvoice',
             'claim_penjualan_detail.KodeBarang',
-            'm_barang.NamaBarang',
-            'm_barang.Satuan',
-            'm_barang.merk',
-            'm_cust.NamaCust',
             'claim_penjualan_detail.QtyClaim',
             'claim_penjualan_detail.ID',
-            'claim_penjualan_detail.Status'
+            'claim_penjualan_detail.Status',
+            'm_cust.NamaCust'
         )
         ->get();
 

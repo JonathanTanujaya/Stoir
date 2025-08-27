@@ -12,7 +12,7 @@ function SPVPage() {
     setView('form');
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setItemToEdit(item);
     setView('form');
   };
@@ -36,10 +36,7 @@ function SPVPage() {
           <button onClick={() => setView('list')} style={{ marginBottom: '10px' }}>
             Kembali ke Daftar
           </button>
-          <SPVForm 
-            itemToEdit={itemToEdit} 
-            onFormSuccess={handleFormSuccess} 
-          />
+          <SPVForm itemToEdit={itemToEdit} onFormSuccess={handleFormSuccess} />
         </>
       )}
     </div>

@@ -21,18 +21,10 @@ const StatCard = ({ title, value, subtitle, icon, color = 'primary' }) => {
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
-            <p className={`text-2xl font-bold ${getColorClass()}`}>
-              {value}
-            </p>
-            {subtitle && (
-              <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
-            )}
+            <p className={`text-2xl font-bold ${getColorClass()}`}>{value}</p>
+            {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
           </div>
-          {icon && (
-            <div className={`text-3xl ${getColorClass()} opacity-60`}>
-              {icon}
-            </div>
-          )}
+          {icon && <div className={`text-3xl ${getColorClass()} opacity-60`}>{icon}</div>}
         </div>
       </div>
     </div>

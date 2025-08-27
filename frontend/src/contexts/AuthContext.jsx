@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     id: 1,
     name: 'Development User',
     email: 'dev@stockflow.com',
-    role: 'admin'
+    role: 'admin',
   });
   const [token, setToken] = useState('dev-token-123');
   const [loading, setLoading] = useState(false); // No loading in dev mode
@@ -51,29 +51,29 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const login = async (credentials) => {
+  const login = async credentials => {
     try {
       setLoading(true);
       const response = await authAPI.login(credentials);
-      
+
       if (response.success) {
         const { token, user } = response.data;
-        
+
         // Store token
         localStorage.setItem('authToken', token);
         setToken(token);
         setUser(user);
         setIsAuthenticated(true);
-        
+
         return { success: true, data: response.data };
       } else {
         return { success: false, message: response.message };
       }
     } catch (error) {
       console.error('Login failed:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed',
       };
     } finally {
       setLoading(false);
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateUser = (userData) => {
+  const updateUser = userData => {
     setUser(userData);
   };
 
@@ -108,12 +108,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateUser,
-    checkAuthStatus
+    checkAuthStatus,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use PHPUnit\Framework\Attributes\Test;
+
+
+
 use Tests\TestCase;
 use App\Models\MasterUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,8 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthenticationApiTest extends TestCase
 {
     use RefreshDatabase;
-
-    /** @test */
+    #[Test]
     public function it_can_register_new_user()
     {
         $userData = [
@@ -43,8 +46,7 @@ class AuthenticationApiTest extends TestCase
             'email' => 'newuser@test.com'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_registration_data()
     {
         $invalidData = [
@@ -69,8 +71,7 @@ class AuthenticationApiTest extends TestCase
                     'kodedivisi'
                 ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_prevents_duplicate_username()
     {
         // Create existing user
@@ -99,8 +100,7 @@ class AuthenticationApiTest extends TestCase
         $response->assertStatus(422)
                 ->assertJsonValidationErrors(['username']);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_login_with_valid_credentials()
     {
         $user = MasterUser::create([
@@ -132,8 +132,7 @@ class AuthenticationApiTest extends TestCase
                     'token'
                 ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_rejects_invalid_credentials()
     {
         $user = MasterUser::create([
@@ -156,8 +155,7 @@ class AuthenticationApiTest extends TestCase
         $response->assertStatus(401)
                 ->assertJson(['message' => 'Invalid credentials']);
     }
-
-    /** @test */
+    #[Test]
     public function it_rejects_inactive_user_login()
     {
         $user = MasterUser::create([
@@ -180,8 +178,7 @@ class AuthenticationApiTest extends TestCase
         $response->assertStatus(401)
                 ->assertJson(['message' => 'Account is inactive']);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_login_data()
     {
         $invalidData = [
@@ -194,8 +191,7 @@ class AuthenticationApiTest extends TestCase
         $response->assertStatus(422)
                 ->assertJsonValidationErrors(['username', 'password']);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_logout_authenticated_user()
     {
         $user = $this->createAuthenticatedUser();
@@ -212,16 +208,14 @@ class AuthenticationApiTest extends TestCase
         // Token should be revoked
         $this->assertCount(0, $user->tokens);
     }
-
-    /** @test */
+    #[Test]
     public function it_requires_authentication_for_logout()
     {
         $response = $this->postJson('/api/auth/logout');
 
         $response->assertStatus(401);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_get_authenticated_user_profile()
     {
         $user = $this->createAuthenticatedUser();
@@ -236,16 +230,14 @@ class AuthenticationApiTest extends TestCase
                     'level' => $user->level
                 ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_requires_authentication_for_profile()
     {
         $response = $this->getJson('/api/auth/me');
 
         $response->assertStatus(401);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_change_password()
     {
         $user = $this->createAuthenticatedUser();
@@ -266,8 +258,7 @@ class AuthenticationApiTest extends TestCase
         $user->refresh();
         $this->assertNotEquals('password123', $user->password);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_password_change_data()
     {
         $user = $this->createAuthenticatedUser();
@@ -287,8 +278,7 @@ class AuthenticationApiTest extends TestCase
                     'new_password'
                 ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_logs_authentication_attempts()
     {
         // This test would verify that authentication attempts are logged
@@ -306,8 +296,7 @@ class AuthenticationApiTest extends TestCase
         // Assert that failed login was logged
         // You would check your log files or database here
     }
-
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_logins()
     {
         $user = MasterUser::create([
@@ -339,8 +328,7 @@ class AuthenticationApiTest extends TestCase
             $response2->json('token')
         );
     }
-
-    /** @test */
+    #[Test]
     public function it_expires_old_tokens()
     {
         $user = $this->createAuthenticatedUser();

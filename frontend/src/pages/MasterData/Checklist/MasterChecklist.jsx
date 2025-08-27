@@ -11,11 +11,11 @@ const MasterChecklist = () => {
     nama_checklist: '',
     kategori: '',
     deskripsi: '',
-    status: 'aktif'
+    status: 'aktif',
   });
   const [filters, setFilters] = useState({
     kategori: '',
-    status: ''
+    status: '',
   });
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const MasterChecklist = () => {
           kategori: 'Penerimaan',
           deskripsi: 'Checklist untuk pemeriksaan barang yang masuk ke gudang',
           status: 'aktif',
-          created_at: '2024-01-15'
+          created_at: '2024-01-15',
         },
         {
           id: 2,
@@ -45,7 +45,7 @@ const MasterChecklist = () => {
           kategori: 'Pengiriman',
           deskripsi: 'Checklist untuk proses pengiriman barang',
           status: 'aktif',
-          created_at: '2024-01-16'
+          created_at: '2024-01-16',
         },
         {
           id: 3,
@@ -53,8 +53,8 @@ const MasterChecklist = () => {
           kategori: 'QC',
           deskripsi: 'Checklist untuk quality control produk',
           status: 'aktif',
-          created_at: '2024-01-17'
-        }
+          created_at: '2024-01-17',
+        },
       ];
       setData(sampleData);
     } finally {
@@ -62,21 +62,21 @@ const MasterChecklist = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingId) {
         await checklistAPI.update(editingId, formData);
-        setData(prev => prev.map(item => 
-          item.id === editingId ? { ...item, ...formData } : item
-        ));
+        setData(prev =>
+          prev.map(item => (item.id === editingId ? { ...item, ...formData } : item))
+        );
         alert('Data berhasil diupdate!');
       } else {
         const response = await checklistAPI.create(formData);
-        const newItem = response.data || { 
-          id: Date.now(), 
-          ...formData, 
-          created_at: new Date().toISOString().split('T')[0]
+        const newItem = response.data || {
+          id: Date.now(),
+          ...formData,
+          created_at: new Date().toISOString().split('T')[0],
         };
         setData(prev => [...prev, newItem]);
         alert('Data berhasil ditambahkan!');
@@ -88,18 +88,18 @@ const MasterChecklist = () => {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setFormData({
       nama_checklist: item.nama_checklist,
       kategori: item.kategori,
       deskripsi: item.deskripsi,
-      status: item.status
+      status: item.status,
     });
     setEditingId(item.id);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (confirm('Yakin ingin menghapus data ini?')) {
       try {
         await checklistAPI.delete(id);
@@ -117,26 +117,28 @@ const MasterChecklist = () => {
       nama_checklist: '',
       kategori: '',
       deskripsi: '',
-      status: 'aktif'
+      status: 'aktif',
     });
     setEditingId(null);
     setShowForm(false);
   };
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = e => {
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const filteredData = data.filter(item => {
-    return (!filters.kategori || item.kategori === filters.kategori) &&
-           (!filters.status || item.status === filters.status);
+    return (
+      (!filters.kategori || item.kategori === filters.kategori) &&
+      (!filters.status || item.status === filters.status)
+    );
   });
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = status => {
     return (
       <span className={`badge ${status === 'aktif' ? 'badge-success' : 'badge-secondary'}`}>
         {status === 'aktif' ? 'Aktif' : 'Tidak Aktif'}
@@ -175,10 +177,7 @@ const MasterChecklist = () => {
                 <option value="tidak_aktif">Tidak Aktif</option>
               </select>
             </div>
-            <button
-              onClick={() => setShowForm(true)}
-              className="btn btn-primary"
-            >
+            <button onClick={() => setShowForm(true)} className="btn btn-primary">
               Tambah Checklist
             </button>
           </div>
@@ -244,7 +243,9 @@ const MasterChecklist = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h3>{editingId ? 'Edit Checklist' : 'Tambah Checklist'}</h3>
-              <button onClick={resetForm} className="btn-close">×</button>
+              <button onClick={resetForm} className="btn-close">
+                ×
+              </button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
@@ -253,7 +254,7 @@ const MasterChecklist = () => {
                   <input
                     type="text"
                     value={formData.nama_checklist}
-                    onChange={(e) => setFormData({...formData, nama_checklist: e.target.value})}
+                    onChange={e => setFormData({ ...formData, nama_checklist: e.target.value })}
                     className="form-control"
                     required
                   />
@@ -262,7 +263,7 @@ const MasterChecklist = () => {
                   <label>Kategori *</label>
                   <select
                     value={formData.kategori}
-                    onChange={(e) => setFormData({...formData, kategori: e.target.value})}
+                    onChange={e => setFormData({ ...formData, kategori: e.target.value })}
                     className="form-control"
                     required
                   >
@@ -277,7 +278,7 @@ const MasterChecklist = () => {
                   <label>Deskripsi</label>
                   <textarea
                     value={formData.deskripsi}
-                    onChange={(e) => setFormData({...formData, deskripsi: e.target.value})}
+                    onChange={e => setFormData({ ...formData, deskripsi: e.target.value })}
                     className="form-control"
                     rows="3"
                   />
@@ -286,7 +287,7 @@ const MasterChecklist = () => {
                   <label>Status *</label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    onChange={e => setFormData({ ...formData, status: e.target.value })}
                     className="form-control"
                     required
                   >

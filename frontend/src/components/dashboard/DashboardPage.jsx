@@ -12,7 +12,7 @@ import {
   Button,
   Chip,
   Avatar,
-  Alert
+  Alert,
 } from '@mui/material';
 import {
   People,
@@ -22,7 +22,7 @@ import {
   TrendingUp,
   Store,
   Category,
-  Business
+  Business,
 } from '@mui/icons-material';
 
 const DashboardPage = () => {
@@ -31,7 +31,7 @@ const DashboardPage = () => {
     totalCustomers: 0,
     totalProducts: 0,
     totalInvoices: 0,
-    totalSuppliers: 0
+    totalSuppliers: 0,
   });
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const DashboardPage = () => {
         totalCustomers: 150,
         totalProducts: 850,
         totalInvoices: 2340,
-        totalSuppliers: 45
+        totalSuppliers: 45,
       });
     };
 
@@ -55,29 +55,29 @@ const DashboardPage = () => {
       description: 'Daftarkan pelanggan baru',
       icon: <People />,
       color: '#1976d2',
-      path: '/customers'
+      path: '/customers',
     },
     {
       title: 'Input Barang',
       description: 'Tambah produk ke inventory',
       icon: <Inventory />,
       color: '#388e3c',
-      path: '/barang'
+      path: '/barang',
     },
     {
       title: 'Buat Invoice',
       description: 'Buat faktur penjualan',
       icon: <Receipt />,
       color: '#f57c00',
-      path: '/invoices'
+      path: '/invoices',
     },
     {
       title: 'Lihat Laporan',
       description: 'View financial reports',
       icon: <AccountBalance />,
       color: '#7b1fa2',
-      path: '/reports'
-    }
+      path: '/reports',
+    },
   ];
 
   const StatCard = ({ title, value, icon, color }) => (
@@ -92,21 +92,17 @@ const DashboardPage = () => {
               {title}
             </Typography>
           </Box>
-          <Avatar sx={{ bgcolor: color, width: 48, height: 48 }}>
-            {icon}
-          </Avatar>
+          <Avatar sx={{ bgcolor: color, width: 48, height: 48 }}>{icon}</Avatar>
         </Box>
       </CardContent>
     </Card>
   );
 
   const QuickActionCard = ({ title, description, icon, color, path }) => (
-    <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => window.location.href = path}>
+    <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => (window.location.href = path)}>
       <CardContent>
         <Box display="flex" alignItems="center" mb={2}>
-          <Avatar sx={{ bgcolor: color, mr: 2 }}>
-            {icon}
-          </Avatar>
+          <Avatar sx={{ bgcolor: color, mr: 2 }}>{icon}</Avatar>
           <Typography variant="h6" component="div">
             {title}
           </Typography>
@@ -132,17 +128,14 @@ const DashboardPage = () => {
         <Typography variant="body1" color="text.secondary">
           Selamat datang, {user?.nama || user?.username}!
         </Typography>
-        <Chip 
-          label={`Divisi: ${user?.kodedivisi || 'N/A'}`} 
-          size="small" 
-          sx={{ ml: 0, mt: 1 }} 
-        />
+        <Chip label={`Divisi: ${user?.kodedivisi || 'N/A'}`} size="small" sx={{ ml: 0, mt: 1 }} />
       </Box>
 
       {/* Welcome Alert */}
       <Alert severity="info" sx={{ mb: 4 }}>
         <Typography variant="body2">
-          <strong>Sistem STOIR siap digunakan!</strong> Backend API sudah terintegrasi penuh dengan 95%+ fitur lengkap.
+          <strong>Sistem STOIR siap digunakan!</strong> Backend API sudah terintegrasi penuh dengan
+          95%+ fitur lengkap.
         </Typography>
       </Alert>
 

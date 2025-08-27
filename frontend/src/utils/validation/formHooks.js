@@ -31,7 +31,7 @@ export const useEnhancedForm = ({
   onError,
   enableAsyncValidation = false,
   asyncValidationEndpoints = {},
-  debounceDelay = 300
+  debounceDelay = 300,
 }) => {
   const {
     register,
@@ -43,11 +43,11 @@ export const useEnhancedForm = ({
     reset,
     clearErrors,
     setError,
-    trigger
+    trigger,
   } = useForm({
     resolver: schema ? yupResolver(schema) : undefined,
     defaultValues,
-    mode
+    mode,
   });
 
   const [asyncErrors, setAsyncErrors] = useState({});
@@ -60,70 +60,73 @@ export const useEnhancedForm = ({
   const debouncedValues = useDebounce(watchedValues, debounceDelay);
 
   // Async validation function
-  const performAsyncValidation = useCallback(async (fieldName, value) => {
-    if (!enableAsyncValidation || !asyncValidationEndpoints[fieldName]) {
-      return;
-    }
-
-    const cacheKey = `${fieldName}-${value}`;
-    if (asyncValidationCache.current.has(cacheKey)) {
-      return asyncValidationCache.current.get(cacheKey);
-    }
-
-    setIsAsyncValidating(prev => ({ ...prev, [fieldName]: true }));
-
-    try {
-      const endpoint = asyncValidationEndpoints[fieldName];
-      let isValid = true;
-
-      switch (endpoint.type) {
-        case 'uniqueCode':
-          isValid = await ASYNC_VALIDATIONS.checkUniqueCode(
-            value, 
-            endpoint.url, 
-            endpoint.excludeId
-          );
-          break;
-        case 'uniqueEmail':
-          isValid = await ASYNC_VALIDATIONS.checkUniqueEmail(
-            value, 
-            endpoint.url, 
-            endpoint.excludeId
-          );
-          break;
-        case 'usernameAvailability':
-          isValid = await ASYNC_VALIDATIONS.checkUsernameAvailability(
-            value, 
-            endpoint.url, 
-            endpoint.excludeId
-          );
-          break;
-        default:
-          if (endpoint.customValidator) {
-            isValid = await endpoint.customValidator(value);
-          }
+  const performAsyncValidation = useCallback(
+    async (fieldName, value) => {
+      if (!enableAsyncValidation || !asyncValidationEndpoints[fieldName]) {
+        return;
       }
 
-      asyncValidationCache.current.set(cacheKey, isValid);
-
-      if (!isValid) {
-        setAsyncErrors(prev => ({
-          ...prev,
-          [fieldName]: endpoint.message || 'Validation failed'
-        }));
-      } else {
-        setAsyncErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors[fieldName];
-          return newErrors;
-        });
+      const cacheKey = `${fieldName}-${value}`;
+      if (asyncValidationCache.current.has(cacheKey)) {
+        return asyncValidationCache.current.get(cacheKey);
       }
-    } catch (error) {
-      console.error('Async validation error:', error);
-    } finally {
-      setIsAsyncValidating(prev => ({ ...prev, [fieldName]: false }));
-    }
-  }, [enableAsyncValidation, asyncValidationEndpoints]);
+
+      setIsAsyncValidating(prev => ({ ...prev, [fieldName]: true }));
+
+      try {
+        const endpoint = asyncValidationEndpoints[fieldName];
+        let isValid = true;
+
+        switch (endpoint.type) {
+          case 'uniqueCode':
+            isValid = await ASYNC_VALIDATIONS.checkUniqueCode(
+              value,
+              endpoint.url,
+              endpoint.excludeId
+            );
+            break;
+          case 'uniqueEmail':
+            isValid = await ASYNC_VALIDATIONS.checkUniqueEmail(
+              value,
+              endpoint.url,
+              endpoint.excludeId
+            );
+            break;
+          case 'usernameAvailability':
+            isValid = await ASYNC_VALIDATIONS.checkUsernameAvailability(
+              value,
+              endpoint.url,
+              endpoint.excludeId
+            );
+            break;
+          default:
+            if (endpoint.customValidator) {
+              isValid = await endpoint.customValidator(value);
+            }
+        }
+
+        asyncValidationCache.current.set(cacheKey, isValid);
+
+        if (!isValid) {
+          setAsyncErrors(prev => ({
+            ...prev,
+            [fieldName]: endpoint.message || 'Validation failed',
+          }));
+        } else {
+          setAsyncErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[fieldName];
+            return newErrors;
+          });
+        }
+      } catch (error) {
+        console.error('Async validation error:', error);
+      } finally {
+        setIsAsyncValidating(prev => ({ ...prev, [fieldName]: false }));
+      }
+    },
+    [enableAsyncValidation, asyncValidationEndpoints]
+  );
 
   // Effect for debounced async validation
   useEffect(() => {
@@ -138,88 +141,97 @@ export const useEnhancedForm = ({
   }, [debouncedValues, enableAsyncValidation, performAsyncValidation, touchedFields]);
 
   // Enhanced field registration with real-time validation
-  const registerField = useCallback((fieldName, validationRules = {}) => {
-    const baseRegistration = register(fieldName, validationRules);
+  const registerField = useCallback(
+    (fieldName, validationRules = {}) => {
+      const baseRegistration = register(fieldName, validationRules);
 
-    return {
-      ...baseRegistration,
-      onChange: (e) => {
-        baseRegistration.onChange(e);
-        
-        // Clear async errors when user types
-        if (asyncErrors[fieldName]) {
-          setAsyncErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[fieldName];
-            return newErrors;
-          });
-        }
+      return {
+        ...baseRegistration,
+        onChange: e => {
+          baseRegistration.onChange(e);
 
-        // Update field state
-        setFieldStates(prev => ({
-          ...prev,
-          [fieldName]: {
-            ...prev[fieldName],
-            touched: true,
-            modified: true
+          // Clear async errors when user types
+          if (asyncErrors[fieldName]) {
+            setAsyncErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors[fieldName];
+              return newErrors;
+            });
           }
-        }));
-      },
-      onBlur: (e) => {
-        baseRegistration.onBlur(e);
-        
-        // Trigger async validation on blur
-        if (enableAsyncValidation && asyncValidationEndpoints[fieldName]) {
-          performAsyncValidation(fieldName, e.target.value);
-        }
-      }
-    };
-  }, [register, asyncErrors, enableAsyncValidation, asyncValidationEndpoints, performAsyncValidation]);
+
+          // Update field state
+          setFieldStates(prev => ({
+            ...prev,
+            [fieldName]: {
+              ...prev[fieldName],
+              touched: true,
+              modified: true,
+            },
+          }));
+        },
+        onBlur: e => {
+          baseRegistration.onBlur(e);
+
+          // Trigger async validation on blur
+          if (enableAsyncValidation && asyncValidationEndpoints[fieldName]) {
+            performAsyncValidation(fieldName, e.target.value);
+          }
+        },
+      };
+    },
+    [register, asyncErrors, enableAsyncValidation, asyncValidationEndpoints, performAsyncValidation]
+  );
 
   // Get field validation state
-  const getFieldState = useCallback((fieldName) => {
-    const hasError = !!(errors[fieldName] || asyncErrors[fieldName]);
-    const isValidating = isAsyncValidating[fieldName];
-    const isAsyncValid = !asyncErrors[fieldName];
-    const isTouched = touchedFields[fieldName];
-    const isModified = fieldStates[fieldName]?.modified;
+  const getFieldState = useCallback(
+    fieldName => {
+      const hasError = !!(errors[fieldName] || asyncErrors[fieldName]);
+      const isValidating = isAsyncValidating[fieldName];
+      const isAsyncValid = !asyncErrors[fieldName];
+      const isTouched = touchedFields[fieldName];
+      const isModified = fieldStates[fieldName]?.modified;
 
-    return {
-      hasError,
-      isValidating,
-      isValid: !hasError && isAsyncValid,
-      isAsyncValid,
-      isTouched,
-      isModified,
-      error: errors[fieldName]?.message || asyncErrors[fieldName],
-      helperText: errors[fieldName]?.message || asyncErrors[fieldName]
-    };
-  }, [errors, asyncErrors, isAsyncValidating, touchedFields, fieldStates]);
+      return {
+        hasError,
+        isValidating,
+        isValid: !hasError && isAsyncValid,
+        isAsyncValid,
+        isTouched,
+        isModified,
+        error: errors[fieldName]?.message || asyncErrors[fieldName],
+        helperText: errors[fieldName]?.message || asyncErrors[fieldName],
+      };
+    },
+    [errors, asyncErrors, isAsyncValidating, touchedFields, fieldStates]
+  );
 
   // Enhanced submit handler
-  const handleEnhancedSubmit = useCallback(async (data) => {
-    try {
-      // Check for async validation errors
-      if (Object.keys(asyncErrors).length > 0) {
-        toast.error('Mohon perbaiki kesalahan validasi terlebih dahulu');
-        return;
-      }
+  const handleEnhancedSubmit = useCallback(
+    async data => {
+      try {
+        // Check for async validation errors
+        if (Object.keys(asyncErrors).length > 0) {
+          toast.error('Mohon perbaiki kesalahan validasi terlebih dahulu');
+          return;
+        }
 
-      // Check if async validation is still in progress
-      if (Object.values(isAsyncValidating).some(validating => validating)) {
-        toast.warning('Tunggu validasi selesai...');
-        return;
-      }
+        // Check if async validation is still in progress
+        if (Object.values(isAsyncValidating).some(validating => validating)) {
+          toast.warning('Tunggu validasi selesai...');
+          return;
+        }
 
-      await onSubmit(data);
-    } catch (error) {
-      if (onError) {
-        onError(error);
-      } else {
-        toast.error('Terjadi kesalahan saat menyimpan data');
+        await onSubmit(data);
+      } catch (error) {
+        if (onError) {
+          onError(error);
+        } else {
+          toast.error('Terjadi kesalahan saat menyimpan data');
+        }
       }
-    }
-  }, [onSubmit, onError, asyncErrors, isAsyncValidating]);
+    },
+    [onSubmit, onError, asyncErrors, isAsyncValidating]
+  );
 
   // Form state summary
   const formState = {
@@ -229,7 +241,7 @@ export const useEnhancedForm = ({
     hasAsyncErrors: Object.keys(asyncErrors).length > 0,
     isAsyncValidating: Object.values(isAsyncValidating).some(validating => validating),
     touchedFields,
-    errors: { ...errors, ...asyncErrors }
+    errors: { ...errors, ...asyncErrors },
   };
 
   return {
@@ -243,15 +255,15 @@ export const useEnhancedForm = ({
     clearErrors,
     setError,
     trigger,
-    
+
     // Enhanced methods
     getFieldState,
     formState,
-    
+
     // Async validation
     asyncErrors,
     isAsyncValidating,
-    performAsyncValidation
+    performAsyncValidation,
   };
 };
 
@@ -262,12 +274,15 @@ export const useFormField = (fieldName, formMethods, validationRules = {}) => {
   const fieldState = getFieldState(fieldName);
 
   // Get input props for Material-UI or other UI libraries
-  const getInputProps = useCallback(() => ({
-    error: fieldState.hasError,
-    helperText: fieldState.helperText,
-    value: value || '',
-    ...formMethods.register(fieldName, validationRules)
-  }), [fieldState, value, formMethods, fieldName, validationRules]);
+  const getInputProps = useCallback(
+    () => ({
+      error: fieldState.hasError,
+      helperText: fieldState.helperText,
+      value: value || '',
+      ...formMethods.register(fieldName, validationRules),
+    }),
+    [fieldState, value, formMethods, fieldName, validationRules]
+  );
 
   // Get validation status icon
   const getValidationIcon = useCallback(() => {
@@ -287,7 +302,7 @@ export const useFormField = (fieldName, formMethods, validationRules = {}) => {
     fieldState,
     value,
     getInputProps,
-    getValidationIcon
+    getValidationIcon,
   };
 };
 
@@ -310,36 +325,43 @@ export const useFormArray = (formMethods, fieldName, defaultItem = {}) => {
     setValue(fieldName, newItems);
   }, [items, defaultItem, setValue, fieldName]);
 
-  const removeItem = useCallback((index) => {
-    if (items.length > 1) {
-      const newItems = items.filter((_, i) => i !== index);
+  const removeItem = useCallback(
+    index => {
+      if (items.length > 1) {
+        const newItems = items.filter((_, i) => i !== index);
+        setItems(newItems);
+        setValue(fieldName, newItems);
+      }
+    },
+    [items, setValue, fieldName]
+  );
+
+  const updateItem = useCallback(
+    (index, updatedItem) => {
+      const newItems = items.map((item, i) => (i === index ? { ...item, ...updatedItem } : item));
       setItems(newItems);
       setValue(fieldName, newItems);
-    }
-  }, [items, setValue, fieldName]);
+    },
+    [items, setValue, fieldName]
+  );
 
-  const updateItem = useCallback((index, updatedItem) => {
-    const newItems = items.map((item, i) => 
-      i === index ? { ...item, ...updatedItem } : item
-    );
-    setItems(newItems);
-    setValue(fieldName, newItems);
-  }, [items, setValue, fieldName]);
-
-  const moveItem = useCallback((fromIndex, toIndex) => {
-    const newItems = [...items];
-    const [movedItem] = newItems.splice(fromIndex, 1);
-    newItems.splice(toIndex, 0, movedItem);
-    setItems(newItems);
-    setValue(fieldName, newItems);
-  }, [items, setValue, fieldName]);
+  const moveItem = useCallback(
+    (fromIndex, toIndex) => {
+      const newItems = [...items];
+      const [movedItem] = newItems.splice(fromIndex, 1);
+      newItems.splice(toIndex, 0, movedItem);
+      setItems(newItems);
+      setValue(fieldName, newItems);
+    },
+    [items, setValue, fieldName]
+  );
 
   return {
     items,
     addItem,
     removeItem,
     updateItem,
-    moveItem
+    moveItem,
   };
 };
 
@@ -351,18 +373,18 @@ export const useConditionalValidation = (formMethods, conditions) => {
   useEffect(() => {
     conditions.forEach(condition => {
       const { field, dependsOn, shouldValidate, validationRules } = condition;
-      
+
       const shouldValidateField = shouldValidate(watchedValues);
-      
+
       if (shouldValidateField) {
         // Apply validation
         const value = watchedValues[field];
         const validation = validateField(value, validationRules);
-        
+
         if (validation.length > 0) {
           setError(field, {
             type: 'conditional',
-            message: validation[0]
+            message: validation[0],
           });
         } else {
           clearErrors(field);
@@ -384,7 +406,7 @@ export const useFormStepper = (steps, formMethods) => {
   const nextStep = useCallback(async () => {
     const currentStepFields = steps[currentStep].fields;
     const isValid = await trigger(currentStepFields);
-    
+
     if (isValid) {
       setCompletedSteps(prev => new Set([...prev, currentStep]));
       setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
@@ -397,32 +419,41 @@ export const useFormStepper = (steps, formMethods) => {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   }, []);
 
-  const goToStep = useCallback(async (stepIndex) => {
-    if (stepIndex <= currentStep || completedSteps.has(stepIndex - 1)) {
+  const goToStep = useCallback(
+    async stepIndex => {
+      if (stepIndex <= currentStep || completedSteps.has(stepIndex - 1)) {
+        setCurrentStep(stepIndex);
+        return true;
+      }
+
+      // Validate all previous steps
+      for (let i = currentStep; i < stepIndex; i++) {
+        const isValid = await trigger(steps[i].fields);
+        if (!isValid) {
+          return false;
+        }
+        setCompletedSteps(prev => new Set([...prev, i]));
+      }
+
       setCurrentStep(stepIndex);
       return true;
-    }
-    
-    // Validate all previous steps
-    for (let i = currentStep; i < stepIndex; i++) {
-      const isValid = await trigger(steps[i].fields);
-      if (!isValid) {
-        return false;
-      }
-      setCompletedSteps(prev => new Set([...prev, i]));
-    }
-    
-    setCurrentStep(stepIndex);
-    return true;
-  }, [currentStep, completedSteps, steps, trigger]);
+    },
+    [currentStep, completedSteps, steps, trigger]
+  );
 
-  const isStepComplete = useCallback((stepIndex) => {
-    return completedSteps.has(stepIndex);
-  }, [completedSteps]);
+  const isStepComplete = useCallback(
+    stepIndex => {
+      return completedSteps.has(stepIndex);
+    },
+    [completedSteps]
+  );
 
-  const canProceedToStep = useCallback((stepIndex) => {
-    return stepIndex <= currentStep || isStepComplete(stepIndex - 1);
-  }, [currentStep, isStepComplete]);
+  const canProceedToStep = useCallback(
+    stepIndex => {
+      return stepIndex <= currentStep || isStepComplete(stepIndex - 1);
+    },
+    [currentStep, isStepComplete]
+  );
 
   return {
     currentStep,
@@ -434,7 +465,7 @@ export const useFormStepper = (steps, formMethods) => {
     canProceedToStep,
     totalSteps: steps.length,
     isFirstStep: currentStep === 0,
-    isLastStep: currentStep === steps.length - 1
+    isLastStep: currentStep === steps.length - 1,
   };
 };
 
@@ -444,5 +475,5 @@ export default {
   useFormField,
   useFormArray,
   useConditionalValidation,
-  useFormStepper
+  useFormStepper,
 };

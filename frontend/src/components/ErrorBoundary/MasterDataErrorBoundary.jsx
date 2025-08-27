@@ -7,10 +7,10 @@ import React from 'react';
 class MasterDataErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      error: null, 
-      errorInfo: null 
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
     };
   }
 
@@ -22,10 +22,10 @@ class MasterDataErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     // Log error untuk debugging
     console.error('🚨 MasterData Error Boundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
   }
 
@@ -40,7 +40,7 @@ class MasterDataErrorBoundary extends React.Component {
             <p className="text-gray-600 mb-6">
               Aplikasi mengalami masalah teknis. Tim kami sedang menanganinya.
             </p>
-            
+
             {/* Error details untuk development */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mb-6 text-left bg-red-50 border border-red-200 rounded-lg p-4">
@@ -60,7 +60,7 @@ class MasterDataErrorBoundary extends React.Component {
                 </div>
               </details>
             )}
-            
+
             <div className="flex gap-3">
               <button
                 onClick={() => {
@@ -89,7 +89,7 @@ class MasterDataErrorBoundary extends React.Component {
 /**
  * Higher-Order Component untuk membungkus komponen dengan Error Boundary
  */
-export const withErrorBoundary = (WrappedComponent) => {
+export const withErrorBoundary = WrappedComponent => {
   return class extends React.Component {
     render() {
       return (
@@ -109,12 +109,12 @@ export const useErrorHandler = () => {
 
   const reportError = React.useCallback((error, errorInfo = {}) => {
     console.error('🚨 Error reported from component:', error, errorInfo);
-    
+
     // Kirim error ke service monitoring (jika ada)
     if (window.errorReporting) {
       window.errorReporting.report(error, errorInfo);
     }
-    
+
     setError(error);
   }, []);
 

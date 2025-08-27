@@ -17,7 +17,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Chip
+  Chip,
 } from '@mui/material';
 import {
   Error as ErrorIcon,
@@ -28,7 +28,7 @@ import {
   ExpandLess,
   Refresh,
   BugReport,
-  Close
+  Close,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
@@ -42,14 +42,14 @@ export const ERROR_TYPES = {
   AUTHORIZATION: 'authorization',
   NOT_FOUND: 'not_found',
   TIMEOUT: 'timeout',
-  UNKNOWN: 'unknown'
+  UNKNOWN: 'unknown',
 };
 
 export const ERROR_SEVERITY = {
   LOW: 'info',
   MEDIUM: 'warning',
   HIGH: 'error',
-  CRITICAL: 'error'
+  CRITICAL: 'error',
 };
 
 // Error categorization and mapping
@@ -64,7 +64,7 @@ export const ERROR_MAPPINGS = {
   500: { type: ERROR_TYPES.SERVER, severity: ERROR_SEVERITY.CRITICAL },
   502: { type: ERROR_TYPES.NETWORK, severity: ERROR_SEVERITY.HIGH },
   503: { type: ERROR_TYPES.SERVER, severity: ERROR_SEVERITY.HIGH },
-  504: { type: ERROR_TYPES.TIMEOUT, severity: ERROR_SEVERITY.HIGH }
+  504: { type: ERROR_TYPES.TIMEOUT, severity: ERROR_SEVERITY.HIGH },
 };
 
 // Default error messages
@@ -72,52 +72,52 @@ export const DEFAULT_ERROR_MESSAGES = {
   [ERROR_TYPES.VALIDATION]: {
     title: 'Kesalahan Validasi',
     message: 'Mohon periksa kembali data yang dimasukkan',
-    action: 'Perbaiki dan coba lagi'
+    action: 'Perbaiki dan coba lagi',
   },
   [ERROR_TYPES.NETWORK]: {
     title: 'Kesalahan Jaringan',
     message: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
-    action: 'Coba lagi'
+    action: 'Coba lagi',
   },
   [ERROR_TYPES.SERVER]: {
     title: 'Kesalahan Server',
     message: 'Terjadi kesalahan pada server. Tim teknis telah diberitahu.',
-    action: 'Coba lagi nanti'
+    action: 'Coba lagi nanti',
   },
   [ERROR_TYPES.CLIENT]: {
     title: 'Kesalahan Aplikasi',
     message: 'Terjadi kesalahan pada aplikasi',
-    action: 'Refresh halaman'
+    action: 'Refresh halaman',
   },
   [ERROR_TYPES.AUTHENTICATION]: {
     title: 'Kesalahan Autentikasi',
     message: 'Sesi Anda telah berakhir. Silakan login kembali.',
-    action: 'Login'
+    action: 'Login',
   },
   [ERROR_TYPES.AUTHORIZATION]: {
     title: 'Akses Ditolak',
     message: 'Anda tidak memiliki izin untuk mengakses fitur ini.',
-    action: 'Hubungi administrator'
+    action: 'Hubungi administrator',
   },
   [ERROR_TYPES.NOT_FOUND]: {
     title: 'Data Tidak Ditemukan',
     message: 'Data yang Anda cari tidak ditemukan.',
-    action: 'Periksa kembali'
+    action: 'Periksa kembali',
   },
   [ERROR_TYPES.TIMEOUT]: {
     title: 'Timeout',
     message: 'Permintaan memakan waktu terlalu lama.',
-    action: 'Coba lagi'
+    action: 'Coba lagi',
   },
   [ERROR_TYPES.UNKNOWN]: {
     title: 'Kesalahan Tidak Dikenal',
     message: 'Terjadi kesalahan yang tidak dikenal.',
-    action: 'Coba lagi'
-  }
+    action: 'Coba lagi',
+  },
 };
 
 // Error parsing and processing functions
-export const parseError = (error) => {
+export const parseError = error => {
   let parsedError = {
     type: ERROR_TYPES.UNKNOWN,
     severity: ERROR_SEVERITY.MEDIUM,
@@ -126,7 +126,7 @@ export const parseError = (error) => {
     details: [],
     code: null,
     timestamp: new Date().toISOString(),
-    stack: error.stack
+    stack: error.stack,
   };
 
   // Handle different error types
@@ -134,26 +134,26 @@ export const parseError = (error) => {
     // HTTP Error Response
     const status = error.response.status;
     const data = error.response.data;
-    
-    const mapping = ERROR_MAPPINGS[status] || { 
-      type: ERROR_TYPES.SERVER, 
-      severity: ERROR_SEVERITY.HIGH 
+
+    const mapping = ERROR_MAPPINGS[status] || {
+      type: ERROR_TYPES.SERVER,
+      severity: ERROR_SEVERITY.HIGH,
     };
-    
+
     parsedError = {
       ...parsedError,
       type: mapping.type,
       severity: mapping.severity,
       code: status,
       message: data?.message || DEFAULT_ERROR_MESSAGES[mapping.type].message,
-      title: data?.title || DEFAULT_ERROR_MESSAGES[mapping.type].title
+      title: data?.title || DEFAULT_ERROR_MESSAGES[mapping.type].title,
     };
 
     // Handle validation errors
     if (status === 422 && data?.errors) {
       parsedError.details = Object.entries(data.errors).map(([field, messages]) => ({
         field,
-        messages: Array.isArray(messages) ? messages : [messages]
+        messages: Array.isArray(messages) ? messages : [messages],
       }));
     }
   } else if (error.request) {
@@ -163,7 +163,7 @@ export const parseError = (error) => {
       type: ERROR_TYPES.NETWORK,
       severity: ERROR_SEVERITY.HIGH,
       title: DEFAULT_ERROR_MESSAGES[ERROR_TYPES.NETWORK].title,
-      message: DEFAULT_ERROR_MESSAGES[ERROR_TYPES.NETWORK].message
+      message: DEFAULT_ERROR_MESSAGES[ERROR_TYPES.NETWORK].message,
     };
   } else if (error.name === 'ValidationError') {
     // Client-side validation error
@@ -173,10 +173,12 @@ export const parseError = (error) => {
       severity: ERROR_SEVERITY.MEDIUM,
       title: DEFAULT_ERROR_MESSAGES[ERROR_TYPES.VALIDATION].title,
       message: error.message || DEFAULT_ERROR_MESSAGES[ERROR_TYPES.VALIDATION].message,
-      details: error.errors ? Object.entries(error.errors).map(([field, message]) => ({
-        field,
-        messages: [message]
-      })) : []
+      details: error.errors
+        ? Object.entries(error.errors).map(([field, message]) => ({
+            field,
+            messages: [message],
+          }))
+        : [],
     };
   } else {
     // Generic error
@@ -185,7 +187,7 @@ export const parseError = (error) => {
       type: ERROR_TYPES.CLIENT,
       severity: ERROR_SEVERITY.MEDIUM,
       title: DEFAULT_ERROR_MESSAGES[ERROR_TYPES.CLIENT].title,
-      message: error.message || DEFAULT_ERROR_MESSAGES[ERROR_TYPES.CLIENT].message
+      message: error.message || DEFAULT_ERROR_MESSAGES[ERROR_TYPES.CLIENT].message,
     };
   }
 
@@ -197,29 +199,29 @@ export const ErrorContext = React.createContext({
   errors: [],
   addError: () => {},
   removeError: () => {},
-  clearErrors: () => {}
+  clearErrors: () => {},
 });
 
 export const ErrorProvider = ({ children }) => {
   const [errors, setErrors] = useState([]);
 
-  const addError = useCallback((error) => {
+  const addError = useCallback(error => {
     const parsedError = parseError(error);
     const errorId = Date.now().toString();
-    
+
     setErrors(prev => [...prev, { ...parsedError, id: errorId }]);
-    
+
     // Auto-remove error after timeout (except critical errors)
     if (parsedError.severity !== ERROR_SEVERITY.CRITICAL) {
       setTimeout(() => {
         removeError(errorId);
       }, 8000);
     }
-    
+
     return errorId;
   }, []);
 
-  const removeError = useCallback((errorId) => {
+  const removeError = useCallback(errorId => {
     setErrors(prev => prev.filter(error => error.id !== errorId));
   }, []);
 
@@ -238,11 +240,11 @@ export const ErrorProvider = ({ children }) => {
 export class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      error: null, 
+    this.state = {
+      hasError: false,
+      error: null,
       errorInfo: null,
-      errorId: null
+      errorId: null,
     };
   }
 
@@ -253,11 +255,11 @@ export class ErrorBoundary extends Component {
   componentDidCatch(error, errorInfo) {
     const parsedError = parseError(error);
     const errorId = Date.now().toString();
-    
+
     this.setState({
       error: parsedError,
       errorInfo,
-      errorId
+      errorId,
     });
 
     // Log error to monitoring service
@@ -269,13 +271,13 @@ export class ErrorBoundary extends Component {
   }
 
   handleRetry = () => {
-    this.setState({ 
-      hasError: false, 
-      error: null, 
-      errorInfo: null, 
-      errorId: null 
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      errorId: null,
     });
-    
+
     if (this.props.onRetry) {
       this.props.onRetry();
     }
@@ -288,7 +290,7 @@ export class ErrorBoundary extends Component {
       }
 
       return (
-        <ErrorBoundaryFallback 
+        <ErrorBoundaryFallback
           error={this.state.error}
           onRetry={this.handleRetry}
           showDetails={this.props.showDetails}
@@ -304,7 +306,7 @@ export class ErrorBoundary extends Component {
 export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) => {
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
-  const getErrorIcon = (severity) => {
+  const getErrorIcon = severity => {
     switch (severity) {
       case ERROR_SEVERITY.CRITICAL:
         return <ErrorIcon color="error" sx={{ fontSize: 48 }} />;
@@ -328,32 +330,24 @@ export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) =
       textAlign="center"
     >
       {getErrorIcon(error?.severity)}
-      
+
       <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 2 }}>
         {error?.title || 'Terjadi Kesalahan'}
       </Typography>
-      
+
       <Typography variant="body1" color="text.secondary" gutterBottom>
         {error?.message || 'Aplikasi mengalami masalah yang tidak terduga.'}
       </Typography>
 
       <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Button
-          variant="contained"
-          startIcon={<Refresh />}
-          onClick={onRetry}
-          color="primary"
-        >
+        <Button variant="contained" startIcon={<Refresh />} onClick={onRetry} color="primary">
           Coba Lagi
         </Button>
-        
-        <Button
-          variant="outlined"
-          onClick={() => window.location.reload()}
-        >
+
+        <Button variant="outlined" onClick={() => window.location.reload()}>
           Refresh Halaman
         </Button>
-        
+
         {showDetails && (
           <Button
             variant="text"
@@ -367,8 +361,8 @@ export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) =
       </Box>
 
       {/* Error Details Dialog */}
-      <Dialog 
-        open={showErrorDetails} 
+      <Dialog
+        open={showErrorDetails}
         onClose={() => setShowErrorDetails(false)}
         maxWidth="md"
         fullWidth
@@ -389,17 +383,17 @@ export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) =
               {error?.timestamp}
             </Typography>
           </Box>
-          
+
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle2">Type:</Typography>
             <Chip label={error?.type} size="small" />
           </Box>
-          
+
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle2">Severity:</Typography>
-            <Chip 
-              label={error?.severity} 
-              size="small" 
+            <Chip
+              label={error?.severity}
+              size="small"
               color={error?.severity === ERROR_SEVERITY.CRITICAL ? 'error' : 'warning'}
             />
           </Box>
@@ -415,7 +409,7 @@ export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) =
                   borderRadius: 1,
                   overflow: 'auto',
                   fontSize: '0.75rem',
-                  maxHeight: 200
+                  maxHeight: 200,
                 }}
               >
                 {error.stack}
@@ -424,9 +418,7 @@ export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) =
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowErrorDetails(false)}>
-            Tutup
-          </Button>
+          <Button onClick={() => setShowErrorDetails(false)}>Tutup</Button>
         </DialogActions>
       </Dialog>
     </Box>
@@ -434,12 +426,12 @@ export const ErrorBoundaryFallback = ({ error, onRetry, showDetails = false }) =
 };
 
 // Inline Error Component for forms
-export const InlineError = ({ 
-  error, 
+export const InlineError = ({
+  error,
   severity = ERROR_SEVERITY.MEDIUM,
   showIcon = true,
   onDismiss,
-  className 
+  className,
 }) => {
   if (!error) return null;
 
@@ -456,8 +448,8 @@ export const InlineError = ({
   };
 
   return (
-    <Alert 
-      severity={severity} 
+    <Alert
+      severity={severity}
       className={className}
       onClose={onDismiss}
       icon={showIcon ? getIcon() : false}
@@ -469,21 +461,17 @@ export const InlineError = ({
 };
 
 // Field Error Component
-export const FieldError = ({ 
-  error, 
-  fieldName,
-  showFieldName = false 
-}) => {
+export const FieldError = ({ error, fieldName, showFieldName = false }) => {
   if (!error) return null;
 
   return (
-    <Typography 
-      variant="caption" 
-      color="error" 
-      sx={{ 
-        display: 'block', 
+    <Typography
+      variant="caption"
+      color="error"
+      sx={{
+        display: 'block',
         mt: 0.5,
-        fontSize: '0.75rem'
+        fontSize: '0.75rem',
       }}
     >
       {showFieldName && fieldName && `${fieldName}: `}
@@ -493,15 +481,10 @@ export const FieldError = ({
 };
 
 // Error List Component
-export const ErrorList = ({ 
-  errors, 
-  onDismiss,
-  maxItems = 5,
-  showTimestamp = false 
-}) => {
+export const ErrorList = ({ errors, onDismiss, maxItems = 5, showTimestamp = false }) => {
   const [expandedErrors, setExpandedErrors] = useState(new Set());
 
-  const toggleErrorExpansion = (errorId) => {
+  const toggleErrorExpansion = errorId => {
     setExpandedErrors(prev => {
       const newSet = new Set(prev);
       if (newSet.has(errorId)) {
@@ -519,18 +502,16 @@ export const ErrorList = ({
 
   return (
     <Box sx={{ mb: 2 }}>
-      {displayErrors.map((error) => (
+      {displayErrors.map(error => (
         <Alert
           key={error.id}
           severity={error.severity}
           onClose={() => onDismiss && onDismiss(error.id)}
           sx={{ mb: 1 }}
           action={
-            error.details && error.details.length > 0 && (
-              <IconButton
-                onClick={() => toggleErrorExpansion(error.id)}
-                size="small"
-              >
+            error.details &&
+            error.details.length > 0 && (
+              <IconButton onClick={() => toggleErrorExpansion(error.id)} size="small">
                 {expandedErrors.has(error.id) ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             )
@@ -538,7 +519,7 @@ export const ErrorList = ({
         >
           <AlertTitle>{error.title}</AlertTitle>
           {error.message}
-          
+
           {showTimestamp && (
             <Typography variant="caption" display="block" sx={{ mt: 1 }}>
               {new Date(error.timestamp).toLocaleString()}
@@ -553,10 +534,7 @@ export const ErrorList = ({
                     <ListItemIcon sx={{ minWidth: 32 }}>
                       <ErrorIcon color="error" fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText
-                      primary={detail.field}
-                      secondary={detail.messages.join(', ')}
-                    />
+                    <ListItemText primary={detail.field} secondary={detail.messages.join(', ')} />
                   </ListItem>
                 ))}
               </List>
@@ -564,7 +542,7 @@ export const ErrorList = ({
           </Collapse>
         </Alert>
       ))}
-      
+
       {errors.length > maxItems && (
         <Typography variant="caption" color="text.secondary">
           Dan {errors.length - maxItems} error lainnya...
@@ -575,12 +553,12 @@ export const ErrorList = ({
 };
 
 // Success Feedback Component
-export const SuccessFeedback = ({ 
-  message, 
-  title = "Berhasil",
+export const SuccessFeedback = ({
+  message,
+  title = 'Berhasil',
   onDismiss,
   autoHide = true,
-  hideDelay = 3000 
+  hideDelay = 3000,
 }) => {
   const [visible, setVisible] = useState(true);
 
@@ -598,12 +576,7 @@ export const SuccessFeedback = ({
   if (!visible || !message) return null;
 
   return (
-    <Alert 
-      severity="success" 
-      onClose={onDismiss}
-      icon={<SuccessIcon />}
-      sx={{ mb: 2 }}
-    >
+    <Alert severity="success" onClose={onDismiss} icon={<SuccessIcon />} sx={{ mb: 2 }}>
       <AlertTitle>{title}</AlertTitle>
       {message}
     </Alert>
@@ -614,10 +587,10 @@ export const SuccessFeedback = ({
 export const useGlobalErrorHandler = () => {
   const handleError = useCallback((error, options = {}) => {
     const parsedError = parseError(error);
-    
+
     // Show toast notification
     const toastMessage = options.customMessage || parsedError.message;
-    
+
     switch (parsedError.severity) {
       case ERROR_SEVERITY.CRITICAL:
         toast.error(toastMessage, { autoClose: false });
@@ -660,5 +633,5 @@ export default {
   SuccessFeedback,
   useGlobalErrorHandler,
   ErrorProvider,
-  ErrorContext
+  ErrorContext,
 };

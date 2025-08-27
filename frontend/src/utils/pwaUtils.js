@@ -39,14 +39,14 @@ export const usePWA = () => {
     try {
       const subscription = await swRegistration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.REACT_APP_VAPID_PUBLIC_KEY
+        applicationServerKey: process.env.REACT_APP_VAPID_PUBLIC_KEY,
       });
 
       // Send subscription to server
       await fetch('/api/notifications/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(subscription)
+        body: JSON.stringify(subscription),
       });
 
       toast.success('Push notifications enabled!');
@@ -61,10 +61,11 @@ export const usePWA = () => {
   useEffect(() => {
     // Register service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then(registration => {
           setSwRegistration(registration);
-          
+
           // Check for updates
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
@@ -75,13 +76,13 @@ export const usePWA = () => {
             });
           });
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Service Worker registration failed:', error);
         });
     }
 
     // Listen for install prompt
-    const handleBeforeInstallPrompt = (e) => {
+    const handleBeforeInstallPrompt = e => {
       e.preventDefault();
       installPromptRef.current = e;
       setIsInstallable(true);
@@ -125,7 +126,7 @@ export const usePWA = () => {
     updateAvailable,
     installPWA,
     updatePWA,
-    subscribeToPush
+    subscribeToPush,
   };
 };
 
@@ -136,48 +137,51 @@ export const useOfflineData = (key, apiCall, options = {}) => {
   const [error, setError] = useState(null);
   const [isOfflineData, setIsOfflineData] = useState(false);
 
-  const { 
-    enableOffline = true, 
-    syncInterval = 30000,
-    retryOnline = true 
-  } = options;
+  const { enableOffline = true, syncInterval = 30000, retryOnline = true } = options;
 
   // Fetch data with offline fallback
-  const fetchData = useCallback(async (forceRefresh = false) => {
-    setLoading(true);
-    setError(null);
+  const fetchData = useCallback(
+    async (forceRefresh = false) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Try network first
-      const response = await apiCall();
-      const newData = response.data;
-      
-      setData(newData);
-      setIsOfflineData(false);
-      
-      // Cache data for offline use
-      if (enableOffline) {
-        localStorage.setItem(`offline_${key}`, JSON.stringify({
-          data: newData,
-          timestamp: Date.now()
-        }));
-      }
-    } catch (networkError) {
-      console.warn('Network request failed, trying offline data:', networkError);
-      
-      // Try offline data
-      if (enableOffline) {
-        const cachedData = localStorage.getItem(`offline_${key}`);
-        if (cachedData) {
-          const { data: offlineData, timestamp } = JSON.parse(cachedData);
-          const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000; // 24 hours
-          
-          if (!isExpired || !navigator.onLine) {
-            setData(offlineData);
-            setIsOfflineData(true);
-            
-            if (isExpired) {
-              toast.warning('Showing cached data (may be outdated)');
+      try {
+        // Try network first
+        const response = await apiCall();
+        const newData = response.data;
+
+        setData(newData);
+        setIsOfflineData(false);
+
+        // Cache data for offline use
+        if (enableOffline) {
+          localStorage.setItem(
+            `offline_${key}`,
+            JSON.stringify({
+              data: newData,
+              timestamp: Date.now(),
+            })
+          );
+        }
+      } catch (networkError) {
+        console.warn('Network request failed, trying offline data:', networkError);
+
+        // Try offline data
+        if (enableOffline) {
+          const cachedData = localStorage.getItem(`offline_${key}`);
+          if (cachedData) {
+            const { data: offlineData, timestamp } = JSON.parse(cachedData);
+            const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000; // 24 hours
+
+            if (!isExpired || !navigator.onLine) {
+              setData(offlineData);
+              setIsOfflineData(true);
+
+              if (isExpired) {
+                toast.warning('Showing cached data (may be outdated)');
+              }
+            } else {
+              setError(networkError);
             }
           } else {
             setError(networkError);
@@ -185,13 +189,12 @@ export const useOfflineData = (key, apiCall, options = {}) => {
         } else {
           setError(networkError);
         }
-      } else {
-        setError(networkError);
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  }, [apiCall, key, enableOffline]);
+    },
+    [apiCall, key, enableOffline]
+  );
 
   // Auto-sync when back online
   useEffect(() => {
@@ -221,7 +224,7 @@ export const useOfflineData = (key, apiCall, options = {}) => {
     loading,
     error,
     isOfflineData,
-    refetch: fetchData
+    refetch: fetchData,
   };
 };
 
@@ -230,48 +233,48 @@ export const useOfflineForm = (submitApi, options = {}) => {
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { 
-    enableOfflineQueue = true,
-    autoSyncOnline = true 
-  } = options;
+  const { enableOfflineQueue = true, autoSyncOnline = true } = options;
 
   // Submit form with offline support
-  const submitForm = useCallback(async (formData) => {
-    setIsSubmitting(true);
+  const submitForm = useCallback(
+    async formData => {
+      setIsSubmitting(true);
 
-    try {
-      if (navigator.onLine) {
-        // Submit online
-        const response = await submitApi(formData);
-        toast.success('Form submitted successfully!');
-        return response;
-      } else if (enableOfflineQueue) {
-        // Queue for offline sync
-        const submission = {
-          id: Date.now().toString(),
-          data: formData,
-          timestamp: Date.now(),
-          status: 'pending'
-        };
+      try {
+        if (navigator.onLine) {
+          // Submit online
+          const response = await submitApi(formData);
+          toast.success('Form submitted successfully!');
+          return response;
+        } else if (enableOfflineQueue) {
+          // Queue for offline sync
+          const submission = {
+            id: Date.now().toString(),
+            data: formData,
+            timestamp: Date.now(),
+            status: 'pending',
+          };
 
-        const existing = JSON.parse(localStorage.getItem('offline_submissions') || '[]');
-        const updated = [...existing, submission];
-        localStorage.setItem('offline_submissions', JSON.stringify(updated));
-        
-        setPendingSubmissions(updated);
-        toast.info('Form queued for submission when online');
-        
-        return { success: true, queued: true };
-      } else {
-        throw new Error('Cannot submit while offline');
+          const existing = JSON.parse(localStorage.getItem('offline_submissions') || '[]');
+          const updated = [...existing, submission];
+          localStorage.setItem('offline_submissions', JSON.stringify(updated));
+
+          setPendingSubmissions(updated);
+          toast.info('Form queued for submission when online');
+
+          return { success: true, queued: true };
+        } else {
+          throw new Error('Cannot submit while offline');
+        }
+      } catch (error) {
+        toast.error(`Submission failed: ${error.message}`);
+        throw error;
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      toast.error(`Submission failed: ${error.message}`);
-      throw error;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [submitApi, enableOfflineQueue]);
+    },
+    [submitApi, enableOfflineQueue]
+  );
 
   // Sync pending submissions
   const syncPendingSubmissions = useCallback(async () => {
@@ -322,7 +325,7 @@ export const useOfflineForm = (submitApi, options = {}) => {
     submitForm,
     isSubmitting,
     pendingSubmissions,
-    syncPendingSubmissions
+    syncPendingSubmissions,
   };
 };
 
@@ -332,19 +335,22 @@ export const useBackgroundSync = () => {
   const [isRegistered, setIsRegistered] = useState(false);
 
   // Register background sync
-  const registerSync = useCallback(async (tag) => {
-    if (!isSupported) return false;
+  const registerSync = useCallback(
+    async tag => {
+      if (!isSupported) return false;
 
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register(tag);
-      setIsRegistered(true);
-      return true;
-    } catch (error) {
-      console.error('Background sync registration failed:', error);
-      return false;
-    }
-  }, [isSupported]);
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.sync.register(tag);
+        setIsRegistered(true);
+        return true;
+      } catch (error) {
+        console.error('Background sync registration failed:', error);
+        return false;
+      }
+    },
+    [isSupported]
+  );
 
   useEffect(() => {
     // Check support
@@ -356,7 +362,7 @@ export const useBackgroundSync = () => {
   return {
     isSupported,
     isRegistered,
-    registerSync
+    registerSync,
   };
 };
 
@@ -364,15 +370,17 @@ export const useBackgroundSync = () => {
 export const pwaUtils = {
   // Check if app is running as PWA
   isPWA: () => {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           window.navigator.standalone ||
-           document.referrer.includes('android-app://');
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone ||
+      document.referrer.includes('android-app://')
+    );
   },
 
   // Get install prompt
   getInstallPrompt: () => {
-    return new Promise((resolve) => {
-      const handler = (e) => {
+    return new Promise(resolve => {
+      const handler = e => {
         e.preventDefault();
         window.removeEventListener('beforeinstallprompt', handler);
         resolve(e);
@@ -442,9 +450,7 @@ export const pwaUtils = {
   clearCache: async () => {
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames.map(cacheName => caches.delete(cacheName))
-      );
+      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
     }
     localStorage.clear();
     sessionStorage.clear();
@@ -457,7 +463,7 @@ export const pwaUtils = {
       return {
         used: estimate.usage,
         available: estimate.quota,
-        percentage: (estimate.usage / estimate.quota) * 100
+        percentage: (estimate.usage / estimate.quota) * 100,
       };
     }
     return null;
@@ -473,7 +479,7 @@ export const pwaUtils = {
       return persistent;
     }
     return false;
-  }
+  },
 };
 
 // Export all utilities
@@ -482,5 +488,5 @@ export default {
   useOfflineData,
   useOfflineForm,
   useBackgroundSync,
-  pwaUtils
+  pwaUtils,
 };

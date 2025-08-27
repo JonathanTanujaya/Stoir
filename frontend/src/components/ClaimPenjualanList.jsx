@@ -1,94 +1,104 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-
-const API_URL = 'http://localhost:8000/api';
+import React from 'react';
+import DataTable, { StatusBadge } from './common/DataTable.jsx';
+import { useDataFetch, useCrudOperations } from '../hooks/useDataFetch.js';
+import { claimPenjualanService } from '../config/apiService.js';
+import { useConfirmDialog } from './common/LoadingComponents.jsx';
 
 function ClaimPenjualanList({ onEdit, onRefresh }) {
-  const [claims, setClaims] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const {
+    data: claims,
+    loading,
+    error,
+    refresh,
+  } = useDataFetch(
+    () => claimPenjualanService.getAll(), // Using a function to call the service
+    [onRefresh],
+    { errorMessage: 'Gagal memuat data klaim penjualan' }
+  );
 
-  const fetchClaims = async () => {
-    setLoading(true); // Set loading to true before fetching
+  const { loading: operationLoading, remove } = useCrudOperations(claimPenjualanService, refresh);
+  const confirm = useConfirmDialog();
+
+  const handleDelete = async claim => {
+    if (!claim.kodedivisi || !claim.noclaim) {
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: 'Hapus Klaim',
+      message: `Apakah Anda yakin ingin menghapus klaim "${claim.noclaim}"?`,
+      confirmText: 'Hapus',
+      confirmButtonClass: 'btn btn-danger',
+    });
+
+    if (confirmed) {
+      await remove(claim.kodedivisi, claim.noclaim);
+    }
+  };
+
+  const formatDate = dateString => {
+    if (!dateString) return '-';
     try {
-      const response = await axios.get(`${API_URL}/claims`);
-      let claimsData = [];
-      if (response.data && Array.isArray(response.data.data)) {
-        claimsData = response.data.data;
-      } else if (response.data && Array.isArray(response.data)) {
-        claimsData = response.data;
-      }
-      setClaims(claimsData); // Ensure it's always an array
-      toast.success('Data klaim penjualan berhasil dimuat!');
-    } catch (error) {
-      console.error('Error fetching claims:', error);
-      toast.error('Gagal memuat data klaim penjualan.');
-      setClaims([]); // Ensure claims is an empty array on error
-    } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+      return new Date(dateString).toLocaleDateString('id-ID');
+    } catch {
+      return '-';
     }
   };
 
-  useEffect(() => {
-    fetchClaims();
-  }, [onRefresh]);
-
-  const handleDelete = async (kodeDivisi, noClaim) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus klaim ini?')) {
-      try {
-        await axios.delete(`${API_URL}/claims/${kodeDivisi}/${noClaim}`);
-        fetchClaims();
-        toast.success('Klaim penjualan berhasil dihapus!');
-      } catch (error) {
-        console.error('Error deleting claim:', error);
-        toast.error('Gagal menghapus klaim penjualan.');
-      }
-    }
-  };
-
-  if (loading) {
-    return <div>Memuat data klaim penjualan...</div>; // Display loading message
-  }
-
-  // Ensure claims is an array before mapping
-  if (!Array.isArray(claims)) {
-    console.error('Claims state is not an array:', claims);
-    return <div>Terjadi kesalahan dalam memuat data.</div>; // Or handle gracefully
-  }
+  const columns = [
+    {
+      header: 'Kode Divisi',
+      key: 'kodedivisi',
+      style: { textAlign: 'center' },
+    },
+    {
+      header: 'No Klaim',
+      key: 'noclaim',
+      style: { fontFamily: 'monospace' },
+    },
+    {
+      header: 'Tgl Klaim',
+      key: 'tglclaim',
+      render: value => formatDate(value),
+      style: { textAlign: 'center' },
+    },
+    {
+      header: 'Kode Customer',
+      key: 'kodecust',
+      style: { textAlign: 'center' },
+    },
+    {
+      header: 'Keterangan',
+      key: 'keterangan',
+      style: { textAlign: 'left' },
+    },
+    {
+      header: 'Status',
+      key: 'status',
+      render: value => <StatusBadge active={value} activeText="Selesai" inactiveText="Proses" />,
+      style: { textAlign: 'center' },
+    },
+  ];
 
   return (
-    <div>
-      <h2>Daftar Klaim Penjualan</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Kode Divisi</th>
-            <th>No Klaim</th>
-            <th>Tgl Klaim</th>
-            <th>Kode Customer</th>
-            <th>Keterangan</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {claims.map(claim => (
-            <tr key={`${claim.KodeDivisi}-${claim.NoClaim}`}>
-              <td>{claim.KodeDivisi}</td>
-              <td>{claim.NoClaim}</td>
-              <td>{claim.TglClaim}</td>
-              <td>{claim.KodeCust}</td>
-              <td>{claim.Keterangan}</td>
-              <td>{claim.Status}</td>
-              <td>
-                <button onClick={() => onEdit(claim)}>Edit</button>
-                <button onClick={() => handleDelete(claim.KodeDivisi, claim.NoClaim)}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      title="Daftar Klaim Penjualan"
+      data={claims}
+      columns={columns}
+      loading={loading}
+      error={error}
+      onRefresh={refresh}
+      onEdit={onEdit}
+      onDelete={handleDelete}
+      operationLoading={operationLoading}
+      keyExtractor={(item, index) =>
+        item.kodedivisi && item.noclaim ? `${item.kodedivisi}-${item.noclaim}` : `claim-${index}`
+      }
+      searchable={true}
+      searchFields={['noclaim', 'kodecust', 'keterangan']}
+      keyField="noclaim"
+      defaultSort={{ field: 'tglclaim', direction: 'desc' }}
+    />
   );
 }
 

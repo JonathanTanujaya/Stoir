@@ -31,52 +31,52 @@ function BarangForm({ item, onSave, onCancel }) {
     }
   }, [item]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
-    
+
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.KodeDivisi.trim()) {
       newErrors.KodeDivisi = 'Kode Divisi harus diisi';
     }
-    
+
     if (!formData.KodeBarang.trim()) {
       newErrors.KodeBarang = 'Kode Barang harus diisi';
     }
-    
+
     if (!formData.NamaBarang.trim()) {
       newErrors.NamaBarang = 'Nama Barang harus diisi';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error('Mohon lengkapi semua field yang diperlukan');
       return;
     }
-    
+
     setLoading(true);
     setErrors({});
-    
+
     try {
       let result;
       if (item) {
@@ -86,7 +86,7 @@ function BarangForm({ item, onSave, onCancel }) {
         // Create new item
         result = await barangService.create(formData);
       }
-      
+
       if (result.success) {
         toast.success(result.message);
         onSave();
@@ -109,42 +109,47 @@ function BarangForm({ item, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input 
-          type="text" 
-          name="KodeDivisi" 
-          value={formData.KodeDivisi} 
-          onChange={handleChange} 
-          required 
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
           disabled={loading}
         />
-        {errors.KodeDivisi && <span style={{color: 'red'}}>{errors.KodeDivisi}</span>}
+        {errors.KodeDivisi && <span style={{ color: 'red' }}>{errors.KodeDivisi}</span>}
       </div>
       <div>
         <label>Kode Barang:</label>
-        <input 
-          type="text" 
-          name="KodeBarang" 
-          value={formData.KodeBarang} 
-          onChange={handleChange} 
-          required 
+        <input
+          type="text"
+          name="KodeBarang"
+          value={formData.KodeBarang}
+          onChange={handleChange}
+          required
           disabled={loading}
         />
-        {errors.KodeBarang && <span style={{color: 'red'}}>{errors.KodeBarang}</span>}
+        {errors.KodeBarang && <span style={{ color: 'red' }}>{errors.KodeBarang}</span>}
       </div>
       <div>
         <label>Nama Barang:</label>
-        <input 
-          type="text" 
-          name="NamaBarang" 
-          value={formData.NamaBarang} 
-          onChange={handleChange} 
+        <input
+          type="text"
+          name="NamaBarang"
+          value={formData.NamaBarang}
+          onChange={handleChange}
           disabled={loading}
         />
-        {errors.NamaBarang && <span style={{color: 'red'}}>{errors.NamaBarang}</span>}
+        {errors.NamaBarang && <span style={{ color: 'red' }}>{errors.NamaBarang}</span>}
       </div>
       <div>
         <label>Kode Kategori:</label>
-        <input type="text" name="KodeKategori" value={formData.KodeKategori} onChange={handleChange} />
+        <input
+          type="text"
+          name="KodeKategori"
+          value={formData.KodeKategori}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Harga List:</label>
@@ -156,11 +161,21 @@ function BarangForm({ item, onSave, onCancel }) {
       </div>
       <div>
         <label>Harga List 2:</label>
-        <input type="number" name="HargaList2" value={formData.HargaList2} onChange={handleChange} />
+        <input
+          type="number"
+          name="HargaList2"
+          value={formData.HargaList2}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Harga Jual 2:</label>
-        <input type="number" name="HargaJual2" value={formData.HargaJual2} onChange={handleChange} />
+        <input
+          type="number"
+          name="HargaJual2"
+          value={formData.HargaJual2}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Satuan:</label>
@@ -196,7 +211,12 @@ function BarangForm({ item, onSave, onCancel }) {
       </div>
       <div>
         <label>Checklist:</label>
-        <input type="checkbox" name="Checklist" checked={formData.Checklist} onChange={handleChange} />
+        <input
+          type="checkbox"
+          name="Checklist"
+          checked={formData.Checklist}
+          onChange={handleChange}
+        />
       </div>
       <button type="submit" disabled={loading}>
         {loading ? 'Menyimpan...' : 'Simpan'}

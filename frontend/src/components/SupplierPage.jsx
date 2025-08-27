@@ -13,7 +13,7 @@ function SupplierPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (supplier) => {
+  const handleEdit = supplier => {
     setSelectedSupplier(supplier);
     setShowForm(true);
   };

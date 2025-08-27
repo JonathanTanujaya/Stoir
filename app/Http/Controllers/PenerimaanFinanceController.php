@@ -22,12 +22,20 @@ class PenerimaanFinanceController extends Controller
             $penerimaanFinances = PenerimaanFinance::orderBy('tglpenerimaan', 'desc')
                                                  ->limit(5)
                                                  ->get();
-            
+            $data = $penerimaanFinances->map(fn($p)=>[
+                'kodeDivisi' => $p->kodedivisi,
+                'noPenerimaan' => $p->nopenerimaan,
+                'tglPenerimaan' => $p->tglpenerimaan,
+                'kodeCustomer' => $p->kodecust,
+                'kodeSales' => $p->kodesales,
+                'total' => (float)$p->total,
+                'status' => $p->status
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Data penerimaan finance retrieved successfully (limited to 5 for testing)',
-                'data' => $penerimaanFinances,
-                'total_shown' => $penerimaanFinances->count(),
+                'data' => $data,
+                'totalCount' => $data->count(),
                 'note' => 'Data limited to 5 records for Laravel testing - Relations disabled temporarily'
             ]);
         } catch (\Exception $e) {
@@ -109,10 +117,23 @@ class PenerimaanFinanceController extends Controller
                 ], 404);
             }
 
+            $p = $penerimaanFinance;
             return response()->json([
                 'success' => true,
                 'message' => 'Penerimaan finance retrieved successfully',
-                'data' => $penerimaanFinance
+                'data' => [
+                    'kodeDivisi' => $p->kodedivisi,
+                    'noPenerimaan' => $p->nopenerimaan,
+                    'tglPenerimaan' => $p->tglpenerimaan,
+                    'kodeCustomer' => $p->kodecust,
+                    'kodeSales' => $p->kodesales,
+                    'total' => (float)$p->total,
+                    'status' => $p->status,
+                    'details' => $p->details->map(fn($d)=>[
+                        'noInvoice' => $d->noinvoice,
+                        'jumlah' => (float)$d->jumlah
+                    ])
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -149,10 +170,19 @@ class PenerimaanFinanceController extends Controller
 
             $penerimaanFinance->update($request->only(['tglpenerimaan', 'kodecust', 'kodesales', 'total']));
 
+            $p = $penerimaanFinance;
             return response()->json([
                 'success' => true,
                 'message' => 'Penerimaan finance updated successfully',
-                'data' => $penerimaanFinance
+                'data' => [
+                    'kodeDivisi' => $p->kodedivisi,
+                    'noPenerimaan' => $p->nopenerimaan,
+                    'tglPenerimaan' => $p->tglpenerimaan,
+                    'kodeCustomer' => $p->kodecust,
+                    'kodeSales' => $p->kodesales,
+                    'total' => (float)$p->total,
+                    'status' => $p->status
+                ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -246,11 +276,20 @@ class PenerimaanFinanceController extends Controller
             $penerimaanFinances = PenerimaanFinance::orderBy('tglpenerimaan', 'desc')
                                                  ->get();
             
+            $data = $penerimaanFinances->map(fn($p)=>[
+                'kodeDivisi' => $p->kodedivisi,
+                'noPenerimaan' => $p->nopenerimaan,
+                'tglPenerimaan' => $p->tglpenerimaan,
+                'kodeCustomer' => $p->kodecust,
+                'kodeSales' => $p->kodesales,
+                'total' => (float)$p->total,
+                'status' => $p->status
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'All penerimaan finance data retrieved for frontend',
-                'data' => $penerimaanFinances,
-                'total_records' => $penerimaanFinances->count(),
+                'data' => $data,
+                'totalCount' => $data->count(),
                 'note' => 'Relations disabled temporarily to fix composite key error'
             ]);
         } catch (\Exception $e) {

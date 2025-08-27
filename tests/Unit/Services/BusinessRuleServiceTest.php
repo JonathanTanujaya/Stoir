@@ -2,6 +2,10 @@
 
 namespace Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\Test;
+
+
+
 use Tests\TestCase;
 use App\Services\BusinessRuleService;
 use App\Models\MCust;
@@ -71,8 +75,7 @@ class BusinessRuleServiceTest extends TestCase
             'status' => 'Approved'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_customer_credit_limit()
     {
         // Test within credit limit
@@ -84,8 +87,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotNull($error);
         $this->assertStringContainsString('Credit limit exceeded', $error);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_customer_with_no_credit_limit()
     {
         // Create customer with no credit limit
@@ -99,8 +101,7 @@ class BusinessRuleServiceTest extends TestCase
         $error = $this->businessRuleService->validateCustomerCredit('CUST002', 5000000);
         $this->assertNull($error); // Should allow any amount
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_stock_availability()
     {
         $items = [
@@ -120,8 +121,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotEmpty($errors[1]); // Second item should have error
         $this->assertStringContainsString('Insufficient stock', $errors[1]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_inactive_items()
     {
         // Create inactive item
@@ -145,8 +145,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotEmpty($errors[0]);
         $this->assertStringContainsString('not active', $errors[0]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_pricing_rules()
     {
         $items = [
@@ -166,8 +165,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotEmpty($errors[1]); // Second item should have error
         $this->assertStringContainsString('Price below minimum', $errors[1]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_customer_specific_pricing()
     {
         $items = [
@@ -182,8 +180,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotEmpty($errors[0]);
         $this->assertStringContainsString('Price deviation', $errors[0]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_maximum_transaction_amount()
     {
         // Test within limit
@@ -195,8 +192,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotNull($error);
         $this->assertStringContainsString('exceeds maximum limit', $error);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_complete_invoice()
     {
         $invoiceData = [
@@ -221,8 +217,7 @@ class BusinessRuleServiceTest extends TestCase
 
         $this->assertEmpty($errors); // Should be valid
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_invalid_invoice()
     {
         $invoiceData = [
@@ -245,8 +240,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertArrayHasKey('stock', $errors);
         $this->assertArrayHasKey('pricing', $errors);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_transaction_timing()
     {
         // Test valid date
@@ -265,8 +259,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotNull($error);
         $this->assertStringContainsString('more than', $error);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_stock_movements()
     {
         $items = [
@@ -288,8 +281,7 @@ class BusinessRuleServiceTest extends TestCase
         $this->assertNotEmpty($errors[1]); // Second item should have error
         $this->assertStringContainsString('Insufficient stock', $errors[1]);
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_transfer_rules()
     {
         $transferData = [
@@ -305,8 +297,7 @@ class BusinessRuleServiceTest extends TestCase
         $transferData['kodedivisi_tujuan'] = 'OTHER';
         // This would need OTHER division to exist for full validation
     }
-
-    /** @test */
+    #[Test]
     public function it_validates_journal_balance()
     {
         $balancedDetails = [

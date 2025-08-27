@@ -10,7 +10,7 @@ import {
   Chip,
   useTheme,
   useMediaQuery,
-  Badge
+  Badge,
 } from '@mui/material';
 import {
   HomeIcon,
@@ -19,7 +19,7 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   Bars3Icon,
-  CommandLineIcon
+  CommandLineIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigation } from '../../contexts/NavigationContext';
 
@@ -29,7 +29,7 @@ const iconMap = {
   CubeIcon,
   DocumentTextIcon,
   CurrencyDollarIcon,
-  ChartBarIcon
+  ChartBarIcon,
 };
 
 // Color mapping for categories
@@ -38,7 +38,7 @@ const colorMap = {
   indigo: '#6366F1',
   green: '#10B981',
   yellow: '#F59E0B',
-  purple: '#8B5CF6'
+  purple: '#8B5CF6',
 };
 
 const TopNavbar = () => {
@@ -46,20 +46,16 @@ const TopNavbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const {
-    activeCategory,
-    setActiveCategory,
-    setCommandPaletteOpen,
-    navigationConfig
-  } = useNavigation();
+
+  const { activeCategory, setActiveCategory, setCommandPaletteOpen, navigationConfig } =
+    useNavigation();
 
   const handleCategoryChange = (event, newCategory) => {
     if (newCategory === 'dashboard') {
       navigate('/dashboard');
     } else {
       setActiveCategory(newCategory);
-      
+
       // Navigate to first item in category if exists
       const categoryConfig = navigationConfig[newCategory];
       if (categoryConfig && categoryConfig.items && categoryConfig.items.length > 0) {
@@ -77,15 +73,15 @@ const TopNavbar = () => {
   const mainCategories = Object.values(navigationConfig);
 
   return (
-    <AppBar 
-      position="sticky" 
+    <AppBar
+      position="sticky"
       elevation={1}
       sx={{
         backgroundColor: 'background.paper',
         color: 'text.primary',
         borderBottom: '1px solid',
         borderColor: 'divider',
-        zIndex: theme.zIndex.drawer + 1
+        zIndex: theme.zIndex.drawer + 1,
       }}
     >
       <Toolbar sx={{ minHeight: { xs: 56, md: 64 } }}>
@@ -106,7 +102,7 @@ const TopNavbar = () => {
               display: 'flex',
               alignItems: 'center',
               cursor: 'pointer',
-              '&:hover': { opacity: 0.8 }
+              '&:hover': { opacity: 0.8 },
             }}
             onClick={() => navigate('/dashboard')}
           >
@@ -119,15 +115,13 @@ const TopNavbar = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                mr: 1
+                mr: 1,
               }}
             >
               <CubeIcon className="w-5 h-5 text-white" />
             </Box>
             {!isMobile && (
-              <Box sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main' }}>
-                Stoir
-              </Box>
+              <Box sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main' }}>Stoir</Box>
             )}
           </Box>
         </Box>
@@ -140,7 +134,7 @@ const TopNavbar = () => {
             sx={{
               '& .MuiTabs-indicator': {
                 height: 3,
-                borderRadius: '3px 3px 0 0'
+                borderRadius: '3px 3px 0 0',
               },
               '& .MuiTab-root': {
                 minHeight: 48,
@@ -149,17 +143,17 @@ const TopNavbar = () => {
                 fontSize: '0.875rem',
                 minWidth: isMobile ? 80 : 120,
                 '&.Mui-selected': {
-                  color: 'primary.main'
-                }
-              }
+                  color: 'primary.main',
+                },
+              },
             }}
-            variant={isMobile ? "scrollable" : "standard"}
-            scrollButtons={isMobile ? "auto" : false}
+            variant={isMobile ? 'scrollable' : 'standard'}
+            scrollButtons={isMobile ? 'auto' : false}
           >
-            {mainCategories.map((category) => {
+            {mainCategories.map(category => {
               const IconComponent = iconMap[category.icon];
               const hasItems = category.items && category.items.length > 0;
-              
+
               return (
                 <Tab
                   key={category.id}
@@ -177,7 +171,7 @@ const TopNavbar = () => {
                             fontSize: '0.75rem',
                             backgroundColor: colorMap[category.color] || colorMap.blue,
                             color: 'white',
-                            '& .MuiChip-label': { px: 0.5 }
+                            '& .MuiChip-label': { px: 0.5 },
                           }}
                         />
                       )}
@@ -197,7 +191,7 @@ const TopNavbar = () => {
             onClick={handleCommandPalette}
             sx={{
               color: 'text.secondary',
-              '&:hover': { backgroundColor: 'action.hover' }
+              '&:hover': { backgroundColor: 'action.hover' },
             }}
             title={`Search (${isMobile ? 'Tap' : 'Ctrl+K'})`}
             data-testid="command-palette-trigger"

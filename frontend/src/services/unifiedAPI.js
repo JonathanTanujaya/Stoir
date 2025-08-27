@@ -8,7 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Accept': 'application/json',
+    Accept: 'application/json',
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   },
@@ -18,19 +18,19 @@ const apiClient = axios.create({
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
     if (config.data) {
       console.log('📤 Request Data:', config.data);
     }
     return config;
   },
-  (error) => {
+  error => {
     console.error('❌ API Request Error:', error);
     return Promise.reject(error);
   }
@@ -38,66 +38,68 @@ apiClient.interceptors.request.use(
 
 // Response interceptor with standardized error handling
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
     console.log('📥 Response Data:', response.data);
     return response;
   },
-  (error) => {
-    console.error(`❌ API Response Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
-    
+  error => {
+    console.error(
+      `❌ API Response Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`
+    );
+
     // Handle different error types
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken');
       window.location.href = '/login';
       return Promise.reject(new Error('Authentication required'));
     }
-    
+
     if (error.response?.status === 403) {
       return Promise.reject(new Error('Access forbidden'));
     }
-    
+
     if (error.response?.status === 404) {
       return Promise.reject(new Error('Resource not found'));
     }
-    
+
     if (error.response?.status >= 500) {
       return Promise.reject(new Error('Server error. Please try again later.'));
     }
-    
+
     // Return the actual error response for other cases
     return Promise.reject(error);
   }
 );
 
 // Generic API service factory for standard CRUD operations
-const createAPIService = (endpoint) => ({
+const createAPIService = endpoint => ({
   getAll: (params = {}) => apiClient.get(endpoint, { params }),
-  getById: (id) => apiClient.get(`${endpoint}/${id}`),
-  create: (data) => apiClient.post(endpoint, data),
+  getById: id => apiClient.get(`${endpoint}/${id}`),
+  create: data => apiClient.post(endpoint, data),
   update: (id, data) => apiClient.put(`${endpoint}/${id}`, data),
-  delete: (id) => apiClient.delete(`${endpoint}/${id}`)
+  delete: id => apiClient.delete(`${endpoint}/${id}`),
 });
 
 // Composite key API service factory for master data
-const createCompositeAPIService = (endpoint) => ({
+const createCompositeAPIService = endpoint => ({
   getAll: (params = {}) => apiClient.get(endpoint, { params }),
-  getByDivisi: (kodeDivisi) => apiClient.get(`${endpoint}/${kodeDivisi}`),
+  getByDivisi: kodeDivisi => apiClient.get(`${endpoint}/${kodeDivisi}`),
   getByCompositeKey: (kodeDivisi, key) => apiClient.get(`${endpoint}/${kodeDivisi}/${key}`),
-  create: (data) => apiClient.post(endpoint, data),
+  create: data => apiClient.post(endpoint, data),
   update: (kodeDivisi, key, data) => apiClient.put(`${endpoint}/${kodeDivisi}/${key}`, data),
-  delete: (kodeDivisi, key) => apiClient.delete(`${endpoint}/${kodeDivisi}/${key}`)
+  delete: (kodeDivisi, key) => apiClient.delete(`${endpoint}/${kodeDivisi}/${key}`),
 });
 
 // =============================================================================
 // AUTHENTICATION API
 // =============================================================================
 export const authAPI = {
-  login: (credentials) => apiClient.post('/auth/login', credentials),
-  register: (userData) => apiClient.post('/auth/register', userData),
+  login: credentials => apiClient.post('/auth/login', credentials),
+  register: userData => apiClient.post('/auth/register', userData),
   logout: () => apiClient.post('/auth/logout'),
   me: () => apiClient.get('/auth/me'),
-  changePassword: (passwordData) => apiClient.post('/auth/change-password', passwordData),
+  changePassword: passwordData => apiClient.post('/auth/change-password', passwordData),
   refreshToken: () => apiClient.post('/auth/refresh'),
 };
 
@@ -130,11 +132,11 @@ export const salesFormAPI = {
   getCustomers: () => apiClient.get('/customers'),
   getSalesPersons: () => apiClient.get('/sales'),
   getBarang: () => apiClient.get('/barang'),
-  createInvoice: (data) => apiClient.post('/invoices', data),
-  calculateTotal: (items) => {
-    const total = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  createInvoice: data => apiClient.post('/invoices', data),
+  calculateTotal: items => {
+    const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
     return Promise.resolve({ data: { total } });
-  }
+  },
 };
 
 // Purchase APIs
@@ -156,17 +158,17 @@ export const partPenerimaanAPI = {
 export const financeAPI = {
   // Penerimaan Finance
   getAllPenerimaan: () => apiClient.get('/penerimaan-finance/all'),
-  createPenerimaan: (data) => apiClient.post('/penerimaan-finance', data),
+  createPenerimaan: data => apiClient.post('/penerimaan-finance', data),
   updatePenerimaan: (id, data) => apiClient.put(`/penerimaan-finance/${id}`, data),
-  deletePenerimaan: (id) => apiClient.delete(`/penerimaan-finance/${id}`),
-  
+  deletePenerimaan: id => apiClient.delete(`/penerimaan-finance/${id}`),
+
   // Bank operations
   getBanks: () => apiClient.get('/banks'),
   getSaldoBank: () => apiClient.get('/saldo-bank'),
-  
+
   // Journals
   getJournals: () => apiClient.get('/journals'),
-  createJournal: (data) => apiClient.post('/journals', data),
+  createJournal: data => apiClient.post('/journals', data),
 };
 
 // Return Sales APIs
@@ -182,14 +184,14 @@ export const returnSalesAPI = {
 export const stockAPI = {
   getKartuStok: () => apiClient.get('/kartu-stok'),
   getOpnames: () => apiClient.get('/opnames'),
-  createOpname: (data) => apiClient.post('/opnames', data),
+  createOpname: data => apiClient.post('/opnames', data),
   updateOpname: (id, data) => apiClient.put(`/opnames/${id}`, data),
-  deleteOpname: (id) => apiClient.delete(`/opnames/${id}`),
-  
+  deleteOpname: id => apiClient.delete(`/opnames/${id}`),
+
   // Stock claims
   getClaims: () => apiClient.get('/stok-claims'),
-  createClaim: (data) => apiClient.post('/stok-claims', data),
-  
+  createClaim: data => apiClient.post('/stok-claims', data),
+
   // Stock minimum
   getStokMinimum: () => apiClient.get('/stok-minimum'),
   updateStokMinimum: (id, data) => apiClient.put(`/stok-minimum/${id}`, data),
@@ -198,12 +200,12 @@ export const stockAPI = {
 // Print APIs
 export const printAPI = {
   getTmpPrintInvoices: () => apiClient.get('/tmp-print-invoices'),
-  createTmpPrintInvoice: (data) => apiClient.post('/tmp-print-invoices', data),
+  createTmpPrintInvoice: data => apiClient.post('/tmp-print-invoices', data),
   updateTmpPrintInvoice: (id, data) => apiClient.put(`/tmp-print-invoices/${id}`, data),
-  deleteTmpPrintInvoice: (id) => apiClient.delete(`/tmp-print-invoices/${id}`),
-  
+  deleteTmpPrintInvoice: id => apiClient.delete(`/tmp-print-invoices/${id}`),
+
   getTmpPrintTT: () => apiClient.get('/tmp-print-tt'),
-  createTmpPrintTT: (data) => apiClient.post('/tmp-print-tt', data),
+  createTmpPrintTT: data => apiClient.post('/tmp-print-tt', data),
 };
 
 // User Management APIs
@@ -222,7 +224,7 @@ export const companyAPI = createAPIService('/companies');
 // =============================================================================
 
 // Standard response wrapper
-export const handleAPIResponse = (response) => {
+export const handleAPIResponse = response => {
   if (response.data.success !== undefined) {
     return response.data;
   }
@@ -230,19 +232,19 @@ export const handleAPIResponse = (response) => {
   return {
     success: true,
     data: response.data,
-    message: 'Operation completed successfully'
+    message: 'Operation completed successfully',
   };
 };
 
 // Standard error handler
-export const handleAPIError = (error) => {
+export const handleAPIError = error => {
   const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
   const errorCode = error.response?.status || 500;
-  
+
   return {
     success: false,
     error: errorMessage,
-    code: errorCode
+    code: errorCode,
   };
 };
 

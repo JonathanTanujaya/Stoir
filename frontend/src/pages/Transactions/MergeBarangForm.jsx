@@ -7,7 +7,7 @@ const MergeBarangForm = () => {
     keterangan: '',
     barang_asal: '',
     barang_tujuan: '',
-    qty_merge: 0
+    qty_merge: 0,
   });
 
   const [barangList, setBarangList] = useState([]);
@@ -23,7 +23,7 @@ const MergeBarangForm = () => {
       const sampleData = [
         { id: 1, kode: 'BRG001', nama: 'Motor Oil 10W-40', stok: 120 },
         { id: 2, kode: 'BRG002', nama: 'Spark Plug NGK', stok: 220 },
-        { id: 3, kode: 'BRG003', nama: 'Air Filter', stok: 80 }
+        { id: 3, kode: 'BRG003', nama: 'Air Filter', stok: 80 },
       ];
       setBarangList(sampleData);
     } catch (error) {
@@ -31,30 +31,30 @@ const MergeBarangForm = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       // TODO: API call to save merge barang
       console.log('Merge Barang Data:', formData);
       alert('Merge barang berhasil disimpan!');
-      
+
       // Reset form
       setFormData({
         tanggal: new Date().toISOString().split('T')[0],
         keterangan: '',
         barang_asal: '',
         barang_tujuan: '',
-        qty_merge: 0
+        qty_merge: 0,
       });
     } catch (error) {
       console.error('Error saving merge barang:', error);
@@ -115,7 +115,7 @@ const MergeBarangForm = () => {
                   required
                 >
                   <option value="">Pilih Barang Asal</option>
-                  {barangList.map((item) => (
+                  {barangList.map(item => (
                     <option key={item.id} value={item.id}>
                       {item.kode} - {item.nama} (Stok: {item.stok})
                     </option>
@@ -132,7 +132,7 @@ const MergeBarangForm = () => {
                   required
                 >
                   <option value="">Pilih Barang Tujuan</option>
-                  {barangList.map((item) => (
+                  {barangList.map(item => (
                     <option key={item.id} value={item.id}>
                       {item.kode} - {item.nama} (Stok: {item.stok})
                     </option>
@@ -154,7 +154,8 @@ const MergeBarangForm = () => {
             </div>
 
             <div className="alert alert-info">
-              <strong>Info:</strong> Stok dari barang asal akan dikurangi dan ditambahkan ke barang tujuan.
+              <strong>Info:</strong> Stok dari barang asal akan dikurangi dan ditambahkan ke barang
+              tujuan.
             </div>
           </div>
         </div>

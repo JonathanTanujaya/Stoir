@@ -14,12 +14,19 @@ class CompanyController extends Controller
     {
         try {
             $companies = Company::orderBy('companyname', 'asc')->get();
-            
+            $data = $companies->map(fn($c)=>[
+                'companyName' => $c->companyname,
+                'alamat' => $c->alamat,
+                'kota' => $c->kota,
+                'an' => $c->an,
+                'telp' => $c->telp,
+                'npwp' => $c->npwp
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Data companies retrieved successfully',
-                'data' => $companies,
-                'total_records' => $companies->count()
+                'data' => $data,
+                'totalCount' => $data->count()
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -45,12 +52,19 @@ class CompanyController extends Controller
                 'npwp' => 'nullable|string|max:20'
             ]);
 
-            $company = Company::create($request->all());
+            $company = Company::create($request->only(['companyname','alamat','kota','an','telp','npwp']));
 
             return response()->json([
                 'success' => true,
                 'message' => 'Company created successfully',
-                'data' => $company
+                'data' => [
+                    'companyName' => $company->companyname,
+                    'alamat' => $company->alamat,
+                    'kota' => $company->kota,
+                    'an' => $company->an,
+                    'telp' => $company->telp,
+                    'npwp' => $company->npwp
+                ]
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -72,7 +86,14 @@ class CompanyController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Company data retrieved successfully',
-                'data' => $company
+                'data' => [
+                    'companyName' => $company->companyname,
+                    'alamat' => $company->alamat,
+                    'kota' => $company->kota,
+                    'an' => $company->an,
+                    'telp' => $company->telp,
+                    'npwp' => $company->npwp
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -99,12 +120,19 @@ class CompanyController extends Controller
                 'npwp' => 'nullable|string|max:20'
             ]);
 
-            $company->update($request->all());
+            $company->update($request->only(['alamat','kota','an','telp','npwp']));
 
             return response()->json([
                 'success' => true,
                 'message' => 'Company updated successfully',
-                'data' => $company
+                'data' => [
+                    'companyName' => $company->companyname,
+                    'alamat' => $company->alamat,
+                    'kota' => $company->kota,
+                    'an' => $company->an,
+                    'telp' => $company->telp,
+                    'npwp' => $company->npwp
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

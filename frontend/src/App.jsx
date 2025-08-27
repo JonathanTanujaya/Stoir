@@ -2,8 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastContainer } from 'react-toastify';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Suspense, lazy } from 'react';
 import theme from './theme';
 import 'react-toastify/dist/ReactToastify.css';
+
+// Import helpers
+import { PageSuspense } from './components/SuspenseHelpers';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -16,63 +20,75 @@ const queryClient = new QueryClient({
   },
 });
 
-// Layout Components
+// Layout Components (keep these as regular imports for core functionality)
 import ModernLayout from './components/Layout/ModernLayout';
 import DashboardLayout from './components/Layout/DashboardLayout';
 import ErrorBoundary, { NotFound } from './components/ErrorBoundary';
+import { PageLoading } from './components/LoadingComponents';
 
-// Pages
-import Dashboard from './pages/Dashboard/BasicDashboard';
-import MasterCategories from './pages/MasterData/Categories/MasterCategoriesOptimized';
-import MasterCustomers from './pages/MasterData/Customers/MasterCustomersOptimized';
-import MasterSuppliers from './pages/MasterData/Suppliers/MasterSuppliers';
-import MasterBarang from './pages/MasterData/Barang/MasterBarang';
-import MasterSales from './pages/MasterData/Sales/MasterSales';
-import PurchaseForm from './pages/Purchasing/PurchaseForm';
+// Lazy load pages for better performance
+const Dashboard = lazy(() => import('./pages/Dashboard/BasicDashboard'));
+const MasterCategories = lazy(
+  () => import('./pages/MasterData/Categories/MasterCategoriesOptimized')
+);
+const MasterCustomers = lazy(() => import('./pages/MasterData/Customers/MasterCustomersOptimized'));
+const MasterSuppliers = lazy(() => import('./pages/MasterData/Suppliers/MasterSuppliers'));
+const MasterSales = lazy(() => import('./pages/MasterData/Sales/MasterSales'));
+const PurchaseForm = lazy(() => import('./pages/Purchasing/PurchaseForm'));
 
-// New Master Data Components
-import MasterSparepart from './pages/MasterData/Sparepart/MasterSparepart';
-import MasterArea from './pages/MasterData/Area/MasterArea';
-import MasterChecklist from './pages/MasterData/Checklist/MasterChecklist';
-import MasterBank from './pages/MasterData/Bank/MasterBank';
-import MasterRekening from './pages/MasterData/Rekening/MasterRekening';
-import PurchasingIndex from './pages/Purchasing/PurchasingIndex';
-import PurchaseList from './pages/Purchasing/PurchaseList';
-import SalesIndex from './pages/Sales/SalesIndex';
-import SalesForm from './pages/Sales/SalesForm';
-import SalesTransactionForm from './pages/Sales/SalesTransactionForm';
+// Lazy load Master Data Components
+const MasterSparepart = lazy(() => import('./pages/MasterData/Sparepart/MasterSparepartOptimized'));
+const MasterArea = lazy(() => import('./pages/MasterData/Area/MasterAreaOptimized'));
+const MasterChecklist = lazy(() => import('./pages/MasterData/Checklist/MasterChecklistOptimized'));
+const MasterBank = lazy(() => import('./pages/MasterData/Bank/MasterBank'));
+const MasterRekening = lazy(() => import('./pages/MasterData/Rekening/MasterRekening'));
+const PurchasingIndex = lazy(() => import('./pages/Purchasing/PurchasingIndex'));
+const PurchaseList = lazy(() => import('./pages/Purchasing/PurchaseList'));
+const SalesIndex = lazy(() => import('./pages/Sales/SalesIndex'));
+const SalesForm = lazy(() => import('./pages/Sales/SalesForm'));
+const SalesTransactionForm = lazy(() => import('./pages/Sales/SalesTransactionForm'));
 
-// Return Forms
-import ReturPembelianForm from './pages/Purchasing/ReturPembelianForm';
-import ReturPenjualanForm from './pages/Sales/ReturPenjualanForm';
+// Lazy load Return Forms
+const ReturPembelianForm = lazy(() => import('./pages/Purchasing/ReturPembelianForm'));
+const ReturPenjualanForm = lazy(() => import('./pages/Sales/ReturPenjualanForm'));
 
-// New Transaction Components
-import {
-  StokOpnameForm,
-  CustomerClaimForm,
-  PembelianBonusForm,
-  PengembalianClaimForm
-} from './pages/Transactions';
+// Lazy load Transaction Components
+const StokOpnameForm = lazy(() =>
+  import('./pages/Transactions').then(module => ({ default: module.StokOpnameForm }))
+);
+const CustomerClaimForm = lazy(() =>
+  import('./pages/Transactions').then(module => ({ default: module.CustomerClaimForm }))
+);
+const PembelianBonusForm = lazy(() =>
+  import('./pages/Transactions').then(module => ({ default: module.PembelianBonusForm }))
+);
+const PengembalianClaimForm = lazy(() =>
+  import('./pages/Transactions').then(module => ({ default: module.PengembalianClaimForm }))
+);
 
-// Import individual transaction component
-import PenjualanBonus from './pages/transactions/PenjualanBonus';
+// Lazy load individual transaction component
+const PenjualanBonus = lazy(() => import('./pages/transactions/PenjualanBonus'));
 
-// Search Components
-import SearchResultsPage from './pages/SearchResultsPage';
+// Lazy load Search Components
+const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'));
 
-// Finance Components
-import PenerimaanResi from './pages/Finance/PenerimaanResi';
-import PiutangResi from './pages/Finance/PiutangResi';
-import PiutangRetur from './pages/Finance/PiutangRetur';
-import PenambahanSaldo from './pages/Finance/PenambahanSaldo';
-import PenguranganSaldo from './pages/Finance/PenguranganSaldo';
+// Lazy load Finance Components
+const PenerimaanResi = lazy(() => import('./pages/Finance/PenerimaanResi'));
+const PiutangResi = lazy(() => import('./pages/Finance/PiutangResi'));
+const PiutangRetur = lazy(() => import('./pages/Finance/PiutangRetur'));
+const PenambahanSaldo = lazy(() => import('./pages/Finance/PenambahanSaldo'));
+const PenguranganSaldo = lazy(() => import('./pages/Finance/PenguranganSaldo'));
 
-// Reports
-import {
-  StokBarangReport,
-  PembelianReport,
-  PenjualanReport
-} from './pages/Reports';
+// Lazy load Reports
+const StokBarangReport = lazy(() =>
+  import('./pages/Reports').then(module => ({ default: module.StokBarangReport }))
+);
+const PembelianReport = lazy(() =>
+  import('./pages/Reports').then(module => ({ default: module.PembelianReport }))
+);
+const PenjualanReport = lazy(() =>
+  import('./pages/Reports').then(module => ({ default: module.PenjualanReport }))
+);
 
 import './App.css';
 
@@ -83,102 +99,146 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Router>
-          <div className="App">
-          <Routes>
-            {/* Dashboard Route with Custom Layout */}
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Dashboard />} />
-            </Route>
-            
-            {/* Main Application Routes with Modern Layout */}
-            <Route path="/" element={<ModernLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              
-              {/* Search Route */}
-              <Route path="search" element={<SearchResultsPage />} />
-            
-            {/* Master Data Routes */}
-            <Route path="master/categories" element={<MasterCategories />} />
-            <Route path="master/kategori" element={<MasterCategories />} />
-            <Route path="master/customer" element={<MasterCustomers />} />
-            <Route path="master/supplier" element={<MasterSuppliers />} />
-            <Route path="master/barang" element={<MasterBarang />} />
-            <Route path="master/sales" element={<MasterSales />} />
-            <Route path="master/sparepart" element={<MasterSparepart />} />
-            <Route path="master/area" element={<MasterArea />} />
-            <Route path="master/checklist" element={<MasterChecklist />} />
-            <Route path="master/bank" element={<MasterBank />} />
-            <Route path="master/rekening" element={<MasterRekening />} />
-            
-            {/* Purchasing Module - Simplified Routes */}
-            <Route path="transactions/purchasing" element={<PurchasingIndex />} />
-            <Route path="transactions/purchasing/form" element={<PurchaseForm />} />
-            <Route path="transactions/purchasing/list" element={<PurchaseList />} />
-            <Route path="transactions/purchasing/return" element={<ReturPembelianForm />} />
-            <Route path="transactions/purchasing/retur-pembelian" element={<ReturPembelianForm />} />
-            
-            {/* Sales Module */}
-            <Route path="transactions/sales" element={<SalesIndex />} />
-            <Route path="transactions/sales/form" element={<SalesForm />} />
-            <Route path="transactions/sales/new" element={<SalesTransactionForm />} />
-            <Route path="transactions/sales/penjualan" element={<SalesForm />} />
-            <Route path="transactions/sales/return" element={<ReturPenjualanForm />} />
-            <Route path="transactions/sales/retur-penjualan" element={<ReturPenjualanForm />} />
-            
-            {/* New Transaction Routes */}
-            <Route path="transactions/pembelian" element={<PurchaseForm />} />
-            <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
-            <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
-            <Route path="transactions/penjualan-new" element={<SalesTransactionForm />} />
-            <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
-            <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
-            <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
-            <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
-            <Route path="transactions/customer-claim" element={<CustomerClaimForm />} />
-            <Route path="transactions/pengembalian-claim" element={<PengembalianClaimForm />} />
-            
-            {/* Legacy routes for backward compatibility */}
-            <Route path="pembelian/form" element={<PurchaseForm />} />
-            <Route path="pembelian/list" element={<PurchaseList />} />
-            <Route path="retur/pembelian" element={<ReturPembelianForm />} />
-            <Route path="retur/penjualan" element={<ReturPenjualanForm />} />
-            
-            {/* Reports Module */}
-            <Route path="reports/stok-barang" element={<StokBarangReport />} />
-            <Route path="reports/pembelian" element={<PembelianReport />} />
-            <Route path="reports/penjualan" element={<PenjualanReport />} />
-            
-            {/* Finance Module */}
-            <Route path="finance/penerimaan-resi" element={<PenerimaanResi />} />
-            <Route path="finance/piutang-resi" element={<PiutangResi />} />
-            <Route path="finance/piutang-retur" element={<PiutangRetur />} />
-            <Route path="finance/penambahan-saldo" element={<PenambahanSaldo />} />
-            <Route path="finance/pengurangan-saldo" element={<PenguranganSaldo />} />
-            
-            {/* Add more routes here as needed */}
-          </Route>
-          
-          {/* Catch-all route for 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        
-        {/* Toast Notifications */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-        </div>
-      </Router>
-    </ThemeProvider>
-    </QueryClientProvider>
+            <div className="App">
+              <Routes>
+                {/* Dashboard Route with Custom Layout */}
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  <Route
+                    index
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <Dashboard />
+                      </Suspense>
+                    }
+                  />
+                </Route>
+
+                {/* Main Application Routes with Modern Layout */}
+                <Route path="/" element={<ModernLayout />}>
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+
+                  {/* Search Route */}
+                  <Route
+                    path="search"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <SearchResultsPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* Master Data Routes */}
+                  <Route
+                    path="master/categories"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <MasterCategories />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="master/kategori"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <MasterCategories />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="master/customer"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <MasterCustomers />
+                      </Suspense>
+                    }
+                  />
+                  <Route path="master/supplier" element={<MasterSuppliers />} />
+                  <Route path="master/sparepart" element={<MasterSparepart />} />
+
+                  <Route path="master/sales" element={<MasterSales />} />
+                  <Route path="master/area" element={<MasterArea />} />
+                  <Route path="master/checklist" element={<MasterChecklist />} />
+                  <Route path="master/bank" element={<MasterBank />} />
+                  <Route path="master/rekening" element={<MasterRekening />} />
+
+                  {/* Purchasing Module - Simplified Routes */}
+                  <Route path="transactions/purchasing" element={<PurchasingIndex />} />
+                  <Route path="transactions/purchasing/form" element={<PurchaseForm />} />
+                  <Route path="transactions/purchasing/list" element={<PurchaseList />} />
+                  <Route path="transactions/purchasing/return" element={<ReturPembelianForm />} />
+                  <Route
+                    path="transactions/purchasing/retur-pembelian"
+                    element={<ReturPembelianForm />}
+                  />
+
+                  {/* Sales Module */}
+                  <Route path="transactions/sales" element={<SalesIndex />} />
+                  <Route path="transactions/sales/form" element={<SalesForm />} />
+                  <Route path="transactions/sales/new" element={<SalesTransactionForm />} />
+                  <Route path="transactions/sales/penjualan" element={<SalesForm />} />
+                  <Route path="transactions/sales/return" element={<ReturPenjualanForm />} />
+                  <Route
+                    path="transactions/sales/retur-penjualan"
+                    element={<ReturPenjualanForm />}
+                  />
+
+                  {/* New Transaction Routes */}
+                  <Route path="transactions/pembelian" element={<PurchaseForm />} />
+                  <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
+                  <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
+                  <Route path="transactions/penjualan-new" element={<SalesTransactionForm />} />
+                  <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
+                  <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
+                  <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
+                  <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
+                  <Route path="transactions/customer-claim" element={<CustomerClaimForm />} />
+                  <Route
+                    path="transactions/pengembalian-claim"
+                    element={<PengembalianClaimForm />}
+                  />
+
+                  {/* Legacy routes for backward compatibility */}
+                  <Route path="pembelian/form" element={<PurchaseForm />} />
+                  <Route path="pembelian/list" element={<PurchaseList />} />
+                  <Route path="retur/pembelian" element={<ReturPembelianForm />} />
+                  <Route path="retur/penjualan" element={<ReturPenjualanForm />} />
+
+                  {/* Reports Module */}
+                  <Route path="reports/stok-barang" element={<StokBarangReport />} />
+                  <Route path="reports/pembelian" element={<PembelianReport />} />
+                  <Route path="reports/penjualan" element={<PenjualanReport />} />
+
+                  {/* Finance Module */}
+                  <Route path="finance/penerimaan-resi" element={<PenerimaanResi />} />
+                  <Route path="finance/piutang-resi" element={<PiutangResi />} />
+                  <Route path="finance/piutang-retur" element={<PiutangRetur />} />
+                  <Route path="finance/penambahan-saldo" element={<PenambahanSaldo />} />
+                  <Route path="finance/pengurangan-saldo" element={<PenguranganSaldo />} />
+
+                  {/* Add more routes here as needed */}
+                </Route>
+
+                {/* Catch-all route for 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+
+              {/* Toast Notifications */}
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+            </div>
+          </Router>
+        </ThemeProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }

@@ -20,11 +20,11 @@ class CategoriesController extends Controller
             $transformedCategories = $categories->map(function ($category) {
                 return [
                     'id' => $category->kodekategori,
-                    'namaKategori' => $category->kategori,
-                    'kodeKategori' => $category->kodekategori,
-                    'deskripsi' => $category->kategori . ' - ' . $category->kodedivisi,
-                    'status' => $category->status ? 'Aktif' : 'Tidak Aktif',
-                    'kodedivisi' => $category->kodedivisi
+                    'kodedivisi' => $category->kodedivisi,           // Frontend expects this
+                    'kodekategori' => $category->kodekategori,       // Frontend expects this
+                    'namakategori' => $category->kategori,           // Frontend expects lowercase
+                    'keterangan' => $category->kategori . ' (Divisi: ' . $category->kodedivisi . ')', // Frontend expects this
+                    'status' => $category->status ? 'Aktif' : 'Tidak Aktif'
                 ];
             });
 

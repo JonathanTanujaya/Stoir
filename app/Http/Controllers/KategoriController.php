@@ -14,11 +14,19 @@ class KategoriController extends Controller
     public function index()
     {
         try {
-            $kategori = MKategori::all();
+            $kategori = MKategori::all()->map(function($k){
+                return [
+                    'kodeDivisi' => $k->kodedivisi,
+                    'kodeKategori' => $k->kodekategori,
+                    'namaKategori' => $k->kategori,
+                    'status' => (bool)$k->status
+                ];
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Data kategori retrieved successfully',
-                'data' => $kategori
+                'data' => $kategori,
+                'totalCount' => $kategori->count()
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
@@ -35,7 +43,14 @@ class KategoriController extends Controller
     public function showByDivisi($kodeDivisi)
     {
         try {
-            $kategori = MKategori::where('kodedivisi', $kodeDivisi)->get();
+            $kategori = MKategori::where('kodedivisi', $kodeDivisi)->get()->map(function($k){
+                return [
+                    'kodeDivisi' => $k->kodedivisi,
+                    'kodeKategori' => $k->kodekategori,
+                    'namaKategori' => $k->kategori,
+                    'status' => (bool)$k->status
+                ];
+            });
             
             if ($kategori->isEmpty()) {
                 return response()->json([
@@ -48,7 +63,8 @@ class KategoriController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kategori by divisi retrieved successfully',
-                'data' => $kategori
+                'data' => $kategori,
+                'totalCount' => $kategori->count()
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
@@ -125,7 +141,12 @@ class KategoriController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kategori retrieved successfully',
-                'data' => $kategori
+                'data' => [
+                    'kodeDivisi' => $kategori->kodedivisi,
+                    'kodeKategori' => $kategori->kodekategori,
+                    'namaKategori' => $kategori->kategori,
+                    'status' => (bool)$kategori->status
+                ]
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
@@ -158,10 +179,16 @@ class KategoriController extends Controller
 
             $kategori->update($validatedData);
 
+            $fresh = $kategori->fresh();
             return response()->json([
                 'success' => true,
                 'message' => 'Kategori updated successfully',
-                'data' => $kategori->fresh()
+                'data' => [
+                    'kodeDivisi' => $fresh->kodedivisi,
+                    'kodeKategori' => $fresh->kodekategori,
+                    'namaKategori' => $fresh->kategori,
+                    'status' => (bool)$fresh->status
+                ]
             ], Response::HTTP_OK);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

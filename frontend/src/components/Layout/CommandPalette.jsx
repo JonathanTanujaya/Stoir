@@ -13,13 +13,13 @@ import {
   Typography,
   Chip,
   Divider,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   MagnifyingGlassIcon,
   CommandLineIcon,
   ClockIcon,
-  StarIcon
+  StarIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigation } from '../../contexts/NavigationContext';
 
@@ -28,23 +28,18 @@ const CommandPalette = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  
-  const {
-    commandPaletteOpen,
-    setCommandPaletteOpen,
-    searchItems,
-    favoriteItems
-  } = useNavigation();
+
+  const { commandPaletteOpen, setCommandPaletteOpen, searchItems, favoriteItems } = useNavigation();
 
   // Get search results
   const searchResults = query.trim() ? searchItems(query) : [];
-  
+
   // Combine favorites for empty query
-  const quickAccess = query.trim() ? [] : [
-    ...favoriteItems.slice(0, 5).map(item => ({ ...item, type: 'favorite' }))
-  ].filter((item, index, self) => 
-    index === self.findIndex(t => t.path === item.path)
-  );
+  const quickAccess = query.trim()
+    ? []
+    : [...favoriteItems.slice(0, 5).map(item => ({ ...item, type: 'favorite' }))].filter(
+        (item, index, self) => index === self.findIndex(t => t.path === item.path)
+      );
 
   const allResults = [...quickAccess, ...searchResults];
 
@@ -64,7 +59,7 @@ const CommandPalette = () => {
     setQuery('');
   };
 
-  const handleSelect = (item) => {
+  const handleSelect = item => {
     if (item.path) {
       navigate(item.path);
     } else if (item.type === 'category') {
@@ -77,19 +72,15 @@ const CommandPalette = () => {
     handleClose();
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = e => {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < allResults.length - 1 ? prev + 1 : 0
-        );
+        setSelectedIndex(prev => (prev < allResults.length - 1 ? prev + 1 : 0));
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : allResults.length - 1
-        );
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : allResults.length - 1));
         break;
       case 'Enter':
         e.preventDefault();
@@ -103,7 +94,7 @@ const CommandPalette = () => {
     }
   };
 
-  const getItemIcon = (item) => {
+  const getItemIcon = item => {
     if (item.type === 'favorite') {
       return <StarIcon className="w-5 h-5 text-yellow-500" />;
     }
@@ -111,17 +102,21 @@ const CommandPalette = () => {
       return <ClockIcon className="w-5 h-5 text-gray-500" />;
     }
     if (item.type === 'category') {
-      return <div className="w-5 h-5 bg-primary-100 rounded flex items-center justify-center text-primary-600 text-xs font-bold">
-        {item.label.charAt(0)}
-      </div>;
+      return (
+        <div className="w-5 h-5 bg-primary-100 rounded flex items-center justify-center text-primary-600 text-xs font-bold">
+          {item.label.charAt(0)}
+        </div>
+      );
     }
     // Regular item
-    return <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center text-gray-600 text-xs font-bold">
-      {item.label.charAt(0)}
-    </div>;
+    return (
+      <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center text-gray-600 text-xs font-bold">
+        {item.label.charAt(0)}
+      </div>
+    );
   };
 
-  const getItemSecondary = (item) => {
+  const getItemSecondary = item => {
     if (item.category) {
       return item.category;
     }
@@ -141,8 +136,8 @@ const CommandPalette = () => {
         sx: {
           borderRadius: 2,
           maxHeight: '70vh',
-          marginTop: '-20vh'
-        }
+          marginTop: '-20vh',
+        },
       }}
     >
       <DialogContent sx={{ p: 0 }}>
@@ -154,12 +149,10 @@ const CommandPalette = () => {
               autoFocus
               placeholder="Search for commands, pages, or actions..."
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={e => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               InputProps={{
-                startAdornment: (
-                  <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 mr-2" />
-                ),
+                startAdornment: <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 mr-2" />,
                 endAdornment: (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Chip
@@ -168,14 +161,14 @@ const CommandPalette = () => {
                       sx={{ height: 24, fontSize: '0.75rem', fontFamily: 'monospace' }}
                     />
                   </Box>
-                )
+                ),
               }}
               variant="outlined"
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': { border: 'none' },
-                  backgroundColor: 'transparent'
-                }
+                  backgroundColor: 'transparent',
+                },
               }}
             />
           </Box>
@@ -185,9 +178,7 @@ const CommandPalette = () => {
             {allResults.length === 0 && query.trim() && (
               <Box sx={{ p: 4, textAlign: 'center' }}>
                 <CommandLineIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                <Typography color="text.secondary">
-                  No results found for "{query}"
-                </Typography>
+                <Typography color="text.secondary">No results found for "{query}"</Typography>
               </Box>
             )}
 
@@ -198,8 +189,8 @@ const CommandPalette = () => {
                   Type to search or use keyboard shortcuts
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  • Ctrl+K to open command palette<br/>
-                  • ↑↓ to navigate • Enter to select
+                  • Ctrl+K to open command palette
+                  <br />• ↑↓ to navigate • Enter to select
                 </Typography>
               </Box>
             )}
@@ -209,8 +200,8 @@ const CommandPalette = () => {
                 {/* Quick access section */}
                 {!query.trim() && quickAccess.length > 0 && (
                   <>
-                    <Typography 
-                      variant="caption" 
+                    <Typography
+                      variant="caption"
                       sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 600 }}
                     >
                       Quick Access
@@ -224,13 +215,11 @@ const CommandPalette = () => {
                             borderRadius: 1,
                             mx: 1,
                             '&.Mui-selected': {
-                              backgroundColor: 'primary.50'
-                            }
+                              backgroundColor: 'primary.50',
+                            },
                           }}
                         >
-                          <ListItemIcon sx={{ minWidth: 36 }}>
-                            {getItemIcon(item)}
-                          </ListItemIcon>
+                          <ListItemIcon sx={{ minWidth: 36 }}>{getItemIcon(item)}</ListItemIcon>
                           <ListItemText
                             primary={item.label}
                             secondary={getItemSecondary(item)}
@@ -240,22 +229,22 @@ const CommandPalette = () => {
                           <Chip
                             size="small"
                             label={item.type}
-                            sx={{ 
-                              height: 20, 
+                            sx={{
+                              height: 20,
                               fontSize: '0.7rem',
                               backgroundColor: item.type === 'favorite' ? 'warning.50' : 'info.50',
-                              color: item.type === 'favorite' ? 'warning.700' : 'info.700'
+                              color: item.type === 'favorite' ? 'warning.700' : 'info.700',
                             }}
                           />
                         </ListItemButton>
                       </ListItem>
                     ))}
-                    
+
                     {searchResults.length > 0 && (
                       <>
                         <Divider sx={{ my: 1 }} />
-                        <Typography 
-                          variant="caption" 
+                        <Typography
+                          variant="caption"
                           sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 600 }}
                         >
                           Search Results
@@ -277,13 +266,11 @@ const CommandPalette = () => {
                           borderRadius: 1,
                           mx: 1,
                           '&.Mui-selected': {
-                            backgroundColor: 'primary.50'
-                          }
+                            backgroundColor: 'primary.50',
+                          },
                         }}
                       >
-                        <ListItemIcon sx={{ minWidth: 36 }}>
-                          {getItemIcon(item)}
-                        </ListItemIcon>
+                        <ListItemIcon sx={{ minWidth: 36 }}>{getItemIcon(item)}</ListItemIcon>
                         <ListItemText
                           primary={item.label}
                           secondary={getItemSecondary(item)}
@@ -293,11 +280,11 @@ const CommandPalette = () => {
                         <Chip
                           size="small"
                           label={item.type || 'item'}
-                          sx={{ 
-                            height: 20, 
+                          sx={{
+                            height: 20,
                             fontSize: '0.7rem',
                             backgroundColor: 'primary.50',
-                            color: 'primary.700'
+                            color: 'primary.700',
                           }}
                         />
                       </ListItemButton>
@@ -309,20 +296,30 @@ const CommandPalette = () => {
           </Box>
 
           {/* Footer */}
-          <Box sx={{ 
-            p: 2, 
-            borderTop: '1px solid', 
-            borderColor: 'divider',
-            backgroundColor: 'grey.50'
-          }}>
+          <Box
+            sx={{
+              p: 2,
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              backgroundColor: 'grey.50',
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', gap: 2, fontSize: '0.75rem', color: 'text.secondary' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Chip size="small" label="↵" sx={{ height: 18, fontSize: '0.7rem', fontFamily: 'monospace' }} />
+                  <Chip
+                    size="small"
+                    label="↵"
+                    sx={{ height: 18, fontSize: '0.7rem', fontFamily: 'monospace' }}
+                  />
                   <span>select</span>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Chip size="small" label="↑↓" sx={{ height: 18, fontSize: '0.7rem', fontFamily: 'monospace' }} />
+                  <Chip
+                    size="small"
+                    label="↑↓"
+                    sx={{ height: 18, fontSize: '0.7rem', fontFamily: 'monospace' }}
+                  />
                   <span>navigate</span>
                 </Box>
               </Box>

@@ -17,12 +17,19 @@ class TmpPrintInvoiceController extends Controller
                                                ->orderBy('noinvoice', 'desc')
                                                ->limit(10)
                                                ->get();
-            
+            $data = $tmpPrintInvoices->map(fn($t)=>[
+                'kodeDivisi' => $t->kodedivisi,
+                'noInvoice' => $t->noinvoice,
+                'tglFaktur' => $t->tglfaktur,
+                'tglPrint' => $t->tglprint,
+                'userId' => $t->userid,
+                'status' => $t->status
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Data tmp print invoices retrieved successfully',
-                'data' => $tmpPrintInvoices,
-                'total_shown' => $tmpPrintInvoices->count(),
+                'data' => $data,
+                'totalCount' => $data->count(),
                 'note' => 'Showing latest 10 records for testing purposes'
             ]);
         } catch (\Exception $e) {

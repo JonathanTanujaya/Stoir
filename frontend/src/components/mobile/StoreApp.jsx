@@ -13,7 +13,7 @@ import {
   DialogActions,
   Button,
   Typography,
-  LinearProgress
+  LinearProgress,
 } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,77 +28,78 @@ import MobileBarcodeScanner from './components/mobile/MobileBarcodeScanner';
 import { useMobilePWA, useOfflineStorage } from './hooks/useMobilePWA';
 
 // Create mobile-first theme
-const createMobileTheme = (prefersDarkMode) => createTheme({
-  palette: {
-    mode: prefersDarkMode ? 'dark' : 'light',
-    primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-    background: {
-      default: prefersDarkMode ? '#121212' : '#f5f5f5',
-      paper: prefersDarkMode ? '#1e1e1e' : '#ffffff',
-    },
-  },
-  typography: {
-    // Mobile-optimized typography
-    h1: { fontSize: '2rem' },
-    h2: { fontSize: '1.75rem' },
-    h3: { fontSize: '1.5rem' },
-    h4: { fontSize: '1.25rem' },
-    h5: { fontSize: '1.1rem' },
-    h6: { fontSize: '1rem' },
-    body1: { fontSize: '0.875rem' },
-    body2: { fontSize: '0.75rem' },
-  },
-  components: {
-    // Mobile-optimized component overrides
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          minHeight: '44px', // Touch-friendly minimum height
-          borderRadius: '8px',
-        },
+const createMobileTheme = prefersDarkMode =>
+  createTheme({
+    palette: {
+      mode: prefersDarkMode ? 'dark' : 'light',
+      primary: {
+        main: '#1976d2',
+        light: '#42a5f5',
+        dark: '#1565c0',
+      },
+      secondary: {
+        main: '#dc004e',
+      },
+      background: {
+        default: prefersDarkMode ? '#121212' : '#f5f5f5',
+        paper: prefersDarkMode ? '#1e1e1e' : '#ffffff',
       },
     },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          '& .MuiInputBase-root': {
-            minHeight: '44px',
+    typography: {
+      // Mobile-optimized typography
+      h1: { fontSize: '2rem' },
+      h2: { fontSize: '1.75rem' },
+      h3: { fontSize: '1.5rem' },
+      h4: { fontSize: '1.25rem' },
+      h5: { fontSize: '1.1rem' },
+      h6: { fontSize: '1rem' },
+      body1: { fontSize: '0.875rem' },
+      body2: { fontSize: '0.75rem' },
+    },
+    components: {
+      // Mobile-optimized component overrides
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            minHeight: '44px', // Touch-friendly minimum height
+            borderRadius: '8px',
+          },
+        },
+      },
+      MuiTextField: {
+        styleOverrides: {
+          root: {
+            '& .MuiInputBase-root': {
+              minHeight: '44px',
+            },
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: '12px',
+          },
+        },
+      },
+      MuiFab: {
+        styleOverrides: {
+          root: {
+            boxShadow: '0 4px 8px rgba(0,0,0,0.12)',
           },
         },
       },
     },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-        },
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1536,
       },
     },
-    MuiFab: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 4px 8px rgba(0,0,0,0.12)',
-        },
-      },
-    },
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 1536,
-    },
-  },
-});
+  });
 
 const StoreApp = () => {
   // Theme detection
@@ -116,7 +117,7 @@ const StoreApp = () => {
     installPWA,
     updateServiceWorker,
     cacheData,
-    showNotification
+    showNotification,
   } = useMobilePWA();
 
   const { saveData, getData, isReady: dbReady } = useOfflineStorage();
@@ -125,7 +126,7 @@ const StoreApp = () => {
   const [user] = useState({
     name: 'Store Manager',
     email: 'manager@stoir.com',
-    role: 'admin'
+    role: 'admin',
   });
   const [installDialogOpen, setInstallDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -138,12 +139,12 @@ const StoreApp = () => {
       try {
         // Load initial data
         await loadInitialData();
-        
+
         // Show install prompt if available
         if (installPrompt && !isInstalled && isMobile) {
           setTimeout(() => setInstallDialogOpen(true), 3000);
         }
-        
+
         setIsLoading(false);
       } catch (error) {
         console.error('App initialization failed:', error);
@@ -172,14 +173,14 @@ const StoreApp = () => {
         price: (Math.random() * 100 + 10).toFixed(2),
         stock: Math.floor(Math.random() * 100),
         category: ['electronics', 'clothing', 'food', 'books'][Math.floor(Math.random() * 4)],
-        image: `https://picsum.photos/200/200?random=${i + 1}`
+        image: `https://picsum.photos/200/200?random=${i + 1}`,
       }));
 
       const mockCustomers = Array.from({ length: 20 }, (_, i) => ({
         id: i + 1,
         name: `Customer ${i + 1}`,
         email: `customer${i + 1}@example.com`,
-        phone: `+1-555-${String(i + 1).padStart(4, '0')}`
+        phone: `+1-555-${String(i + 1).padStart(4, '0')}`,
       }));
 
       // Cache data for offline use
@@ -205,7 +206,7 @@ const StoreApp = () => {
       setInstallDialogOpen(false);
       await showNotification('App Installed', {
         body: 'Stoir has been installed on your device!',
-        tag: 'app-installed'
+        tag: 'app-installed',
       });
     }
   };
@@ -229,19 +230,19 @@ const StoreApp = () => {
   };
 
   // Handle transaction save
-  const handleSaveTransaction = async (transactionData) => {
+  const handleSaveTransaction = async transactionData => {
     try {
       if (isOnline) {
         // In real app, send to API
         console.log('Saving transaction online:', transactionData);
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Show success notification
         await showNotification('Transaction Saved', {
           body: `Sale of $${transactionData.totals.total} completed`,
-          tag: 'transaction-saved'
+          tag: 'transaction-saved',
         });
       } else {
         // Handle offline - already handled in component
@@ -259,10 +260,10 @@ const StoreApp = () => {
       id: Date.now(),
       message,
       severity,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
     setNotifications(prev => [notification, ...prev.slice(0, 4)]);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
@@ -281,15 +282,17 @@ const StoreApp = () => {
   // Loading screen
   if (isLoading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        bgcolor: 'primary.main',
-        color: 'white'
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          bgcolor: 'primary.main',
+          color: 'white',
+        }}
+      >
         <Typography variant="h4" gutterBottom>
           Stoir
         </Typography>
@@ -323,7 +326,7 @@ const StoreApp = () => {
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                
+
                 <Route
                   path="/dashboard"
                   element={
@@ -344,7 +347,7 @@ const StoreApp = () => {
                     </motion.div>
                   }
                 />
-                
+
                 <Route
                   path="/stock"
                   element={
@@ -356,14 +359,14 @@ const StoreApp = () => {
                     >
                       <MobileStockManager
                         onAddProduct={() => console.log('Add product')}
-                        onEditProduct={(product) => console.log('Edit product:', product)}
-                        onViewProduct={(product) => console.log('View product:', product)}
+                        onEditProduct={product => console.log('Edit product:', product)}
+                        onViewProduct={product => console.log('View product:', product)}
                         onScanBarcode={() => console.log('Scan barcode')}
                       />
                     </motion.div>
                   }
                 />
-                
+
                 <Route
                   path="/sales"
                   element={
@@ -375,12 +378,12 @@ const StoreApp = () => {
                     >
                       <MobileSalesEntry
                         onSaveTransaction={handleSaveTransaction}
-                        onPrintReceipt={(receipt) => console.log('Print receipt:', receipt)}
+                        onPrintReceipt={receipt => console.log('Print receipt:', receipt)}
                       />
                     </motion.div>
                   }
                 />
-                
+
                 <Route
                   path="/reports"
                   element={
@@ -408,7 +411,7 @@ const StoreApp = () => {
           {/* Notifications */}
           <Box sx={{ position: 'fixed', top: 80, right: 16, zIndex: 2000 }}>
             <AnimatePresence>
-              {notifications.map((notification) => (
+              {notifications.map(notification => (
                 <motion.div
                   key={notification.id}
                   initial={{ opacity: 0, x: 100 }}
@@ -419,9 +422,9 @@ const StoreApp = () => {
                 >
                   <Alert
                     severity={notification.severity}
-                    onClose={() => setNotifications(prev => 
-                      prev.filter(n => n.id !== notification.id)
-                    )}
+                    onClose={() =>
+                      setNotifications(prev => prev.filter(n => n.id !== notification.id))
+                    }
                     sx={{ minWidth: 280 }}
                   >
                     {notification.message}
@@ -451,9 +454,7 @@ const StoreApp = () => {
               </ul>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setInstallDialogOpen(false)}>
-                Maybe Later
-              </Button>
+              <Button onClick={() => setInstallDialogOpen(false)}>Maybe Later</Button>
               <Button onClick={handleInstall} variant="contained">
                 Install Now
               </Button>
@@ -470,14 +471,12 @@ const StoreApp = () => {
             <DialogTitle>App Update Available</DialogTitle>
             <DialogContent>
               <Typography variant="body1">
-                A new version of Stoir is available with improvements and bug fixes.
-                Update now to get the latest features.
+                A new version of Stoir is available with improvements and bug fixes. Update now to
+                get the latest features.
               </Typography>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setUpdateDialogOpen(false)}>
-                Later
-              </Button>
+              <Button onClick={() => setUpdateDialogOpen(false)}>Later</Button>
               <Button onClick={handleUpdate} variant="contained">
                 Update Now
               </Button>

@@ -3,9 +3,33 @@ import ReportTemplate from './ReportTemplate';
 
 const SaldoRekeningReport = () => {
   const sampleData = [
-    { id: 1, no_rekening: '1001', nama_rekening: 'Kas Kecil', saldo_awal: 5000000, debet: 2000000, kredit: 1500000, saldo_akhir: 5500000 },
-    { id: 2, no_rekening: '1101', nama_rekening: 'Bank BCA', saldo_awal: 50000000, debet: 10000000, kredit: 8000000, saldo_akhir: 52000000 },
-    { id: 3, no_rekening: '2001', nama_rekening: 'Hutang Usaha', saldo_awal: 15000000, debet: 5000000, kredit: 7000000, saldo_akhir: 17000000 }
+    {
+      id: 1,
+      no_rekening: '1001',
+      nama_rekening: 'Kas Kecil',
+      saldo_awal: 5000000,
+      debet: 2000000,
+      kredit: 1500000,
+      saldo_akhir: 5500000,
+    },
+    {
+      id: 2,
+      no_rekening: '1101',
+      nama_rekening: 'Bank BCA',
+      saldo_awal: 50000000,
+      debet: 10000000,
+      kredit: 8000000,
+      saldo_akhir: 52000000,
+    },
+    {
+      id: 3,
+      no_rekening: '2001',
+      nama_rekening: 'Hutang Usaha',
+      saldo_awal: 15000000,
+      debet: 5000000,
+      kredit: 7000000,
+      saldo_akhir: 17000000,
+    },
   ];
 
   return (
@@ -25,7 +49,7 @@ const SaldoRekeningReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleData.map((item) => (
+                {sampleData.map(item => (
                   <tr key={item.id}>
                     <td>{item.no_rekening}</td>
                     <td>{item.nama_rekening}</td>

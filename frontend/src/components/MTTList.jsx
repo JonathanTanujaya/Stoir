@@ -33,7 +33,7 @@ function MTTList({ onEdit, onRefresh }) {
     fetchMtts();
   }, [onRefresh]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Apakah Anda yakin ingin menghapus MTT ini?')) {
       try {
         await axios.delete(`${API_URL}/tts/${id}`); // Changed from /mtt to /tts

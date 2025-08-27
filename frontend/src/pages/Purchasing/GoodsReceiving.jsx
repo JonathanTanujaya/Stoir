@@ -50,7 +50,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Rating,
-  Slider
+  Slider,
 } from '@mui/material';
 import {
   LocalShipping,
@@ -92,7 +92,7 @@ import {
   CompareArrows,
   Approval,
   MonetizationOn,
-  Gavel
+  Gavel,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -110,7 +110,7 @@ const RECEIVING_STATUSES = {
   partial_received: { label: 'Partially Received', color: 'warning', icon: <Timeline /> },
   completed: { label: 'Completed', color: 'success', icon: <CheckCircle /> },
   rejected: { label: 'Rejected', color: 'error', icon: <Cancel /> },
-  on_hold: { label: 'On Hold', color: 'default', icon: <Warning /> }
+  on_hold: { label: 'On Hold', color: 'default', icon: <Warning /> },
 };
 
 // Quality check criteria
@@ -119,7 +119,7 @@ const QUALITY_CRITERIA = [
   { id: 'quantity', label: 'Quantity Accuracy', weight: 0.3 },
   { id: 'quality', label: 'Product Quality', weight: 0.3 },
   { id: 'documentation', label: 'Documentation', weight: 0.1 },
-  { id: 'delivery_time', label: 'Delivery Timeliness', weight: 0.1 }
+  { id: 'delivery_time', label: 'Delivery Timeliness', weight: 0.1 },
 ];
 
 // Receiving steps
@@ -127,36 +127,43 @@ const RECEIVING_STEPS = [
   {
     label: 'PO Verification',
     description: 'Verify purchase order and delivery',
-    icon: <Assignment />
+    icon: <Assignment />,
   },
   {
     label: 'Physical Inspection',
     description: 'Check items and quantities',
-    icon: <Inventory />
+    icon: <Inventory />,
   },
   {
     label: 'Quality Control',
     description: 'Quality assessment and testing',
-    icon: <Assessment />
+    icon: <Assessment />,
   },
   {
     label: 'Three-Way Matching',
     description: 'Match PO, receipt, and invoice',
-    icon: <CompareArrows />
+    icon: <CompareArrows />,
   },
   {
     label: 'Final Approval',
     description: 'Complete receiving process',
-    icon: <Approval />
-  }
+    icon: <Approval />,
+  },
 ];
 
 const GoodsReceiving = () => {
   const { isMobile } = useResponsive();
   const queryClient = useQueryClient();
-  
+
   // Form state
-  const { control, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       poNumber: '',
       deliveryNote: '',
@@ -166,13 +173,18 @@ const GoodsReceiving = () => {
       qualityScores: {},
       discrepancies: [],
       attachments: [],
-      notes: ''
-    }
+      notes: '',
+    },
   });
 
-  const { fields: items, append: addItem, remove: removeItem, update: updateItem } = useFieldArray({
+  const {
+    fields: items,
+    append: addItem,
+    remove: removeItem,
+    update: updateItem,
+  } = useFieldArray({
     control,
-    name: 'items'
+    name: 'items',
   });
 
   // Component state
@@ -183,13 +195,13 @@ const GoodsReceiving = () => {
   const [qualityDialogOpen, setQualityDialogOpen] = useState(false);
   const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
-  
+
   // Data state
   const [pendingPOs, setPendingPOs] = useState([]);
   const [receivingRecords, setReceivingRecords] = useState([]);
   const [qualityTemplates, setQualityTemplates] = useState([]);
   const [matchingResults, setMatchingResults] = useState(null);
-  
+
   // UI state
   const [scannerActive, setScannerActive] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -201,7 +213,7 @@ const GoodsReceiving = () => {
     status: '',
     dateRange: 'week',
     supplier: '',
-    search: ''
+    search: '',
   });
 
   // Watch form values
@@ -212,26 +224,26 @@ const GoodsReceiving = () => {
   const { data: pendingPOsData = [], isLoading: loadingPOs } = useQuery({
     queryKey: ['pendingPOs'],
     queryFn: () => receivingAPI.getPendingPOs(),
-    select: (data) => data.data || []
+    select: data => data.data || [],
   });
 
   // Fetch receiving records
   const { data: receivingData = [], isLoading: loadingReceiving } = useQuery({
     queryKey: ['receivingRecords', filters],
     queryFn: () => receivingAPI.getReceivingRecords(filters),
-    select: (data) => data.data || []
+    select: data => data.data || [],
   });
 
   // Fetch quality templates
   const { data: templatesData = [] } = useQuery({
     queryKey: ['qualityTemplates'],
     queryFn: () => qualityAPI.getTemplates(),
-    select: (data) => data.data || []
+    select: data => data.data || [],
   });
 
   // Create receiving mutation
   const createReceivingMutation = useMutation({
-    mutationFn: (data) => receivingAPI.createReceiving(data),
+    mutationFn: data => receivingAPI.createReceiving(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['receivingRecords']);
       queryClient.invalidateQueries(['pendingPOs']);
@@ -239,111 +251,123 @@ const GoodsReceiving = () => {
       setReceivingDialogOpen(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to complete receiving');
-    }
+    },
   });
 
   // Quality assessment mutation
   const qualityAssessmentMutation = useMutation({
-    mutationFn: (data) => qualityAPI.submitAssessment(data),
+    mutationFn: data => qualityAPI.submitAssessment(data),
     onSuccess: () => {
       toast.success('Quality assessment submitted');
       setQualityDialogOpen(false);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to submit quality assessment');
-    }
+    },
   });
 
   // Three-way matching mutation
   const threeWayMatchingMutation = useMutation({
-    mutationFn: (data) => receivingAPI.performThreeWayMatching(data),
-    onSuccess: (data) => {
+    mutationFn: data => receivingAPI.performThreeWayMatching(data),
+    onSuccess: data => {
       setMatchingResults(data.data);
       setMatchingDialogOpen(true);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Three-way matching failed');
-    }
+    },
   });
 
   // Initialize receiving from PO
-  const initializeFromPO = useCallback((po) => {
-    setSelectedPO(po);
-    
-    // Pre-populate form with PO data
-    setValue('poNumber', po.po_number);
-    setValue('receivedDate', format(new Date(), 'yyyy-MM-dd'));
-    
-    // Initialize items from PO
-    const poItems = po.items?.map(item => ({
-      poItemId: item.id,
-      productId: item.product_id,
-      productCode: item.product_code,
-      productName: item.product_name,
-      orderedQuantity: item.quantity,
-      receivedQuantity: 0,
-      acceptedQuantity: 0,
-      rejectedQuantity: 0,
-      unitPrice: item.unit_price,
-      location: '',
-      batchNumber: '',
-      expiryDate: '',
-      qualityStatus: 'pending',
-      notes: ''
-    })) || [];
-    
-    setValue('items', poItems);
-    setReceivingDialogOpen(true);
-  }, [setValue]);
+  const initializeFromPO = useCallback(
+    po => {
+      setSelectedPO(po);
+
+      // Pre-populate form with PO data
+      setValue('poNumber', po.po_number);
+      setValue('receivedDate', format(new Date(), 'yyyy-MM-dd'));
+
+      // Initialize items from PO
+      const poItems =
+        po.items?.map(item => ({
+          poItemId: item.id,
+          productId: item.product_id,
+          productCode: item.product_code,
+          productName: item.product_name,
+          orderedQuantity: item.quantity,
+          receivedQuantity: 0,
+          acceptedQuantity: 0,
+          rejectedQuantity: 0,
+          unitPrice: item.unit_price,
+          location: '',
+          batchNumber: '',
+          expiryDate: '',
+          qualityStatus: 'pending',
+          notes: '',
+        })) || [];
+
+      setValue('items', poItems);
+      setReceivingDialogOpen(true);
+    },
+    [setValue]
+  );
 
   // Handle quantity change
-  const handleQuantityChange = useCallback((index, field, value) => {
-    const newItems = [...currentItems];
-    newItems[index][field] = parseInt(value) || 0;
-    
-    // Auto-calculate accepted quantity
-    if (field === 'receivedQuantity') {
-      newItems[index].acceptedQuantity = newItems[index].receivedQuantity - (newItems[index].rejectedQuantity || 0);
-    } else if (field === 'rejectedQuantity') {
-      newItems[index].acceptedQuantity = newItems[index].receivedQuantity - (newItems[index].rejectedQuantity || 0);
-    }
-    
-    setValue('items', newItems);
-  }, [currentItems, setValue]);
+  const handleQuantityChange = useCallback(
+    (index, field, value) => {
+      const newItems = [...currentItems];
+      newItems[index][field] = parseInt(value) || 0;
+
+      // Auto-calculate accepted quantity
+      if (field === 'receivedQuantity') {
+        newItems[index].acceptedQuantity =
+          newItems[index].receivedQuantity - (newItems[index].rejectedQuantity || 0);
+      } else if (field === 'rejectedQuantity') {
+        newItems[index].acceptedQuantity =
+          newItems[index].receivedQuantity - (newItems[index].rejectedQuantity || 0);
+      }
+
+      setValue('items', newItems);
+    },
+    [currentItems, setValue]
+  );
 
   // Perform quality check
-  const performQualityCheck = useCallback((item) => {
+  const performQualityCheck = useCallback(item => {
     setSelectedItem(item);
     setQualityDialogOpen(true);
   }, []);
 
   // Handle barcode/QR scan
-  const handleScan = useCallback((scannedData) => {
-    // Find item by barcode
-    const itemIndex = currentItems.findIndex(item => 
-      item.productCode === scannedData || item.batchNumber === scannedData
-    );
-    
-    if (itemIndex >= 0) {
-      // Auto-fill received quantity
-      const newItems = [...currentItems];
-      newItems[itemIndex].receivedQuantity = newItems[itemIndex].orderedQuantity;
-      newItems[itemIndex].acceptedQuantity = newItems[itemIndex].orderedQuantity;
-      setValue('items', newItems);
-      toast.success('Item scanned and quantity updated');
-    } else {
-      toast.warning('Item not found in this PO');
-    }
-    
-    setScannerActive(false);
-  }, [currentItems, setValue]);
+  const handleScan = useCallback(
+    scannedData => {
+      // Find item by barcode
+      const itemIndex = currentItems.findIndex(
+        item => item.productCode === scannedData || item.batchNumber === scannedData
+      );
+
+      if (itemIndex >= 0) {
+        // Auto-fill received quantity
+        const newItems = [...currentItems];
+        newItems[itemIndex].receivedQuantity = newItems[itemIndex].orderedQuantity;
+        newItems[itemIndex].acceptedQuantity = newItems[itemIndex].orderedQuantity;
+        setValue('items', newItems);
+        toast.success('Item scanned and quantity updated');
+      } else {
+        toast.warning('Item not found in this PO');
+      }
+
+      setScannerActive(false);
+    },
+    [currentItems, setValue]
+  );
 
   // Calculate discrepancies
   const calculateDiscrepancies = useCallback(() => {
     const discrepancies = [];
-    
+
     currentItems.forEach((item, index) => {
       // Quantity discrepancy
       if (item.receivedQuantity !== item.orderedQuantity) {
@@ -354,10 +378,13 @@ const GoodsReceiving = () => {
           expected: item.orderedQuantity,
           actual: item.receivedQuantity,
           variance: item.receivedQuantity - item.orderedQuantity,
-          severity: Math.abs(item.receivedQuantity - item.orderedQuantity) > item.orderedQuantity * 0.05 ? 'high' : 'low'
+          severity:
+            Math.abs(item.receivedQuantity - item.orderedQuantity) > item.orderedQuantity * 0.05
+              ? 'high'
+              : 'low',
         });
       }
-      
+
       // Quality discrepancy
       if (item.rejectedQuantity > 0) {
         discrepancies.push({
@@ -365,21 +392,21 @@ const GoodsReceiving = () => {
           itemIndex: index,
           productName: item.productName,
           rejectedQuantity: item.rejectedQuantity,
-          severity: item.rejectedQuantity > item.orderedQuantity * 0.1 ? 'high' : 'medium'
+          severity: item.rejectedQuantity > item.orderedQuantity * 0.1 ? 'high' : 'medium',
         });
       }
     });
-    
+
     setValue('discrepancies', discrepancies);
     return discrepancies;
   }, [currentItems, setValue]);
 
   // Submit receiving
-  const onSubmit = async (data) => {
+  const onSubmit = async data => {
     try {
       // Calculate discrepancies
       const discrepancies = calculateDiscrepancies();
-      
+
       // Prepare payload
       const payload = {
         po_id: selectedPO.id,
@@ -399,15 +426,15 @@ const GoodsReceiving = () => {
           batch_number: item.batchNumber,
           expiry_date: item.expiryDate,
           quality_status: item.qualityStatus,
-          notes: item.notes
+          notes: item.notes,
         })),
         quality_scores: data.qualityScores,
         discrepancies,
         attachments: data.attachments,
         notes: data.notes,
-        status: discrepancies.some(d => d.severity === 'high') ? 'on_hold' : 'completed'
+        status: discrepancies.some(d => d.severity === 'high') ? 'on_hold' : 'completed',
       };
-      
+
       await createReceivingMutation.mutateAsync(payload);
     } catch (error) {
       console.error('Error submitting receiving:', error);
@@ -430,21 +457,21 @@ const GoodsReceiving = () => {
   }, [setValue]);
 
   // Format currency
-  const formatCurrency = (amount) => {
+  const formatCurrency = amount => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount || 0);
   };
 
   // Get status chip props
-  const getStatusChip = (status) => {
+  const getStatusChip = status => {
     const statusConfig = RECEIVING_STATUSES[status] || RECEIVING_STATUSES.pending;
     return {
       label: statusConfig.label,
       color: statusConfig.color,
-      icon: statusConfig.icon
+      icon: statusConfig.icon,
     };
   };
 
@@ -463,7 +490,7 @@ const GoodsReceiving = () => {
         <Typography variant="body1" color="text.secondary">
           Quality control and three-way matching for incoming goods
         </Typography>
-        
+
         {/* Quick Stats */}
         <Grid container spacing={2} sx={{ mt: 2 }}>
           <Grid item xs={6} md={3}>
@@ -472,9 +499,7 @@ const GoodsReceiving = () => {
                 <Typography variant="h6" color="warning.main">
                   {pendingPOsData.length}
                 </Typography>
-                <Typography variant="caption">
-                  Pending Receipts
-                </Typography>
+                <Typography variant="caption">Pending Receipts</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -484,9 +509,7 @@ const GoodsReceiving = () => {
                 <Typography variant="h6" color="info.main">
                   {receivingData.filter(r => r.status === 'in_progress').length}
                 </Typography>
-                <Typography variant="caption">
-                  In Progress
-                </Typography>
+                <Typography variant="caption">In Progress</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -496,9 +519,7 @@ const GoodsReceiving = () => {
                 <Typography variant="h6" color="success.main">
                   {receivingData.filter(r => r.status === 'completed').length}
                 </Typography>
-                <Typography variant="caption">
-                  Completed Today
-                </Typography>
+                <Typography variant="caption">Completed Today</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -508,9 +529,7 @@ const GoodsReceiving = () => {
                 <Typography variant="h6" color="error.main">
                   {receivingData.filter(r => r.status === 'on_hold').length}
                 </Typography>
-                <Typography variant="caption">
-                  On Hold
-                </Typography>
+                <Typography variant="caption">On Hold</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -557,9 +576,9 @@ const GoodsReceiving = () => {
                   size="small"
                   placeholder="Search PO, supplier..."
                   value={filters.search}
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   InputProps={{
-                    startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+                    startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
                   }}
                 />
               </Grid>
@@ -603,7 +622,7 @@ const GoodsReceiving = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {pendingPOsData.map((po) => (
+                {pendingPOsData.map(po => (
                   <TableRow key={po.id} hover>
                     <TableCell>
                       <Typography variant="body2" fontWeight="bold">
@@ -613,7 +632,7 @@ const GoodsReceiving = () => {
                         Created: {format(new Date(po.created_at), 'dd MMM yyyy')}
                       </Typography>
                     </TableCell>
-                    
+
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Avatar sx={{ width: 32, height: 32 }}>
@@ -627,22 +646,20 @@ const GoodsReceiving = () => {
                         </Box>
                       </Box>
                     </TableCell>
-                    
+
                     <TableCell>
-                      <Typography variant="body2">
-                        {po.items_count} items
-                      </Typography>
+                      <Typography variant="body2">{po.items_count} items</Typography>
                       <Typography variant="caption" color="text.secondary">
                         {po.total_quantity} units
                       </Typography>
                     </TableCell>
-                    
+
                     <TableCell align="right">
                       <Typography variant="body2" fontWeight="bold">
                         {formatCurrency(po.total_amount)}
                       </Typography>
                     </TableCell>
-                    
+
                     <TableCell>
                       <Typography variant="body2">
                         {format(new Date(po.expected_delivery), 'dd MMM yyyy')}
@@ -651,15 +668,11 @@ const GoodsReceiving = () => {
                         <Chip size="small" label="Overdue" color="error" />
                       )}
                     </TableCell>
-                    
+
                     <TableCell>
-                      <Chip 
-                        size="small" 
-                        label={po.delivery_status || 'Awaiting'} 
-                        color="warning"
-                      />
+                      <Chip size="small" label={po.delivery_status || 'Awaiting'} color="warning" />
                     </TableCell>
-                    
+
                     <TableCell align="center">
                       <Button
                         variant="contained"
@@ -675,7 +688,7 @@ const GoodsReceiving = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          
+
           {pendingPOsData.length === 0 && (
             <Box sx={{ textAlign: 'center', py: 4 }}>
               <Typography variant="body2" color="text.secondary">
@@ -705,37 +718,33 @@ const GoodsReceiving = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {receivingData.map((record) => (
+            {receivingData.map(record => (
               <TableRow key={record.id} hover>
                 <TableCell>
                   <Typography variant="body2" fontWeight="bold">
                     {record.receipt_id}
                   </Typography>
                 </TableCell>
-                
+
                 <TableCell>{record.po_number}</TableCell>
-                
+
                 <TableCell>{record.supplier?.name}</TableCell>
-                
-                <TableCell>
-                  {format(new Date(record.received_date), 'dd MMM yyyy HH:mm')}
-                </TableCell>
-                
+
+                <TableCell>{format(new Date(record.received_date), 'dd MMM yyyy HH:mm')}</TableCell>
+
                 <TableCell>
                   <Chip size="small" {...getStatusChip(record.status)} />
                 </TableCell>
-                
+
                 <TableCell>
                   {record.quality_score && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Rating value={record.quality_score / 20} readOnly size="small" />
-                      <Typography variant="caption">
-                        {record.quality_score.toFixed(1)}%
-                      </Typography>
+                      <Typography variant="caption">{record.quality_score.toFixed(1)}%</Typography>
                     </Box>
                   )}
                 </TableCell>
-                
+
                 <TableCell align="center">
                   <IconButton size="small" onClick={() => viewReceivingDetails(record)}>
                     <Visibility />
@@ -754,16 +763,12 @@ const GoodsReceiving = () => {
 
   // Render quality reports
   function renderQualityReports() {
-    return (
-      <Typography variant="h6">Quality Reports - To be implemented</Typography>
-    );
+    return <Typography variant="h6">Quality Reports - To be implemented</Typography>;
   }
 
   // Render three-way matching
   function renderThreeWayMatching() {
-    return (
-      <Typography variant="h6">Three-Way Matching - To be implemented</Typography>
-    );
+    return <Typography variant="h6">Three-Way Matching - To be implemented</Typography>;
   }
 
   // Render dialogs
@@ -780,9 +785,7 @@ const GoodsReceiving = () => {
         >
           <DialogTitle>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6">
-                Goods Receiving - {selectedPO?.po_number}
-              </Typography>
+              <Typography variant="h6">Goods Receiving - {selectedPO?.po_number}</Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button
                   variant="outlined"
@@ -803,7 +806,7 @@ const GoodsReceiving = () => {
               </Box>
             </Box>
           </DialogTitle>
-          
+
           <DialogContent>
             <Box sx={{ mb: 3 }}>
               <Stepper activeStep={activeStep} orientation={isMobile ? 'vertical' : 'horizontal'}>
@@ -822,21 +825,14 @@ const GoodsReceiving = () => {
 
             {renderReceivingStepContent()}
           </DialogContent>
-          
+
           <DialogActions>
-            <Button onClick={() => setReceivingDialogOpen(false)}>
-              Cancel
-            </Button>
+            <Button onClick={() => setReceivingDialogOpen(false)}>Cancel</Button>
             {activeStep > 0 && (
-              <Button onClick={() => setActiveStep(prev => prev - 1)}>
-                Back
-              </Button>
+              <Button onClick={() => setActiveStep(prev => prev - 1)}>Back</Button>
             )}
             {activeStep < RECEIVING_STEPS.length - 1 ? (
-              <Button 
-                variant="contained" 
-                onClick={() => setActiveStep(prev => prev + 1)}
-              >
+              <Button variant="contained" onClick={() => setActiveStep(prev => prev + 1)}>
                 Next
               </Button>
             ) : (
@@ -844,7 +840,9 @@ const GoodsReceiving = () => {
                 variant="contained"
                 onClick={handleSubmit(onSubmit)}
                 disabled={createReceivingMutation.isPending}
-                startIcon={createReceivingMutation.isPending ? <LoadingSpinner size={20} /> : <Save />}
+                startIcon={
+                  createReceivingMutation.isPending ? <LoadingSpinner size={20} /> : <Save />
+                }
               >
                 {createReceivingMutation.isPending ? 'Processing...' : 'Complete Receiving'}
               </Button>
@@ -882,24 +880,35 @@ const GoodsReceiving = () => {
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Purchase Order Details</Typography>
+              <Typography variant="h6" gutterBottom>
+                Purchase Order Details
+              </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">PO Number</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    PO Number
+                  </Typography>
                   <Typography variant="h6">{selectedPO?.po_number}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Supplier</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Supplier
+                  </Typography>
                   <Typography variant="body1">{selectedPO?.supplier?.name}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Expected Date</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Expected Date
+                  </Typography>
                   <Typography variant="body1">
-                    {selectedPO?.expected_delivery && format(new Date(selectedPO.expected_delivery), 'dd MMM yyyy')}
+                    {selectedPO?.expected_delivery &&
+                      format(new Date(selectedPO.expected_delivery), 'dd MMM yyyy')}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Total Amount</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Amount
+                  </Typography>
                   <Typography variant="h6" color="primary">
                     {formatCurrency(selectedPO?.total_amount)}
                   </Typography>
@@ -912,7 +921,9 @@ const GoodsReceiving = () => {
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Delivery Information</Typography>
+              <Typography variant="h6" gutterBottom>
+                Delivery Information
+              </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Controller
@@ -970,8 +981,10 @@ const GoodsReceiving = () => {
     return (
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>Physical Item Inspection</Typography>
-          
+          <Typography variant="h6" gutterBottom>
+            Physical Item Inspection
+          </Typography>
+
           <TableContainer>
             <Table>
               <TableHead>
@@ -998,49 +1011,55 @@ const GoodsReceiving = () => {
                         </Typography>
                       </Box>
                     </TableCell>
-                    
+
                     <TableCell align="center">
                       <Typography variant="h6">{item.orderedQuantity}</Typography>
                     </TableCell>
-                    
+
                     <TableCell align="center">
                       <TextField
                         type="number"
                         size="small"
                         value={item.receivedQuantity}
-                        onChange={(e) => handleQuantityChange(index, 'receivedQuantity', e.target.value)}
+                        onChange={e =>
+                          handleQuantityChange(index, 'receivedQuantity', e.target.value)
+                        }
                         sx={{ width: 80 }}
                         inputProps={{ min: 0 }}
                       />
                     </TableCell>
-                    
+
                     <TableCell align="center">
                       <TextField
                         type="number"
                         size="small"
                         value={item.acceptedQuantity}
-                        onChange={(e) => handleQuantityChange(index, 'acceptedQuantity', e.target.value)}
+                        onChange={e =>
+                          handleQuantityChange(index, 'acceptedQuantity', e.target.value)
+                        }
                         sx={{ width: 80 }}
                         inputProps={{ min: 0, max: item.receivedQuantity }}
                       />
                     </TableCell>
-                    
+
                     <TableCell align="center">
                       <TextField
                         type="number"
                         size="small"
                         value={item.rejectedQuantity}
-                        onChange={(e) => handleQuantityChange(index, 'rejectedQuantity', e.target.value)}
+                        onChange={e =>
+                          handleQuantityChange(index, 'rejectedQuantity', e.target.value)
+                        }
                         sx={{ width: 80 }}
                         inputProps={{ min: 0, max: item.receivedQuantity }}
                       />
                     </TableCell>
-                    
+
                     <TableCell>
                       <TextField
                         size="small"
                         value={item.location}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newItems = [...currentItems];
                           newItems[index].location = e.target.value;
                           setValue('items', newItems);
@@ -1049,7 +1068,7 @@ const GoodsReceiving = () => {
                         sx={{ width: 120 }}
                       />
                     </TableCell>
-                    
+
                     <TableCell align="center">
                       <IconButton
                         size="small"

@@ -15,15 +15,15 @@ function MTransForm({ mtrans, onSave, onCancel }) {
     }
   }, [mtrans]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (mtrans) {
@@ -43,14 +43,22 @@ function MTransForm({ mtrans, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Transaksi:</label>
-        <input type="text" name="KodeTrans" value={formData.KodeTrans} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeTrans"
+          value={formData.KodeTrans}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Transaksi:</label>
         <input type="text" name="Transaksi" value={formData.Transaksi} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

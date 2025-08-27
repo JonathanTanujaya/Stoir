@@ -8,7 +8,7 @@ import MobileApp from './components/mobile/StoreApp'; // New mobile app
 const ResponsiveApp = () => {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [userPreference, setUserPreference] = useState(null);
-  
+
   // Detect mobile device
   const isMobileQuery = useMediaQuery('(max-width:900px)');
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -22,7 +22,10 @@ const ResponsiveApp = () => {
     }
 
     // Auto-detect mobile device
-    const isMobile = isMobileQuery || isTouchDevice || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isMobile =
+      isMobileQuery ||
+      isTouchDevice ||
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     setIsMobileDevice(isMobile);
   }, [isMobileQuery, isTouchDevice]);
 
@@ -45,7 +48,8 @@ const ResponsiveApp = () => {
   };
 
   // Determine which app to show
-  const shouldShowMobile = userPreference === 'mobile' || (userPreference === null && isMobileDevice);
+  const shouldShowMobile =
+    userPreference === 'mobile' || (userPreference === null && isMobileDevice);
 
   // For development - add mode switcher in console
   if (process.env.NODE_ENV === 'development') {
@@ -53,14 +57,14 @@ const ResponsiveApp = () => {
       mobile: forceMobileMode,
       desktop: forceDesktopMode,
       auto: resetToAuto,
-      current: shouldShowMobile ? 'mobile' : 'desktop'
+      current: shouldShowMobile ? 'mobile' : 'desktop',
     };
-    
+
     // Log instructions
     if (!window.stoirInstructionsLogged) {
       console.log('🏪 Stoir Mode Switcher Available:');
       console.log('- window.stoirModeSwitcher.mobile() - Force mobile mode');
-      console.log('- window.stoirModeSwitcher.desktop() - Force desktop mode'); 
+      console.log('- window.stoirModeSwitcher.desktop() - Force desktop mode');
       console.log('- window.stoirModeSwitcher.auto() - Auto-detect mode');
       console.log('- window.stoirModeSwitcher.current - Current mode');
       console.log(`Current mode: ${shouldShowMobile ? 'Mobile' : 'Desktop'}`);

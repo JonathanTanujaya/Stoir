@@ -13,7 +13,7 @@ function MTransPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (mtrans) => {
+  const handleEdit = mtrans => {
     setSelectedMTrans(mtrans);
     setShowForm(true);
   };

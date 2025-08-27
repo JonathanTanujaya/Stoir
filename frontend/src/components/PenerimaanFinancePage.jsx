@@ -13,7 +13,7 @@ function PenerimaanFinancePage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (penerimaan) => {
+  const handleEdit = penerimaan => {
     setSelectedPenerimaan(penerimaan);
     setShowForm(true);
   };
@@ -33,7 +33,11 @@ function PenerimaanFinancePage() {
       <h1>Manajemen Penerimaan Finance</h1>
       {!showForm && <button onClick={handleAdd}>Tambah Penerimaan Finance Baru</button>}
       {showForm ? (
-        <PenerimaanFinanceForm penerimaan={selectedPenerimaan} onSave={handleSave} onCancel={handleCancel} />
+        <PenerimaanFinanceForm
+          penerimaan={selectedPenerimaan}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
       ) : (
         <PenerimaanFinanceList onEdit={handleEdit} onRefresh={refreshList} />
       )}

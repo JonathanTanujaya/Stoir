@@ -3,8 +3,24 @@ import ReportTemplate from './ReportTemplate';
 
 const PenjualanReport = () => {
   const sampleData = [
-    { id: 1, tanggal: '2025-01-16', no_invoice: 'INV-001', customer: 'PT Customer Motor', sales: 'Ahmad', total: 1650000, status: 'Paid' },
-    { id: 2, tanggal: '2025-01-15', no_invoice: 'INV-002', customer: 'CV Parts Motor', sales: 'Budi', total: 875000, status: 'Pending' }
+    {
+      id: 1,
+      tanggal: '2025-01-16',
+      no_invoice: 'INV-001',
+      customer: 'PT Customer Motor',
+      sales: 'Ahmad',
+      total: 1650000,
+      status: 'Paid',
+    },
+    {
+      id: 2,
+      tanggal: '2025-01-15',
+      no_invoice: 'INV-002',
+      customer: 'CV Parts Motor',
+      sales: 'Budi',
+      total: 875000,
+      status: 'Pending',
+    },
   ];
 
   return (
@@ -24,14 +40,20 @@ const PenjualanReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleData.map((item) => (
+                {sampleData.map(item => (
                   <tr key={item.id}>
                     <td>{new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
                     <td>{item.no_invoice}</td>
                     <td>{item.customer}</td>
                     <td>{item.sales}</td>
                     <td className="text-right">Rp {item.total.toLocaleString()}</td>
-                    <td><span className={`badge ${item.status === 'Paid' ? 'badge-success' : 'badge-warning'}`}>{item.status}</span></td>
+                    <td>
+                      <span
+                        className={`badge ${item.status === 'Paid' ? 'badge-success' : 'badge-warning'}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

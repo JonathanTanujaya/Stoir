@@ -13,7 +13,7 @@ function BarangPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setSelectedItem(item);
     setShowForm(true);
   };

@@ -13,7 +13,7 @@ function MResiPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (resi) => {
+  const handleEdit = resi => {
     setSelectedResi(resi);
     setShowForm(true);
   };

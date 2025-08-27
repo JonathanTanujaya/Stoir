@@ -3,24 +3,22 @@ import ReportTemplate from './ReportTemplate';
 
 const TampilInvoiceReport = () => {
   const sampleData = [
-    { 
-      id: 1, 
-      no_invoice: 'INV-001', 
-      tanggal: '2025-01-16', 
-      customer: 'PT Customer Motor', 
-      items: [
-        { kode: 'BRG001', nama: 'Motor Oil 10W-40', qty: 30, harga: 55000, total: 1650000 }
-      ],
+    {
+      id: 1,
+      no_invoice: 'INV-001',
+      tanggal: '2025-01-16',
+      customer: 'PT Customer Motor',
+      items: [{ kode: 'BRG001', nama: 'Motor Oil 10W-40', qty: 30, harga: 55000, total: 1650000 }],
       subtotal: 1650000,
       diskon: 0,
       pajak: 165000,
-      total: 1815000
-    }
+      total: 1815000,
+    },
   ];
 
   return (
     <ReportTemplate title="Tampil Invoice">
-      {sampleData.map((invoice) => (
+      {sampleData.map(invoice => (
         <div key={invoice.id} className="card mb-4">
           <div className="card-header">
             <h3 className="card-title">Invoice {invoice.no_invoice}</h3>
@@ -29,16 +27,25 @@ const TampilInvoiceReport = () => {
             <div className="invoice-header mb-4">
               <div className="form-grid grid-cols-2">
                 <div>
-                  <p><strong>Tanggal:</strong> {new Date(invoice.tanggal).toLocaleDateString('id-ID')}</p>
-                  <p><strong>Customer:</strong> {invoice.customer}</p>
+                  <p>
+                    <strong>Tanggal:</strong>{' '}
+                    {new Date(invoice.tanggal).toLocaleDateString('id-ID')}
+                  </p>
+                  <p>
+                    <strong>Customer:</strong> {invoice.customer}
+                  </p>
                 </div>
                 <div>
-                  <p><strong>No. Invoice:</strong> {invoice.no_invoice}</p>
-                  <p><strong>Status:</strong> <span className="badge badge-success">Paid</span></p>
+                  <p>
+                    <strong>No. Invoice:</strong> {invoice.no_invoice}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> <span className="badge badge-success">Paid</span>
+                  </p>
                 </div>
               </div>
             </div>
-            
+
             <div className="table-responsive mb-4">
               <table className="table">
                 <thead>

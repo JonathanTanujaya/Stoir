@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -10,147 +9,79 @@ use Illuminate\Support\Facades\Validator;
 class SparepartController extends Controller
 {
     /**
-     * Display a listing of spareparts (from m_barang table)
+     * Display a listing of spareparts from d_barang table
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            // Return dummy data for now - will be replaced with real data later
-            $dummyData = [
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP001',
-                    'nama_barang' => 'Oli Mesin Yamalube 10W-40',
-                    'kode_kategori' => 'OLI',
-                    'harga_list' => 45000,
-                    'harga_jual' => 50000,
-                    'satuan' => 'Botol',
-                    'merk' => 'Yamaha',
-                    'lokasi' => 'Rak A1',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP002',
-                    'nama_barang' => 'Ban Dalam 90/90-14',
-                    'kode_kategori' => 'BAN',
-                    'harga_list' => 25000,
-                    'harga_jual' => 30000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'IRC',
-                    'lokasi' => 'Rak B2',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP003',
-                    'nama_barang' => 'Kampas Rem Depan Vario',
-                    'kode_kategori' => 'REM',
-                    'harga_list' => 35000,
-                    'harga_jual' => 40000,
-                    'satuan' => 'Set',
-                    'merk' => 'TDR',
-                    'lokasi' => 'Rak C1',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP004',
-                    'nama_barang' => 'Busi NGK Iridium',
-                    'kode_kategori' => 'ELK',
-                    'harga_list' => 65000,
-                    'harga_jual' => 75000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'NGK',
-                    'lokasi' => 'Rak D3',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP005',
-                    'nama_barang' => 'Filter Udara Vario 125',
-                    'kode_kategori' => 'FLT',
-                    'harga_list' => 45000,
-                    'harga_jual' => 55000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'Honda',
-                    'lokasi' => 'Rak E1',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP006',
-                    'nama_barang' => 'Rantai Motor 428H',
-                    'kode_kategori' => 'RNT',
-                    'harga_list' => 125000,
-                    'harga_jual' => 150000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'DID',
-                    'lokasi' => 'Rak F2',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP007',
-                    'nama_barang' => 'Gear Set Vario 150',
-                    'kode_kategori' => 'GER',
-                    'harga_list' => 85000,
-                    'harga_jual' => 100000,
-                    'satuan' => 'Set',
-                    'merk' => 'Honda',
-                    'lokasi' => 'Rak G1',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP008',
-                    'nama_barang' => 'Lampu LED H4',
-                    'kode_kategori' => 'ELK',
-                    'harga_list' => 75000,
-                    'harga_jual' => 90000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'Osram',
-                    'lokasi' => 'Rak H3',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP009',
-                    'nama_barang' => 'Velg Racing 17 inch',
-                    'kode_kategori' => 'VLG',
-                    'harga_list' => 450000,
-                    'harga_jual' => 500000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'SSR',
-                    'lokasi' => 'Rak I1',
-                    'aktif' => true
-                ],
-                [
-                    'kode_divisi' => '01',
-                    'kode_barang' => 'SP010',
-                    'nama_barang' => 'Shock Breaker Belakang',
-                    'kode_kategori' => 'SUS',
-                    'harga_list' => 285000,
-                    'harga_jual' => 320000,
-                    'satuan' => 'Pcs',
-                    'merk' => 'KYB',
-                    'lokasi' => 'Rak J2',
-                    'aktif' => true
-                ]
-            ];
+            $query = DB::table('dbo.d_barang')
+                ->select(
+                    'kodedivisi',
+                    'kodebarang',
+                    'tglmasuk',
+                    'modal',
+                    'stok',
+                    'id'
+                )
+                ->orderBy('tglmasuk', 'desc')
+                ->orderBy('kodebarang');
+
+            // Apply filters if provided
+            if ($request->has('kodedivisi') && $request->kodedivisi !== '') {
+                $query->where('kodedivisi', $request->kodedivisi);
+            }
+
+            if ($request->has('kodebarang') && $request->kodebarang !== '') {
+                $query->where('kodebarang', 'like', "%{$request->kodebarang}%");
+            }
+
+            if ($request->has('stok_min') && $request->stok_min !== '') {
+                $query->where('stok', '>=', $request->stok_min);
+            }
+
+            // Pagination
+            $perPage = $request->get('per_page', 20); // Change default to 20
+            $currentPage = $request->get('page', 1);
+            
+            $totalCount = $query->count();
+            
+            // If per_page is 'all' or -1, return all data
+            if ($perPage === 'all' || $perPage == -1) {
+                $rows = $query->get();
+                $currentPage = 1;
+                $totalPages = 1;
+            } else {
+                $offset = ($currentPage - 1) * $perPage;
+                $rows = $query->offset($offset)->limit($perPage)->get();
+                $totalPages = ceil($totalCount / $perPage);
+            }
+
+            // Format data for API response
+            $data = $rows->map(function ($r) {
+                return [
+                    'kodeDivisi' => $r->kodedivisi,
+                    'kodeBarang' => $r->kodebarang,
+                    'tglMasuk' => $r->tglmasuk,
+                    'modal' => (float) $r->modal,
+                    'stok' => (int) $r->stok,
+                    'id' => (int) $r->id
+                ];
+            });
 
             return response()->json([
                 'success' => true,
-                'data' => $dummyData,
+                'data' => $data,
                 'message' => 'Spareparts retrieved successfully',
-                'total_count' => count($dummyData)
+                'totalCount' => $totalCount,
+                'currentPage' => $currentPage,
+                'perPage' => $perPage,
+                'totalPages' => $totalPages
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-                'data' => [],
-                'total_count' => 0
+                'message' => 'Error retrieving spareparts: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -161,16 +92,11 @@ class SparepartController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'kode_divisi' => 'required|string|max:10',
-            'kode_barang' => 'required|string|max:50',
-            'nama_barang' => 'required|string|max:255',
-            'kode_kategori' => 'nullable|string|max:50',
-            'harga_list' => 'nullable|numeric|min:0',
-            'harga_jual' => 'nullable|numeric|min:0',
-            'satuan' => 'nullable|string|max:20',
-            'merk' => 'nullable|string|max:100',
-            'diskon' => 'nullable|numeric|min:0|max:100',
-            'lokasi' => 'nullable|string|max:100'
+            'kodeDivisi' => 'required|string|max:10',
+            'kodeBarang' => 'required|string|max:50',
+            'tglMasuk' => 'required|date',
+            'modal' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -182,44 +108,43 @@ class SparepartController extends Controller
         }
 
         try {
-            // Insert into database using query builder
-            $inserted = DB::table('dbo.m_barang')->insert([
-                'KodeDivisi' => $request->kode_divisi,
-                'KodeBarang' => $request->kode_barang,
-                'NamaBarang' => $request->nama_barang,
-                'KodeKategori' => $request->kode_kategori,
-                'HargaList' => $request->harga_list ?? 0,
-                'HargaJual' => $request->harga_jual ?? 0,
-                'Satuan' => $request->satuan,
-                'merk' => $request->merk,
-                'Lokasi' => $request->lokasi,
-                'status' => true,
-                'Disc1' => $request->diskon ?? 0,
-                'Disc2' => 0,
-                'HargaList2' => 0,
-                'HargaJual2' => 0,
-                'Barcode' => '',
-                'StokMin' => 0,
-                'Checklist' => false
+            // Get next ID
+            $nextId = DB::table('dbo.d_barang')
+                ->where('kodedivisi', $request->kodeDivisi)
+                ->where('kodebarang', $request->kodeBarang)
+                ->max('id') + 1;
+
+            if (!$nextId) {
+                $nextId = 1;
+            }
+
+            $inserted = DB::table('dbo.d_barang')->insert([
+                'kodedivisi' => $request->kodeDivisi,
+                'kodebarang' => $request->kodeBarang,
+                'tglmasuk' => $request->tglMasuk,
+                'modal' => $request->modal,
+                'stok' => $request->stok,
+                'id' => $nextId
             ]);
 
             if ($inserted) {
-                $newBarang = [
-                    'kode_divisi' => $request->kode_divisi,
-                    'kode_barang' => $request->kode_barang,
-                    'nama_barang' => $request->nama_barang,
-                    'kode_kategori' => $request->kode_kategori,
-                    'harga_list' => $request->harga_list ?? 0,
-                    'harga_jual' => $request->harga_jual ?? 0,
-                    'satuan' => $request->satuan,
-                    'merk' => $request->merk,
-                    'lokasi' => $request->lokasi,
-                    'aktif' => true
-                ];
+                // Retrieve the created record
+                $created = DB::table('dbo.d_barang')
+                    ->where('kodedivisi', $request->kodeDivisi)
+                    ->where('kodebarang', $request->kodeBarang)
+                    ->where('id', $nextId)
+                    ->first();
 
                 return response()->json([
                     'success' => true,
-                    'data' => $newBarang,
+                    'data' => [
+                        'kodeDivisi' => $created->kodedivisi,
+                        'kodeBarang' => $created->kodebarang,
+                        'tglMasuk' => $created->tglmasuk,
+                        'modal' => (float) $created->modal,
+                        'stok' => (int) $created->stok,
+                        'id' => (int) $created->id
+                    ],
                     'message' => 'Sparepart created successfully'
                 ], 201);
             } else {
@@ -239,24 +164,13 @@ class SparepartController extends Controller
     /**
      * Display the specified sparepart
      */
-    public function show($kodeDivisi, $kodeBarang)
+    public function show($kodeDivisi, $kodeBarang, $id)
     {
         try {
-            $barang = DB::table('dbo.m_barang')
-                ->select(
-                    'KodeDivisi as kode_divisi',
-                    'KodeBarang as kode_barang',
-                    'NamaBarang as nama_barang',
-                    'KodeKategori as kode_kategori',
-                    'HargaList as harga_list',
-                    'HargaJual as harga_jual',
-                    'Satuan as satuan',
-                    'merk',
-                    'Lokasi as lokasi',
-                    'status as aktif'
-                )
-                ->where('KodeDivisi', $kodeDivisi)
-                ->where('KodeBarang', $kodeBarang)
+            $barang = DB::table('dbo.d_barang')
+                ->where('kodedivisi', $kodeDivisi)
+                ->where('kodebarang', $kodeBarang)
+                ->where('id', $id)
                 ->first();
 
             if (!$barang) {
@@ -268,13 +182,20 @@ class SparepartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $barang,
+                'data' => [
+                    'kodeDivisi' => $barang->kodedivisi,
+                    'kodeBarang' => $barang->kodebarang,
+                    'tglMasuk' => $barang->tglmasuk,
+                    'modal' => (float) $barang->modal,
+                    'stok' => (int) $barang->stok,
+                    'id' => (int) $barang->id
+                ],
                 'message' => 'Sparepart retrieved successfully'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error retrieving sparepart: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -282,17 +203,12 @@ class SparepartController extends Controller
     /**
      * Update the specified sparepart
      */
-    public function update(Request $request, $kodeDivisi, $kodeBarang)
+    public function update(Request $request, $kodeDivisi, $kodeBarang, $id)
     {
         $validator = Validator::make($request->all(), [
-            'nama_barang' => 'required|string|max:255',
-            'kode_kategori' => 'nullable|string|max:50',
-            'harga_list' => 'nullable|numeric|min:0',
-            'harga_jual' => 'nullable|numeric|min:0',
-            'satuan' => 'nullable|string|max:20',
-            'merk' => 'nullable|string|max:100',
-            'diskon' => 'nullable|numeric|min:0|max:100',
-            'lokasi' => 'nullable|string|max:100'
+            'tglMasuk' => 'required|date',
+            'modal' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -304,9 +220,10 @@ class SparepartController extends Controller
         }
 
         try {
-            $barang = DB::table('dbo.m_barang')
-                ->where('KodeDivisi', $kodeDivisi)
-                ->where('KodeBarang', $kodeBarang)
+            $barang = DB::table('dbo.d_barang')
+                ->where('kodedivisi', $kodeDivisi)
+                ->where('kodebarang', $kodeBarang)
+                ->where('id', $id)
                 ->first();
 
             if (!$barang) {
@@ -316,22 +233,32 @@ class SparepartController extends Controller
                 ], 404);
             }
 
-            $updated = DB::table('dbo.m_barang')
-                ->where('KodeDivisi', $kodeDivisi)
-                ->where('KodeBarang', $kodeBarang)
+            DB::table('dbo.d_barang')
+                ->where('kodedivisi', $kodeDivisi)
+                ->where('kodebarang', $kodeBarang)
+                ->where('id', $id)
                 ->update([
-                    'NamaBarang' => $request->nama_barang,
-                    'KodeKategori' => $request->kode_kategori,
-                    'HargaJual' => $request->harga_jual ?? 0,
-                    'HargaList' => $request->harga_list ?? 0,
-                    'Satuan' => $request->satuan,
-                    'merk' => $request->merk,
-                    'Lokasi' => $request->lokasi
+                    'tglmasuk' => $request->tglMasuk,
+                    'modal' => $request->modal,
+                    'stok' => $request->stok
                 ]);
+
+            $updatedBarang = DB::table('dbo.d_barang')
+                ->where('kodedivisi', $kodeDivisi)
+                ->where('kodebarang', $kodeBarang)
+                ->where('id', $id)
+                ->first();
 
             return response()->json([
                 'success' => true,
-                'data' => $barang,
+                'data' => [
+                    'kodeDivisi' => $updatedBarang->kodedivisi,
+                    'kodeBarang' => $updatedBarang->kodebarang,
+                    'tglMasuk' => $updatedBarang->tglmasuk,
+                    'modal' => (float) $updatedBarang->modal,
+                    'stok' => (int) $updatedBarang->stok,
+                    'id' => (int) $updatedBarang->id
+                ],
                 'message' => 'Sparepart updated successfully'
             ]);
         } catch (\Exception $e) {
@@ -345,12 +272,13 @@ class SparepartController extends Controller
     /**
      * Remove the specified sparepart
      */
-    public function destroy($kodeDivisi, $kodeBarang)
+    public function destroy($kodeDivisi, $kodeBarang, $id)
     {
         try {
-            $barang = DB::table('dbo.m_barang')
-                ->where('KodeDivisi', $kodeDivisi)
-                ->where('KodeBarang', $kodeBarang)
+            $barang = DB::table('dbo.d_barang')
+                ->where('kodedivisi', $kodeDivisi)
+                ->where('kodebarang', $kodeBarang)
+                ->where('id', $id)
                 ->first();
 
             if (!$barang) {
@@ -360,11 +288,11 @@ class SparepartController extends Controller
                 ], 404);
             }
 
-            // Soft delete - set status to false instead of actual delete
-            $deleted = DB::table('dbo.m_barang')
-                ->where('KodeDivisi', $kodeDivisi)
-                ->where('KodeBarang', $kodeBarang)
-                ->update(['status' => false]);
+            $deleted = DB::table('dbo.d_barang')
+                ->where('kodedivisi', $kodeDivisi)
+                ->where('kodebarang', $kodeBarang)
+                ->where('id', $id)
+                ->delete();
 
             return response()->json([
                 'success' => true,
@@ -379,54 +307,66 @@ class SparepartController extends Controller
     }
 
     /**
-     * Search spareparts
+     * Search spareparts with filters
      */
     public function search(Request $request)
     {
         try {
-            $query = DB::table('dbo.m_barang')->where('status', true);
+            $query = DB::table('dbo.d_barang')
+                ->select(
+                    'kodedivisi',
+                    'kodebarang',
+                    'tglmasuk',
+                    'modal',
+                    'stok',
+                    'id'
+                );
 
+            // Apply search filters
             if ($request->has('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
-                    $q->where('KodeBarang', 'like', "%{$search}%")
-                      ->orWhere('NamaBarang', 'like', "%{$search}%")
-                      ->orWhere('KodeKategori', 'like', "%{$search}%")
-                      ->orWhere('merk', 'like', "%{$search}%");
+                    $q->where('kodebarang', 'like', "%{$search}%")
+                      ->orWhere('kodedivisi', 'like', "%{$search}%");
                 });
             }
 
-            if ($request->has('kategori')) {
-                $query->where('KodeKategori', $request->kategori);
+            if ($request->has('kodedivisi')) {
+                $query->where('kodedivisi', $request->kodedivisi);
             }
 
-            $barangs = $query->select(
-                    'KodeDivisi as kode_divisi',
-                    'KodeBarang as kode_barang',
-                    'NamaBarang as nama_barang',
-                    'KodeKategori as kode_kategori',
-                    'HargaList as harga_list',
-                    'HargaJual as harga_jual',
-                    'Satuan as satuan',
-                    'merk',
-                    'Lokasi as lokasi',
-                    'status as aktif'
-                )
-                ->orderBy('NamaBarang', 'asc')
-                ->get();
+            if ($request->has('stok_min')) {
+                $query->where('stok', '>=', $request->stok_min);
+            }
+
+            if ($request->has('stok_max')) {
+                $query->where('stok', '<=', $request->stok_max);
+            }
+
+            $rows = $query->orderBy('tglmasuk', 'desc')->get();
+
+            $data = $rows->map(function ($r) {
+                return [
+                    'kodeDivisi' => $r->kodedivisi,
+                    'kodeBarang' => $r->kodebarang,
+                    'tglMasuk' => $r->tglmasuk,
+                    'modal' => (float) $r->modal,
+                    'stok' => (int) $r->stok,
+                    'id' => (int) $r->id
+                ];
+            });
 
             return response()->json([
                 'success' => true,
-                'data' => $barangs,
+                'data' => $data,
                 'message' => 'Search completed successfully',
-                'total_count' => $barangs->count()
+                'totalCount' => $data->count()
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-                'data' => [],
-                'total_count' => 0
+                'message' => 'Error searching spareparts: ' . $e->getMessage()
             ], 500);
         }
     }

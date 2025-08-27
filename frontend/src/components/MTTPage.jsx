@@ -13,7 +13,7 @@ function MTTPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (mtt) => {
+  const handleEdit = mtt => {
     setSelectedMTT(mtt);
     setShowForm(true);
   };

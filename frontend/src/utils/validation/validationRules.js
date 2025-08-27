@@ -16,114 +16,114 @@ export const VALIDATION_PATTERNS = {
   DATE_FORMAT: /^\d{4}-\d{2}-\d{2}$/,
   TIME_FORMAT: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
   USERNAME: /^[a-zA-Z0-9_]{3,20}$/,
-  PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+  PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
 };
 
 // Field-level validation rules
 export const VALIDATION_RULES = {
-  required: (fieldName) => ({
+  required: fieldName => ({
     required: true,
-    message: `${fieldName} wajib diisi`
+    message: `${fieldName} wajib diisi`,
   }),
 
   email: () => ({
     pattern: VALIDATION_PATTERNS.EMAIL,
-    message: 'Format email tidak valid'
+    message: 'Format email tidak valid',
   }),
 
   phone: () => ({
     pattern: VALIDATION_PATTERNS.PHONE,
-    message: 'Format nomor telepon tidak valid (gunakan format Indonesia)'
+    message: 'Format nomor telepon tidak valid (gunakan format Indonesia)',
   }),
 
   minLength: (min, fieldName) => ({
     minLength: min,
-    message: `${fieldName} minimal ${min} karakter`
+    message: `${fieldName} minimal ${min} karakter`,
   }),
 
   maxLength: (max, fieldName) => ({
     maxLength: max,
-    message: `${fieldName} maksimal ${max} karakter`
+    message: `${fieldName} maksimal ${max} karakter`,
   }),
 
   minValue: (min, fieldName) => ({
     min: min,
-    message: `${fieldName} minimal ${min}`
+    message: `${fieldName} minimal ${min}`,
   }),
 
   maxValue: (max, fieldName) => ({
     max: max,
-    message: `${fieldName} maksimal ${max}`
+    message: `${fieldName} maksimal ${max}`,
   }),
 
-  numeric: (fieldName) => ({
+  numeric: fieldName => ({
     pattern: VALIDATION_PATTERNS.NUMERIC_ONLY,
-    message: `${fieldName} harus berupa angka`
+    message: `${fieldName} harus berupa angka`,
   }),
 
-  decimal: (fieldName) => ({
+  decimal: fieldName => ({
     pattern: VALIDATION_PATTERNS.DECIMAL,
-    message: `${fieldName} harus berupa angka decimal valid`
+    message: `${fieldName} harus berupa angka decimal valid`,
   }),
 
-  currency: (fieldName) => ({
+  currency: fieldName => ({
     pattern: VALIDATION_PATTERNS.CURRENCY,
-    message: `${fieldName} harus berupa nilai mata uang valid`
+    message: `${fieldName} harus berupa nilai mata uang valid`,
   }),
 
-  percentage: (fieldName) => ({
+  percentage: fieldName => ({
     pattern: VALIDATION_PATTERNS.PERCENTAGE,
-    message: `${fieldName} harus berupa persentase (0-100)`
+    message: `${fieldName} harus berupa persentase (0-100)`,
   }),
 
-  alphanumeric: (fieldName) => ({
+  alphanumeric: fieldName => ({
     pattern: VALIDATION_PATTERNS.ALPHANUMERIC,
-    message: `${fieldName} hanya boleh mengandung huruf dan angka`
+    message: `${fieldName} hanya boleh mengandung huruf dan angka`,
   }),
 
-  alphaOnly: (fieldName) => ({
+  alphaOnly: fieldName => ({
     pattern: VALIDATION_PATTERNS.ALPHA_ONLY,
-    message: `${fieldName} hanya boleh mengandung huruf`
+    message: `${fieldName} hanya boleh mengandung huruf`,
   }),
 
-  productCode: (fieldName) => ({
+  productCode: fieldName => ({
     pattern: VALIDATION_PATTERNS.PRODUCT_CODE,
-    message: `${fieldName} harus format kode produk valid (3-10 karakter alfanumerik)`
+    message: `${fieldName} harus format kode produk valid (3-10 karakter alfanumerik)`,
   }),
 
-  barcode: (fieldName) => ({
+  barcode: fieldName => ({
     pattern: VALIDATION_PATTERNS.BARCODE,
-    message: `${fieldName} harus berupa barcode valid (8-13 digit)`
+    message: `${fieldName} harus berupa barcode valid (8-13 digit)`,
   }),
 
-  date: (fieldName) => ({
+  date: fieldName => ({
     pattern: VALIDATION_PATTERNS.DATE_FORMAT,
-    message: `${fieldName} harus berupa tanggal valid (YYYY-MM-DD)`
+    message: `${fieldName} harus berupa tanggal valid (YYYY-MM-DD)`,
   }),
 
-  positiveNumber: (fieldName) => ({
+  positiveNumber: fieldName => ({
     min: 0,
-    message: `${fieldName} harus berupa angka positif`
+    message: `${fieldName} harus berupa angka positif`,
   }),
 
-  positiveInteger: (fieldName) => ({
+  positiveInteger: fieldName => ({
     min: 1,
-    message: `${fieldName} harus berupa angka positif minimal 1`
+    message: `${fieldName} harus berupa angka positif minimal 1`,
   }),
 
-  username: (fieldName) => ({
+  username: fieldName => ({
     pattern: VALIDATION_PATTERNS.USERNAME,
-    message: `${fieldName} harus 3-20 karakter (huruf, angka, underscore)`
+    message: `${fieldName} harus 3-20 karakter (huruf, angka, underscore)`,
   }),
 
-  password: (fieldName) => ({
+  password: fieldName => ({
     pattern: VALIDATION_PATTERNS.PASSWORD,
-    message: `${fieldName} harus minimal 8 karakter dengan huruf besar, kecil, angka, dan simbol`
-  })
+    message: `${fieldName} harus minimal 8 karakter dengan huruf besar, kecil, angka, dan simbol`,
+  }),
 };
 
 // Yup Schema Generators
-export const createYupSchema = (fields) => {
+export const createYupSchema = fields => {
   const schemaFields = {};
 
   Object.entries(fields).forEach(([fieldName, rules]) => {
@@ -145,7 +145,8 @@ export const createYupSchema = (fields) => {
       if (rules.type === 'string' || !rules.type) {
         fieldSchema = fieldSchema.required(rules.required.message || `${fieldName} wajib diisi`);
       } else if (rules.type === 'number') {
-        fieldSchema = fieldSchema.required(rules.required.message || `${fieldName} wajib diisi`)
+        fieldSchema = fieldSchema
+          .required(rules.required.message || `${fieldName} wajib diisi`)
           .typeError(`${fieldName} harus berupa angka`);
       }
     } else {
@@ -174,11 +175,7 @@ export const createYupSchema = (fields) => {
     // Custom validations
     if (rules.custom) {
       rules.custom.forEach(customRule => {
-        fieldSchema = fieldSchema.test(
-          customRule.name,
-          customRule.message,
-          customRule.test
-        );
+        fieldSchema = fieldSchema.test(customRule.name, customRule.message, customRule.test);
       });
     }
 
@@ -197,53 +194,59 @@ export const COMMON_SCHEMAS = {
       required: { message: 'Kode Divisi wajib diisi' },
       minLength: { value: 2, message: 'Kode Divisi minimal 2 karakter' },
       maxLength: { value: 10, message: 'Kode Divisi maksimal 10 karakter' },
-      pattern: { regex: VALIDATION_PATTERNS.ALPHANUMERIC, message: 'Kode Divisi hanya boleh huruf dan angka' }
+      pattern: {
+        regex: VALIDATION_PATTERNS.ALPHANUMERIC,
+        message: 'Kode Divisi hanya boleh huruf dan angka',
+      },
     },
     KodeBarang: {
       type: 'string',
       required: { message: 'Kode Barang wajib diisi' },
       minLength: { value: 3, message: 'Kode Barang minimal 3 karakter' },
       maxLength: { value: 15, message: 'Kode Barang maksimal 15 karakter' },
-      pattern: { regex: VALIDATION_PATTERNS.PRODUCT_CODE, message: 'Format kode barang tidak valid' }
+      pattern: {
+        regex: VALIDATION_PATTERNS.PRODUCT_CODE,
+        message: 'Format kode barang tidak valid',
+      },
     },
     NamaBarang: {
       type: 'string',
       required: { message: 'Nama Barang wajib diisi' },
       minLength: { value: 3, message: 'Nama Barang minimal 3 karakter' },
-      maxLength: { value: 100, message: 'Nama Barang maksimal 100 karakter' }
+      maxLength: { value: 100, message: 'Nama Barang maksimal 100 karakter' },
     },
     KodeKategori: {
       type: 'string',
-      required: { message: 'Kategori wajib dipilih' }
+      required: { message: 'Kategori wajib dipilih' },
     },
     HargaList: {
       type: 'number',
       required: { message: 'Harga List wajib diisi' },
-      min: { value: 0, message: 'Harga List harus positif' }
+      min: { value: 0, message: 'Harga List harus positif' },
     },
     HargaJual: {
       type: 'number',
       required: { message: 'Harga Jual wajib diisi' },
-      min: { value: 0, message: 'Harga Jual harus positif' }
+      min: { value: 0, message: 'Harga Jual harus positif' },
     },
     StokMin: {
       type: 'number',
-      min: { value: 0, message: 'Stok Minimum harus positif' }
+      min: { value: 0, message: 'Stok Minimum harus positif' },
     },
     Disc1: {
       type: 'number',
       min: { value: 0, message: 'Diskon tidak boleh negatif' },
-      max: { value: 100, message: 'Diskon maksimal 100%' }
+      max: { value: 100, message: 'Diskon maksimal 100%' },
     },
     Disc2: {
       type: 'number',
       min: { value: 0, message: 'Diskon tidak boleh negatif' },
-      max: { value: 100, message: 'Diskon maksimal 100%' }
+      max: { value: 100, message: 'Diskon maksimal 100%' },
     },
     Barcode: {
       type: 'string',
-      pattern: { regex: VALIDATION_PATTERNS.BARCODE, message: 'Format barcode tidak valid' }
-    }
+      pattern: { regex: VALIDATION_PATTERNS.BARCODE, message: 'Format barcode tidak valid' },
+    },
   }),
 
   // Customer validation schema
@@ -252,27 +255,27 @@ export const COMMON_SCHEMAS = {
       type: 'string',
       required: { message: 'Kode Customer wajib diisi' },
       minLength: { value: 3, message: 'Kode Customer minimal 3 karakter' },
-      maxLength: { value: 10, message: 'Kode Customer maksimal 10 karakter' }
+      maxLength: { value: 10, message: 'Kode Customer maksimal 10 karakter' },
     },
     NamaCust: {
       type: 'string',
       required: { message: 'Nama Customer wajib diisi' },
       minLength: { value: 3, message: 'Nama Customer minimal 3 karakter' },
-      maxLength: { value: 100, message: 'Nama Customer maksimal 100 karakter' }
+      maxLength: { value: 100, message: 'Nama Customer maksimal 100 karakter' },
     },
     Alamat: {
       type: 'string',
       required: { message: 'Alamat wajib diisi' },
-      maxLength: { value: 255, message: 'Alamat maksimal 255 karakter' }
+      maxLength: { value: 255, message: 'Alamat maksimal 255 karakter' },
     },
     NoTelp: {
       type: 'string',
-      pattern: { regex: VALIDATION_PATTERNS.PHONE, message: 'Format nomor telepon tidak valid' }
+      pattern: { regex: VALIDATION_PATTERNS.PHONE, message: 'Format nomor telepon tidak valid' },
     },
     Email: {
       type: 'string',
-      pattern: { regex: VALIDATION_PATTERNS.EMAIL, message: 'Format email tidak valid' }
-    }
+      pattern: { regex: VALIDATION_PATTERNS.EMAIL, message: 'Format email tidak valid' },
+    },
   }),
 
   // User validation schema
@@ -282,51 +285,59 @@ export const COMMON_SCHEMAS = {
       required: { message: 'Username wajib diisi' },
       minLength: { value: 3, message: 'Username minimal 3 karakter' },
       maxLength: { value: 20, message: 'Username maksimal 20 karakter' },
-      pattern: { regex: VALIDATION_PATTERNS.USERNAME, message: 'Username hanya boleh huruf, angka, dan underscore' }
+      pattern: {
+        regex: VALIDATION_PATTERNS.USERNAME,
+        message: 'Username hanya boleh huruf, angka, dan underscore',
+      },
     },
     password: {
       type: 'string',
       required: { message: 'Password wajib diisi' },
       minLength: { value: 8, message: 'Password minimal 8 karakter' },
-      pattern: { regex: VALIDATION_PATTERNS.PASSWORD, message: 'Password harus mengandung huruf besar, kecil, angka, dan simbol' }
+      pattern: {
+        regex: VALIDATION_PATTERNS.PASSWORD,
+        message: 'Password harus mengandung huruf besar, kecil, angka, dan simbol',
+      },
     },
     email: {
       type: 'string',
       required: { message: 'Email wajib diisi' },
-      pattern: { regex: VALIDATION_PATTERNS.EMAIL, message: 'Format email tidak valid' }
+      pattern: { regex: VALIDATION_PATTERNS.EMAIL, message: 'Format email tidak valid' },
     },
     nama: {
       type: 'string',
       required: { message: 'Nama wajib diisi' },
       minLength: { value: 2, message: 'Nama minimal 2 karakter' },
-      maxLength: { value: 100, message: 'Nama maksimal 100 karakter' }
-    }
+      maxLength: { value: 100, message: 'Nama maksimal 100 karakter' },
+    },
   }),
 
   // Transaction validation schema
   transaction: createYupSchema({
     tanggal: {
       type: 'date',
-      required: { message: 'Tanggal transaksi wajib diisi' }
+      required: { message: 'Tanggal transaksi wajib diisi' },
     },
     customer_id: {
       type: 'string',
-      required: { message: 'Customer wajib dipilih' }
+      required: { message: 'Customer wajib dipilih' },
     },
     total: {
       type: 'number',
       required: { message: 'Total transaksi wajib diisi' },
-      min: { value: 0, message: 'Total transaksi harus positif' }
+      min: { value: 0, message: 'Total transaksi harus positif' },
     },
     items: {
       type: 'array',
-      custom: [{
-        name: 'minItems',
-        message: 'Minimal harus ada 1 item',
-        test: (value) => value && value.length > 0
-      }]
-    }
-  })
+      custom: [
+        {
+          name: 'minItems',
+          message: 'Minimal harus ada 1 item',
+          test: value => value && value.length > 0,
+        },
+      ],
+    },
+  }),
 };
 
 // Cross-field validation rules
@@ -335,48 +346,48 @@ export const CROSS_FIELD_VALIDATIONS = {
   dateRange: (startField, endField) => ({
     name: 'dateRange',
     message: `${endField} harus setelah ${startField}`,
-    test: function(value) {
+    test: function (value) {
       const startDate = this.parent[startField];
       const endDate = value;
-      
+
       if (!startDate || !endDate) return true;
       return new Date(endDate) >= new Date(startDate);
-    }
+    },
   }),
 
   // Validate that selling price is higher than cost price
   priceValidation: (costField, sellingField) => ({
     name: 'priceValidation',
     message: 'Harga jual harus lebih tinggi dari harga beli',
-    test: function(value) {
+    test: function (value) {
       const costPrice = this.parent[costField];
       const sellingPrice = value;
-      
+
       if (!costPrice || !sellingPrice) return true;
       return parseFloat(sellingPrice) >= parseFloat(costPrice);
-    }
+    },
   }),
 
   // Validate password confirmation
-  passwordConfirmation: (passwordField) => ({
+  passwordConfirmation: passwordField => ({
     name: 'passwordConfirmation',
     message: 'Konfirmasi password tidak cocok',
-    test: function(value) {
+    test: function (value) {
       const password = this.parent[passwordField];
       return value === password;
-    }
+    },
   }),
 
   // Validate discount combinations
   discountValidation: (disc1Field, disc2Field) => ({
     name: 'discountValidation',
     message: 'Total diskon tidak boleh lebih dari 100%',
-    test: function(value) {
+    test: function (value) {
       const disc1 = parseFloat(this.parent[disc1Field]) || 0;
       const disc2 = parseFloat(value) || 0;
-      return (disc1 + disc2) <= 100;
-    }
-  })
+      return disc1 + disc2 <= 100;
+    },
+  }),
 };
 
 // Async validation functions
@@ -384,14 +395,14 @@ export const ASYNC_VALIDATIONS = {
   // Check if code is unique
   checkUniqueCode: async (value, endpoint, excludeId = null) => {
     if (!value) return true;
-    
+
     try {
       const params = new URLSearchParams({ code: value });
       if (excludeId) params.append('exclude_id', excludeId);
-      
+
       const response = await fetch(`${endpoint}?${params}`);
       const result = await response.json();
-      
+
       return !result.exists;
     } catch (error) {
       console.error('Async validation error:', error);
@@ -402,14 +413,14 @@ export const ASYNC_VALIDATIONS = {
   // Check if email is unique
   checkUniqueEmail: async (value, endpoint, excludeId = null) => {
     if (!value) return true;
-    
+
     try {
       const params = new URLSearchParams({ email: value });
       if (excludeId) params.append('exclude_id', excludeId);
-      
+
       const response = await fetch(`${endpoint}?${params}`);
       const result = await response.json();
-      
+
       return !result.exists;
     } catch (error) {
       console.error('Async validation error:', error);
@@ -420,20 +431,20 @@ export const ASYNC_VALIDATIONS = {
   // Check if username is available
   checkUsernameAvailability: async (value, endpoint, excludeId = null) => {
     if (!value) return true;
-    
+
     try {
       const params = new URLSearchParams({ username: value });
       if (excludeId) params.append('exclude_id', excludeId);
-      
+
       const response = await fetch(`${endpoint}?${params}`);
       const result = await response.json();
-      
+
       return result.available;
     } catch (error) {
       console.error('Async validation error:', error);
       return true;
     }
-  }
+  },
 };
 
 // Helper functions
@@ -480,7 +491,7 @@ export const validateForm = (data, schema) => {
 
   return {
     isValid: Object.keys(errors).length === 0,
-    errors
+    errors,
   };
 };
 
@@ -492,5 +503,5 @@ export default {
   ASYNC_VALIDATIONS,
   createYupSchema,
   validateField,
-  validateForm
+  validateForm,
 };

@@ -12,7 +12,7 @@ const MasterBank = () => {
     nama_bank: '',
     alamat: '',
     telepon: '',
-    status: 'Aktif'
+    status: 'Aktif',
   });
 
   useEffect(() => {
@@ -28,9 +28,30 @@ const MasterBank = () => {
       console.error('Error fetching bank data:', error);
       // Fallback to sample data if API fails
       const sampleData = [
-        { id: 1, kode_bank: 'BCA', nama_bank: 'Bank Central Asia', alamat: 'Jakarta', telepon: '021-1500888', status: 'Aktif' },
-        { id: 2, kode_bank: 'BNI', nama_bank: 'Bank Negara Indonesia', alamat: 'Jakarta', telepon: '021-500046', status: 'Aktif' },
-        { id: 3, kode_bank: 'BRI', nama_bank: 'Bank Rakyat Indonesia', alamat: 'Jakarta', telepon: '021-57987400', status: 'Aktif' }
+        {
+          id: 1,
+          kode_bank: 'BCA',
+          nama_bank: 'Bank Central Asia',
+          alamat: 'Jakarta',
+          telepon: '021-1500888',
+          status: 'Aktif',
+        },
+        {
+          id: 2,
+          kode_bank: 'BNI',
+          nama_bank: 'Bank Negara Indonesia',
+          alamat: 'Jakarta',
+          telepon: '021-500046',
+          status: 'Aktif',
+        },
+        {
+          id: 3,
+          kode_bank: 'BRI',
+          nama_bank: 'Bank Rakyat Indonesia',
+          alamat: 'Jakarta',
+          telepon: '021-57987400',
+          status: 'Aktif',
+        },
       ];
       setData(sampleData);
     } finally {
@@ -38,19 +59,21 @@ const MasterBank = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (editingItem) {
         await banksAPI.update(editingItem.id, formData);
-        setData(prev => prev.map(item => 
-          item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
-        ));
+        setData(prev =>
+          prev.map(item =>
+            item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
+          )
+        );
         alert('Data bank berhasil diupdate!');
       } else {
         const response = await banksAPI.create(formData);
@@ -65,13 +88,13 @@ const MasterBank = () => {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setEditingItem(item);
     setFormData(item);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (confirm('Yakin ingin menghapus data ini?')) {
       try {
         await banksAPI.delete(id);
@@ -90,7 +113,12 @@ const MasterBank = () => {
     setShowForm(false);
   };
 
-  if (loading) return <div className="page-container"><div className="loading-spinner">Loading...</div></div>;
+  if (loading)
+    return (
+      <div className="page-container">
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
 
   return (
     <div className="page-container">
@@ -110,24 +138,54 @@ const MasterBank = () => {
               <div className="form-grid grid-cols-2">
                 <div className="form-group">
                   <label className="form-label">Kode Bank</label>
-                  <input type="text" name="kode_bank" value={formData.kode_bank} onChange={handleInputChange} className="form-control" required />
+                  <input
+                    type="text"
+                    name="kode_bank"
+                    value={formData.kode_bank}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Nama Bank</label>
-                  <input type="text" name="nama_bank" value={formData.nama_bank} onChange={handleInputChange} className="form-control" required />
+                  <input
+                    type="text"
+                    name="nama_bank"
+                    value={formData.nama_bank}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Alamat</label>
-                  <input type="text" name="alamat" value={formData.alamat} onChange={handleInputChange} className="form-control" />
+                  <input
+                    type="text"
+                    name="alamat"
+                    value={formData.alamat}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Telepon</label>
-                  <input type="text" name="telepon" value={formData.telepon} onChange={handleInputChange} className="form-control" />
+                  <input
+                    type="text"
+                    name="telepon"
+                    value={formData.telepon}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
                 </div>
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn btn-primary">{editingItem ? 'Update' : 'Simpan'}</button>
-                <button type="button" className="btn btn-secondary" onClick={resetForm}>Batal</button>
+                <button type="submit" className="btn btn-primary">
+                  {editingItem ? 'Update' : 'Simpan'}
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                  Batal
+                </button>
               </div>
             </form>
           </div>
@@ -135,25 +193,46 @@ const MasterBank = () => {
       )}
 
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Data Bank</h3></div>
+        <div className="card-header">
+          <h3 className="card-title">Data Bank</h3>
+        </div>
         <div className="card-body">
           <div className="table-responsive">
             <table className="table">
               <thead>
-                <tr><th>Kode</th><th>Nama Bank</th><th>Alamat</th><th>Telepon</th><th>Status</th><th>Aksi</th></tr>
+                <tr>
+                  <th>Kode</th>
+                  <th>Nama Bank</th>
+                  <th>Alamat</th>
+                  <th>Telepon</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
               </thead>
               <tbody>
-                {data.map((item) => (
+                {data.map(item => (
                   <tr key={item.id}>
                     <td>{item.kode_bank}</td>
                     <td>{item.nama_bank}</td>
                     <td>{item.alamat}</td>
                     <td>{item.telepon}</td>
-                    <td><span className="badge badge-success">{item.status}</span></td>
+                    <td>
+                      <span className="badge badge-success">{item.status}</span>
+                    </td>
                     <td>
                       <div className="action-buttons">
-                        <button className="btn btn-sm btn-secondary" onClick={() => handleEdit(item)}>Edit</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item.id)}>Hapus</button>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={() => handleEdit(item)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Hapus
+                        </button>
                       </div>
                     </td>
                   </tr>

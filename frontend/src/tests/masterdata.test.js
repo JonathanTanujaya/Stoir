@@ -9,7 +9,7 @@ import {
   safeGet,
   standardizeApiResponse,
   handleApiError,
-  safeFilter
+  safeFilter,
 } from '../utils/apiResponseHandler';
 
 import {
@@ -17,7 +17,7 @@ import {
   standardizeBarang,
   mapField,
   customerFieldMap,
-  barangFieldMap
+  barangFieldMap,
 } from '../utils/fieldMapping';
 
 describe('API Response Handler', () => {
@@ -70,11 +70,11 @@ describe('API Response Handler', () => {
     const testObj = {
       level1: {
         level2: {
-          value: 'found'
+          value: 'found',
         },
         nullValue: null,
-        undefinedValue: undefined
-      }
+        undefinedValue: undefined,
+      },
     };
 
     it('should get nested property', () => {
@@ -98,14 +98,14 @@ describe('API Response Handler', () => {
     it('should handle Laravel format response', () => {
       const response = {
         data: [{ id: 1 }, { id: 2 }],
-        message: 'success'
+        message: 'success',
       };
       const result = standardizeApiResponse(response);
       expect(result).toEqual({
         success: true,
         data: [{ id: 1 }, { id: 2 }],
         message: 'success',
-        total: 2
+        total: 2,
       });
     });
 
@@ -135,10 +135,10 @@ describe('API Response Handler', () => {
 
     it('should handle 404 errors', () => {
       const error = {
-        response: { 
+        response: {
           status: 404,
-          data: { message: 'Not found' }
-        }
+          data: { message: 'Not found' },
+        },
       };
       const result = handleApiError(error);
       expect(result.error).toBe('NOT_FOUND');
@@ -146,10 +146,10 @@ describe('API Response Handler', () => {
 
     it('should handle 500 errors', () => {
       const error = {
-        response: { 
+        response: {
           status: 500,
-          data: { message: 'Server error' }
-        }
+          data: { message: 'Server error' },
+        },
       };
       const result = handleApiError(error);
       expect(result.error).toBe('SERVER_ERROR');
@@ -160,7 +160,7 @@ describe('API Response Handler', () => {
     const testData = [
       { id: 1, name: 'John Doe', email: 'john@example.com' },
       { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-      { id: 3, name: 'Bob Johnson', email: 'bob@example.com' }
+      { id: 3, name: 'Bob Johnson', email: 'bob@example.com' },
     ];
 
     it('should filter by search term in specified fields', () => {
@@ -190,7 +190,7 @@ describe('Field Mapping', () => {
         alamat: 'Jl. Test No. 123',
         telepon: '08123456789',
         email: 'john@test.com',
-        status: 'aktif'
+        status: 'aktif',
       };
 
       const result = standardizeCustomer(laravelCustomer);
@@ -201,7 +201,7 @@ describe('Field Mapping', () => {
         alamat: 'Jl. Test No. 123',
         telepon: '08123456789',
         email: 'john@test.com',
-        status: 'aktif'
+        status: 'aktif',
       });
     });
 
@@ -213,7 +213,7 @@ describe('Field Mapping', () => {
         address: 'Jl. Alternative',
         phone: '08987654321',
         e_mail: 'jane@alt.com',
-        is_active: 'aktif'
+        is_active: 'aktif',
       };
 
       const result = standardizeCustomer(altCustomer);
@@ -224,7 +224,7 @@ describe('Field Mapping', () => {
     it('should provide defaults for missing fields', () => {
       const incompleteCustomer = { id: 3 };
       const result = standardizeCustomer(incompleteCustomer);
-      
+
       expect(result.id).toBe(3);
       expect(result.kode).toBe('');
       expect(result.nama).toBe('');
@@ -242,7 +242,7 @@ describe('Field Mapping', () => {
         modal: 100000,
         stok: 50,
         stokmin: 5, // Field yang sering missing
-        satuan: 'PCS'
+        satuan: 'PCS',
       };
 
       const result = standardizeBarang(laravelBarang);
@@ -254,7 +254,7 @@ describe('Field Mapping', () => {
       const barangWithoutStokMin = {
         id: 2,
         kode_barang: 'BRG002',
-        nama_barang: 'Test Product 2'
+        nama_barang: 'Test Product 2',
       };
 
       const result = standardizeBarang(barangWithoutStokMin);
@@ -266,7 +266,7 @@ describe('Field Mapping', () => {
     it('should find field from multiple possible names', () => {
       const data = {
         namacust: 'John Doe',
-        other_field: 'other'
+        other_field: 'other',
       };
 
       const result = mapField(data, customerFieldMap, 'nama');
@@ -290,9 +290,9 @@ describe('Integration Tests', () => {
           id: 1,
           kodecust: 'CUST001',
           namacust: 'Test Customer',
-          status: 'aktif'
-        }
-      ]
+          status: 'aktif',
+        },
+      ],
     };
 
     // Process through our pipeline
@@ -336,20 +336,20 @@ describe('Performance Tests', () => {
     const largeDataset = Array.from({ length: 1000 }, (_, i) => ({
       id: i,
       namacust: `Customer ${i}`,
-      kodecust: `CUST${i.toString().padStart(3, '0')}`
+      kodecust: `CUST${i.toString().padStart(3, '0')}`,
     }));
 
     const start = performance.now();
-    
+
     // Test standardization performance
     const standardized = largeDataset.map(standardizeCustomer);
-    
-    // Test filtering performance  
+
+    // Test filtering performance
     const filtered = safeFilter(standardized, 'Customer 5', ['nama']);
-    
+
     const end = performance.now();
     const duration = end - start;
-    
+
     expect(duration).toBeLessThan(200); // Should complete within 200ms
     expect(standardized).toHaveLength(1000);
     expect(filtered.length).toBeGreaterThan(0);

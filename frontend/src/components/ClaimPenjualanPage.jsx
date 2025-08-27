@@ -13,7 +13,7 @@ function ClaimPenjualanPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (claim) => {
+  const handleEdit = claim => {
     setSelectedClaim(claim);
     setShowForm(true);
   };

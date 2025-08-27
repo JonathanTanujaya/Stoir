@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  CircularProgress,
-  Typography,
-  Paper,
-  Skeleton,
-  Stack
-} from '@mui/material';
+import { Box, CircularProgress, Typography, Paper, Skeleton, Stack } from '@mui/material';
 
 // Loading Spinner Component
 export const LoadingSpinner = ({ message = 'Loading...', size = 40 }) => (
@@ -61,24 +54,14 @@ export const TableLoading = ({ rows = 5, columns = 4 }) => (
       {/* Header */}
       <Box display="flex" gap={2}>
         {[...Array(columns)].map((_, index) => (
-          <Skeleton
-            key={index}
-            variant="text"
-            height={30}
-            width={`${100 / columns}%`}
-          />
+          <Skeleton key={index} variant="text" height={30} width={`${100 / columns}%`} />
         ))}
       </Box>
       {/* Rows */}
       {[...Array(rows)].map((_, rowIndex) => (
         <Box key={rowIndex} display="flex" gap={2}>
           {[...Array(columns)].map((_, colIndex) => (
-            <Skeleton
-              key={colIndex}
-              variant="text"
-              height={25}
-              width={`${100 / columns}%`}
-            />
+            <Skeleton key={colIndex} variant="text" height={25} width={`${100 / columns}%`} />
           ))}
         </Box>
       ))}

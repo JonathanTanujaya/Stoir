@@ -1,45 +1,15 @@
 import React from 'react';
 
 /**
- * Loading Spinner sederhana
- */
-export const LoadingSpinner = ({ message = 'Memuat data...' }) => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    padding: '2rem',
-    flexDirection: 'column'
-  }}>
-    <div style={{
-      border: '3px solid #f3f3f3',
-      borderTop: '3px solid #3498db',
-      borderRadius: '50%',
-      width: '30px',
-      height: '30px',
-      animation: 'spin 1s linear infinite',
-      marginBottom: '1rem'
-    }}></div>
-    <div>{message}</div>
-    <style jsx>{`
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `}</style>
-  </div>
-);
-
-/**
  * Loading Button dengan state
  */
-export const LoadingButton = ({ 
-  children, 
-  loading = false, 
-  disabled = false, 
+export const LoadingButton = ({
+  children,
+  loading = false,
+  disabled = false,
   onClick,
   variant = 'primary',
-  ...props 
+  ...props
 }) => {
   const getButtonStyle = () => {
     const baseStyle = {
@@ -52,26 +22,26 @@ export const LoadingButton = ({
       opacity: loading || disabled ? 0.6 : 1,
       display: 'inline-flex',
       alignItems: 'center',
-      gap: '0.5rem'
+      gap: '0.5rem',
     };
 
     const variants = {
       primary: {
         backgroundColor: '#3498db',
-        color: 'white'
+        color: 'white',
       },
       danger: {
         backgroundColor: '#e74c3c',
-        color: 'white'
+        color: 'white',
       },
       success: {
         backgroundColor: '#27ae60',
-        color: 'white'
+        color: 'white',
       },
       secondary: {
         backgroundColor: '#95a5a6',
-        color: 'white'
-      }
+        color: 'white',
+      },
     };
 
     return { ...baseStyle, ...variants[variant] };
@@ -85,14 +55,16 @@ export const LoadingButton = ({
       {...props}
     >
       {loading && (
-        <div style={{
-          width: '12px',
-          height: '12px',
-          border: '2px solid transparent',
-          borderTop: '2px solid currentColor',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
+        <div
+          style={{
+            width: '12px',
+            height: '12px',
+            border: '2px solid transparent',
+            borderTop: '2px solid currentColor',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        ></div>
       )}
       {loading ? 'Loading...' : children}
     </button>
@@ -108,7 +80,9 @@ export const useConfirmDialog = () => {
   };
 
   const confirmDelete = (itemName = 'data ini') => {
-    return window.confirm(`Apakah Anda yakin ingin menghapus ${itemName}? Tindakan ini tidak dapat dibatalkan.`);
+    return window.confirm(
+      `Apakah Anda yakin ingin menghapus ${itemName}? Tindakan ini tidak dapat dibatalkan.`
+    );
   };
 
   return { confirm, confirmDelete };
@@ -118,13 +92,15 @@ export const useConfirmDialog = () => {
  * Error State Component
  */
 export const ErrorState = ({ message = 'Terjadi kesalahan', onRetry }) => (
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '2rem',
-    color: '#e74c3c'
-  }}>
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '2rem',
+      color: '#e74c3c',
+    }}
+  >
     <div style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>⚠️ {message}</div>
     {onRetry && (
       <LoadingButton onClick={onRetry} variant="primary">
@@ -138,17 +114,19 @@ export const ErrorState = ({ message = 'Terjadi kesalahan', onRetry }) => (
  * Empty State Component
  */
 export const EmptyState = ({ message = 'Tidak ada data', action }) => (
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '3rem',
-    color: '#7f8c8d'
-  }}>
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '3rem',
+      color: '#7f8c8d',
+    }}
+  >
     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
     <div style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>{message}</div>
     {action}
   </div>
 );
 
-export default { LoadingSpinner, LoadingButton, useConfirmDialog, ErrorState, EmptyState };
+export default { LoadingButton, useConfirmDialog, ErrorState, EmptyState };

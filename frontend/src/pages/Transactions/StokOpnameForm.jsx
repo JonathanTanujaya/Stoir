@@ -6,7 +6,7 @@ const StokOpnameForm = () => {
     tanggal: new Date().toISOString().split('T')[0],
     keterangan: '',
     kategori: '',
-    lokasi: ''
+    lokasi: '',
   });
 
   const [items, setItems] = useState([]);
@@ -23,7 +23,7 @@ const StokOpnameForm = () => {
       const sampleData = [
         { id: 1, kode: 'BRG001', nama: 'Motor Oil 10W-40', stok_sistem: 120, stok_fisik: 0 },
         { id: 2, kode: 'BRG002', nama: 'Spark Plug NGK', stok_sistem: 220, stok_fisik: 0 },
-        { id: 3, kode: 'BRG003', nama: 'Air Filter', stok_sistem: 80, stok_fisik: 0 }
+        { id: 3, kode: 'BRG003', nama: 'Air Filter', stok_sistem: 80, stok_fisik: 0 },
       ];
       setBarangList(sampleData);
       setItems(sampleData);
@@ -32,11 +32,11 @@ const StokOpnameForm = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -47,26 +47,26 @@ const StokOpnameForm = () => {
     setItems(updatedItems);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const opnameData = {
         ...formData,
-        items: items.filter(item => item.stok_fisik > 0 || item.selisih !== 0)
+        items: items.filter(item => item.stok_fisik > 0 || item.selisih !== 0),
       };
-      
+
       // TODO: API call to save stok opname
       console.log('Stok Opname Data:', opnameData);
       alert('Stok opname berhasil disimpan!');
-      
+
       // Reset form
       setFormData({
         tanggal: new Date().toISOString().split('T')[0],
         keterangan: '',
         kategori: '',
-        lokasi: ''
+        lokasi: '',
       });
       fetchBarang(); // Reload data
     } catch (error) {
@@ -145,9 +145,7 @@ const StokOpnameForm = () => {
           <div className="card-header">
             <h3 className="card-title">Data Stok Opname</h3>
             <div className="card-actions">
-              <span className="badge badge-info">
-                Total Selisih: {getTotalSelisih()}
-              </span>
+              <span className="badge badge-info">Total Selisih: {getTotalSelisih()}</span>
             </div>
           </div>
           <div className="card-body">
@@ -173,19 +171,23 @@ const StokOpnameForm = () => {
                         <input
                           type="number"
                           value={item.stok_fisik}
-                          onChange={(e) => handleStokFisikChange(index, e.target.value)}
+                          onChange={e => handleStokFisikChange(index, e.target.value)}
                           className="form-control form-control-sm"
                           style={{ width: '100px' }}
                           min="0"
                         />
                       </td>
-                      <td className={`text-right ${item.selisih > 0 ? 'text-success' : item.selisih < 0 ? 'text-danger' : ''}`}>
+                      <td
+                        className={`text-right ${item.selisih > 0 ? 'text-success' : item.selisih < 0 ? 'text-danger' : ''}`}
+                      >
                         {item.selisih || 0}
                       </td>
                       <td>
                         {item.selisih > 0 && <span className="badge badge-success">Lebih</span>}
                         {item.selisih < 0 && <span className="badge badge-danger">Kurang</span>}
-                        {item.selisih === 0 && <span className="badge badge-secondary">Sesuai</span>}
+                        {item.selisih === 0 && (
+                          <span className="badge badge-secondary">Sesuai</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -213,7 +215,9 @@ const StokOpnameForm = () => {
               </div>
               <div className="summary-box">
                 <div className="summary-label">Total Selisih</div>
-                <div className={`summary-value ${getTotalSelisih() > 0 ? 'text-success' : getTotalSelisih() < 0 ? 'text-danger' : ''}`}>
+                <div
+                  className={`summary-value ${getTotalSelisih() > 0 ? 'text-success' : getTotalSelisih() < 0 ? 'text-danger' : ''}`}
+                >
                   {getTotalSelisih()}
                 </div>
               </div>

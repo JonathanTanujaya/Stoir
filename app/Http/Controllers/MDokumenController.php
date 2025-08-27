@@ -12,8 +12,15 @@ class MDokumenController extends Controller
      */
     public function index()
     {
-        $mdokumens = MDokumen::all();
-        return response()->json($mdokumens);
+        $items = MDokumen::all()->map(fn($d)=>[
+            'id' => $d->id,
+            'namaDokumen' => $d->nama_dokumen
+        ]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+            'totalCount' => $items->count()
+        ]);
     }
 
     /**
@@ -26,7 +33,11 @@ class MDokumenController extends Controller
         ]);
 
         $mdokumen = MDokumen::create($request->all());
-        return response()->json($mdokumen, 201);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mdokumen->id, 'namaDokumen' => $mdokumen->nama_dokumen ],
+            'message' => 'Dokumen created'
+        ], 201);
     }
 
     /**
@@ -35,7 +46,10 @@ class MDokumenController extends Controller
     public function show(string $id)
     {
         $mdokumen = MDokumen::findOrFail($id);
-        return response()->json($mdokumen);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mdokumen->id, 'namaDokumen' => $mdokumen->nama_dokumen ]
+        ]);
     }
 
     /**
@@ -49,7 +63,11 @@ class MDokumenController extends Controller
 
         $mdokumen = MDokumen::findOrFail($id);
         $mdokumen->update($request->all());
-        return response()->json($mdokumen);
+        return response()->json([
+            'success' => true,
+            'data' => [ 'id' => $mdokumen->id, 'namaDokumen' => $mdokumen->nama_dokumen ],
+            'message' => 'Dokumen updated'
+        ]);
     }
 
     /**
@@ -59,6 +77,9 @@ class MDokumenController extends Controller
     {
         $mdokumen = MDokumen::findOrFail($id);
         $mdokumen->delete();
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true,
+            'message' => 'Dokumen deleted'
+        ]);
     }
 }

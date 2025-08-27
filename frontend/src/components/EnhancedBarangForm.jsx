@@ -1,7 +1,11 @@
 // Enhanced BarangForm with comprehensive validation framework
 import React, { useState, useEffect } from 'react';
 import { Box, Grid, Typography, Divider, Chip, Alert } from '@mui/material';
-import { Inventory as InventoryIcon, Category as CategoryIcon, MonetizationOn as PriceIcon } from '@mui/icons-material';
+import {
+  Inventory as InventoryIcon,
+  Category as CategoryIcon,
+  MonetizationOn as PriceIcon,
+} from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 // Import validation framework
@@ -14,7 +18,7 @@ import {
   ValidatedSelectField,
   ValidatedSwitch,
   FormSection,
-  FormActions
+  FormActions,
 } from '../utils/validation/formComponents';
 
 // Import API service
@@ -54,7 +58,7 @@ const satuanOptions = [
   { value: 'ROLL', label: 'Roll' },
   { value: 'PACK', label: 'Pack' },
   { value: 'BOX', label: 'Box' },
-  { value: 'UNIT', label: 'Unit' }
+  { value: 'UNIT', label: 'Unit' },
 ];
 
 const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
@@ -64,19 +68,11 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
   const { handleError } = useGlobalErrorHandler();
 
   // Enhanced form with validation
-  const {
-    formMethods,
-    isValid,
-    isDirty,
-    errors,
-    reset,
-    watch,
-    setValue
-  } = useEnhancedForm({
+  const { formMethods, isValid, isDirty, errors, reset, watch, setValue } = useEnhancedForm({
     schema: barangFormSchema,
     defaultValues: item || defaultValues,
     mode: 'onChange',
-    reValidateMode: 'onChange'
+    reValidateMode: 'onChange',
   });
 
   // Watch specific fields for cross-field validation
@@ -86,7 +82,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
     // Load initial data
     loadKategoris();
     loadDivisis();
-    
+
     if (item) {
       reset(item);
     }
@@ -95,9 +91,9 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
   // Auto-calculate prices based on discounts
   useEffect(() => {
     const [hargaList, hargaJual, disc1, disc2] = watchedFields;
-    
+
     if (hargaList && disc1) {
-      const calculatedPrice = hargaList - (hargaList * disc1 / 100);
+      const calculatedPrice = hargaList - (hargaList * disc1) / 100;
       if (calculatedPrice !== hargaJual) {
         setValue('HargaJual', calculatedPrice, { shouldValidate: true });
       }
@@ -138,9 +134,9 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
     }
   };
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async formData => {
     setLoading(true);
-    
+
     try {
       let result;
       if (item) {
@@ -150,7 +146,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
         // Create new item
         result = await barangService.create(formData);
       }
-      
+
       if (result.success) {
         toast.success(result.message || 'Data barang berhasil disimpan');
         onSave();
@@ -159,7 +155,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
       }
     } catch (error) {
       handleError(error, {
-        customMessage: 'Terjadi kesalahan saat menyimpan data barang'
+        customMessage: 'Terjadi kesalahan saat menyimpan data barang',
       });
     } finally {
       setLoading(false);
@@ -170,11 +166,11 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
     reset(item || defaultValues);
   };
 
-  const formatCurrency = (value) => {
+  const formatCurrency = value => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value || 0);
   };
 
@@ -190,7 +186,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
           <Typography variant="h4" gutterBottom>
             {item ? 'Edit Barang' : 'Tambah Barang'}
           </Typography>
-          
+
           {/* Display form status */}
           {isDirty && (
             <Alert severity="info" sx={{ mb: 3 }}>
@@ -199,11 +195,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
           )}
 
           {/* Basic Information Section */}
-          <FormSection
-            title="Informasi Dasar"
-            subtitle="Data identitas barang"
-            required
-          >
+          <FormSection title="Informasi Dasar" subtitle="Data identitas barang" required>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <ValidatedSelectField
@@ -214,32 +206,32 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   helperText="Pilih divisi untuk barang ini"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="KodeBarang"
                   label="Kode Barang"
                   rules={{
                     ...VALIDATION_RULES.required,
-                    ...VALIDATION_RULES.alphanumeric
+                    ...VALIDATION_RULES.alphanumeric,
                   }}
                   placeholder="Masukkan kode barang"
                   tooltip="Kode unik untuk identifikasi barang"
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <ValidatedTextField
                   name="NamaBarang"
                   label="Nama Barang"
                   rules={{
                     ...VALIDATION_RULES.required,
-                    maxLength: { value: 100, message: 'Nama barang maksimal 100 karakter' }
+                    maxLength: { value: 100, message: 'Nama barang maksimal 100 karakter' },
                   }}
                   placeholder="Masukkan nama barang"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedSelectField
                   name="KodeKategori"
@@ -248,7 +240,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   helperText="Pilih kategori barang"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedSelectField
                   name="Satuan"
@@ -258,15 +250,11 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   helperText="Satuan unit barang"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
-                <ValidatedTextField
-                  name="merk"
-                  label="Merk"
-                  placeholder="Merk/Brand barang"
-                />
+                <ValidatedTextField name="merk" label="Merk" placeholder="Merk/Brand barang" />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="Barcode"
@@ -279,11 +267,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
           </FormSection>
 
           {/* Pricing Section */}
-          <FormSection
-            title="Informasi Harga"
-            subtitle="Pengaturan harga dan diskon"
-            required
-          >
+          <FormSection title="Informasi Harga" subtitle="Pengaturan harga dan diskon" required>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
@@ -292,14 +276,14 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   type="number"
                   rules={{
                     ...VALIDATION_RULES.required,
-                    ...VALIDATION_RULES.positiveNumber
+                    ...VALIDATION_RULES.positiveNumber,
                   }}
                   prefix="Rp"
                   formatValue={formatCurrency}
-                  parseValue={(value) => parseFloat(value) || 0}
+                  parseValue={value => parseFloat(value) || 0}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="HargaJual"
@@ -307,14 +291,14 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   type="number"
                   rules={{
                     ...VALIDATION_RULES.required,
-                    ...VALIDATION_RULES.positiveNumber
+                    ...VALIDATION_RULES.positiveNumber,
                   }}
                   prefix="Rp"
                   formatValue={formatCurrency}
-                  parseValue={(value) => parseFloat(value) || 0}
+                  parseValue={value => parseFloat(value) || 0}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="HargaList2"
@@ -323,11 +307,11 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   rules={VALIDATION_RULES.positiveNumber}
                   prefix="Rp"
                   formatValue={formatCurrency}
-                  parseValue={(value) => parseFloat(value) || 0}
+                  parseValue={value => parseFloat(value) || 0}
                   helperText="Harga list alternatif (opsional)"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="HargaJual2"
@@ -336,11 +320,11 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   rules={VALIDATION_RULES.positiveNumber}
                   prefix="Rp"
                   formatValue={formatCurrency}
-                  parseValue={(value) => parseFloat(value) || 0}
+                  parseValue={value => parseFloat(value) || 0}
                   helperText="Harga jual alternatif (opsional)"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="Disc1"
@@ -348,12 +332,12 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   type="number"
                   rules={{
                     min: { value: 0, message: 'Diskon tidak boleh negatif' },
-                    max: { value: 100, message: 'Diskon maksimal 100%' }
+                    max: { value: 100, message: 'Diskon maksimal 100%' },
                   }}
                   suffix="%"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="Disc2"
@@ -361,7 +345,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   type="number"
                   rules={{
                     min: { value: 0, message: 'Diskon tidak boleh negatif' },
-                    max: { value: 100, message: 'Diskon maksimal 100%' }
+                    max: { value: 100, message: 'Diskon maksimal 100%' },
                   }}
                   suffix="%"
                 />
@@ -370,10 +354,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
           </FormSection>
 
           {/* Inventory Section */}
-          <FormSection
-            title="Informasi Stok"
-            subtitle="Pengaturan stok dan lokasi"
-          >
+          <FormSection title="Informasi Stok" subtitle="Pengaturan stok dan lokasi">
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
@@ -382,7 +363,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   placeholder="Lokasi penyimpanan barang"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="StokMin"
@@ -392,7 +373,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   helperText="Stok minimum untuk peringatan"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedSwitch
                   name="status"
@@ -400,7 +381,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
                   helperText="Aktifkan barang untuk transaksi"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedSwitch
                   name="Checklist"
@@ -436,7 +417,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
 
           {/* Form Actions */}
           <FormActions
-            submitText={item ? "Update Barang" : "Simpan Barang"}
+            submitText={item ? 'Update Barang' : 'Simpan Barang'}
             cancelText="Batal"
             resetText="Reset"
             onCancel={onCancel}
@@ -444,7 +425,7 @@ const EnhancedBarangForm = ({ item, onSave, onCancel }) => {
             loading={loading}
             disabled={!isValid}
             submitProps={{
-              startIcon: <InventoryIcon />
+              startIcon: <InventoryIcon />,
             }}
           />
         </Box>

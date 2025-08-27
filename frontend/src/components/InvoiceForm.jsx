@@ -36,15 +36,15 @@ function InvoiceForm({ invoice, onSave, onCancel }) {
     }
   }, [invoice]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (invoice) {
@@ -65,11 +65,23 @@ function InvoiceForm({ invoice, onSave, onCancel }) {
       <h2>{invoice ? 'Edit' : 'Tambah'} Invoice</h2>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>No Invoice:</label>
-        <input type="text" name="NoInvoice" value={formData.NoInvoice} onChange={handleChange} required />
+        <input
+          type="text"
+          name="NoInvoice"
+          value={formData.NoInvoice}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Tgl Faktur:</label>
@@ -105,11 +117,21 @@ function InvoiceForm({ invoice, onSave, onCancel }) {
       </div>
       <div>
         <label>Grand Total:</label>
-        <input type="number" name="GrandTotal" value={formData.GrandTotal} onChange={handleChange} />
+        <input
+          type="number"
+          name="GrandTotal"
+          value={formData.GrandTotal}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Sisa Invoice:</label>
-        <input type="number" name="SisaInvoice" value={formData.SisaInvoice} onChange={handleChange} />
+        <input
+          type="number"
+          name="SisaInvoice"
+          value={formData.SisaInvoice}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Keterangan:</label>
@@ -155,7 +177,9 @@ function InvoiceForm({ invoice, onSave, onCancel }) {
       </div>
 
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

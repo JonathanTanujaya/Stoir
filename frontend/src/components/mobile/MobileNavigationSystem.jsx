@@ -18,7 +18,7 @@ import {
   useMediaQuery,
   SwipeableDrawer,
   Divider,
-  Avatar
+  Avatar,
 } from '@mui/material';
 import {
   Dashboard,
@@ -36,24 +36,24 @@ import {
   Receipt,
   TrendingUp,
   Wifi,
-  WifiOff
+  WifiOff,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSwipeable } from 'react-swipeable';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const MobileNavigationSystem = ({ 
-  user, 
-  onScanBarcode, 
-  onQuickAdd, 
+const MobileNavigationSystem = ({
+  user,
+  onScanBarcode,
+  onQuickAdd,
   syncStatus,
-  isOnline = true 
+  isOnline = true,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [bottomNavValue, setBottomNavValue] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
@@ -64,7 +64,7 @@ const MobileNavigationSystem = ({
     { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
     { label: 'Stock', icon: <Inventory />, path: '/stock' },
     { label: 'Sales', icon: <ShoppingCart />, path: '/sales' },
-    { label: 'Reports', icon: <Analytics />, path: '/reports' }
+    { label: 'Reports', icon: <Analytics />, path: '/reports' },
   ];
 
   // Main menu items for drawer
@@ -74,14 +74,12 @@ const MobileNavigationSystem = ({
     { label: 'Sales Entry', icon: <ShoppingCart />, path: '/sales' },
     { label: 'Purchase Orders', icon: <Receipt />, path: '/purchase' },
     { label: 'Reports & Analytics', icon: <TrendingUp />, path: '/reports' },
-    { label: 'Settings', icon: <Settings />, path: '/settings' }
+    { label: 'Settings', icon: <Settings />, path: '/settings' },
   ];
 
   // Update bottom nav based on current route
   useEffect(() => {
-    const currentIndex = bottomNavItems.findIndex(item => 
-      location.pathname.startsWith(item.path)
-    );
+    const currentIndex = bottomNavItems.findIndex(item => location.pathname.startsWith(item.path));
     if (currentIndex !== -1) {
       setBottomNavValue(currentIndex);
     }
@@ -90,9 +88,10 @@ const MobileNavigationSystem = ({
   // Monitor sync status
   useEffect(() => {
     if (syncStatus) {
-      const totalPending = (syncStatus.salesQueue || 0) + 
-                          (syncStatus.stockQueue || 0) + 
-                          (syncStatus.purchaseQueue || 0);
+      const totalPending =
+        (syncStatus.salesQueue || 0) +
+        (syncStatus.stockQueue || 0) +
+        (syncStatus.purchaseQueue || 0);
       setPendingSyncCount(totalPending);
     }
   }, [syncStatus]);
@@ -102,7 +101,7 @@ const MobileNavigationSystem = ({
     onSwipedRight: () => setDrawerOpen(true),
     onSwipedLeft: () => setDrawerOpen(false),
     preventDefaultTouchmoveEvent: true,
-    trackMouse: false
+    trackMouse: false,
   });
 
   const handleBottomNavChange = (event, newValue) => {
@@ -110,7 +109,7 @@ const MobileNavigationSystem = ({
     navigate(bottomNavItems[newValue].path);
   };
 
-  const handleDrawerItemClick = (path) => {
+  const handleDrawerItemClick = path => {
     navigate(path);
     setDrawerOpen(false);
   };
@@ -118,20 +117,22 @@ const MobileNavigationSystem = ({
   // Floating Action Button with speed dial functionality
   const FloatingActionMenu = () => {
     const [fabOpen, setFabOpen] = useState(false);
-    
+
     const fabActions = [
       { icon: <QrCodeScanner />, label: 'Scan Barcode', action: onScanBarcode },
       { icon: <Add />, label: 'Quick Add', action: onQuickAdd },
-      { icon: <Sync />, label: 'Sync Data', action: () => window.location.reload() }
+      { icon: <Sync />, label: 'Sync Data', action: () => window.location.reload() },
     ];
 
     return (
-      <Box sx={{ 
-        position: 'fixed', 
-        bottom: isMobile ? 80 : 20, 
-        right: 20, 
-        zIndex: 1300 
-      }}>
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: isMobile ? 80 : 20,
+          right: 20,
+          zIndex: 1300,
+        }}
+      >
         <AnimatePresence>
           {fabOpen && (
             <motion.div
@@ -160,8 +161,8 @@ const MobileNavigationSystem = ({
                       bgcolor: theme.palette.background.paper,
                       color: theme.palette.primary.main,
                       '&:hover': {
-                        bgcolor: theme.palette.primary.light
-                      }
+                        bgcolor: theme.palette.primary.light,
+                      },
                     }}
                   >
                     {action.icon}
@@ -171,13 +172,13 @@ const MobileNavigationSystem = ({
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         <Fab
           color="primary"
           onClick={() => setFabOpen(!fabOpen)}
           sx={{
             transform: fabOpen ? 'rotate(45deg)' : 'rotate(0deg)',
-            transition: 'transform 0.3s ease'
+            transition: 'transform 0.3s ease',
           }}
         >
           <Add />
@@ -200,31 +201,27 @@ const MobileNavigationSystem = ({
             >
               <Menu />
             </IconButton>
-            
+
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Stoir
             </Typography>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {!isOnline && (
-                <WifiOff sx={{ color: 'error.main' }} />
-              )}
-              
+              {!isOnline && <WifiOff sx={{ color: 'error.main' }} />}
+
               {pendingSyncCount > 0 && (
                 <Badge badgeContent={pendingSyncCount} color="warning">
                   <Sync />
                 </Badge>
               )}
-              
+
               <IconButton color="inherit">
                 <Badge badgeContent={notificationCount} color="error">
                   <Notifications />
                 </Badge>
               </IconButton>
-              
-              <Avatar sx={{ width: 32, height: 32 }}>
-                {user?.name?.charAt(0) || 'U'}
-              </Avatar>
+
+              <Avatar sx={{ width: 32, height: 32 }}>{user?.name?.charAt(0) || 'U'}</Avatar>
             </Box>
           </Toolbar>
         </AppBar>
@@ -247,24 +244,24 @@ const MobileNavigationSystem = ({
           >
             <Menu />
           </IconButton>
-          
+
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Stoir
           </Typography>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {!isOnline ? (
               <WifiOff sx={{ color: 'error.main', fontSize: 20 }} />
             ) : (
               <Wifi sx={{ color: 'success.main', fontSize: 20 }} />
             )}
-            
+
             {pendingSyncCount > 0 && (
               <Badge badgeContent={pendingSyncCount} color="warning" max={99}>
                 <Sync sx={{ fontSize: 20 }} />
               </Badge>
             )}
-            
+
             <IconButton color="inherit" size="small">
               <Badge badgeContent={notificationCount} color="error" max={99}>
                 <Notifications sx={{ fontSize: 20 }} />
@@ -285,7 +282,7 @@ const MobileNavigationSystem = ({
           right: 0,
           zIndex: 1200,
           borderTop: `1px solid ${theme.palette.divider}`,
-          bgcolor: theme.palette.background.paper
+          bgcolor: theme.palette.background.paper,
         }}
       >
         {bottomNavItems.map((item, index) => (
@@ -294,10 +291,13 @@ const MobileNavigationSystem = ({
             label={item.label}
             icon={item.icon}
             sx={{
-              color: index === bottomNavValue ? theme.palette.primary.main : theme.palette.text.secondary,
+              color:
+                index === bottomNavValue
+                  ? theme.palette.primary.main
+                  : theme.palette.text.secondary,
               '&.Mui-selected': {
-                color: theme.palette.primary.main
-              }
+                color: theme.palette.primary.main,
+              },
             }}
           />
         ))}
@@ -313,19 +313,21 @@ const MobileNavigationSystem = ({
         PaperProps={{
           sx: {
             width: 280,
-            bgcolor: theme.palette.background.default
-          }
+            bgcolor: theme.palette.background.default,
+          },
         }}
       >
         {/* Drawer Header */}
-        <Box sx={{ 
-          p: 2, 
-          bgcolor: theme.palette.primary.main, 
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2
-        }}>
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: theme.palette.primary.main,
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
           <Avatar sx={{ bgcolor: 'white', color: theme.palette.primary.main }}>
             <Store />
           </Avatar>
@@ -340,21 +342,19 @@ const MobileNavigationSystem = ({
         <Divider />
 
         {/* Online/Offline Status */}
-        <Box sx={{ 
-          p: 2, 
-          bgcolor: isOnline ? 'success.light' : 'warning.light',
-          color: isOnline ? 'success.contrastText' : 'warning.contrastText'
-        }}>
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: isOnline ? 'success.light' : 'warning.light',
+            color: isOnline ? 'success.contrastText' : 'warning.contrastText',
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {isOnline ? <Wifi /> : <WifiOff />}
-            <Typography variant="body2">
-              {isOnline ? 'Online' : 'Offline Mode'}
-            </Typography>
+            <Typography variant="body2">{isOnline ? 'Online' : 'Offline Mode'}</Typography>
           </Box>
           {pendingSyncCount > 0 && (
-            <Typography variant="caption">
-              {pendingSyncCount} items pending sync
-            </Typography>
+            <Typography variant="caption">{pendingSyncCount} items pending sync</Typography>
           )}
         </Box>
 
@@ -362,7 +362,7 @@ const MobileNavigationSystem = ({
 
         {/* Menu Items */}
         <List sx={{ flexGrow: 1 }}>
-          {drawerItems.map((item) => (
+          {drawerItems.map(item => (
             <ListItem
               key={item.label}
               button
@@ -373,14 +373,12 @@ const MobileNavigationSystem = ({
                   bgcolor: theme.palette.primary.light,
                   color: theme.palette.primary.contrastText,
                   '& .MuiListItemIcon-root': {
-                    color: theme.palette.primary.contrastText
-                  }
-                }
+                    color: theme.palette.primary.contrastText,
+                  },
+                },
               }}
             >
-              <ListItemIcon sx={{ color: 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
+              <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItem>
           ))}
@@ -398,10 +396,7 @@ const MobileNavigationSystem = ({
             <ListItemIcon>
               <Person />
             </ListItemIcon>
-            <ListItemText 
-              primary="Profile" 
-              secondary={user?.email || 'user@stoir.com'} 
-            />
+            <ListItemText primary="Profile" secondary={user?.email || 'user@stoir.com'} />
           </ListItem>
         </Box>
       </SwipeableDrawer>

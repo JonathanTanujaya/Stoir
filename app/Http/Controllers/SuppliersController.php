@@ -21,18 +21,19 @@ class SuppliersController extends Controller
                 return [
                     'id' => $supplier->kodesupplier,
                     'nama' => $supplier->namasupplier,
-                    'kode_supplier' => $supplier->kodesupplier,
+                    'kodeSupplier' => $supplier->kodesupplier,
                     'alamat' => $supplier->alamat ?? '',
                     'telepon' => $supplier->telepon ?? '',
                     'email' => $supplier->email ?? '',
-                    'kontak_person' => $supplier->kontakperson ?? '',
-                    'status' => $supplier->status ? 'aktif' : 'tidak aktif'
+                    'kontakPerson' => $supplier->kontakperson ?? '',
+                    'status' => (bool)$supplier->status
                 ];
             });
 
             return response()->json([
                 'success' => true,
                 'data' => $transformedSuppliers,
+                'totalCount' => $transformedSuppliers->count(),
                 'message' => 'Suppliers retrieved successfully'
             ]);
         } catch (\Exception $e) {
@@ -52,7 +53,7 @@ class SuppliersController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'nama' => 'required|string|max:255',
-                'kode_supplier' => 'required|string|max:50|unique:dbo.m_supplier,kodesupplier',
+                'kodeSupplier' => 'required|string|max:50|unique:dbo.m_supplier,kodesupplier',
                 'alamat' => 'nullable|string',
                 'telepon' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
@@ -70,12 +71,12 @@ class SuppliersController extends Controller
             }
 
             $supplier = MSupplier::create([
-                'kodesupplier' => $request->kode_supplier,
+                'kodesupplier' => $request->kodeSupplier,
                 'namasupplier' => $request->nama,
                 'alamat' => $request->alamat,
                 'telepon' => $request->telepon,
                 'email' => $request->email,
-                'kontakperson' => $request->kontak_person,
+                'kontakperson' => $request->kontakPerson,
                 'status' => $request->status === 'aktif'
             ]);
 
@@ -84,12 +85,12 @@ class SuppliersController extends Controller
                 'data' => [
                     'id' => $supplier->kodesupplier,
                     'nama' => $supplier->namasupplier,
-                    'kode_supplier' => $supplier->kodesupplier,
+                    'kodeSupplier' => $supplier->kodesupplier,
                     'alamat' => $supplier->alamat,
                     'telepon' => $supplier->telepon,
                     'email' => $supplier->email,
-                    'kontak_person' => $supplier->kontakperson,
-                    'status' => $supplier->status ? 'aktif' : 'tidak aktif'
+                    'kontakPerson' => $supplier->kontakperson,
+                    'status' => (bool)$supplier->status
                 ],
                 'message' => 'Supplier created successfully'
             ], 201);
@@ -159,7 +160,7 @@ class SuppliersController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'nama' => 'required|string|max:255',
-                'kode_supplier' => 'required|string|max:50|unique:dbo.m_supplier,kodesupplier,' . $id . ',kodesupplier',
+                'kodeSupplier' => 'required|string|max:50|unique:dbo.m_supplier,kodesupplier,' . $id . ',kodesupplier',
                 'alamat' => 'nullable|string',
                 'telepon' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
@@ -177,12 +178,12 @@ class SuppliersController extends Controller
             }
 
             $supplier->update([
-                'kodesupplier' => $request->kode_supplier,
+                'kodesupplier' => $request->kodeSupplier,
                 'namasupplier' => $request->nama,
                 'alamat' => $request->alamat,
                 'telepon' => $request->telepon,
                 'email' => $request->email,
-                'kontakperson' => $request->kontak_person,
+                'kontakperson' => $request->kontakPerson,
                 'status' => $request->status === 'aktif'
             ]);
 
@@ -191,12 +192,12 @@ class SuppliersController extends Controller
                 'data' => [
                     'id' => $supplier->kodesupplier,
                     'nama' => $supplier->namasupplier,
-                    'kode_supplier' => $supplier->kodesupplier,
+                    'kodeSupplier' => $supplier->kodesupplier,
                     'alamat' => $supplier->alamat,
                     'telepon' => $supplier->telepon,
                     'email' => $supplier->email,
-                    'kontak_person' => $supplier->kontakperson,
-                    'status' => $supplier->status ? 'aktif' : 'tidak aktif'
+                    'kontakPerson' => $supplier->kontakperson,
+                    'status' => (bool)$supplier->status
                 ],
                 'message' => 'Supplier updated successfully'
             ]);

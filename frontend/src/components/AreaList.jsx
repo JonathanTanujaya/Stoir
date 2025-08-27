@@ -1,5 +1,5 @@
 import DataTable from './common/DataTable';
-import { useCrudOperations } from '../hooks/useDataFetch';
+import { useDataFetch } from '../hooks/useDataFetch';
 import { areaService } from '../config/apiService';
 import { useConfirmDialog } from './common/LoadingComponents';
 
@@ -7,17 +7,19 @@ function AreaList({ onEdit, onRefresh }) {
   const {
     data: areas,
     loading,
-    refresh
-  } = useCrudOperations(areaService, onRefresh);
-  
+    refresh,
+  } = useDataFetch(() => areaService.getAll(), [onRefresh], {
+    errorMessage: 'Gagal memuat data area',
+  });
+
   const confirm = useConfirmDialog();
 
-  const handleDelete = async (item) => {
+  const handleDelete = async item => {
     const confirmed = await confirm({
       title: 'Hapus Area',
       message: `Apakah Anda yakin ingin menghapus area "${item.namaarea}"?`,
       confirmText: 'Hapus',
-      confirmButtonClass: 'btn btn-danger'
+      confirmButtonClass: 'btn btn-danger',
     });
 
     if (confirmed) {
@@ -27,21 +29,26 @@ function AreaList({ onEdit, onRefresh }) {
   };
 
   const columns = [
-    { 
-      header: 'Kode Divisi', 
+    {
+      header: 'Kode Divisi',
       accessor: 'kodedivisi',
-      className: 'text-center'
+      className: 'text-center',
     },
-    { 
-      header: 'Kode Area', 
+    {
+      header: 'Kode Area',
       accessor: 'kodearea',
-      className: 'font-monospace'
+      className: 'font-monospace',
     },
-    { 
-      header: 'Nama Area', 
+    {
+      header: 'Nama Area',
       accessor: 'namaarea',
-      className: 'text-start'
-    }
+      className: 'text-start',
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      className: 'text-center',
+    },
   ];
 
   const actions = [
@@ -49,28 +56,28 @@ function AreaList({ onEdit, onRefresh }) {
       label: 'Edit',
       onClick: onEdit,
       className: 'btn btn-primary btn-sm',
-      show: !!onEdit
+      show: !!onEdit,
     },
     {
       label: 'Hapus',
       onClick: handleDelete,
       className: 'btn btn-danger btn-sm',
-      show: true
-    }
+      show: true,
+    },
   ];
 
   return (
     <div>
       <DataTable
         title="Daftar Area"
-        data={areas}
+        data={areas || []}
         columns={columns}
         actions={actions}
         loading={loading}
         onRefresh={refresh}
         searchable={true}
-        searchFields={['kodearea', 'namaarea']}
-        keyField="kodearea"
+        searchFields={['kodearea', 'namaarea', 'status']}
+        keyField="id"
       />
     </div>
   );

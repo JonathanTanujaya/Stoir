@@ -13,22 +13,14 @@ import { Line } from 'react-chartjs-2';
 import StatCard from '../../components/StatCard';
 import '../../design-system.css';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const NewDashboard = () => {
   const [salesData, setSalesData] = useState([]);
   const [kpiData, setKpiData] = useState({
     todaySales: 0,
     pendingTransactions: 0,
-    lowStockItems: 0
+    lowStockItems: 0,
   });
 
   // Data dummy untuk KPI
@@ -36,7 +28,7 @@ const NewDashboard = () => {
     setKpiData({
       todaySales: 15750000, // Rp 15.750.000
       pendingTransactions: 12,
-      lowStockItems: 8
+      lowStockItems: 8,
     });
 
     // Data dummy untuk grafik penjualan 7 hari terakhir
@@ -54,19 +46,19 @@ const NewDashboard = () => {
           pointBorderWidth: 2,
           pointRadius: 5,
           pointHoverRadius: 7,
-          tension: 0.4
-        }
-      ]
+          tension: 0.4,
+        },
+      ],
     };
     setSalesData(dummySalesData);
   }, []);
 
   // Format currency
-  const formatCurrency = (value) => {
+  const formatCurrency = value => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -76,10 +68,10 @@ const NewDashboard = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false
+        display: false,
       },
       title: {
-        display: false
+        display: false,
       },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -90,39 +82,39 @@ const NewDashboard = () => {
         cornerRadius: 8,
         displayColors: false,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             return `Penjualan: ${formatCurrency(context.parsed.y)}`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       x: {
         grid: {
-          display: false
+          display: false,
         },
         border: {
-          display: false
-        },
-        ticks: {
-          color: '#6b7280'
-        }
-      },
-      y: {
-        grid: {
-          color: '#f3f4f6'
-        },
-        border: {
-          display: false
+          display: false,
         },
         ticks: {
           color: '#6b7280',
-          callback: function(value) {
+        },
+      },
+      y: {
+        grid: {
+          color: '#f3f4f6',
+        },
+        border: {
+          display: false,
+        },
+        ticks: {
+          color: '#6b7280',
+          callback: function (value) {
             return `${(value / 1000000).toFixed(0)}M`;
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   };
 
   return (
@@ -142,7 +134,7 @@ const NewDashboard = () => {
           icon="💰"
           color="success"
         />
-        
+
         <StatCard
           title="Transaksi Tertunda"
           value={kpiData.pendingTransactions}
@@ -150,7 +142,7 @@ const NewDashboard = () => {
           icon="⏳"
           color="warning"
         />
-        
+
         <StatCard
           title="Barang Akan Habis"
           value={kpiData.lowStockItems}
@@ -185,17 +177,17 @@ const NewDashboard = () => {
                 <span className="text-2xl mb-2">📝</span>
                 <span className="text-sm">Buat Invoice</span>
               </button>
-              
+
               <button className="btn btn-outline-primary flex flex-col items-center p-4">
                 <span className="text-2xl mb-2">📦</span>
                 <span className="text-sm">Cek Stok</span>
               </button>
-              
+
               <button className="btn btn-outline-primary flex flex-col items-center p-4">
                 <span className="text-2xl mb-2">📊</span>
                 <span className="text-sm">Laporan</span>
               </button>
-              
+
               <button className="btn btn-outline-primary flex flex-col items-center p-4">
                 <span className="text-2xl mb-2">⚙️</span>
                 <span className="text-sm">Pengaturan</span>

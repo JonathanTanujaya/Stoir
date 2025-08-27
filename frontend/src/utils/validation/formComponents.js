@@ -28,7 +28,7 @@ import {
   InputAdornment,
   Switch,
   Chip,
-  Stack
+  Stack,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -38,7 +38,7 @@ import {
   Clear as ClearIcon,
   Info as InfoIcon,
   CheckCircle as CheckIcon,
-  Error as ErrorIcon
+  Error as ErrorIcon,
 } from '@mui/icons-material';
 import { useEnhancedForm, useFormField, useFormArray } from './formHooks';
 import { FieldError, InlineError } from './errorHandling';
@@ -63,25 +63,22 @@ export const ValidatedTextField = ({
   parseValue,
   ...props
 }) => {
-  const { 
-    field, 
-    fieldState, 
-    formState 
-  } = useFormField(name, { rules });
-  
+  const { field, fieldState, formState } = useFormField(name, { rules });
+
   const [showPassword, setShowPassword] = useState(false);
   const [localValue, setLocalValue] = useState(field.value || '');
 
   // Debounced value update
   const debouncedOnChange = useMemo(
-    () => debounce((value) => {
-      const parsedValue = parseValue ? parseValue(value) : value;
-      field.onChange(parsedValue);
-    }, debounceMs),
+    () =>
+      debounce(value => {
+        const parsedValue = parseValue ? parseValue(value) : value;
+        field.onChange(parsedValue);
+      }, debounceMs),
     [field.onChange, parseValue, debounceMs]
   );
 
-  const handleLocalChange = (event) => {
+  const handleLocalChange = event => {
     const value = event.target.value;
     setLocalValue(value);
     debouncedOnChange(value);
@@ -105,25 +102,21 @@ export const ValidatedTextField = ({
 
   const getValidationIcon = () => {
     if (!showValidationIcon || !fieldState.isTouched) return null;
-    
+
     if (fieldState.error) {
       return <ErrorIcon color="error" fontSize="small" />;
     }
-    
+
     if (!fieldState.error && localValue) {
       return <CheckIcon color="success" fontSize="small" />;
     }
-    
+
     return null;
   };
 
   const inputProps = {
     ...props.InputProps,
-    startAdornment: prefix && (
-      <InputAdornment position="start">
-        {prefix}
-      </InputAdornment>
-    ),
+    startAdornment: prefix && <InputAdornment position="start">{prefix}</InputAdornment>,
     endAdornment: (
       <InputAdornment position="end">
         {suffix}
@@ -139,7 +132,7 @@ export const ValidatedTextField = ({
         )}
         {getValidationIcon()}
       </InputAdornment>
-    )
+    ),
   };
 
   return (
@@ -192,7 +185,7 @@ export const ValidatedSelectField = ({
   label,
   options = [],
   rules = {},
-  placeholder = "Pilih...",
+  placeholder = 'Pilih...',
   helperText,
   multiple = false,
   allowClear = true,
@@ -202,7 +195,7 @@ export const ValidatedSelectField = ({
 }) => {
   const { field, fieldState } = useFormField(name, { rules });
 
-  const handleChange = (event) => {
+  const handleChange = event => {
     const value = event.target.value;
     field.onChange(multiple && value === '' ? [] : value);
   };
@@ -223,43 +216,42 @@ export const ValidatedSelectField = ({
           onBlur={field.onBlur}
           multiple={multiple}
           displayEmpty
-          renderValue={(selected) => {
+          renderValue={selected => {
             if (multiple) {
               if (selected.length === 0) return <em>{placeholder}</em>;
               return (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((value) => {
+                  {selected.map(value => {
                     const option = options.find(opt => opt[valueKey] === value);
                     return (
-                      <Chip 
-                        key={value} 
-                        label={option ? option[labelKey] : value}
-                        size="small"
-                      />
+                      <Chip key={value} label={option ? option[labelKey] : value} size="small" />
                     );
                   })}
                 </Box>
               );
             }
-            
+
             if (selected === '') return <em>{placeholder}</em>;
             const option = options.find(opt => opt[valueKey] === selected);
             return option ? option[labelKey] : selected;
           }}
-          endAdornment={allowClear && field.value && (
-            <InputAdornment position="end">
-              <IconButton onClick={handleClear} edge="end" size="small">
-                <ClearIcon fontSize="small" />
-              </IconButton>
-            </InputAdornment>
-          )}
+          endAdornment={
+            allowClear &&
+            field.value && (
+              <InputAdornment position="end">
+                <IconButton onClick={handleClear} edge="end" size="small">
+                  <ClearIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            )
+          }
         >
           {!multiple && (
             <MenuItem value="">
               <em>{placeholder}</em>
             </MenuItem>
           )}
-          {options.map((option) => (
+          {options.map(option => (
             <MenuItem key={option[valueKey]} value={option[valueKey]}>
               {option[labelKey]}
             </MenuItem>
@@ -278,14 +270,14 @@ export const ValidatedAutocompleteField = ({
   label,
   options = [],
   rules = {},
-  placeholder = "Pilih atau ketik...",
+  placeholder = 'Pilih atau ketik...',
   helperText,
   multiple = false,
   freeSolo = false,
   loading = false,
   onInputChange,
-  getOptionLabel = (option) => option.label || option,
-  getOptionValue = (option) => option.value || option,
+  getOptionLabel = option => option.label || option,
+  getOptionValue = option => option.value || option,
   filterOptions,
   renderOption,
   ...props
@@ -294,28 +286,28 @@ export const ValidatedAutocompleteField = ({
 
   const handleChange = (event, newValue) => {
     if (multiple) {
-      const values = newValue.map(item => 
-        typeof item === 'string' ? item : getOptionValue(item)
-      );
+      const values = newValue.map(item => (typeof item === 'string' ? item : getOptionValue(item)));
       field.onChange(values);
     } else {
-      const value = newValue ? 
-        (typeof newValue === 'string' ? newValue : getOptionValue(newValue)) : 
-        null;
+      const value = newValue
+        ? typeof newValue === 'string'
+          ? newValue
+          : getOptionValue(newValue)
+        : null;
       field.onChange(value);
     }
   };
 
   const getValue = () => {
     if (multiple) {
-      return (field.value || []).map(val => 
-        options.find(opt => getOptionValue(opt) === val) || val
+      return (field.value || []).map(
+        val => options.find(opt => getOptionValue(opt) === val) || val
       );
     }
-    
-    return field.value ? 
-      options.find(opt => getOptionValue(opt) === field.value) || field.value :
-      null;
+
+    return field.value
+      ? options.find(opt => getOptionValue(opt) === field.value) || field.value
+      : null;
   };
 
   return (
@@ -332,7 +324,7 @@ export const ValidatedAutocompleteField = ({
         getOptionLabel={getOptionLabel}
         filterOptions={filterOptions}
         renderOption={renderOption}
-        renderInput={(params) => (
+        renderInput={params => (
           <TextField
             {...params}
             name={name}
@@ -374,13 +366,13 @@ export const ValidatedCheckboxGroup = ({
   const handleChange = (optionValue, checked) => {
     const currentValue = field.value || [];
     let newValue;
-    
+
     if (checked) {
       newValue = [...currentValue, optionValue];
     } else {
       newValue = currentValue.filter(val => val !== optionValue);
     }
-    
+
     field.onChange(newValue);
   };
 
@@ -389,13 +381,13 @@ export const ValidatedCheckboxGroup = ({
       <FormControl error={!!fieldState.error}>
         <FormLabel component="legend">{label}</FormLabel>
         <Box sx={{ display: 'flex', flexDirection: row ? 'row' : 'column', flexWrap: 'wrap' }}>
-          {options.map((option) => (
+          {options.map(option => (
             <FormControlLabel
               key={option.value}
               control={
                 <Checkbox
                   checked={(field.value || []).includes(option.value)}
-                  onChange={(e) => handleChange(option.value, e.target.checked)}
+                  onChange={e => handleChange(option.value, e.target.checked)}
                   name={`${name}_${option.value}`}
                 />
               }
@@ -434,7 +426,7 @@ export const ValidatedRadioGroup = ({
           onBlur={field.onBlur}
           row={row}
         >
-          {options.map((option) => (
+          {options.map(option => (
             <FormControlLabel
               key={option.value}
               value={option.value}
@@ -469,7 +461,7 @@ export const ValidatedSwitch = ({
             <Switch
               {...props}
               checked={!!field.value}
-              onChange={(e) => field.onChange(e.target.checked)}
+              onChange={e => field.onChange(e.target.checked)}
               onBlur={field.onBlur}
               name={name}
             />
@@ -489,17 +481,17 @@ export const ValidatedArrayField = ({
   name,
   label,
   renderField,
-  addButtonText = "Tambah Item",
-  removeButtonText = "Hapus",
+  addButtonText = 'Tambah Item',
+  removeButtonText = 'Hapus',
   minItems = 0,
   maxItems = 10,
   defaultValue = {},
   rules = {},
   ...props
 }) => {
-  const { fields, append, remove, error } = useFormArray(name, { 
+  const { fields, append, remove, error } = useFormArray(name, {
     defaultValue,
-    rules 
+    rules,
   });
 
   const canAddMore = fields.length < maxItems;
@@ -510,21 +502,15 @@ export const ValidatedArrayField = ({
       <Typography variant="h6" gutterBottom>
         {label}
       </Typography>
-      
+
       {fields.map((field, index) => (
         <Paper key={field.id} sx={{ p: 2, mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-            <Box sx={{ flex: 1 }}>
-              {renderField(field, index, `${name}.${index}`)}
-            </Box>
-            
+            <Box sx={{ flex: 1 }}>{renderField(field, index, `${name}.${index}`)}</Box>
+
             {canRemove && (
               <Tooltip title={removeButtonText}>
-                <IconButton
-                  onClick={() => remove(index)}
-                  color="error"
-                  size="small"
-                >
+                <IconButton onClick={() => remove(index)} color="error" size="small">
                   <RemoveIcon />
                 </IconButton>
               </Tooltip>
@@ -563,12 +549,12 @@ export const FormSection = ({
 
   return (
     <Paper sx={{ p: 3, mb: 3 }} {...props}>
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
           mb: 2,
-          cursor: collapsible ? 'pointer' : 'default'
+          cursor: collapsible ? 'pointer' : 'default',
         }}
         onClick={collapsible ? () => setExpanded(!expanded) : undefined}
       >
@@ -583,14 +569,10 @@ export const FormSection = ({
             </Typography>
           )}
         </Box>
-        
-        {collapsible && (
-          <IconButton>
-            {expanded ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
-        )}
+
+        {collapsible && <IconButton>{expanded ? <ExpandLess /> : <ExpandMore />}</IconButton>}
       </Box>
-      
+
       {(!collapsible || expanded) && (
         <>
           <Divider sx={{ mb: 2 }} />
@@ -603,9 +585,9 @@ export const FormSection = ({
 
 // Form Actions Component
 export const FormActions = ({
-  submitText = "Simpan",
-  cancelText = "Batal",
-  resetText = "Reset",
+  submitText = 'Simpan',
+  cancelText = 'Batal',
+  resetText = 'Reset',
   onCancel,
   onReset,
   showReset = true,
@@ -620,14 +602,14 @@ export const FormActions = ({
   const { formState } = useFormContext();
 
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        gap: 2, 
+    <Box
+      sx={{
+        display: 'flex',
+        gap: 2,
         justifyContent: 'flex-end',
         pt: 2,
         borderTop: 1,
-        borderColor: 'divider'
+        borderColor: 'divider',
       }}
       {...props}
     >
@@ -642,7 +624,7 @@ export const FormActions = ({
           {resetText}
         </Button>
       )}
-      
+
       {showCancel && (
         <Button
           type="button"
@@ -654,7 +636,7 @@ export const FormActions = ({
           {cancelText}
         </Button>
       )}
-      
+
       <Button
         type="submit"
         variant="contained"
@@ -682,7 +664,7 @@ export const ValidatedForm = ({
     defaultValues,
     mode,
     reValidateMode,
-    ...props
+    ...props,
   });
 
   const handleSubmit = formMethods.handleSubmit(onSubmit);
@@ -706,5 +688,5 @@ export default {
   ValidatedArrayField,
   FormSection,
   FormActions,
-  ValidatedForm
+  ValidatedForm,
 };

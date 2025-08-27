@@ -5,20 +5,16 @@ import { barangService } from '../config/apiService';
 import { LoadingButton, useConfirmDialog } from './common/LoadingComponents';
 
 function BarangList({ onEdit, onRefresh }) {
-  const {
-    data: barang,
-    loading,
-    refresh
-  } = useCrudOperations(barangService, onRefresh);
-  
+  const { data: barang, loading, refresh } = useCrudOperations(barangService, onRefresh);
+
   const confirm = useConfirmDialog();
 
-  const handleDelete = async (item) => {
+  const handleDelete = async item => {
     const confirmed = await confirm({
       title: 'Hapus Barang',
       message: `Apakah Anda yakin ingin menghapus barang "${item.namabarang}"?`,
       confirmText: 'Hapus',
-      confirmButtonClass: 'btn btn-danger'
+      confirmButtonClass: 'btn btn-danger',
     });
 
     if (confirmed) {
@@ -34,55 +30,55 @@ function BarangList({ onEdit, onRefresh }) {
   );
 
   const columns = [
-    { 
-      header: 'Kode Divisi', 
+    {
+      header: 'Kode Divisi',
       accessor: 'kodedivisi',
-      className: 'text-center'
+      className: 'text-center',
     },
-    { 
-      header: 'Kode Barang', 
+    {
+      header: 'Kode Barang',
       accessor: 'kodebarang',
-      className: 'font-monospace'
+      className: 'font-monospace',
     },
-    { 
-      header: 'Nama Barang', 
+    {
+      header: 'Nama Barang',
       accessor: 'namabarang',
-      className: 'text-start'
+      className: 'text-start',
     },
-    { 
-      header: 'Kategori', 
+    {
+      header: 'Kategori',
       accessor: 'kodekategori',
-      className: 'text-center'
+      className: 'text-center',
     },
-    { 
-      header: 'Satuan', 
+    {
+      header: 'Satuan',
       accessor: 'satuan',
-      className: 'text-center'
+      className: 'text-center',
     },
-    { 
-      header: 'Harga Jual', 
+    {
+      header: 'Harga Jual',
       accessor: 'hargajual',
-      render: (value) => formatCurrency(value),
-      className: 'text-end'
+      render: value => formatCurrency(value),
+      className: 'text-end',
     },
-    { 
-      header: 'Harga List', 
+    {
+      header: 'Harga List',
       accessor: 'hargalist',
-      render: (value) => formatCurrency(value),
-      className: 'text-end'
+      render: value => formatCurrency(value),
+      className: 'text-end',
     },
-    { 
-      header: 'Stok', 
+    {
+      header: 'Stok',
       accessor: 'stokmin',
-      render: (value) => value || '-',
-      className: 'text-center'
+      render: value => value || '-',
+      className: 'text-center',
     },
-    { 
-      header: 'Status', 
+    {
+      header: 'Status',
       accessor: 'status',
-      render: (value) => <StatusBadge status={value} />,
-      className: 'text-center'
-    }
+      render: value => <StatusBadge status={value} />,
+      className: 'text-center',
+    },
   ];
 
   const actions = [
@@ -90,21 +86,21 @@ function BarangList({ onEdit, onRefresh }) {
       label: 'Edit',
       onClick: onEdit,
       className: 'btn btn-primary btn-sm',
-      show: !!onEdit
+      show: !!onEdit,
     },
     {
       label: 'Hapus',
       onClick: handleDelete,
       className: 'btn btn-danger btn-sm',
-      show: true
-    }
+      show: true,
+    },
   ];
 
   return (
     <div>
       <DataTable
         title="Daftar Barang"
-        data={barang}
+        data={barang || []}
         columns={columns}
         actions={actions}
         loading={loading}

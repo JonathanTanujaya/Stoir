@@ -13,8 +13,27 @@ class SPVController extends Controller
      */
     public function index()
     {
-        $items = SPV::all();
-        return response()->json(['data' => $items]);
+        try {
+            $items = SPV::all()->map(fn($s)=>[
+                'id' => $s->id,
+                'noSpv' => $s->nospv,
+                'tglSpv' => $s->tglspv,
+                'keterangan' => $s->keterangan
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $items,
+                'totalCount' => $items->count(),
+                'message' => 'SPV data retrieved successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve SPV data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -22,15 +41,36 @@ class SPVController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'NoSPV' => 'required|string|max:255|unique:spv,NoSPV',
-            'TglSPV' => 'required|date',
-            'Keterangan' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'noSpv' => 'required|string|max:255|unique:spv,nospv',
+                'tglSpv' => 'required|date',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
 
-        $item = SPV::create($validatedData);
+            $item = SPV::create([
+                'nospv' => $validatedData['noSpv'],
+                'tglspv' => $validatedData['tglSpv'],
+                'keterangan' => $validatedData['keterangan']
+            ]);
 
-        return response()->json(['message' => 'Item created successfully', 'data' => $item], 201);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $item->id,
+                    'noSpv' => $item->nospv,
+                    'tglSpv' => $item->tglspv,
+                    'keterangan' => $item->keterangan
+                ],
+                'message' => 'SPV created successfully'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create SPV',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -38,8 +78,25 @@ class SPVController extends Controller
      */
     public function show(string $id)
     {
-        $item = SPV::findOrFail($id);
-        return response()->json(['data' => $item]);
+        try {
+            $item = SPV::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $item->id,
+                    'noSpv' => $item->nospv,
+                    'tglSpv' => $item->tglspv,
+                    'keterangan' => $item->keterangan
+                ],
+                'message' => 'SPV retrieved successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'SPV not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
     }
 
     /**
@@ -47,17 +104,38 @@ class SPVController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $item = SPV::findOrFail($id);
+        try {
+            $item = SPV::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'NoSPV' => 'required|string|max:255|unique:spv,NoSPV,' . $id . ',ID',
-            'TglSPV' => 'required|date',
-            'Keterangan' => 'nullable|string|max:255',
-        ]);
+            $validatedData = $request->validate([
+                'noSpv' => 'required|string|max:255|unique:spv,nospv,' . $id . ',id',
+                'tglSpv' => 'required|date',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
 
-        $item->update($validatedData);
+            $item->update([
+                'nospv' => $validatedData['noSpv'],
+                'tglspv' => $validatedData['tglSpv'],
+                'keterangan' => $validatedData['keterangan']
+            ]);
 
-        return response()->json(['message' => 'Item updated successfully', 'data' => $item]);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $item->id,
+                    'noSpv' => $item->nospv,
+                    'tglSpv' => $item->tglspv,
+                    'keterangan' => $item->keterangan
+                ],
+                'message' => 'SPV updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update SPV',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -65,9 +143,20 @@ class SPVController extends Controller
      */
     public function destroy(string $id)
     {
-        $item = SPV::findOrFail($id);
-        $item->delete();
+        try {
+            $item = SPV::findOrFail($id);
+            $item->delete();
 
-        return response()->json(['message' => 'Item deleted successfully']);
+            return response()->json([
+                'success' => true,
+                'message' => 'SPV deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete SPV',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

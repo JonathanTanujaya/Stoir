@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Alert,
-  AlertTitle,
-  Container,
-  Stack
-} from '@mui/material';
+import { Box, Paper, Typography, Button, Alert, AlertTitle, Container, Stack } from '@mui/material';
 import { ErrorOutline, Refresh, Home } from '@mui/icons-material';
 
 class ErrorBoundary extends React.Component {
@@ -24,9 +15,9 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     this.setState({
       error: error,
-      errorInfo: errorInfo
+      errorInfo: errorInfo,
     });
-    
+
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
@@ -51,21 +42,21 @@ class ErrorBoundary extends React.Component {
               p: 4,
               textAlign: 'center',
               borderRadius: 2,
-              bgcolor: 'background.paper'
+              bgcolor: 'background.paper',
             }}
           >
             <ErrorOutline
               sx={{
                 fontSize: 80,
                 color: 'error.main',
-                mb: 2
+                mb: 2,
               }}
             />
-            
+
             <Typography variant="h4" gutterBottom color="error">
               Oops! Something went wrong
             </Typography>
-            
+
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
               We're sorry for the inconvenience. An unexpected error has occurred.
             </Typography>
@@ -84,7 +75,7 @@ class ErrorBoundary extends React.Component {
               >
                 Try Again
               </Button>
-              
+
               <Button
                 variant="outlined"
                 startIcon={<Home />}
@@ -105,7 +96,7 @@ class ErrorBoundary extends React.Component {
                     p: 2,
                     bgcolor: 'grey.100',
                     overflow: 'auto',
-                    maxHeight: 300
+                    maxHeight: 300,
                   }}
                 >
                   <pre style={{ fontSize: '12px', margin: 0 }}>
@@ -124,14 +115,14 @@ class ErrorBoundary extends React.Component {
 }
 
 // Simple Error Display Component
-export const ErrorMessage = ({ 
-  title = 'Error', 
-  message = 'Something went wrong', 
+export const ErrorMessage = ({
+  title = 'Error',
+  message = 'Something went wrong',
   onRetry = null,
-  severity = 'error'
+  severity = 'error',
 }) => (
-  <Alert 
-    severity={severity} 
+  <Alert
+    severity={severity}
     sx={{ mb: 2 }}
     action={
       onRetry && (
@@ -161,7 +152,7 @@ export const NotFound = () => (
     <Button
       variant="contained"
       startIcon={<Home />}
-      onClick={() => window.location.href = '/dashboard'}
+      onClick={() => (window.location.href = '/dashboard')}
       size="large"
     >
       Go to Dashboard

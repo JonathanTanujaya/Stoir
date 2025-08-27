@@ -13,7 +13,7 @@ class CustomerController extends Controller
             // Mapping field database ke format frontend
             $customers = MCust::select(
                 'id',
-                'kodecust as kode_customer',
+                'kodecust as kodeCustomer',
                 'namacust as nama',
                 'alamat',
                 'telepon',
@@ -39,7 +39,7 @@ class CustomerController extends Controller
     {
         try {
             $customer = MCust::create([
-                'kodecust' => $request->kode_customer,
+                'kodecust' => $request->kodeCustomer,
                 'namacust' => $request->nama,
                 'alamat' => $request->alamat,
                 'telepon' => $request->telepon,
@@ -97,7 +97,7 @@ class CustomerController extends Controller
             }
 
             $customer->update([
-                'kodecust' => $request->kode_customer,
+                'kodecust' => $request->kodeCustomer,
                 'namacust' => $request->nama,
                 'alamat' => $request->alamat,
                 'telepon' => $request->telepon,

@@ -32,7 +32,7 @@ import {
   IconButton,
   Tooltip,
   Badge,
-  LinearProgress
+  LinearProgress,
 } from '@mui/material';
 import {
   Inventory,
@@ -49,9 +49,20 @@ import {
   Sort,
   Visibility,
   Edit,
-  AttachMoney
+  AttachMoney,
 } from '@mui/icons-material';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend, ArcElement } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -62,14 +73,32 @@ import ReportTemplate from './ReportTemplate';
 import { reportsAPI } from '../../services/api';
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend, ArcElement);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  ChartTooltip,
+  Legend,
+  ArcElement
+);
 
 // Stock Status Configuration
 const STOCK_STATUS = {
   AVAILABLE: { label: 'Available', color: 'success', threshold: (stock, min) => stock > min * 2 },
-  LOW: { label: 'Low Stock', color: 'warning', threshold: (stock, min) => stock > min && stock <= min * 2 },
-  CRITICAL: { label: 'Critical', color: 'error', threshold: (stock, min) => stock > 0 && stock <= min },
-  OUT_OF_STOCK: { label: 'Out of Stock', color: 'error', threshold: (stock, min) => stock <= 0 }
+  LOW: {
+    label: 'Low Stock',
+    color: 'warning',
+    threshold: (stock, min) => stock > min && stock <= min * 2,
+  },
+  CRITICAL: {
+    label: 'Critical',
+    color: 'error',
+    threshold: (stock, min) => stock > 0 && stock <= min,
+  },
+  OUT_OF_STOCK: { label: 'Out of Stock', color: 'error', threshold: (stock, min) => stock <= 0 },
 };
 
 // Category Options
@@ -79,7 +108,7 @@ const CATEGORIES = [
   { value: 'spare-parts', label: 'Spare Parts' },
   { value: 'aksesoris', label: 'Aksesoris' },
   { value: 'tools', label: 'Tools & Equipment' },
-  { value: 'electronics', label: 'Electronics' }
+  { value: 'electronics', label: 'Electronics' },
 ];
 
 const StokBarangReport = () => {
@@ -99,33 +128,38 @@ const StokBarangReport = () => {
   const [filters, setFilters] = useState({
     search: { type: 'text', label: 'Search', value: '' },
     category: { type: 'select', label: 'Category', value: '', options: CATEGORIES },
-    status: { 
-      type: 'select', 
-      label: 'Status', 
-      value: '', 
+    status: {
+      type: 'select',
+      label: 'Status',
+      value: '',
       options: [
         { value: '', label: 'All Status' },
         { value: 'available', label: 'Available' },
         { value: 'low', label: 'Low Stock' },
         { value: 'critical', label: 'Critical' },
-        { value: 'out_of_stock', label: 'Out of Stock' }
-      ]
+        { value: 'out_of_stock', label: 'Out of Stock' },
+      ],
     },
     dateFrom: { type: 'date', label: 'Date From', value: null },
     dateTo: { type: 'date', label: 'Date To', value: null },
     minStock: { type: 'number', label: 'Min Stock', value: '' },
-    maxStock: { type: 'number', label: 'Max Stock', value: '' }
+    maxStock: { type: 'number', label: 'Max Stock', value: '' },
   });
 
   // Data Queries
-  const { data: stockData, isLoading, error, refetch } = useQuery({
+  const {
+    data: stockData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['stockReport', filters],
     queryFn: async () => {
       const response = await reportsAPI.stokBarang();
       return response.data || [];
     },
     refetchInterval: realTimeUpdates ? 30000 : false,
-    staleTime: realTimeUpdates ? 0 : 5 * 60 * 1000
+    staleTime: realTimeUpdates ? 0 : 5 * 60 * 1000,
   });
 
   const { data: stockMovement } = useQuery({
@@ -134,7 +168,7 @@ const StokBarangReport = () => {
       const response = await reportsAPI.kartuStok();
       return response.data || [];
     },
-    staleTime: 10 * 60 * 1000
+    staleTime: 10 * 60 * 1000,
   });
 
   // Enhanced sample data with comprehensive stock information
@@ -161,7 +195,7 @@ const StokBarangReport = () => {
         reorder_point: 75,
         lead_time: 7,
         abc_classification: 'A',
-        fast_moving: true
+        fast_moving: true,
       },
       {
         id: 2,
@@ -184,7 +218,7 @@ const StokBarangReport = () => {
         reorder_point: 120,
         lead_time: 14,
         abc_classification: 'A',
-        fast_moving: true
+        fast_moving: true,
       },
       {
         id: 3,
@@ -207,7 +241,7 @@ const StokBarangReport = () => {
         reorder_point: 30,
         lead_time: 21,
         abc_classification: 'B',
-        fast_moving: false
+        fast_moving: false,
       },
       {
         id: 4,
@@ -230,7 +264,7 @@ const StokBarangReport = () => {
         reorder_point: 40,
         lead_time: 10,
         abc_classification: 'A',
-        fast_moving: true
+        fast_moving: true,
       },
       {
         id: 5,
@@ -253,16 +287,16 @@ const StokBarangReport = () => {
         reorder_point: 35,
         lead_time: 5,
         abc_classification: 'A',
-        fast_moving: true
-      }
+        fast_moving: true,
+      },
     ];
 
     return sampleData.map(item => ({
       ...item,
       status: getStockStatus(item.stok_akhir, item.stok_minimum),
       value_at_selling_price: item.stok_akhir * item.harga_jual,
-      days_of_supply: item.turnover_rate > 0 ? (item.stok_akhir / (item.turnover_rate * 30)) : 0,
-      potential_profit: (item.harga_jual - item.harga_beli) * item.stok_akhir
+      days_of_supply: item.turnover_rate > 0 ? item.stok_akhir / (item.turnover_rate * 30) : 0,
+      potential_profit: (item.harga_jual - item.harga_beli) * item.stok_akhir,
     }));
   }, []);
 
@@ -272,9 +306,10 @@ const StokBarangReport = () => {
 
     // Apply filters
     if (filters.search.value) {
-      data = data.filter(item => 
-        item.nama_barang.toLowerCase().includes(filters.search.value.toLowerCase()) ||
-        item.kode_barang.toLowerCase().includes(filters.search.value.toLowerCase())
+      data = data.filter(
+        item =>
+          item.nama_barang.toLowerCase().includes(filters.search.value.toLowerCase()) ||
+          item.kode_barang.toLowerCase().includes(filters.search.value.toLowerCase())
       );
     }
 
@@ -299,7 +334,7 @@ const StokBarangReport = () => {
       const aVal = a[sortBy];
       const bVal = b[sortBy];
       const multiplier = sortDirection === 'asc' ? 1 : -1;
-      
+
       if (typeof aVal === 'string') {
         return aVal.localeCompare(bVal) * multiplier;
       }
@@ -317,8 +352,12 @@ const StokBarangReport = () => {
     const lowStockItems = processedData.filter(item => item.status === 'low').length;
     const outOfStockItems = processedData.filter(item => item.status === 'out_of_stock').length;
     const criticalItems = processedData.filter(item => item.status === 'critical').length;
-    const averageTurnover = processedData.reduce((sum, item) => sum + item.turnover_rate, 0) / totalItems;
-    const totalPotentialProfit = processedData.reduce((sum, item) => sum + item.potential_profit, 0);
+    const averageTurnover =
+      processedData.reduce((sum, item) => sum + item.turnover_rate, 0) / totalItems;
+    const totalPotentialProfit = processedData.reduce(
+      (sum, item) => sum + item.potential_profit,
+      0
+    );
 
     return {
       totalItems,
@@ -329,7 +368,7 @@ const StokBarangReport = () => {
       criticalItems,
       averageTurnover,
       totalPotentialProfit,
-      healthScore: ((totalItems - outOfStockItems - criticalItems) / totalItems) * 100
+      healthScore: ((totalItems - outOfStockItems - criticalItems) / totalItems) * 100,
     };
   }, [processedData]);
 
@@ -345,7 +384,7 @@ const StokBarangReport = () => {
   const handleFilterChange = useCallback((filterKey, value) => {
     setFilters(prev => ({
       ...prev,
-      [filterKey]: { ...prev[filterKey], value }
+      [filterKey]: { ...prev[filterKey], value },
     }));
     setPage(0); // Reset to first page when filters change
   }, []);
@@ -358,7 +397,7 @@ const StokBarangReport = () => {
       return {
         category: cat.label,
         count: items.length,
-        value: items.reduce((sum, item) => sum + item.nilai_stok, 0)
+        value: items.reduce((sum, item) => sum + item.nilai_stok, 0),
       };
     });
 
@@ -368,14 +407,12 @@ const StokBarangReport = () => {
       return {
         status: STOCK_STATUS[status].label,
         count,
-        color: STOCK_STATUS[status].color
+        color: STOCK_STATUS[status].color,
       };
     });
 
     // Top 10 by Value
-    const topByValue = [...processedData]
-      .sort((a, b) => b.nilai_stok - a.nilai_stok)
-      .slice(0, 10);
+    const topByValue = [...processedData].sort((a, b) => b.nilai_stok - a.nilai_stok).slice(0, 10);
 
     // ABC Analysis
     const abcData = ['A', 'B', 'C'].map(classification => ({
@@ -383,42 +420,50 @@ const StokBarangReport = () => {
       count: processedData.filter(item => item.abc_classification === classification).length,
       value: processedData
         .filter(item => item.abc_classification === classification)
-        .reduce((sum, item) => sum + item.nilai_stok, 0)
+        .reduce((sum, item) => sum + item.nilai_stok, 0),
     }));
 
     return {
       categoryChart: {
         labels: categoryData.map(d => d.category),
-        datasets: [{
-          label: 'Stock Value',
-          data: categoryData.map(d => d.value),
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-        }]
+        datasets: [
+          {
+            label: 'Stock Value',
+            data: categoryData.map(d => d.value),
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+          },
+        ],
       },
       statusChart: {
         labels: statusData.map(d => d.status),
-        datasets: [{
-          data: statusData.map(d => d.count),
-          backgroundColor: ['#4CAF50', '#FF9800', '#F44336', '#9E9E9E']
-        }]
+        datasets: [
+          {
+            data: statusData.map(d => d.count),
+            backgroundColor: ['#4CAF50', '#FF9800', '#F44336', '#9E9E9E'],
+          },
+        ],
       },
       topValueChart: {
         labels: topByValue.map(item => item.kode_barang),
-        datasets: [{
-          label: 'Stock Value',
-          data: topByValue.map(item => item.nilai_stok),
-          backgroundColor: 'rgba(54, 162, 235, 0.8)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }]
+        datasets: [
+          {
+            label: 'Stock Value',
+            data: topByValue.map(item => item.nilai_stok),
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+          },
+        ],
       },
       abcChart: {
         labels: abcData.map(d => `Class ${d.classification}`),
-        datasets: [{
-          data: abcData.map(d => d.value),
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-        }]
-      }
+        datasets: [
+          {
+            data: abcData.map(d => d.value),
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+          },
+        ],
+      },
     };
   }, [processedData]);
 
@@ -428,22 +473,20 @@ const StokBarangReport = () => {
       label: 'Stock Alerts',
       icon: <Warning />,
       onClick: () => {
-        const alerts = processedData.filter(item => 
-          item.status === 'critical' || item.status === 'out_of_stock'
+        const alerts = processedData.filter(
+          item => item.status === 'critical' || item.status === 'out_of_stock'
         );
         toast.info(`${alerts.length} items need immediate attention`);
-      }
+      },
     },
     {
       label: 'Generate Reorder Report',
       icon: <TrendingUp />,
       onClick: () => {
-        const reorderItems = processedData.filter(item => 
-          item.stok_akhir <= item.reorder_point
-        );
+        const reorderItems = processedData.filter(item => item.stok_akhir <= item.reorder_point);
         toast.info(`${reorderItems.length} items need reordering`);
-      }
-    }
+      },
+    },
   ];
 
   // Render Summary Cards
@@ -515,11 +558,17 @@ const StokBarangReport = () => {
                 <Typography variant="body2" color="text.secondary">
                   Stock Health Score
                 </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={summaryStats.healthScore} 
+                <LinearProgress
+                  variant="determinate"
+                  value={summaryStats.healthScore}
                   sx={{ mt: 1 }}
-                  color={summaryStats.healthScore >= 80 ? 'success' : summaryStats.healthScore >= 60 ? 'warning' : 'error'}
+                  color={
+                    summaryStats.healthScore >= 80
+                      ? 'success'
+                      : summaryStats.healthScore >= 60
+                        ? 'warning'
+                        : 'error'
+                  }
                 />
               </Box>
             </Box>
@@ -537,14 +586,14 @@ const StokBarangReport = () => {
           <CardHeader title="Stock by Category" />
           <CardContent>
             <Box sx={{ height: 300 }}>
-              <Bar 
+              <Bar
                 data={chartData.categoryChart}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: { display: false }
-                  }
+                    legend: { display: false },
+                  },
                 }}
               />
             </Box>
@@ -557,11 +606,11 @@ const StokBarangReport = () => {
           <CardHeader title="Stock Status Distribution" />
           <CardContent>
             <Box sx={{ height: 300 }}>
-              <Doughnut 
+              <Doughnut
                 data={chartData.statusChart}
                 options={{
                   responsive: true,
-                  maintainAspectRatio: false
+                  maintainAspectRatio: false,
                 }}
               />
             </Box>
@@ -574,15 +623,15 @@ const StokBarangReport = () => {
           <CardHeader title="Top 10 Items by Value" />
           <CardContent>
             <Box sx={{ height: 300 }}>
-              <Bar 
+              <Bar
                 data={chartData.topValueChart}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
                   indexAxis: 'y',
                   plugins: {
-                    legend: { display: false }
-                  }
+                    legend: { display: false },
+                  },
                 }}
               />
             </Box>
@@ -595,11 +644,11 @@ const StokBarangReport = () => {
           <CardHeader title="ABC Analysis" />
           <CardContent>
             <Box sx={{ height: 300 }}>
-              <Pie 
+              <Pie
                 data={chartData.abcChart}
                 options={{
                   responsive: true,
-                  maintainAspectRatio: false
+                  maintainAspectRatio: false,
                 }}
               />
             </Box>
@@ -632,20 +681,22 @@ const StokBarangReport = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedData.map((item) => (
+              {paginatedData.map(item => (
                 <TableRow key={item.id} hover>
                   <TableCell>{item.kode_barang}</TableCell>
                   <TableCell>{item.nama_barang}</TableCell>
                   <TableCell>
-                    <Chip 
-                      label={CATEGORIES.find(c => c.value === item.kategori)?.label || item.kategori}
+                    <Chip
+                      label={
+                        CATEGORIES.find(c => c.value === item.kategori)?.label || item.kategori
+                      }
                       size="small"
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <Typography 
-                      variant="body2" 
+                    <Typography
+                      variant="body2"
                       fontWeight="bold"
                       color={item.stok_akhir <= item.stok_minimum ? 'error' : 'inherit'}
                     >
@@ -654,15 +705,13 @@ const StokBarangReport = () => {
                   </TableCell>
                   <TableCell align="right">{item.stok_minimum.toLocaleString()}</TableCell>
                   <TableCell>
-                    <Chip 
+                    <Chip
                       label={STOCK_STATUS[item.status.toUpperCase()]?.label || item.status}
                       color={STOCK_STATUS[item.status.toUpperCase()]?.color || 'default'}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell align="right">
-                    Rp {item.nilai_stok.toLocaleString()}
-                  </TableCell>
+                  <TableCell align="right">Rp {item.nilai_stok.toLocaleString()}</TableCell>
                   <TableCell align="right">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       {item.turnover_rate.toFixed(1)}x
@@ -689,14 +738,14 @@ const StokBarangReport = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         <TablePagination
           component="div"
           count={processedData.length}
           page={page}
           onPageChange={(_, newPage) => setPage(newPage)}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => {
+          onRowsPerPageChange={e => {
             setRowsPerPage(parseInt(e.target.value, 10));
             setPage(0);
           }}
@@ -729,7 +778,7 @@ const StokBarangReport = () => {
       metadata={{
         totalRecords: processedData.length,
         version: '2.0',
-        author: 'Stock Management System'
+        author: 'Stock Management System',
       }}
     >
       <Box>
@@ -739,12 +788,12 @@ const StokBarangReport = () => {
             control={
               <Switch
                 checked={realTimeUpdates}
-                onChange={(e) => setRealTimeUpdates(e.target.checked)}
+                onChange={e => setRealTimeUpdates(e.target.checked)}
               />
             }
             label="Real-time Updates"
           />
-          
+
           <Tabs value={currentTab} onChange={(_, newValue) => setCurrentTab(newValue)}>
             <Tab label="Summary" />
             <Tab label="Analytics" />

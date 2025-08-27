@@ -12,7 +12,7 @@ import {
   Alert,
   CircularProgress,
   Card,
-  CardContent
+  CardContent,
 } from '@mui/material';
 import { LockOutlined as LockIcon } from '@mui/icons-material';
 
@@ -22,7 +22,7 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({
     kodedivisi: '01',
     username: '',
-    password: ''
+    password: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,43 +32,43 @@ const LoginPage = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.kodedivisi.trim()) {
       newErrors.kodedivisi = 'Kode divisi wajib diisi';
     }
-    
+
     if (!formData.username.trim()) {
       newErrors.username = 'Username wajib diisi';
     }
-    
+
     if (!formData.password.trim()) {
       newErrors.password = 'Password wajib diisi';
     }
-    
+
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    
+
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -80,7 +80,7 @@ const LoginPage = () => {
 
     try {
       const result = await login(formData);
-      
+
       if (result.success) {
         toast.success('Login berhasil!');
         navigate('/dashboard');
@@ -114,7 +114,7 @@ const LoginPage = () => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              mb: 3
+              mb: 3,
             }}
           >
             <Box
@@ -122,7 +122,7 @@ const LoginPage = () => {
                 bgcolor: 'primary.main',
                 borderRadius: '50%',
                 p: 1,
-                mb: 2
+                mb: 2,
               }}
             >
               <LockIcon sx={{ color: 'white', fontSize: 32 }} />
@@ -205,9 +205,12 @@ const LoginPage = () => {
 
           <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
             <Typography variant="caption" color="text.secondary">
-              <strong>Demo Credentials:</strong><br />
-              Division: 01<br />
-              Username: admin<br />
+              <strong>Demo Credentials:</strong>
+              <br />
+              Division: 01
+              <br />
+              Username: admin
+              <br />
               Password: admin123
             </Typography>
           </Box>

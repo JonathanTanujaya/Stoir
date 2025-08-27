@@ -26,6 +26,7 @@ Modul master data untuk sistem inventory management dengan 10 jenis master data.
 ## Komponen yang Sudah Lengkap
 
 ### 1. Master Sparepart (`MasterSparepart.jsx`)
+
 - Input kode dan nama sparepart
 - Kategori dan merk barang
 - Satuan, harga beli/jual
@@ -33,6 +34,7 @@ Modul master data untuk sistem inventory management dengan 10 jenis master data.
 - CRUD operations lengkap
 
 ### 2. Master Stock Min (`MasterStockMin.jsx`)
+
 - Monitoring stok vs stok minimum
 - Perhitungan selisih otomatis
 - Status indicator (Aman/Minimum/Kurang)
@@ -41,18 +43,21 @@ Modul master data untuk sistem inventory management dengan 10 jenis master data.
 - Real-time stok minimum adjustment
 
 ### 3. Master Area (`MasterArea.jsx`)
+
 - Kode area dan nama area
 - Wilayah dan provinsi
 - Status management
 - CRUD operations lengkap
 
 ### 4. Master Bank (`MasterBank.jsx`)
+
 - Kode dan nama bank
 - Alamat dan telepon
 - Status management
 - CRUD operations lengkap
 
 ### 5. Master Rekening (`MasterRekening.jsx`)
+
 - No rekening dan nama rekening
 - Jenis rekening (Tabungan/Giro/Deposito)
 - Saldo awal
@@ -84,21 +89,26 @@ Semua master data dapat diakses melalui sidebar menu "Master Data" dengan 10 sub
 ## Database Fields
 
 ### Sparepart
+
 - kode_sparepart, nama_sparepart, kategori, merk, satuan
 - harga_beli, harga_jual, stok_min, keterangan
 
 ### Stock Min
+
 - kode_barang, nama_barang, kategori
 - stok_saat_ini, stok_minimum, selisih, status
 
 ### Area
+
 - kode_area, nama_area, wilayah, provinsi
 - keterangan, status
 
 ### Bank
+
 - kode_bank, nama_bank, alamat, telepon, status
 
 ### Rekening
+
 - no_rekening, nama_rekening, bank, jenis_rekening
 - saldo_awal, status
 

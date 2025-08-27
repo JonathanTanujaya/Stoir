@@ -11,29 +11,29 @@ class MBarang extends Model
     use HasFactory;
 
     protected $table = 'dbo.m_barang';
-    protected $primaryKey = ['KodeDivisi', 'KodeBarang'];
+    protected $primaryKey = ['kodedivisi', 'kodebarang'];
     public $incrementing = false;
     public $timestamps = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'KodeDivisi',
-        'KodeBarang',
-        'NamaBarang',
-        'KodeKategori',
-        'HargaList',
-        'HargaJual',
-        'HargaList2',
-        'HargaJual2',
-        'Satuan',
-        'Disc1',
-        'Disc2',
+        'kodedivisi',
+        'kodebarang',
+        'namabarang',
+        'kodekategori',
+        'hargalist',
+        'hargajual',
+        'hargalist2',
+        'hargajual2',
+        'satuan',
+        'disc1',
+        'disc2',
         'merk',
-        'Barcode',
+        'barcode',
         'status',
-        'Lokasi',
-        'StokMin',
-        'Checklist'
+        'lokasi',
+        'stokmin',
+        'checklist'
     ];
 
     protected $casts = [

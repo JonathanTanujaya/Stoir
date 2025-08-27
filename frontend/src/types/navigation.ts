@@ -31,7 +31,7 @@ export interface NavigationContextType {
   favoriteItems: NavigationItem[];
   searchQuery: string;
   commandPaletteOpen: boolean;
-  
+
   // Actions
   setActiveCategory: (category: string) => void;
   setSidebarOpen: (open: boolean) => void;
@@ -39,10 +39,10 @@ export interface NavigationContextType {
   setCommandPaletteOpen: (open: boolean) => void;
   toggleFavorite: (item: NavigationItem) => void;
   searchItems: (query: string) => NavigationItem[];
-  
+
   // Config
   navigationConfig: NavigationConfig;
-  
+
   // Computed
   activeItems: NavigationItem[];
   activeCategoryConfig: NavigationCategory | undefined;

@@ -40,7 +40,7 @@ import {
   Tabs,
   Tab,
   Badge,
-  Autocomplete
+  Autocomplete,
 } from '@mui/material';
 import {
   Add,
@@ -64,7 +64,7 @@ import {
   Assessment,
   History,
   Print,
-  CloudUpload
+  CloudUpload,
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -83,7 +83,7 @@ const StockOpnameComponent = () => {
     createdBy: 'current_user',
     items: [],
     totalDiscrepancy: 0,
-    adjustmentPosted: false
+    adjustmentPosted: false,
   });
 
   const [products, setProducts] = useState([]);
@@ -109,7 +109,7 @@ const StockOpnameComponent = () => {
     'Add Products',
     'Count Stock',
     'Review Discrepancies',
-    'Post Adjustments'
+    'Post Adjustments',
   ];
 
   useEffect(() => {
@@ -139,7 +139,7 @@ const StockOpnameComponent = () => {
     try {
       // Mock API call - replace with actual backend call
       const response = await fetch('/api/products');
-      
+
       // Mock data for demonstration
       const mockProducts = [
         {
@@ -152,8 +152,8 @@ const StockOpnameComponent = () => {
           unitCost: 100,
           lots: [
             { id: 'LOT001', quantity: 25, expiryDate: '2024-06-15' },
-            { id: 'LOT002', quantity: 20, expiryDate: '2024-08-20' }
-          ]
+            { id: 'LOT002', quantity: 20, expiryDate: '2024-08-20' },
+          ],
         },
         {
           id: 2,
@@ -163,9 +163,7 @@ const StockOpnameComponent = () => {
           location: 'Warehouse B',
           category: 'Tools',
           unitCost: 200,
-          lots: [
-            { id: 'LOT003', quantity: 120, expiryDate: '2025-12-31' }
-          ]
+          lots: [{ id: 'LOT003', quantity: 120, expiryDate: '2025-12-31' }],
         },
         {
           id: 3,
@@ -175,8 +173,8 @@ const StockOpnameComponent = () => {
           location: 'Warehouse A',
           category: 'Consumables',
           unitCost: 50,
-          lots: []
-        }
+          lots: [],
+        },
       ];
 
       setProducts(mockProducts);
@@ -185,13 +183,13 @@ const StockOpnameComponent = () => {
     }
   };
 
-  const loadOpnameData = async (opnameId) => {
+  const loadOpnameData = async opnameId => {
     try {
       // Mock API call
       const response = await fetch(`/api/opname/${opnameId}`);
       const data = await response.json();
       setOpnameData(data);
-      
+
       // Determine active step based on status
       switch (data.status) {
         case 'DRAFT':
@@ -214,20 +212,25 @@ const StockOpnameComponent = () => {
   const calculateDiscrepancies = useCallback(async () => {
     try {
       setProcessing(true);
-      
+
       const updatedItems = opnameData.items.map(item => {
         const physicalCount = item.physicalCount || 0;
         const systemStock = item.systemStock || 0;
         const variance = physicalCount - systemStock;
         const varianceValue = variance * item.unitCost;
-        
+
         // Calculate ABC classification impact
-        const abcClass = stockEngine.current.calculateABCClassification([{
-          id: item.productId,
-          annualUsage: item.systemStock * 12, // Approximate annual usage
-          unitCost: item.unitCost
-        }]).get(item.productId)?.class || 'C';
-        
+        const abcClass =
+          stockEngine.current
+            .calculateABCClassification([
+              {
+                id: item.productId,
+                annualUsage: item.systemStock * 12, // Approximate annual usage
+                unitCost: item.unitCost,
+              },
+            ])
+            .get(item.productId)?.class || 'C';
+
         return {
           ...item,
           variance,
@@ -235,16 +238,20 @@ const StockOpnameComponent = () => {
           variancePercentage: systemStock > 0 ? (variance / systemStock) * 100 : 0,
           abcClass,
           status: variance === 0 ? 'MATCH' : variance > 0 ? 'EXCESS' : 'SHORTAGE',
-          requiresApproval: Math.abs(varianceValue) > 1000 || Math.abs(variance / systemStock) > 0.1
+          requiresApproval:
+            Math.abs(varianceValue) > 1000 || Math.abs(variance / systemStock) > 0.1,
         };
       });
 
-      const totalDiscrepancy = updatedItems.reduce((sum, item) => sum + Math.abs(item.varianceValue), 0);
+      const totalDiscrepancy = updatedItems.reduce(
+        (sum, item) => sum + Math.abs(item.varianceValue),
+        0
+      );
 
       setOpnameData(prev => ({
         ...prev,
         items: updatedItems,
-        totalDiscrepancy
+        totalDiscrepancy,
       }));
     } catch (error) {
       console.error('Failed to calculate discrepancies:', error);
@@ -253,18 +260,16 @@ const StockOpnameComponent = () => {
     }
   }, [opnameData.items]);
 
-  const addProductToOpname = (product) => {
+  const addProductToOpname = product => {
     const existingItem = opnameData.items.find(item => item.productId === product.id);
-    
+
     if (existingItem) {
       // Update existing item
       setOpnameData(prev => ({
         ...prev,
-        items: prev.items.map(item => 
-          item.productId === product.id 
-            ? { ...item, systemStock: product.systemStock }
-            : item
-        )
+        items: prev.items.map(item =>
+          item.productId === product.id ? { ...item, systemStock: product.systemStock } : item
+        ),
       }));
     } else {
       // Add new item
@@ -285,24 +290,25 @@ const StockOpnameComponent = () => {
         countedBy: null,
         countedAt: null,
         notes: '',
-        lots: product.lots?.map(lot => ({
-          ...lot,
-          physicalCount: 0,
-          variance: 0
-        })) || []
+        lots:
+          product.lots?.map(lot => ({
+            ...lot,
+            physicalCount: 0,
+            variance: 0,
+          })) || [],
       };
 
       setOpnameData(prev => ({
         ...prev,
-        items: [...prev.items, newItem]
+        items: [...prev.items, newItem],
       }));
     }
   };
 
-  const removeProductFromOpname = (itemId) => {
+  const removeProductFromOpname = itemId => {
     setOpnameData(prev => ({
       ...prev,
-      items: prev.items.filter(item => item.id !== itemId)
+      items: prev.items.filter(item => item.id !== itemId),
     }));
   };
 
@@ -313,19 +319,19 @@ const StockOpnameComponent = () => {
         if (item.id === itemId) {
           if (lotId) {
             // Update lot count
-            const updatedLots = item.lots.map(lot => 
-              lot.id === lotId 
+            const updatedLots = item.lots.map(lot =>
+              lot.id === lotId
                 ? { ...lot, physicalCount: count, variance: count - lot.quantity }
                 : lot
             );
             const totalPhysicalCount = updatedLots.reduce((sum, lot) => sum + lot.physicalCount, 0);
-            
+
             return {
               ...item,
               lots: updatedLots,
               physicalCount: totalPhysicalCount,
               countedAt: new Date().toISOString(),
-              countedBy: 'current_user'
+              countedBy: 'current_user',
             };
           } else {
             // Update item count
@@ -333,22 +339,22 @@ const StockOpnameComponent = () => {
               ...item,
               physicalCount: count,
               countedAt: new Date().toISOString(),
-              countedBy: 'current_user'
+              countedBy: 'current_user',
             };
           }
         }
         return item;
-      })
+      }),
     }));
   };
 
-  const handleBarcodeScanned = async (barcode) => {
+  const handleBarcodeScanned = async barcode => {
     try {
       const product = products.find(p => p.barcode === barcode);
-      
+
       if (product) {
         const existingItem = opnameData.items.find(item => item.productId === product.id);
-        
+
         if (existingItem) {
           // Increment physical count
           updatePhysicalCount(existingItem.id, existingItem.physicalCount + 1);
@@ -362,7 +368,7 @@ const StockOpnameComponent = () => {
             }
           }, 100);
         }
-        
+
         // Show success feedback
         console.log(`Scanned: ${product.name}`);
       } else {
@@ -377,12 +383,12 @@ const StockOpnameComponent = () => {
   const startBarcodeScanner = async () => {
     try {
       setScanning(true);
-      
+
       // Mock barcode scanner implementation
       // In a real implementation, this would integrate with camera API
       const mockBarcodes = ['1234567890123', '2345678901234', '3456789012345'];
       const randomBarcode = mockBarcodes[Math.floor(Math.random() * mockBarcodes.length)];
-      
+
       setTimeout(() => {
         handleBarcodeScanned(randomBarcode);
         setScanning(false);
@@ -398,7 +404,7 @@ const StockOpnameComponent = () => {
       const exportData = {
         ...opnameData,
         exportedAt: new Date().toISOString(),
-        exportedBy: 'current_user'
+        exportedBy: 'current_user',
       };
 
       const dataStr = JSON.stringify(exportData, null, 2);
@@ -414,12 +420,12 @@ const StockOpnameComponent = () => {
     }
   };
 
-  const importOpnameData = (event) => {
+  const importOpnameData = event => {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       try {
         const importedData = JSON.parse(e.target.result);
         setOpnameData(importedData);
@@ -434,17 +440,17 @@ const StockOpnameComponent = () => {
   const saveOpname = async () => {
     try {
       setProcessing(true);
-      
+
       const saveData = {
         ...opnameData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       // Mock API call
       const response = await fetch(`/api/opname${opnameData.id ? `/${opnameData.id}` : ''}`, {
         method: opnameData.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(saveData)
+        body: JSON.stringify(saveData),
       });
 
       if (response.ok) {
@@ -462,7 +468,7 @@ const StockOpnameComponent = () => {
   const postAdjustments = async () => {
     try {
       setProcessing(true);
-      
+
       const adjustments = opnameData.items
         .filter(item => item.variance !== 0)
         .map(item => ({
@@ -471,17 +477,17 @@ const StockOpnameComponent = () => {
           varianceValue: item.varianceValue,
           reason: 'Stock Opname Adjustment',
           reference: `OPNAME-${opnameData.id}`,
-          lots: item.lots?.filter(lot => lot.variance !== 0) || []
+          lots: item.lots?.filter(lot => lot.variance !== 0) || [],
         }));
 
       // Batch process adjustments using StockEngine
       const results = await stockEngine.current.batchProcessAdjustments(adjustments);
-      
+
       setOpnameData(prev => ({
         ...prev,
         adjustmentPosted: true,
         status: 'COMPLETED',
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
       }));
 
       console.log('Adjustments posted successfully:', results);
@@ -493,17 +499,22 @@ const StockOpnameComponent = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
-      case 'MATCH': return 'success';
-      case 'EXCESS': return 'info';
-      case 'SHORTAGE': return 'warning';
-      case 'PENDING': return 'default';
-      default: return 'default';
+      case 'MATCH':
+        return 'success';
+      case 'EXCESS':
+        return 'info';
+      case 'SHORTAGE':
+        return 'warning';
+      case 'PENDING':
+        return 'default';
+      default:
+        return 'default';
     }
   };
 
-  const getVarianceIcon = (variance) => {
+  const getVarianceIcon = variance => {
     if (variance > 0) return <Add color="success" />;
     if (variance < 0) return <Remove color="error" />;
     return <CheckCircle color="success" />;
@@ -519,32 +530,34 @@ const StockOpnameComponent = () => {
   const renderSetupStep = () => (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>Opname Setup</Typography>
+        <Typography variant="h6" gutterBottom>
+          Opname Setup
+        </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
               label="Opname Title"
               value={opnameData.title}
-              onChange={(e) => setOpnameData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={e => setOpnameData(prev => ({ ...prev, title: e.target.value }))}
               margin="normal"
             />
-            
+
             <TextField
               fullWidth
               label="Description"
               value={opnameData.description}
-              onChange={(e) => setOpnameData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={e => setOpnameData(prev => ({ ...prev, description: e.target.value }))}
               multiline
               rows={3}
               margin="normal"
             />
-            
+
             <FormControl fullWidth margin="normal">
               <InputLabel>Location</InputLabel>
               <Select
                 value={opnameData.location}
-                onChange={(e) => setOpnameData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={e => setOpnameData(prev => ({ ...prev, location: e.target.value }))}
               >
                 <MenuItem value="Warehouse A">Warehouse A</MenuItem>
                 <MenuItem value="Warehouse B">Warehouse B</MenuItem>
@@ -553,48 +566,45 @@ const StockOpnameComponent = () => {
               </Select>
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 label="Start Date"
                 value={opnameData.startDate}
-                onChange={(date) => setOpnameData(prev => ({ ...prev, startDate: date }))}
-                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                onChange={date => setOpnameData(prev => ({ ...prev, startDate: date }))}
+                renderInput={params => <TextField {...params} fullWidth margin="normal" />}
               />
-              
+
               <DatePicker
                 label="End Date (Optional)"
                 value={opnameData.endDate}
-                onChange={(date) => setOpnameData(prev => ({ ...prev, endDate: date }))}
-                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                onChange={date => setOpnameData(prev => ({ ...prev, endDate: date }))}
+                renderInput={params => <TextField {...params} fullWidth margin="normal" />}
               />
             </LocalizationProvider>
-            
+
             <FormControlLabel
               control={
                 <Switch
                   checked={autoCalculate}
-                  onChange={(e) => setAutoCalculate(e.target.checked)}
+                  onChange={e => setAutoCalculate(e.target.checked)}
                 />
               }
               label="Auto-calculate discrepancies"
               sx={{ mt: 2 }}
             />
-            
+
             <FormControlLabel
               control={
-                <Switch
-                  checked={batchMode}
-                  onChange={(e) => setBatchMode(e.target.checked)}
-                />
+                <Switch checked={batchMode} onChange={e => setBatchMode(e.target.checked)} />
               }
               label="Batch processing mode"
               sx={{ mt: 1 }}
             />
           </Grid>
         </Grid>
-        
+
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="contained" onClick={() => setActiveStep(1)}>
             Next: Add Products
@@ -627,38 +637,32 @@ const StockOpnameComponent = () => {
             </Button>
           </Box>
         </Box>
-        
+
         <Autocomplete
           multiple
           options={products}
-          getOptionLabel={(option) => `${option.name} (${option.barcode})`}
+          getOptionLabel={option => `${option.name} (${option.barcode})`}
           value={selectedProducts}
           onChange={(event, newValue) => {
             setSelectedProducts(newValue);
             newValue.forEach(product => addProductToOpname(product));
           }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Select Products"
-              placeholder="Search products..."
-            />
+          renderInput={params => (
+            <TextField {...params} label="Select Products" placeholder="Search products..." />
           )}
           sx={{ mb: 2 }}
         />
-        
+
         {opnameData.items.length > 0 && (
           <Typography variant="body2" color="text.secondary" gutterBottom>
             {opnameData.items.length} products added to opname
           </Typography>
         )}
-        
+
         <Box mt={3} display="flex" justifyContent="space-between">
-          <Button onClick={() => setActiveStep(0)}>
-            Back
-          </Button>
-          <Button 
-            variant="contained" 
+          <Button onClick={() => setActiveStep(0)}>Back</Button>
+          <Button
+            variant="contained"
             onClick={() => setActiveStep(2)}
             disabled={opnameData.items.length === 0}
           >
@@ -677,22 +681,16 @@ const StockOpnameComponent = () => {
           <Box display="flex" gap={1}>
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>View</InputLabel>
-              <Select
-                value={viewMode}
-                onChange={(e) => setViewMode(e.target.value)}
-              >
+              <Select value={viewMode} onChange={e => setViewMode(e.target.value)}>
                 <MenuItem value="table">Table</MenuItem>
                 <MenuItem value="grid">Grid</MenuItem>
                 <MenuItem value="scanner">Scanner</MenuItem>
               </Select>
             </FormControl>
-            
+
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Filter</InputLabel>
-              <Select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-              >
+              <Select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
                 <MenuItem value="ALL">All</MenuItem>
                 <MenuItem value="PENDING">Pending</MenuItem>
                 <MenuItem value="MATCH">Match</MenuItem>
@@ -700,7 +698,7 @@ const StockOpnameComponent = () => {
                 <MenuItem value="SHORTAGE">Shortage</MenuItem>
               </Select>
             </FormControl>
-            
+
             <Button
               variant="outlined"
               startIcon={<QrCodeScanner />}
@@ -711,9 +709,9 @@ const StockOpnameComponent = () => {
             </Button>
           </Box>
         </Box>
-        
+
         {processing && <LinearProgress sx={{ mb: 2 }} />}
-        
+
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -728,7 +726,7 @@ const StockOpnameComponent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredItems.map((item) => (
+              {filteredItems.map(item => (
                 <TableRow key={item.id}>
                   <TableCell>
                     <Typography variant="subtitle2">{item.productName}</Typography>
@@ -741,7 +739,7 @@ const StockOpnameComponent = () => {
                     <TextField
                       type="number"
                       value={item.physicalCount}
-                      onChange={(e) => updatePhysicalCount(item.id, parseInt(e.target.value) || 0)}
+                      onChange={e => updatePhysicalCount(item.id, parseInt(e.target.value) || 0)}
                       size="small"
                       sx={{ width: 80 }}
                     />
@@ -749,8 +747,14 @@ const StockOpnameComponent = () => {
                   <TableCell align="center">
                     <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                       {getVarianceIcon(item.variance)}
-                      <Typography 
-                        color={item.variance === 0 ? 'success.main' : item.variance > 0 ? 'info.main' : 'error.main'}
+                      <Typography
+                        color={
+                          item.variance === 0
+                            ? 'success.main'
+                            : item.variance > 0
+                              ? 'info.main'
+                              : 'error.main'
+                        }
                       >
                         {item.variance}
                       </Typography>
@@ -758,21 +762,23 @@ const StockOpnameComponent = () => {
                   </TableCell>
                   <TableCell align="center">
                     <Typography
-                      color={item.varianceValue === 0 ? 'success.main' : item.varianceValue > 0 ? 'info.main' : 'error.main'}
+                      color={
+                        item.varianceValue === 0
+                          ? 'success.main'
+                          : item.varianceValue > 0
+                            ? 'info.main'
+                            : 'error.main'
+                      }
                     >
                       ${Math.abs(item.varianceValue).toLocaleString()}
                     </Typography>
                   </TableCell>
                   <TableCell align="center">
-                    <Chip 
-                      label={item.status}
-                      color={getStatusColor(item.status)}
-                      size="small"
-                    />
+                    <Chip label={item.status} color={getStatusColor(item.status)} size="small" />
                   </TableCell>
                   <TableCell align="center">
                     <Tooltip title="View Details">
-                      <IconButton 
+                      <IconButton
                         size="small"
                         onClick={() => {
                           setSelectedItem(item);
@@ -788,15 +794,10 @@ const StockOpnameComponent = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         <Box mt={3} display="flex" justifyContent="space-between">
-          <Button onClick={() => setActiveStep(1)}>
-            Back
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={() => setActiveStep(3)}
-          >
+          <Button onClick={() => setActiveStep(1)}>Back</Button>
+          <Button variant="contained" onClick={() => setActiveStep(3)}>
             Next: Review Discrepancies
           </Button>
         </Box>
@@ -806,13 +807,18 @@ const StockOpnameComponent = () => {
 
   const renderDiscrepancyReview = () => {
     const discrepancyItems = opnameData.items.filter(item => item.variance !== 0);
-    const totalValue = discrepancyItems.reduce((sum, item) => sum + Math.abs(item.varianceValue), 0);
-    
+    const totalValue = discrepancyItems.reduce(
+      (sum, item) => sum + Math.abs(item.varianceValue),
+      0
+    );
+
     return (
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>Review Discrepancies</Typography>
-          
+          <Typography variant="h6" gutterBottom>
+            Review Discrepancies
+          </Typography>
+
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} md={3}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
@@ -847,7 +853,7 @@ const StockOpnameComponent = () => {
               </Paper>
             </Grid>
           </Grid>
-          
+
           {discrepancyItems.length > 0 ? (
             <TableContainer component={Paper}>
               <Table>
@@ -863,7 +869,7 @@ const StockOpnameComponent = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {discrepancyItems.map((item) => (
+                  {discrepancyItems.map(item => (
                     <TableRow key={item.id}>
                       <TableCell>
                         <Typography variant="subtitle2">{item.productName}</Typography>
@@ -876,24 +882,26 @@ const StockOpnameComponent = () => {
                       <TableCell align="center">
                         <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                           {getVarianceIcon(item.variance)}
-                          <Typography 
-                            color={item.variance > 0 ? 'info.main' : 'error.main'}
-                          >
+                          <Typography color={item.variance > 0 ? 'info.main' : 'error.main'}>
                             {item.variance} ({item.variancePercentage.toFixed(1)}%)
                           </Typography>
                         </Box>
                       </TableCell>
                       <TableCell align="center">
-                        <Typography
-                          color={item.varianceValue > 0 ? 'info.main' : 'error.main'}
-                        >
+                        <Typography color={item.varianceValue > 0 ? 'info.main' : 'error.main'}>
                           ${Math.abs(item.varianceValue).toLocaleString()}
                         </Typography>
                       </TableCell>
                       <TableCell align="center">
-                        <Chip 
+                        <Chip
                           label={item.abcClass}
-                          color={item.abcClass === 'A' ? 'error' : item.abcClass === 'B' ? 'warning' : 'default'}
+                          color={
+                            item.abcClass === 'A'
+                              ? 'error'
+                              : item.abcClass === 'B'
+                                ? 'warning'
+                                : 'default'
+                          }
                           size="small"
                         />
                       </TableCell>
@@ -914,16 +922,10 @@ const StockOpnameComponent = () => {
               No discrepancies found! All counts match the system stock.
             </Alert>
           )}
-          
+
           <Box mt={3} display="flex" justifyContent="space-between">
-            <Button onClick={() => setActiveStep(2)}>
-              Back
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={() => setActiveStep(4)}
-              disabled={processing}
-            >
+            <Button onClick={() => setActiveStep(2)}>Back</Button>
+            <Button variant="contained" onClick={() => setActiveStep(4)} disabled={processing}>
               Next: Post Adjustments
             </Button>
           </Box>
@@ -935,25 +937,26 @@ const StockOpnameComponent = () => {
   const renderAdjustmentPosting = () => (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>Post Stock Adjustments</Typography>
-        
+        <Typography variant="h6" gutterBottom>
+          Post Stock Adjustments
+        </Typography>
+
         {!opnameData.adjustmentPosted ? (
           <>
             <Alert severity="warning" sx={{ mb: 3 }}>
               This action will post all stock adjustments to the system. This cannot be undone.
             </Alert>
-            
+
             <Typography variant="body1" gutterBottom>
-              Ready to post {opnameData.items.filter(item => item.variance !== 0).length} adjustments
-              with a total value impact of ${opnameData.totalDiscrepancy.toLocaleString()}.
+              Ready to post {opnameData.items.filter(item => item.variance !== 0).length}{' '}
+              adjustments with a total value impact of $
+              {opnameData.totalDiscrepancy.toLocaleString()}.
             </Typography>
-            
+
             <Box mt={3} display="flex" justifyContent="space-between">
-              <Button onClick={() => setActiveStep(3)}>
-                Back
-              </Button>
-              <Button 
-                variant="contained" 
+              <Button onClick={() => setActiveStep(3)}>Back</Button>
+              <Button
+                variant="contained"
                 color="primary"
                 onClick={postAdjustments}
                 disabled={processing}
@@ -968,30 +971,19 @@ const StockOpnameComponent = () => {
             <Alert severity="success" sx={{ mb: 3 }}>
               Stock adjustments have been posted successfully!
             </Alert>
-            
+
             <Typography variant="body1">
               Opname completed on {new Date(opnameData.completedAt).toLocaleString()}
             </Typography>
-            
+
             <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-              <Button 
-                variant="outlined"
-                startIcon={<Print />}
-                onClick={() => window.print()}
-              >
+              <Button variant="outlined" startIcon={<Print />} onClick={() => window.print()}>
                 Print Report
               </Button>
-              <Button 
-                variant="outlined"
-                startIcon={<Download />}
-                onClick={exportOpnameData}
-              >
+              <Button variant="outlined" startIcon={<Download />} onClick={exportOpnameData}>
                 Export Data
               </Button>
-              <Button 
-                variant="contained"
-                onClick={() => window.location.href = '/stock-opname'}
-              >
+              <Button variant="contained" onClick={() => (window.location.href = '/stock-opname')}>
                 New Opname
               </Button>
             </Box>
@@ -1008,7 +1000,7 @@ const StockOpnameComponent = () => {
         <Typography variant="h4">
           Stock Opname {opnameData.title && `- ${opnameData.title}`}
         </Typography>
-        
+
         <Box display="flex" gap={1}>
           <Button
             variant="outlined"
@@ -1018,15 +1010,11 @@ const StockOpnameComponent = () => {
           >
             Save
           </Button>
-          
-          <Button
-            variant="outlined"
-            startIcon={<Download />}
-            onClick={exportOpnameData}
-          >
+
+          <Button variant="outlined" startIcon={<Download />} onClick={exportOpnameData}>
             Export
           </Button>
-          
+
           <input
             type="file"
             ref={fileInputRef}
@@ -1034,7 +1022,7 @@ const StockOpnameComponent = () => {
             accept=".json"
             style={{ display: 'none' }}
           />
-          
+
           <Button
             variant="outlined"
             startIcon={<CloudUpload />}
@@ -1050,10 +1038,7 @@ const StockOpnameComponent = () => {
         <Stepper activeStep={activeStep} orientation="horizontal">
           {opnameSteps.map((label, index) => (
             <Step key={label}>
-              <StepLabel 
-                onClick={() => setActiveStep(index)}
-                sx={{ cursor: 'pointer' }}
-              >
+              <StepLabel onClick={() => setActiveStep(index)} sx={{ cursor: 'pointer' }}>
                 {label}
               </StepLabel>
             </Step>
@@ -1069,44 +1054,74 @@ const StockOpnameComponent = () => {
       {activeStep === 4 && renderAdjustmentPosting()}
 
       {/* Item Details Dialog */}
-      <Dialog 
-        open={dialogOpen} 
-        onClose={() => setDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
         {selectedItem && (
           <>
-            <DialogTitle>
-              {selectedItem.productName} - Details
-            </DialogTitle>
+            <DialogTitle>{selectedItem.productName} - Details</DialogTitle>
             <DialogContent>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="h6" gutterBottom>Stock Information</Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Stock Information
+                  </Typography>
                   <Box display="flex" flexDirection="column" gap={1}>
-                    <Typography>Barcode: <strong>{selectedItem.barcode}</strong></Typography>
-                    <Typography>Location: <strong>{selectedItem.location}</strong></Typography>
-                    <Typography>System Stock: <strong>{selectedItem.systemStock}</strong></Typography>
-                    <Typography>Physical Count: <strong>{selectedItem.physicalCount}</strong></Typography>
-                    <Typography>Variance: <strong>{selectedItem.variance}</strong></Typography>
-                    <Typography>Value Impact: <strong>${Math.abs(selectedItem.varianceValue).toLocaleString()}</strong></Typography>
+                    <Typography>
+                      Barcode: <strong>{selectedItem.barcode}</strong>
+                    </Typography>
+                    <Typography>
+                      Location: <strong>{selectedItem.location}</strong>
+                    </Typography>
+                    <Typography>
+                      System Stock: <strong>{selectedItem.systemStock}</strong>
+                    </Typography>
+                    <Typography>
+                      Physical Count: <strong>{selectedItem.physicalCount}</strong>
+                    </Typography>
+                    <Typography>
+                      Variance: <strong>{selectedItem.variance}</strong>
+                    </Typography>
+                    <Typography>
+                      Value Impact:{' '}
+                      <strong>${Math.abs(selectedItem.varianceValue).toLocaleString()}</strong>
+                    </Typography>
                   </Box>
                 </Grid>
-                
+
                 <Grid item xs={12} md={6}>
-                  <Typography variant="h6" gutterBottom>Counting Details</Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Counting Details
+                  </Typography>
                   <Box display="flex" flexDirection="column" gap={1}>
-                    <Typography>Status: <Chip label={selectedItem.status} color={getStatusColor(selectedItem.status)} size="small" /></Typography>
-                    <Typography>Counted By: <strong>{selectedItem.countedBy || 'Not counted'}</strong></Typography>
-                    <Typography>Counted At: <strong>{selectedItem.countedAt ? new Date(selectedItem.countedAt).toLocaleString() : 'Not counted'}</strong></Typography>
-                    <Typography>ABC Class: <strong>{selectedItem.abcClass}</strong></Typography>
+                    <Typography>
+                      Status:{' '}
+                      <Chip
+                        label={selectedItem.status}
+                        color={getStatusColor(selectedItem.status)}
+                        size="small"
+                      />
+                    </Typography>
+                    <Typography>
+                      Counted By: <strong>{selectedItem.countedBy || 'Not counted'}</strong>
+                    </Typography>
+                    <Typography>
+                      Counted At:{' '}
+                      <strong>
+                        {selectedItem.countedAt
+                          ? new Date(selectedItem.countedAt).toLocaleString()
+                          : 'Not counted'}
+                      </strong>
+                    </Typography>
+                    <Typography>
+                      ABC Class: <strong>{selectedItem.abcClass}</strong>
+                    </Typography>
                   </Box>
                 </Grid>
-                
+
                 {selectedItem.lots && selectedItem.lots.length > 0 && (
                   <Grid item xs={12}>
-                    <Typography variant="h6" gutterBottom>Lot Details</Typography>
+                    <Typography variant="h6" gutterBottom>
+                      Lot Details
+                    </Typography>
                     <TableContainer component={Paper}>
                       <Table size="small">
                         <TableHead>
@@ -1119,7 +1134,7 @@ const StockOpnameComponent = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {selectedItem.lots.map((lot) => (
+                          {selectedItem.lots.map(lot => (
                             <TableRow key={lot.id}>
                               <TableCell>{lot.id}</TableCell>
                               <TableCell align="center">{lot.quantity}</TableCell>
@@ -1127,7 +1142,13 @@ const StockOpnameComponent = () => {
                                 <TextField
                                   type="number"
                                   value={lot.physicalCount}
-                                  onChange={(e) => updatePhysicalCount(selectedItem.id, parseInt(e.target.value) || 0, lot.id)}
+                                  onChange={e =>
+                                    updatePhysicalCount(
+                                      selectedItem.id,
+                                      parseInt(e.target.value) || 0,
+                                      lot.id
+                                    )
+                                  }
                                   size="small"
                                   sx={{ width: 80 }}
                                 />

@@ -6,7 +6,7 @@ const InvoiceCancelForm = () => {
     no_invoice: '',
     tanggal_cancel: new Date().toISOString().split('T')[0],
     alasan: '',
-    catatan: ''
+    catatan: '',
   });
 
   const [invoiceList, setInvoiceList] = useState([]);
@@ -21,22 +21,22 @@ const InvoiceCancelForm = () => {
     try {
       // Sample data - replace with actual API call
       const sampleData = [
-        { 
-          id: 1, 
-          no_invoice: 'INV-001', 
-          tanggal: '2025-01-16', 
-          customer: 'PT Customer Motor', 
+        {
+          id: 1,
+          no_invoice: 'INV-001',
+          tanggal: '2025-01-16',
+          customer: 'PT Customer Motor',
           total: 1815000,
-          status: 'Active'
+          status: 'Active',
         },
-        { 
-          id: 2, 
-          no_invoice: 'INV-002', 
-          tanggal: '2025-01-15', 
-          customer: 'CV Parts Motor', 
+        {
+          id: 2,
+          no_invoice: 'INV-002',
+          tanggal: '2025-01-15',
+          customer: 'CV Parts Motor',
           total: 875000,
-          status: 'Active'
-        }
+          status: 'Active',
+        },
       ];
       setInvoiceList(sampleData);
     } catch (error) {
@@ -44,11 +44,11 @@ const InvoiceCancelForm = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     if (name === 'no_invoice') {
@@ -57,21 +57,21 @@ const InvoiceCancelForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       // TODO: API call to cancel invoice
       console.log('Cancel Invoice Data:', formData);
       alert('Invoice berhasil dibatalkan!');
-      
+
       // Reset form
       setFormData({
         no_invoice: '',
         tanggal_cancel: new Date().toISOString().split('T')[0],
         alasan: '',
-        catatan: ''
+        catatan: '',
       });
       setSelectedInvoice(null);
     } catch (error) {
@@ -100,7 +100,7 @@ const InvoiceCancelForm = () => {
                 required
               >
                 <option value="">Pilih Invoice</option>
-                {invoiceList.map((invoice) => (
+                {invoiceList.map(invoice => (
                   <option key={invoice.id} value={invoice.id}>
                     {invoice.no_invoice} - {invoice.customer} (Rp {invoice.total.toLocaleString()})
                   </option>
@@ -114,7 +114,9 @@ const InvoiceCancelForm = () => {
                 <div className="form-grid grid-cols-2">
                   <div className="form-group">
                     <label className="form-label">Tanggal Invoice</label>
-                    <p className="form-text">{new Date(selectedInvoice.tanggal).toLocaleDateString('id-ID')}</p>
+                    <p className="form-text">
+                      {new Date(selectedInvoice.tanggal).toLocaleDateString('id-ID')}
+                    </p>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Customer</label>
@@ -184,7 +186,8 @@ const InvoiceCancelForm = () => {
             </div>
 
             <div className="alert alert-warning">
-              <strong>Peringatan:</strong> Invoice yang dibatalkan tidak dapat dikembalikan. Pastikan Anda yakin dengan pembatalan ini.
+              <strong>Peringatan:</strong> Invoice yang dibatalkan tidak dapat dikembalikan.
+              Pastikan Anda yakin dengan pembatalan ini.
             </div>
           </div>
         </div>

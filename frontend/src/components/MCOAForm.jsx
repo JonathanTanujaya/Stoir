@@ -16,15 +16,15 @@ function MCOAForm({ coa, onSave, onCancel }) {
     }
   }, [coa]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (coa) {
@@ -44,7 +44,13 @@ function MCOAForm({ coa, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode COA:</label>
-        <input type="text" name="KodeCOA" value={formData.KodeCOA} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeCOA"
+          value={formData.KodeCOA}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Nama COA:</label>
@@ -52,10 +58,17 @@ function MCOAForm({ coa, onSave, onCancel }) {
       </div>
       <div>
         <label>Saldo Normal:</label>
-        <input type="text" name="SaldoNormal" value={formData.SaldoNormal} onChange={handleChange} />
+        <input
+          type="text"
+          name="SaldoNormal"
+          value={formData.SaldoNormal}
+          onChange={handleChange}
+        />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

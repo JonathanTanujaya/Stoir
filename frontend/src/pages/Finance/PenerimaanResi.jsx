@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faReceipt, faPlus, faEdit, faTrash, faEye, faSearch, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faReceipt,
+  faPlus,
+  faEdit,
+  faTrash,
+  faEye,
+  faSearch,
+  faCalendarAlt,
+} from '@fortawesome/free-solid-svg-icons';
 
 const PenerimaanResi = () => {
   const [resiData, setResiData] = useState([]);
@@ -19,7 +27,7 @@ const PenerimaanResi = () => {
     ongkir: '',
     tglTerima: '',
     status: 'Diterima',
-    keterangan: ''
+    keterangan: '',
   });
 
   // Sample data
@@ -35,7 +43,7 @@ const PenerimaanResi = () => {
       ongkir: 25000,
       tglTerima: '2024-01-15',
       status: 'Diterima',
-      keterangan: 'Paket dokumen penting'
+      keterangan: 'Paket dokumen penting',
     },
     {
       id: 2,
@@ -48,7 +56,7 @@ const PenerimaanResi = () => {
       ongkir: 45000,
       tglTerima: '2024-01-20',
       status: 'Dalam Perjalanan',
-      keterangan: 'Spare part mesin'
+      keterangan: 'Spare part mesin',
     },
     {
       id: 3,
@@ -61,8 +69,8 @@ const PenerimaanResi = () => {
       ongkir: 15000,
       tglTerima: '2024-01-25',
       status: 'Diterima',
-      keterangan: 'Sample produk'
-    }
+      keterangan: 'Sample produk',
+    },
   ];
 
   useEffect(() => {
@@ -75,11 +83,12 @@ const PenerimaanResi = () => {
 
     // Filter berdasarkan pencarian
     if (searchTerm) {
-      filtered = filtered.filter(item =>
-        item.noResi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.expedisi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.pengirim.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.penerima.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        item =>
+          item.noResi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.expedisi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.pengirim.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.penerima.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -96,24 +105,28 @@ const PenerimaanResi = () => {
     setFilteredData(filtered);
   }, [searchTerm, selectedDateRange, resiData]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    
+
     if (editingId) {
-      setResiData(prev => prev.map(item => 
-        item.id === editingId ? { 
-          ...formData, 
-          id: editingId, 
-          berat: parseFloat(formData.berat),
-          ongkir: parseFloat(formData.ongkir)
-        } : item
-      ));
+      setResiData(prev =>
+        prev.map(item =>
+          item.id === editingId
+            ? {
+                ...formData,
+                id: editingId,
+                berat: parseFloat(formData.berat),
+                ongkir: parseFloat(formData.ongkir),
+              }
+            : item
+        )
+      );
     } else {
       const newItem = {
         ...formData,
         id: Date.now(),
         berat: parseFloat(formData.berat),
-        ongkir: parseFloat(formData.ongkir)
+        ongkir: parseFloat(formData.ongkir),
       };
       setResiData(prev => [...prev, newItem]);
     }
@@ -121,7 +134,7 @@ const PenerimaanResi = () => {
     resetForm();
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = item => {
     setFormData({
       noResi: item.noResi,
       expedisi: item.expedisi,
@@ -132,13 +145,13 @@ const PenerimaanResi = () => {
       ongkir: item.ongkir.toString(),
       tglTerima: item.tglTerima,
       status: item.status,
-      keterangan: item.keterangan
+      keterangan: item.keterangan,
     });
     setEditingId(item.id);
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = id => {
     if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
       setResiData(prev => prev.filter(item => item.id !== id));
     }
@@ -155,26 +168,31 @@ const PenerimaanResi = () => {
       ongkir: '',
       tglTerima: '',
       status: 'Diterima',
-      keterangan: ''
+      keterangan: '',
     });
     setEditingId(null);
     setShowForm(false);
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = amount => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
-      currency: 'IDR'
+      currency: 'IDR',
     }).format(amount);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
-      case 'Diterima': return 'text-green-600 bg-green-100';
-      case 'Dalam Perjalanan': return 'text-blue-600 bg-blue-100';
-      case 'Pending': return 'text-yellow-600 bg-yellow-100';
-      case 'Dikembalikan': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'Diterima':
+        return 'text-green-600 bg-green-100';
+      case 'Dalam Perjalanan':
+        return 'text-blue-600 bg-blue-100';
+      case 'Pending':
+        return 'text-yellow-600 bg-yellow-100';
+      case 'Dikembalikan':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
   };
 
@@ -184,31 +202,40 @@ const PenerimaanResi = () => {
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
-            <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FontAwesomeIcon
+              icon={faSearch}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
             <input
               type="text"
               placeholder="Cari no resi, expedisi, pengirim..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="relative">
-            <FontAwesomeIcon icon={faCalendarAlt} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FontAwesomeIcon
+              icon={faCalendarAlt}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
             <input
               type="date"
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={selectedDateRange.start}
-              onChange={(e) => setSelectedDateRange(prev => ({ ...prev, start: e.target.value }))}
+              onChange={e => setSelectedDateRange(prev => ({ ...prev, start: e.target.value }))}
             />
           </div>
           <div className="relative">
-            <FontAwesomeIcon icon={faCalendarAlt} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FontAwesomeIcon
+              icon={faCalendarAlt}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
             <input
               type="date"
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={selectedDateRange.end}
-              onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
+              onChange={e => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
             />
           </div>
           <button
@@ -228,7 +255,7 @@ const PenerimaanResi = () => {
             <h2 className="text-xl font-bold mb-4">
               {editingId ? 'Edit Data Resi' : 'Tambah Data Resi'}
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -238,17 +265,17 @@ const PenerimaanResi = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.noResi}
-                    onChange={(e) => setFormData(prev => ({ ...prev, noResi: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, noResi: e.target.value }))}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Expedisi</label>
                   <select
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.expedisi}
-                    onChange={(e) => setFormData(prev => ({ ...prev, expedisi: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, expedisi: e.target.value }))}
                   >
                     <option value="">Pilih Expedisi</option>
                     <option value="JNE">JNE</option>
@@ -259,7 +286,7 @@ const PenerimaanResi = () => {
                     <option value="Wahana">Wahana</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Pengirim</label>
                   <input
@@ -267,10 +294,10 @@ const PenerimaanResi = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.pengirim}
-                    onChange={(e) => setFormData(prev => ({ ...prev, pengirim: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, pengirim: e.target.value }))}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Penerima</label>
                   <input
@@ -278,21 +305,25 @@ const PenerimaanResi = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.penerima}
-                    onChange={(e) => setFormData(prev => ({ ...prev, penerima: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, penerima: e.target.value }))}
                   />
                 </div>
-                
+
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Penerima</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Alamat Penerima
+                  </label>
                   <textarea
                     rows="2"
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.alamatPenerima}
-                    onChange={(e) => setFormData(prev => ({ ...prev, alamatPenerima: e.target.value }))}
+                    onChange={e =>
+                      setFormData(prev => ({ ...prev, alamatPenerima: e.target.value }))
+                    }
                   ></textarea>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Berat (kg)</label>
                   <input
@@ -301,38 +332,42 @@ const PenerimaanResi = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.berat}
-                    onChange={(e) => setFormData(prev => ({ ...prev, berat: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, berat: e.target.value }))}
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ongkos Kirim</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ongkos Kirim
+                  </label>
                   <input
                     type="number"
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.ongkir}
-                    onChange={(e) => setFormData(prev => ({ ...prev, ongkir: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, ongkir: e.target.value }))}
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Terima</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tanggal Terima
+                  </label>
                   <input
                     type="date"
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.tglTerima}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tglTerima: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, tglTerima: e.target.value }))}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, status: e.target.value }))}
                   >
                     <option value="Diterima">Diterima</option>
                     <option value="Dalam Perjalanan">Dalam Perjalanan</option>
@@ -341,17 +376,17 @@ const PenerimaanResi = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
                 <textarea
                   rows="3"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={formData.keterangan}
-                  onChange={(e) => setFormData(prev => ({ ...prev, keterangan: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, keterangan: e.target.value }))}
                 ></textarea>
               </div>
-              
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
@@ -378,29 +413,63 @@ const PenerimaanResi = () => {
           <table className="min-w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Resi</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expedisi</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengirim</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penerima</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Berat</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ongkir</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Terima</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  No Resi
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Expedisi
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Pengirim
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Penerima
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Berat
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ongkir
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tgl Terima
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredData.map((item) => (
+              {filteredData.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.noResi}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.expedisi}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.pengirim}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.penerima}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.berat} kg</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(item.ongkir)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.tglTerima}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {item.noResi}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {item.expedisi}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {item.pengirim}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {item.penerima}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {item.berat} kg
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {formatCurrency(item.ongkir)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {item.tglTerima}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}
+                    >
                       {item.status}
                     </span>
                   </td>
@@ -429,9 +498,7 @@ const PenerimaanResi = () => {
         </div>
 
         {filteredData.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            Tidak ada data yang ditemukan
-          </div>
+          <div className="text-center py-8 text-gray-500">Tidak ada data yang ditemukan</div>
         )}
       </div>
     </div>

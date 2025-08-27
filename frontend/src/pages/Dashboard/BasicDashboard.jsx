@@ -6,7 +6,7 @@ const BasicDashboard = () => {
   const [kpiData, setKpiData] = useState({
     todaySales: 0,
     pendingTransactions: 0,
-    lowStockItems: 0
+    lowStockItems: 0,
   });
 
   const [salesData, setSalesData] = useState([]);
@@ -16,7 +16,7 @@ const BasicDashboard = () => {
     setKpiData({
       todaySales: 15750000, // Rp 15.750.000
       pendingTransactions: 12,
-      lowStockItems: 8
+      lowStockItems: 8,
     });
 
     // Data dummy untuk mini chart
@@ -27,16 +27,16 @@ const BasicDashboard = () => {
       { day: 'Kam', sales: 14200000 },
       { day: 'Jum', sales: 11500000 },
       { day: 'Sab', sales: 16800000 },
-      { day: 'Min', sales: 15750000 }
+      { day: 'Min', sales: 15750000 },
     ]);
   }, []);
 
   // Format currency
-  const formatCurrency = (value) => {
+  const formatCurrency = value => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -46,12 +46,14 @@ const BasicDashboard = () => {
     const chartWidth = 400;
     const chartHeight = 200;
     const padding = 40;
-    
-    const points = data.map((item, index) => {
-      const x = padding + (index * (chartWidth - 2 * padding)) / (data.length - 1);
-      const y = chartHeight - padding - ((item.sales / maxValue) * (chartHeight - 2 * padding));
-      return `${x},${y}`;
-    }).join(' ');
+
+    const points = data
+      .map((item, index) => {
+        const x = padding + (index * (chartWidth - 2 * padding)) / (data.length - 1);
+        const y = chartHeight - padding - (item.sales / maxValue) * (chartHeight - 2 * padding);
+        return `${x},${y}`;
+      })
+      .join(' ');
 
     return (
       <div className="w-full" style={{ height: '300px' }}>
@@ -59,49 +61,31 @@ const BasicDashboard = () => {
           {/* Grid lines */}
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f3f4f6" strokeWidth="1"/>
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f3f4f6" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
-          
+
           {/* Chart line */}
-          <polyline
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="3"
-            points={points}
-          />
-          
+          <polyline fill="none" stroke="#3b82f6" strokeWidth="3" points={points} />
+
           {/* Data points */}
           {data.map((item, index) => {
             const x = padding + (index * (chartWidth - 2 * padding)) / (data.length - 1);
-            const y = chartHeight - padding - ((item.sales / maxValue) * (chartHeight - 2 * padding));
+            const y = chartHeight - padding - (item.sales / maxValue) * (chartHeight - 2 * padding);
             return (
               <g key={index}>
-                <circle
-                  cx={x}
-                  cy={y}
-                  r="5"
-                  fill="#3b82f6"
-                  stroke="#fff"
-                  strokeWidth="2"
-                />
-                <text
-                  x={x}
-                  y={chartHeight - 10}
-                  textAnchor="middle"
-                  fontSize="12"
-                  fill="#6b7280"
-                >
+                <circle cx={x} cy={y} r="5" fill="#3b82f6" stroke="#fff" strokeWidth="2" />
+                <text x={x} y={chartHeight - 10} textAnchor="middle" fontSize="12" fill="#6b7280">
                   {item.day}
                 </text>
               </g>
             );
           })}
-          
+
           {/* Y-axis labels */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => {
-            const y = chartHeight - padding - (ratio * (chartHeight - 2 * padding));
+            const y = chartHeight - padding - ratio * (chartHeight - 2 * padding);
             const value = maxValue * ratio;
             return (
               <text
@@ -138,7 +122,7 @@ const BasicDashboard = () => {
           icon="💰"
           color="success"
         />
-        
+
         <StatCard
           title="Transaksi Tertunda"
           value={kpiData.pendingTransactions}
@@ -146,7 +130,7 @@ const BasicDashboard = () => {
           icon="⏳"
           color="warning"
         />
-        
+
         <StatCard
           title="Barang Akan Habis"
           value={kpiData.lowStockItems}
@@ -184,13 +168,18 @@ const BasicDashboard = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Rata-rata per Hari</span>
                 <span className="font-semibold">
-                  {formatCurrency(salesData.reduce((sum, item) => sum + item.sales, 0) / salesData.length)}
+                  {formatCurrency(
+                    salesData.reduce((sum, item) => sum + item.sales, 0) / salesData.length
+                  )}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Hari Terbaik</span>
                 <span className="font-semibold text-blue-600">
-                  {salesData.reduce((max, item) => item.sales > max.sales ? item : max, salesData[0])?.day || '-'}
+                  {salesData.reduce(
+                    (max, item) => (item.sales > max.sales ? item : max),
+                    salesData[0]
+                  )?.day || '-'}
                 </span>
               </div>
             </div>
@@ -235,17 +224,17 @@ const BasicDashboard = () => {
               <span className="text-2xl mb-2">📝</span>
               <span className="text-sm">Buat Invoice</span>
             </button>
-            
+
             <button className="btn btn-outline-primary flex flex-col items-center p-4 hover:bg-blue-50 transition-colors">
               <span className="text-2xl mb-2">📦</span>
               <span className="text-sm">Cek Stok</span>
             </button>
-            
+
             <button className="btn btn-outline-primary flex flex-col items-center p-4 hover:bg-blue-50 transition-colors">
               <span className="text-2xl mb-2">📊</span>
               <span className="text-sm">Laporan</span>
             </button>
-            
+
             <button className="btn btn-outline-primary flex flex-col items-center p-4 hover:bg-blue-50 transition-colors">
               <span className="text-2xl mb-2">⚙️</span>
               <span className="text-sm">Pengaturan</span>

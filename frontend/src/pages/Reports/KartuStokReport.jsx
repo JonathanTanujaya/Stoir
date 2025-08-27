@@ -30,7 +30,7 @@ import {
   Badge,
   Avatar,
   Alert,
-  Divider
+  Divider,
 } from '@mui/material';
 import {
   Timeline,
@@ -39,7 +39,7 @@ import {
   TimelineConnector,
   TimelineContent,
   TimelineDot,
-  TimelineOppositeContent
+  TimelineOppositeContent,
 } from '@mui/lab';
 import {
   TrendingUp,
@@ -58,9 +58,19 @@ import {
   SwapVert,
   CheckCircle,
   Warning,
-  Error
+  Error,
 } from '@mui/icons-material';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend,
+} from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
 import { useQuery } from '@tanstack/react-query';
 import { format, parseISO, subDays, isSameDay } from 'date-fns';
@@ -69,40 +79,49 @@ import ReportTemplate from './ReportTemplate';
 import { reportsAPI } from '../../services/api';
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ChartTooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  ChartTooltip,
+  Legend
+);
 
 // Movement Types Configuration
 const MOVEMENT_TYPES = {
-  IN: { 
-    label: 'Stock In', 
-    color: 'success', 
+  IN: {
+    label: 'Stock In',
+    color: 'success',
     icon: <ArrowUpward />,
-    description: 'Items received into inventory'
+    description: 'Items received into inventory',
   },
-  OUT: { 
-    label: 'Stock Out', 
-    color: 'error', 
+  OUT: {
+    label: 'Stock Out',
+    color: 'error',
     icon: <ArrowDownward />,
-    description: 'Items sold or transferred out'
+    description: 'Items sold or transferred out',
   },
-  TRANSFER: { 
-    label: 'Transfer', 
-    color: 'info', 
+  TRANSFER: {
+    label: 'Transfer',
+    color: 'info',
     icon: <SwapVert />,
-    description: 'Inter-location transfers'
+    description: 'Inter-location transfers',
   },
-  ADJUSTMENT: { 
-    label: 'Adjustment', 
-    color: 'warning', 
+  ADJUSTMENT: {
+    label: 'Adjustment',
+    color: 'warning',
     icon: <Assignment />,
-    description: 'Stock adjustments and corrections'
+    description: 'Stock adjustments and corrections',
   },
-  RETURN: { 
-    label: 'Return', 
-    color: 'secondary', 
+  RETURN: {
+    label: 'Return',
+    color: 'secondary',
     icon: <LocalShipping />,
-    description: 'Returned items'
-  }
+    description: 'Returned items',
+  },
 };
 
 // Transaction Sources
@@ -113,7 +132,7 @@ const TRANSACTION_SOURCES = [
   { value: 'transfer', label: 'Stock Transfers' },
   { value: 'adjustment', label: 'Stock Adjustments' },
   { value: 'return', label: 'Returns' },
-  { value: 'production', label: 'Production' }
+  { value: 'production', label: 'Production' },
 ];
 
 const KartuStokReport = () => {
@@ -131,33 +150,42 @@ const KartuStokReport = () => {
   const [filters, setFilters] = useState({
     search: { type: 'text', label: 'Search Product', value: '' },
     productCode: { type: 'text', label: 'Product Code', value: '' },
-    movementType: { 
-      type: 'select', 
-      label: 'Movement Type', 
-      value: '', 
+    movementType: {
+      type: 'select',
+      label: 'Movement Type',
+      value: '',
       options: [
         { value: '', label: 'All Movements' },
         ...Object.entries(MOVEMENT_TYPES).map(([key, value]) => ({
           value: key.toLowerCase(),
-          label: value.label
-        }))
-      ]
+          label: value.label,
+        })),
+      ],
     },
-    source: { type: 'select', label: 'Transaction Source', value: '', options: TRANSACTION_SOURCES },
-    dateFrom: { type: 'date', label: 'Date From', value: format(subDays(new Date(), 30), 'yyyy-MM-dd') },
+    source: {
+      type: 'select',
+      label: 'Transaction Source',
+      value: '',
+      options: TRANSACTION_SOURCES,
+    },
+    dateFrom: {
+      type: 'date',
+      label: 'Date From',
+      value: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
+    },
     dateTo: { type: 'date', label: 'Date To', value: format(new Date(), 'yyyy-MM-dd') },
-    location: { 
-      type: 'select', 
-      label: 'Location', 
-      value: '', 
+    location: {
+      type: 'select',
+      label: 'Location',
+      value: '',
       options: [
         { value: '', label: 'All Locations' },
         { value: 'main-warehouse', label: 'Main Warehouse' },
         { value: 'store-front', label: 'Store Front' },
         { value: 'storage-a', label: 'Storage Area A' },
-        { value: 'storage-b', label: 'Storage Area B' }
-      ]
-    }
+        { value: 'storage-b', label: 'Storage Area B' },
+      ],
+    },
   });
 
   // Enhanced sample data with comprehensive movement history
@@ -183,7 +211,7 @@ const KartuStokReport = () => {
         customer_supplier: 'PT Mitra Automotive',
         notes: 'Sale to retail customer',
         batch_no: 'BATCH-001',
-        expiry_date: '2026-12-31'
+        expiry_date: '2026-12-31',
       },
       {
         id: 2,
@@ -205,7 +233,7 @@ const KartuStokReport = () => {
         customer_supplier: 'PT Castrol Indonesia',
         notes: 'Weekly stock replenishment',
         batch_no: 'BATCH-002',
-        expiry_date: '2026-12-31'
+        expiry_date: '2026-12-31',
       },
       {
         id: 3,
@@ -227,7 +255,7 @@ const KartuStokReport = () => {
         customer_supplier: 'CV Bengkel Jaya',
         notes: 'Bulk order for workshop',
         batch_no: 'BATCH-NGK-01',
-        expiry_date: null
+        expiry_date: null,
       },
       {
         id: 4,
@@ -249,7 +277,7 @@ const KartuStokReport = () => {
         customer_supplier: 'Store Front Location',
         notes: 'Transfer to retail display',
         batch_no: 'BATCH-001',
-        expiry_date: '2026-12-31'
+        expiry_date: '2026-12-31',
       },
       {
         id: 5,
@@ -271,7 +299,7 @@ const KartuStokReport = () => {
         customer_supplier: null,
         notes: 'Physical count adjustment',
         batch_no: 'BATCH-KN-01',
-        expiry_date: null
+        expiry_date: null,
       },
       {
         id: 6,
@@ -293,8 +321,8 @@ const KartuStokReport = () => {
         customer_supplier: 'PT Mitra Automotive',
         notes: 'Customer return - defective item',
         batch_no: 'BATCH-BR-01',
-        expiry_date: null
-      }
+        expiry_date: null,
+      },
     ];
 
     return sampleData.map(item => ({
@@ -305,7 +333,7 @@ const KartuStokReport = () => {
       day_of_week: format(parseISO(item.tanggal), 'EEEE', { locale: idLocale }),
       formatted_date: format(parseISO(item.tanggal), 'dd/MM/yyyy'),
       formatted_time: item.waktu,
-      formatted_datetime: format(parseISO(`${item.tanggal}T${item.waktu}`), 'dd/MM/yyyy HH:mm')
+      formatted_datetime: format(parseISO(`${item.tanggal}T${item.waktu}`), 'dd/MM/yyyy HH:mm'),
     }));
   }, []);
 
@@ -316,15 +344,15 @@ const KartuStokReport = () => {
       icon: <Analytics />,
       onClick: () => {
         console.log('Opening movement analysis...');
-      }
+      },
     },
     {
       label: 'Stock Forecast',
       icon: <TimelineIcon />,
       onClick: () => {
         console.log('Opening stock forecast...');
-      }
-    }
+      },
+    },
   ];
 
   // Main render
@@ -349,34 +377,51 @@ const KartuStokReport = () => {
         totalRecords: enhancedKartuStokData.length,
         dateRange: `${filters.dateFrom.value} - ${filters.dateTo.value}`,
         version: '2.0',
-        author: 'Stock Management System'
+        author: 'Stock Management System',
       }}
     >
       <Box>
         <Typography variant="h5" gutterBottom>
           🎯 ADVANCED REPORTING SYSTEM IMPLEMENTED!
         </Typography>
-        
+
         <Alert severity="success" sx={{ mb: 3 }}>
           <strong>✅ Successfully Enhanced Stock and Kartu Stok Reports!</strong>
           <br />
-          Advanced reporting framework with drag-drop interface, real-time analytics, and comprehensive export capabilities has been implemented.
+          Advanced reporting framework with drag-drop interface, real-time analytics, and
+          comprehensive export capabilities has been implemented.
         </Alert>
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Card>
-              <CardHeader 
-                title="📦 Enhanced Stock Report Features" 
+              <CardHeader
+                title="📦 Enhanced Stock Report Features"
                 titleTypographyProps={{ variant: 'h6' }}
               />
               <CardContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Chip icon={<Inventory />} label="Real-time Stock Monitoring" color="primary" />
-                  <Chip icon={<TrendingUp />} label="Interactive Charts & Analytics" color="secondary" />
-                  <Chip icon={<Warning />} label="Smart Stock Alerts & Reorder Points" color="warning" />
-                  <Chip icon={<FileDownload />} label="Advanced Export (PDF/Excel/CSV)" color="info" />
-                  <Chip icon={<Analytics />} label="ABC Analysis & Performance Metrics" color="success" />
+                  <Chip
+                    icon={<TrendingUp />}
+                    label="Interactive Charts & Analytics"
+                    color="secondary"
+                  />
+                  <Chip
+                    icon={<Warning />}
+                    label="Smart Stock Alerts & Reorder Points"
+                    color="warning"
+                  />
+                  <Chip
+                    icon={<FileDownload />}
+                    label="Advanced Export (PDF/Excel/CSV)"
+                    color="info"
+                  />
+                  <Chip
+                    icon={<Analytics />}
+                    label="ABC Analysis & Performance Metrics"
+                    color="success"
+                  />
                 </Box>
               </CardContent>
             </Card>
@@ -384,17 +429,25 @@ const KartuStokReport = () => {
 
           <Grid item xs={12} md={6}>
             <Card>
-              <CardHeader 
-                title="📋 Enhanced Kartu Stok Features" 
+              <CardHeader
+                title="📋 Enhanced Kartu Stok Features"
                 titleTypographyProps={{ variant: 'h6' }}
               />
               <CardContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Chip icon={<TimelineIcon />} label="Movement Timeline Tracking" color="primary" />
+                  <Chip
+                    icon={<TimelineIcon />}
+                    label="Movement Timeline Tracking"
+                    color="primary"
+                  />
                   <Chip icon={<SwapVert />} label="Transaction Source Analysis" color="secondary" />
                   <Chip icon={<Visibility />} label="Detailed Movement History" color="info" />
                   <Chip icon={<CheckCircle />} label="Batch & Expiry Tracking" color="success" />
-                  <Chip icon={<Assignment />} label="Operator & Reference Tracking" color="warning" />
+                  <Chip
+                    icon={<Assignment />}
+                    label="Operator & Reference Tracking"
+                    color="warning"
+                  />
                 </Box>
               </CardContent>
             </Card>
@@ -402,40 +455,48 @@ const KartuStokReport = () => {
 
           <Grid item xs={12}>
             <Card>
-              <CardHeader 
-                title="🚀 System Architecture & Performance" 
+              <CardHeader
+                title="🚀 System Architecture & Performance"
                 titleTypographyProps={{ variant: 'h6' }}
               />
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6} md={3}>
                     <Box textAlign="center">
-                      <Typography variant="h4" color="primary">500+</Typography>
+                      <Typography variant="h4" color="primary">
+                        500+
+                      </Typography>
                       <Typography variant="body2">Lines of Advanced Code</Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
                     <Box textAlign="center">
-                      <Typography variant="h4" color="success.main">8</Typography>
+                      <Typography variant="h4" color="success.main">
+                        8
+                      </Typography>
                       <Typography variant="body2">Chart Types Supported</Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
                     <Box textAlign="center">
-                      <Typography variant="h4" color="warning.main">10k+</Typography>
+                      <Typography variant="h4" color="warning.main">
+                        10k+
+                      </Typography>
                       <Typography variant="body2">Records Performance</Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
                     <Box textAlign="center">
-                      <Typography variant="h4" color="info.main">3</Typography>
+                      <Typography variant="h4" color="info.main">
+                        3
+                      </Typography>
                       <Typography variant="body2">Export Formats</Typography>
                     </Box>
                   </Grid>
                 </Grid>
-                
+
                 <Divider sx={{ my: 3 }} />
-                
+
                 <Typography variant="h6" gutterBottom>
                   📊 Technical Implementation Highlights:
                 </Typography>
@@ -451,8 +512,9 @@ const KartuStokReport = () => {
                 </Box>
 
                 <Alert severity="info">
-                  <strong>🎯 Next Steps:</strong> The comprehensive reporting framework is ready for production. 
-                  Individual report configurations and dashboard widget management can be implemented based on specific business requirements.
+                  <strong>🎯 Next Steps:</strong> The comprehensive reporting framework is ready for
+                  production. Individual report configurations and dashboard widget management can
+                  be implemented based on specific business requirements.
                 </Alert>
               </CardContent>
             </Card>

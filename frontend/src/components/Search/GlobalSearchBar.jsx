@@ -16,7 +16,7 @@ import {
   CircularProgress,
   Fade,
   useTheme,
-  alpha
+  alpha,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -27,7 +27,7 @@ import {
   Receipt as ReceiptIcon,
   ShoppingCart as ShoppingCartIcon,
   History as HistoryIcon,
-  TrendingUp as TrendingIcon
+  TrendingUp as TrendingIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
@@ -37,10 +37,14 @@ const ICON_MAP = {
   people: PeopleIcon,
   business: BusinessIcon,
   receipt: ReceiptIcon,
-  shopping_cart: ShoppingCartIcon
+  shopping_cart: ShoppingCartIcon,
 };
 
-const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", size = "medium" }) => {
+const GlobalSearchBar = ({
+  onResultSelect,
+  placeholder = 'Search anything...',
+  size = 'medium',
+}) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -50,7 +54,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
   const [suggestions, setSuggestions] = useState([]);
   const [recentSearches, setRecentSearches] = useState([]);
   const [focused, setFocused] = useState(false);
-  
+
   const inputRef = useRef(null);
   const anchorRef = useRef(null);
 
@@ -62,7 +66,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
 
   // Debounced search function
   const debouncedSearch = useRef(
-    debounce(async (searchQuery) => {
+    debounce(async searchQuery => {
       if (searchQuery.length < 2) {
         setResults(null);
         setLoading(false);
@@ -72,7 +76,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&limit=30`);
         const data = await response.json();
-        
+
         if (data.success) {
           setResults(data.data);
         } else {
@@ -88,16 +92,18 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
 
   // Debounced suggestions function
   const debouncedSuggestions = useRef(
-    debounce(async (searchQuery) => {
+    debounce(async searchQuery => {
       if (searchQuery.length < 1) {
         setSuggestions([]);
         return;
       }
 
       try {
-        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}&limit=5`);
+        const response = await fetch(
+          `/api/search/suggestions?q=${encodeURIComponent(searchQuery)}&limit=5`
+        );
         const data = await response.json();
-        
+
         if (data.success) {
           setSuggestions(data.data);
         }
@@ -108,10 +114,10 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
   ).current;
 
   // Handle input change
-  const handleInputChange = (event) => {
+  const handleInputChange = event => {
     const value = event.target.value;
     setQuery(value);
-    
+
     if (value.trim()) {
       setLoading(true);
       debouncedSearch(value.trim());
@@ -136,7 +142,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
   };
 
   // Handle result selection
-  const handleResultSelect = (result) => {
+  const handleResultSelect = result => {
     // Save to recent searches
     const recent = JSON.parse(localStorage.getItem('globalSearchRecent') || '[]');
     const newRecent = [result, ...recent.filter(r => r.id !== result.id)].slice(0, 10);
@@ -151,7 +157,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
     // Close search
     setOpen(false);
     setQuery('');
-    
+
     // Callback
     if (onResultSelect) {
       onResultSelect(result);
@@ -160,13 +166,13 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
 
   // Handle keyboard shortcuts
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = event => {
       // Ctrl+K to focus search
       if (event.ctrlKey && event.key === 'k') {
         event.preventDefault();
         inputRef.current?.focus();
       }
-      
+
       // Escape to close
       if (event.key === 'Escape' && open) {
         setOpen(false);
@@ -181,14 +187,14 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
   // Render result icon
   const renderResultIcon = (iconName, category) => {
     const IconComponent = ICON_MAP[iconName] || InventoryIcon;
-    
+
     return (
       <Avatar
         sx={{
           width: 32,
           height: 32,
           bgcolor: theme.palette.primary.main,
-          color: 'white'
+          color: 'white',
         }}
       >
         <IconComponent fontSize="small" />
@@ -213,7 +219,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
                 sx={{
                   borderRadius: 1,
                   mb: 0.5,
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) }
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) },
                 }}
               >
                 <ListItemAvatar>
@@ -274,7 +280,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
                 />
               </Box>
             </Box>
-            
+
             <List dense>
               {categoryData.items.slice(0, 5).map((item, index) => (
                 <ListItem
@@ -285,19 +291,20 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
                     borderRadius: 1,
                     mx: 1,
                     mb: 0.5,
-                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) }
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) },
                   }}
                 >
-                  <ListItemAvatar>
-                    {renderResultIcon(item.icon, item.category)}
-                  </ListItemAvatar>
+                  <ListItemAvatar>{renderResultIcon(item.icon, item.category)}</ListItemAvatar>
                   <ListItemText
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                           {item.title}
                         </Typography>
-                        <TrendingIcon fontSize="small" sx={{ color: 'text.secondary', opacity: 0.6 }} />
+                        <TrendingIcon
+                          fontSize="small"
+                          sx={{ color: 'text.secondary', opacity: 0.6 }}
+                        />
                       </Box>
                     }
                     secondary={item.subtitle}
@@ -307,13 +314,15 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
                 </ListItem>
               ))}
             </List>
-            
+
             {categoryData.hasMore && (
               <Box sx={{ px: 2, pb: 1 }}>
                 <Typography
                   variant="caption"
                   sx={{ color: 'primary.main', cursor: 'pointer' }}
-                  onClick={() => navigate(`/search?q=${encodeURIComponent(query)}&category=${categoryName}`)}
+                  onClick={() =>
+                    navigate(`/search?q=${encodeURIComponent(query)}&category=${categoryName}`)
+                  }
                 >
                   View all {categoryData.count} results →
                 </Typography>
@@ -341,13 +350,13 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
             border: focused ? `2px solid ${theme.palette.primary.main}` : '1px solid transparent',
             transition: 'all 0.2s ease-in-out',
             bgcolor: alpha(theme.palette.background.paper, 0.8),
-            backdrop: 'blur(10px)'
+            backdrop: 'blur(10px)',
           }}
         >
           <IconButton sx={{ p: 1 }}>
             <SearchIcon fontSize={size === 'large' ? 'medium' : 'small'} />
           </IconButton>
-          
+
           <InputBase
             ref={inputRef}
             placeholder={placeholder}
@@ -356,7 +365,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
             onFocus={handleFocus}
             sx={{
               flex: 1,
-              fontSize: size === 'large' ? '1rem' : '0.875rem'
+              fontSize: size === 'large' ? '1rem' : '0.875rem',
             }}
           />
 
@@ -371,7 +380,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
                   height: 20,
                   fontSize: '0.65rem',
                   opacity: 0.6,
-                  borderColor: alpha(theme.palette.text.secondary, 0.3)
+                  borderColor: alpha(theme.palette.text.secondary, 0.3),
                 }}
               />
             </Box>
@@ -410,7 +419,7 @@ const GlobalSearchBar = ({ onResultSelect, placeholder = "Search anything...", s
                   borderRadius: 2,
                   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.paper, 0.95),
-                  backdropFilter: 'blur(20px)'
+                  backdropFilter: 'blur(20px)',
                 }}
               >
                 {renderResults()}

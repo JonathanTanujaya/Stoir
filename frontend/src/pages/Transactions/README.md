@@ -27,24 +27,28 @@ Modul transaksi untuk sistem inventory management dengan 11 jenis transaksi.
 ## Komponen yang Sudah Lengkap
 
 ### 1. Merge Barang (`MergeBarangForm.jsx`)
+
 - Pilih barang asal dan tujuan
 - Input qty yang akan di-merge
 - Validasi stok barang
 - Real-time info stok
 
 ### 2. Invoice Cancel (`InvoiceCancelForm.jsx`)
+
 - Pilih invoice yang akan dibatalkan
 - Preview detail invoice
 - Pilih alasan pembatalan
 - Konfirmasi pembatalan dengan warning
 
 ### 3. Stok Opname (`StokOpnameForm.jsx`)
+
 - Input stok fisik vs stok sistem
 - Perhitungan selisih otomatis
 - Summary total selisih
 - Status indikator (Lebih/Kurang/Sesuai)
 
 ### 4. Customer Claim (`CustomerClaimForm.jsx`)
+
 - Pilih customer dan invoice
 - Multiple item claim
 - Perhitungan total claim

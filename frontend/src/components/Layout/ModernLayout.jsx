@@ -13,15 +13,15 @@ const ModernLayout = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         {/* Top Navigation */}
         <TopNavbar />
-        
+
         {/* Breadcrumb */}
         <BreadcrumbNavigation />
-        
+
         {/* Main Content Area */}
         <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
           {/* Contextual Sidebar */}
           <ContextualSidebar />
-          
+
           {/* Main Content */}
           <Box
             component="main"
@@ -31,17 +31,17 @@ const ModernLayout = () => {
               backgroundColor: 'background.default',
               p: 3,
               '& .css-13q5uu1': {
-                display: 'none !important'
+                display: 'none !important',
               },
               '& .MuiBox-root:contains("flex")': {
-                display: 'none !important'
-              }
+                display: 'none !important',
+              },
             }}
           >
             <Outlet />
           </Box>
         </Box>
-        
+
         {/* Command Palette */}
         <CommandPalette />
       </Box>

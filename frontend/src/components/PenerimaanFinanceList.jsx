@@ -86,7 +86,9 @@ function PenerimaanFinanceList({ onEdit, onRefresh }) {
               <td>{item.Status}</td>
               <td>
                 <button onClick={() => onEdit(item)}>Edit</button>
-                <button onClick={() => handleDelete(item.KodeDivisi, item.NoPenerimaan)}>Hapus</button>
+                <button onClick={() => handleDelete(item.KodeDivisi, item.NoPenerimaan)}>
+                  Hapus
+                </button>
               </td>
             </tr>
           ))}

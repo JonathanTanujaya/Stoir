@@ -53,6 +53,6 @@ class ProductService
 
     public function getStokClaimQuery()
     {
-        return 'SELECT COALESCE(SUM(StokClaim), 0) FROM stok_claim WHERE KodeBarang = m_barang.KodeBarang';
+        return 'SELECT COALESCE(SUM(StokClaim), 0) FROM stok_claim WHERE KodeBarang = barang.KodeBarang';
     }
 }

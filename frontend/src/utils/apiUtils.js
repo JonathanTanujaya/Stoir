@@ -7,44 +7,44 @@ const apiClient = axios.create({
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
 });
 
 // Request interceptor
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     // Add auth token if available
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Add timestamp to prevent caching
     if (config.method === 'get') {
       config.params = {
         ...config.params,
-        _t: Date.now()
+        _t: Date.now(),
       };
     }
-    
+
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // Response interceptor
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     // Handle common errors
     if (error.response) {
       const { status, data } = error.response;
-      
+
       switch (status) {
         case 401:
           // Unauthorized - clear token and redirect to login
@@ -79,7 +79,7 @@ apiClient.interceptors.response.use(
       // Other error
       toast.error('An unexpected error occurred.');
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -144,11 +144,11 @@ export const apiUtils = {
           'Content-Type': 'multipart/form-data',
         },
       };
-      
+
       if (onUploadProgress) {
         config.onUploadProgress = onUploadProgress;
       }
-      
+
       const response = await apiClient.post(url, formData, config);
       return response.data;
     } catch (error) {
@@ -162,7 +162,7 @@ export const apiUtils = {
       const response = await apiClient.get(url, {
         responseType: 'blob',
       });
-      
+
       // Create download link
       const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -172,12 +172,12 @@ export const apiUtils = {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
-      
+
       return response.data;
     } catch (error) {
       throw error;
     }
-  }
+  },
 };
 
 // API endpoints
@@ -188,7 +188,7 @@ export const endpoints = {
     logout: '/auth/logout',
     register: '/auth/register',
     profile: '/auth/profile',
-    refresh: '/auth/refresh'
+    refresh: '/auth/refresh',
   },
 
   // Master Data
@@ -198,7 +198,7 @@ export const endpoints = {
     suppliers: '/master/suppliers',
     products: '/master/products',
     sales: '/master/sales',
-    areas: '/master/areas'
+    areas: '/master/areas',
   },
 
   // Transactions
@@ -206,7 +206,7 @@ export const endpoints = {
     sales: '/transactions/sales',
     purchases: '/transactions/purchases',
     returns: '/transactions/returns',
-    adjustments: '/transactions/adjustments'
+    adjustments: '/transactions/adjustments',
   },
 
   // Reports
@@ -214,15 +214,15 @@ export const endpoints = {
     sales: '/reports/sales',
     purchases: '/reports/purchases',
     inventory: '/reports/inventory',
-    financial: '/reports/financial'
+    financial: '/reports/financial',
   },
 
   // Finance
   finance: {
     payments: '/finance/payments',
     receivables: '/finance/receivables',
-    banking: '/finance/banking'
-  }
+    banking: '/finance/banking',
+  },
 };
 
 // API hooks for common operations

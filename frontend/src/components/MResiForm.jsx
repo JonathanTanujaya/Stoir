@@ -22,15 +22,15 @@ function MResiForm({ resi, onSave, onCancel }) {
     }
   }, [resi]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (resi) {
@@ -50,7 +50,13 @@ function MResiForm({ resi, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>No Resi:</label>
@@ -58,11 +64,21 @@ function MResiForm({ resi, onSave, onCancel }) {
       </div>
       <div>
         <label>No Rekening Tujuan:</label>
-        <input type="text" name="NoRekeningTujuan" value={formData.NoRekeningTujuan} onChange={handleChange} />
+        <input
+          type="text"
+          name="NoRekeningTujuan"
+          value={formData.NoRekeningTujuan}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Tgl Pembayaran:</label>
-        <input type="text" name="TglPembayaran" value={formData.TglPembayaran} onChange={handleChange} />
+        <input
+          type="text"
+          name="TglPembayaran"
+          value={formData.TglPembayaran}
+          onChange={handleChange}
+        />
       </div>
       <div>
         <label>Kode Customer:</label>
@@ -85,7 +101,9 @@ function MResiForm({ resi, onSave, onCancel }) {
         <input type="text" name="Status" value={formData.Status} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

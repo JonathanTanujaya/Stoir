@@ -13,7 +13,7 @@ function CustomerPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (customer) => {
+  const handleEdit = customer => {
     setSelectedCustomer(customer);
     setShowForm(true);
   };

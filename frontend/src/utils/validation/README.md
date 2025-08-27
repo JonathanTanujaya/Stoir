@@ -25,6 +25,7 @@ This document provides complete documentation for the enterprise-grade form vali
 ## Features
 
 ### ✅ Core Features
+
 - **Unified Validation Framework**: Consistent validation across all forms
 - **Real-time Validation**: Instant feedback without performance impact
 - **Cross-field Dependencies**: Validation based on other field values
@@ -33,6 +34,7 @@ This document provides complete documentation for the enterprise-grade form vali
 - **Error Boundaries**: Graceful error handling and recovery
 
 ### ✅ UI/UX Features
+
 - **Contextual Error Messages**: User-friendly, actionable error messages
 - **Progressive Enhancement**: Works without JavaScript
 - **Accessibility Compliance**: WCAG 2.1 AA compliant
@@ -40,6 +42,7 @@ This document provides complete documentation for the enterprise-grade form vali
 - **Screen Reader Support**: Proper ARIA labels and descriptions
 
 ### ✅ Developer Features
+
 - **TypeScript Support**: Full type safety (optional)
 - **React Hook Form Integration**: Optimized form performance
 - **Yup/Zod Schema Support**: Flexible validation schema definition
@@ -87,6 +90,7 @@ Form Submission → Server API → Error Mapping → Field Errors
 ## Installation
 
 ### Prerequisites
+
 - React 18+
 - Material-UI 5+
 - React Hook Form 7+
@@ -139,30 +143,25 @@ import { ValidatedForm, ValidatedTextField, FormActions } from '@/utils/validati
 import { COMMON_SCHEMAS } from '@/utils/validation/validationRules';
 
 const MyForm = () => {
-  const handleSubmit = (data) => {
+  const handleSubmit = data => {
     console.log('Form data:', data);
   };
 
   return (
-    <ValidatedForm 
+    <ValidatedForm
       onSubmit={handleSubmit}
       schema={COMMON_SCHEMAS.user}
       defaultValues={{ email: '', password: '' }}
     >
-      <ValidatedTextField
-        name="email"
-        label="Email"
-        type="email"
-        rules={{ required: true }}
-      />
-      
+      <ValidatedTextField name="email" label="Email" type="email" rules={{ required: true }} />
+
       <ValidatedTextField
         name="password"
         label="Password"
         type="password"
         rules={{ required: true, minLength: 8 }}
       />
-      
+
       <FormActions submitText="Login" />
     </ValidatedForm>
   );
@@ -178,16 +177,16 @@ import * as yup from 'yup';
 const schema = yup.object({
   username: yup.string().required().min(3).max(20),
   email: yup.string().email().required(),
-  age: yup.number().min(13).max(120)
+  age: yup.number().min(13).max(120),
 });
 
 const UserForm = () => {
   const { formMethods, isValid, errors } = useEnhancedForm({
     schema,
-    defaultValues: { username: '', email: '', age: '' }
+    defaultValues: { username: '', email: '', age: '' },
   });
 
-  const handleSubmit = formMethods.handleSubmit((data) => {
+  const handleSubmit = formMethods.handleSubmit(data => {
     console.log('User data:', data);
   });
 
@@ -196,7 +195,7 @@ const UserForm = () => {
       <ValidatedTextField name="username" label="Username" />
       <ValidatedTextField name="email" label="Email" type="email" />
       <ValidatedTextField name="age" label="Age" type="number" />
-      
+
       <button type="submit" disabled={!isValid}>
         Submit
       </button>
@@ -224,184 +223,193 @@ const App = () => (
 ### Core Components
 
 #### ValidatedForm
+
 Main form wrapper with validation support.
 
 ```jsx
 <ValidatedForm
-  onSubmit={handleSubmit}           // Function: Form submission handler
-  schema={validationSchema}         // Yup/Zod: Validation schema
-  defaultValues={defaultValues}     // Object: Initial form values
-  mode="onChange"                   // String: Validation mode
-  formMethods={formMethods}         // Object: External form methods
+  onSubmit={handleSubmit} // Function: Form submission handler
+  schema={validationSchema} // Yup/Zod: Validation schema
+  defaultValues={defaultValues} // Object: Initial form values
+  mode="onChange" // String: Validation mode
+  formMethods={formMethods} // Object: External form methods
 >
   {children}
 </ValidatedForm>
 ```
 
 #### ValidatedTextField
+
 Enhanced text field with built-in validation.
 
 ```jsx
 <ValidatedTextField
-  name="fieldName"                  // String: Field name (required)
-  label="Field Label"               // String: Field label
-  type="text"                       // String: Input type
-  rules={validationRules}           // Object: Validation rules
-  placeholder="Enter value"         // String: Placeholder text
-  helperText="Helper text"          // String: Helper text
-  tooltip="Tooltip text"            // String: Tooltip
-  multiline={false}                 // Boolean: Multiline input
-  rows={1}                         // Number: Textarea rows
-  prefix="$"                       // String/Component: Input prefix
-  suffix="%"                       // String/Component: Input suffix
-  showValidationIcon={true}         // Boolean: Show validation icon
-  debounceMs={300}                 // Number: Debounce delay
-  formatValue={formatFunction}      // Function: Value formatter
-  parseValue={parseFunction}        // Function: Value parser
+  name="fieldName" // String: Field name (required)
+  label="Field Label" // String: Field label
+  type="text" // String: Input type
+  rules={validationRules} // Object: Validation rules
+  placeholder="Enter value" // String: Placeholder text
+  helperText="Helper text" // String: Helper text
+  tooltip="Tooltip text" // String: Tooltip
+  multiline={false} // Boolean: Multiline input
+  rows={1} // Number: Textarea rows
+  prefix="$" // String/Component: Input prefix
+  suffix="%" // String/Component: Input suffix
+  showValidationIcon={true} // Boolean: Show validation icon
+  debounceMs={300} // Number: Debounce delay
+  formatValue={formatFunction} // Function: Value formatter
+  parseValue={parseFunction} // Function: Value parser
 />
 ```
 
 #### ValidatedSelectField
+
 Select dropdown with validation.
 
 ```jsx
 <ValidatedSelectField
-  name="fieldName"                  // String: Field name (required)
-  label="Field Label"               // String: Field label
-  options={optionsArray}            // Array: Select options
-  rules={validationRules}           // Object: Validation rules
-  multiple={false}                  // Boolean: Multiple selection
-  placeholder="Select..."           // String: Placeholder
-  allowClear={true}                 // Boolean: Allow clearing
-  valueKey="value"                  // String: Value property key
-  labelKey="label"                  // String: Label property key
+  name="fieldName" // String: Field name (required)
+  label="Field Label" // String: Field label
+  options={optionsArray} // Array: Select options
+  rules={validationRules} // Object: Validation rules
+  multiple={false} // Boolean: Multiple selection
+  placeholder="Select..." // String: Placeholder
+  allowClear={true} // Boolean: Allow clearing
+  valueKey="value" // String: Value property key
+  labelKey="label" // String: Label property key
 />
 ```
 
 ### Custom Hooks
 
 #### useEnhancedForm
+
 Main hook for form management with validation.
 
 ```jsx
 const {
-  formMethods,                      // Object: React Hook Form methods
-  isValid,                         // Boolean: Form validity
-  isDirty,                         // Boolean: Form dirty state
-  errors,                          // Object: Form errors
-  watch,                           // Function: Watch field values
-  setValue,                        // Function: Set field value
-  reset,                           // Function: Reset form
-  clearErrors,                     // Function: Clear errors
-  trigger                          // Function: Trigger validation
+  formMethods, // Object: React Hook Form methods
+  isValid, // Boolean: Form validity
+  isDirty, // Boolean: Form dirty state
+  errors, // Object: Form errors
+  watch, // Function: Watch field values
+  setValue, // Function: Set field value
+  reset, // Function: Reset form
+  clearErrors, // Function: Clear errors
+  trigger, // Function: Trigger validation
 } = useEnhancedForm({
-  schema: validationSchema,         // Yup/Zod: Validation schema
-  defaultValues: {},               // Object: Default values
-  mode: 'onChange',                // String: Validation mode
-  reValidateMode: 'onChange'       // String: Re-validation mode
+  schema: validationSchema, // Yup/Zod: Validation schema
+  defaultValues: {}, // Object: Default values
+  mode: 'onChange', // String: Validation mode
+  reValidateMode: 'onChange', // String: Re-validation mode
 });
 ```
 
 #### useFormField
+
 Hook for individual field management.
 
 ```jsx
 const {
-  field,                           // Object: Field props
-  fieldState,                      // Object: Field state
-  formState                        // Object: Form state
+  field, // Object: Field props
+  fieldState, // Object: Field state
+  formState, // Object: Form state
 } = useFormField(
-  'fieldName',                     // String: Field name
-  { rules: validationRules }       // Object: Field options
+  'fieldName', // String: Field name
+  { rules: validationRules } // Object: Field options
 );
 ```
 
 #### useConditionalValidation
+
 Hook for conditional validation rules.
 
 ```jsx
 const {
-  conditionalRules,                // Object: Conditional rules
-  updateConditions                 // Function: Update conditions
+  conditionalRules, // Object: Conditional rules
+  updateConditions, // Function: Update conditions
 } = useConditionalValidation({
   condition: watchedValue === 'something', // Boolean: Condition
-  rules: conditionalRules          // Object: Rules when condition true
+  rules: conditionalRules, // Object: Rules when condition true
 });
 ```
 
 ### Validation Rules
 
 #### Predefined Rules
+
 ```jsx
 import { VALIDATION_RULES } from '@/utils/validation';
 
 // Basic rules
-VALIDATION_RULES.required          // Required field
-VALIDATION_RULES.email             // Email format
-VALIDATION_RULES.phone             // Phone format
-VALIDATION_RULES.numeric           // Numeric only
-VALIDATION_RULES.alphanumeric      // Alphanumeric only
-VALIDATION_RULES.positiveNumber    // Positive number
-VALIDATION_RULES.url               // URL format
-VALIDATION_RULES.currency          // Currency format
-VALIDATION_RULES.percentage        // Percentage (0-100)
+VALIDATION_RULES.required; // Required field
+VALIDATION_RULES.email; // Email format
+VALIDATION_RULES.phone; // Phone format
+VALIDATION_RULES.numeric; // Numeric only
+VALIDATION_RULES.alphanumeric; // Alphanumeric only
+VALIDATION_RULES.positiveNumber; // Positive number
+VALIDATION_RULES.url; // URL format
+VALIDATION_RULES.currency; // Currency format
+VALIDATION_RULES.percentage; // Percentage (0-100)
 
 // String length rules
-VALIDATION_RULES.minLength(n)      // Minimum length
-VALIDATION_RULES.maxLength(n)      // Maximum length
+VALIDATION_RULES.minLength(n); // Minimum length
+VALIDATION_RULES.maxLength(n); // Maximum length
 
 // Number range rules
-VALIDATION_RULES.min(n)            // Minimum value
-VALIDATION_RULES.max(n)            // Maximum value
-VALIDATION_RULES.between(min, max) // Value range
+VALIDATION_RULES.min(n); // Minimum value
+VALIDATION_RULES.max(n); // Maximum value
+VALIDATION_RULES.between(min, max); // Value range
 ```
 
 #### Custom Rules
+
 ```jsx
 const customRules = {
   uniqueUsername: {
-    validate: async (value) => {
+    validate: async value => {
       const exists = await checkUsernameExists(value);
       return !exists || 'Username already exists';
-    }
+    },
   },
-  
+
   strongPassword: {
     pattern: {
       value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
-      message: 'Password must contain uppercase, lowercase, number, and symbol'
-    }
+      message: 'Password must contain uppercase, lowercase, number, and symbol',
+    },
   },
-  
-  matchField: (fieldName) => ({
-    validate: (value, formValues) =>
-      value === formValues[fieldName] || `Must match ${fieldName}`
-  })
+
+  matchField: fieldName => ({
+    validate: (value, formValues) => value === formValues[fieldName] || `Must match ${fieldName}`,
+  }),
 };
 ```
 
 ### Error Handling
 
 #### Error Types
+
 ```jsx
 import { ERROR_TYPES, ERROR_SEVERITY } from '@/utils/validation';
 
-ERROR_TYPES.VALIDATION             // Validation error
-ERROR_TYPES.NETWORK               // Network error
-ERROR_TYPES.SERVER                // Server error
-ERROR_TYPES.CLIENT                // Client error
-ERROR_TYPES.AUTHENTICATION        // Auth error
-ERROR_TYPES.AUTHORIZATION         // Authorization error
-ERROR_TYPES.NOT_FOUND             // Not found error
-ERROR_TYPES.TIMEOUT               // Timeout error
+ERROR_TYPES.VALIDATION; // Validation error
+ERROR_TYPES.NETWORK; // Network error
+ERROR_TYPES.SERVER; // Server error
+ERROR_TYPES.CLIENT; // Client error
+ERROR_TYPES.AUTHENTICATION; // Auth error
+ERROR_TYPES.AUTHORIZATION; // Authorization error
+ERROR_TYPES.NOT_FOUND; // Not found error
+ERROR_TYPES.TIMEOUT; // Timeout error
 
-ERROR_SEVERITY.LOW                // Info level
-ERROR_SEVERITY.MEDIUM             // Warning level
-ERROR_SEVERITY.HIGH               // Error level
-ERROR_SEVERITY.CRITICAL           // Critical level
+ERROR_SEVERITY.LOW; // Info level
+ERROR_SEVERITY.MEDIUM; // Warning level
+ERROR_SEVERITY.HIGH; // Error level
+ERROR_SEVERITY.CRITICAL; // Critical level
 ```
 
 #### Error Components
+
 ```jsx
 import { ErrorBoundary, InlineError, FieldError } from '@/utils/validation';
 
@@ -411,14 +419,14 @@ import { ErrorBoundary, InlineError, FieldError } from '@/utils/validation';
 </ErrorBoundary>
 
 // Inline error for form sections
-<InlineError 
+<InlineError
   error={errorMessage}
   severity="medium"
   onDismiss={dismissHandler}
 />
 
 // Field-level error display
-<FieldError 
+<FieldError
   error={fieldError}
   fieldName="username"
   showFieldName={true}
@@ -428,6 +436,7 @@ import { ErrorBoundary, InlineError, FieldError } from '@/utils/validation';
 ## Components
 
 ### FormSection
+
 Organizes form fields into logical sections.
 
 ```jsx
@@ -444,6 +453,7 @@ Organizes form fields into logical sections.
 ```
 
 ### ValidatedArrayField
+
 Manages dynamic arrays of form fields.
 
 ```jsx
@@ -465,6 +475,7 @@ Manages dynamic arrays of form fields.
 ```
 
 ### FormActions
+
 Standardized form action buttons.
 
 ```jsx
@@ -492,24 +503,24 @@ import { VALIDATION_PATTERNS } from '@/utils/validation';
 const emailRule = {
   pattern: {
     value: VALIDATION_PATTERNS.email,
-    message: 'Invalid email format'
-  }
+    message: 'Invalid email format',
+  },
 };
 
 // Phone validation (Indonesian format)
 const phoneRule = {
   pattern: {
     value: VALIDATION_PATTERNS.phone,
-    message: 'Invalid phone number'
-  }
+    message: 'Invalid phone number',
+  },
 };
 
 // Currency validation
 const currencyRule = {
   pattern: {
     value: VALIDATION_PATTERNS.currency,
-    message: 'Invalid currency format'
-  }
+    message: 'Invalid currency format',
+  },
 };
 ```
 
@@ -525,30 +536,32 @@ const barangSchema = COMMON_SCHEMAS.barang;
 
 // Custom schema
 const productSchema = yup.object({
-  name: yup.string()
+  name: yup
+    .string()
     .required('Product name is required')
     .min(3, 'Name must be at least 3 characters')
     .max(100, 'Name cannot exceed 100 characters'),
-    
-  price: yup.number()
+
+  price: yup
+    .number()
     .required('Price is required')
     .positive('Price must be positive')
     .max(1000000, 'Price cannot exceed 1,000,000'),
-    
-  category: yup.string()
+
+  category: yup
+    .string()
     .required('Category is required')
     .oneOf(['electronics', 'clothing', 'books'], 'Invalid category'),
-    
-  description: yup.string()
-    .max(500, 'Description cannot exceed 500 characters'),
-    
-  inStock: yup.boolean()
-    .default(true),
-    
-  tags: yup.array()
+
+  description: yup.string().max(500, 'Description cannot exceed 500 characters'),
+
+  inStock: yup.boolean().default(true),
+
+  tags: yup
+    .array()
     .of(yup.string())
     .min(1, 'At least one tag is required')
-    .max(5, 'Cannot have more than 5 tags')
+    .max(5, 'Cannot have more than 5 tags'),
 });
 ```
 
@@ -556,20 +569,22 @@ const productSchema = yup.object({
 
 ```jsx
 const registrationSchema = yup.object({
-  password: yup.string()
+  password: yup
+    .string()
     .required('Password is required')
     .min(8, 'Password must be at least 8 characters'),
-    
-  confirmPassword: yup.string()
+
+  confirmPassword: yup
+    .string()
     .required('Please confirm your password')
     .oneOf([yup.ref('password')], 'Passwords must match'),
-    
-  startDate: yup.date()
-    .required('Start date is required'),
-    
-  endDate: yup.date()
+
+  startDate: yup.date().required('Start date is required'),
+
+  endDate: yup
+    .date()
     .required('End date is required')
-    .min(yup.ref('startDate'), 'End date must be after start date')
+    .min(yup.ref('startDate'), 'End date must be after start date'),
 });
 ```
 
@@ -577,12 +592,13 @@ const registrationSchema = yup.object({
 
 ```jsx
 const usernameSchema = yup.object({
-  username: yup.string()
+  username: yup
+    .string()
     .required('Username is required')
     .min(3, 'Username must be at least 3 characters')
-    .test('unique-username', 'Username already exists', async (value) => {
+    .test('unique-username', 'Username already exists', async value => {
       if (!value) return true;
-      
+
       try {
         const response = await fetch(`/api/users/check-username?username=${value}`);
         const data = await response.json();
@@ -591,7 +607,7 @@ const usernameSchema = yup.object({
         // In case of error, assume valid to not block user
         return true;
       }
-    })
+    }),
 });
 ```
 
@@ -604,16 +620,16 @@ import { useGlobalErrorHandler } from '@/utils/validation';
 
 const MyComponent = () => {
   const { handleError } = useGlobalErrorHandler();
-  
-  const saveData = async (data) => {
+
+  const saveData = async data => {
     try {
       await api.save(data);
     } catch (error) {
       handleError(error, {
         customMessage: 'Failed to save data',
-        onError: (parsedError) => {
+        onError: parsedError => {
           console.log('Error details:', parsedError);
-        }
+        },
       });
     }
   };
@@ -627,8 +643,8 @@ import { parseApiError, handleFormSubmissionError } from '@/utils/validation';
 
 const FormComponent = () => {
   const { formMethods } = useEnhancedForm();
-  
-  const handleSubmit = async (data) => {
+
+  const handleSubmit = async data => {
     try {
       await api.saveUser(data);
     } catch (error) {
@@ -671,7 +687,7 @@ import '@/locales/i18n'; // Initialize i18n
 // Initialize validation framework
 initializeValidationFramework({
   defaultLanguage: 'id',
-  supportedLanguages: ['id', 'en']
+  supportedLanguages: ['id', 'en'],
 });
 ```
 
@@ -683,13 +699,13 @@ import { formatValidationMessage, getFieldName } from '@/utils/validation';
 
 const MyForm = () => {
   const { t } = useTranslation();
-  
+
   return (
     <ValidatedTextField
       name="email"
       label={t('fields.user.email')}
       rules={{
-        required: formatValidationMessage('required', 'user.email')
+        required: formatValidationMessage('required', 'user.email'),
       }}
     />
   );
@@ -703,14 +719,14 @@ const MyForm = () => {
 export default {
   translation: {
     validation: {
-      customRule: "{{field}} tidak memenuhi kriteria khusus"
+      customRule: '{{field}} tidak memenuhi kriteria khusus',
     },
     fields: {
       product: {
-        customField: "Field Khusus"
-      }
-    }
-  }
+        customField: 'Field Khusus',
+      },
+    },
+  },
 };
 ```
 
@@ -728,7 +744,7 @@ import {
   ValidatedCheckboxGroup,
   FormSection,
   FormActions,
-  ErrorBoundary
+  ErrorBoundary,
 } from '@/utils/validation';
 import * as yup from 'yup';
 
@@ -738,21 +754,23 @@ const registrationSchema = yup.object({
   lastName: yup.string().required().max(50),
   email: yup.string().email().required(),
   phone: yup.string().matches(/^(\+62|62|0)8[1-9][0-9]{6,9}$/),
-  
+
   // Account Info
   username: yup.string().required().min(3).max(20),
-  password: yup.string()
+  password: yup
+    .string()
     .required()
     .min(8)
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/),
-  confirmPassword: yup.string()
+  confirmPassword: yup
+    .string()
     .required()
     .oneOf([yup.ref('password')], 'Passwords must match'),
-  
+
   // Preferences
   interests: yup.array().min(1, 'Select at least one interest'),
   newsletter: yup.boolean(),
-  terms: yup.boolean().oneOf([true], 'You must accept the terms')
+  terms: yup.boolean().oneOf([true], 'You must accept the terms'),
 });
 
 const RegistrationForm = () => {
@@ -760,10 +778,10 @@ const RegistrationForm = () => {
     { value: 'tech', label: 'Technology' },
     { value: 'sports', label: 'Sports' },
     { value: 'music', label: 'Music' },
-    { value: 'travel', label: 'Travel' }
+    { value: 'travel', label: 'Travel' },
   ];
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     try {
       await api.register(data);
       toast.success('Registration successful!');
@@ -778,7 +796,7 @@ const RegistrationForm = () => {
         <Typography variant="h4" gutterBottom>
           Create Account
         </Typography>
-        
+
         <ValidatedForm
           onSubmit={handleSubmit}
           schema={registrationSchema}
@@ -792,14 +810,10 @@ const RegistrationForm = () => {
             confirmPassword: '',
             interests: [],
             newsletter: false,
-            terms: false
+            terms: false,
           }}
         >
-          <FormSection
-            title="Personal Information"
-            subtitle="Tell us about yourself"
-            required
-          >
+          <FormSection title="Personal Information" subtitle="Tell us about yourself" required>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
@@ -808,7 +822,7 @@ const RegistrationForm = () => {
                   rules={{ required: true, maxLength: 50 }}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="lastName"
@@ -816,7 +830,7 @@ const RegistrationForm = () => {
                   rules={{ required: true, maxLength: 50 }}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="email"
@@ -825,7 +839,7 @@ const RegistrationForm = () => {
                   rules={{ required: true }}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="phone"
@@ -837,11 +851,7 @@ const RegistrationForm = () => {
             </Grid>
           </FormSection>
 
-          <FormSection
-            title="Account Setup"
-            subtitle="Create your login credentials"
-            required
-          >
+          <FormSection title="Account Setup" subtitle="Create your login credentials" required>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <ValidatedTextField
@@ -851,7 +861,7 @@ const RegistrationForm = () => {
                   helperText="3-20 characters, alphanumeric only"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="password"
@@ -861,7 +871,7 @@ const RegistrationForm = () => {
                   helperText="Must contain uppercase, lowercase, number, and special character"
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <ValidatedTextField
                   name="confirmPassword"
@@ -873,10 +883,7 @@ const RegistrationForm = () => {
             </Grid>
           </FormSection>
 
-          <FormSection
-            title="Preferences"
-            subtitle="Customize your experience"
-          >
+          <FormSection title="Preferences" subtitle="Customize your experience">
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <ValidatedCheckboxGroup
@@ -886,7 +893,7 @@ const RegistrationForm = () => {
                   rules={{ required: 'Select at least one interest' }}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <ValidatedSwitch
                   name="newsletter"
@@ -894,7 +901,7 @@ const RegistrationForm = () => {
                   helperText="Get updates about new features and content"
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <ValidatedSwitch
                   name="terms"
@@ -931,7 +938,7 @@ import {
   ValidatedArrayField,
   FormSection,
   FormActions,
-  useEnhancedForm
+  useEnhancedForm,
 } from '@/utils/validation';
 import * as yup from 'yup';
 
@@ -939,14 +946,14 @@ const orderItemSchema = yup.object({
   product: yup.string().required('Product is required'),
   quantity: yup.number().required().min(1).max(100),
   price: yup.number().required().min(0),
-  discount: yup.number().min(0).max(100).default(0)
+  discount: yup.number().min(0).max(100).default(0),
 });
 
 const orderSchema = yup.object({
   customer: yup.string().required('Customer is required'),
   orderDate: yup.date().required(),
   items: yup.array().of(orderItemSchema).min(1, 'Add at least one item'),
-  notes: yup.string().max(500)
+  notes: yup.string().max(500),
 });
 
 const OrderForm = () => {
@@ -956,12 +963,12 @@ const OrderForm = () => {
       customer: '',
       orderDate: new Date().toISOString().split('T')[0],
       items: [{ product: '', quantity: 1, price: 0, discount: 0 }],
-      notes: ''
-    }
+      notes: '',
+    },
   });
 
   const watchedItems = watch('items');
-  
+
   // Calculate totals
   const subtotal = watchedItems.reduce((sum, item) => {
     const itemTotal = (item.quantity || 0) * (item.price || 0);
@@ -979,7 +986,7 @@ const OrderForm = () => {
           rules={{ required: 'Product is required' }}
         />
       </Grid>
-      
+
       <Grid item xs={12} md={2}>
         <ValidatedTextField
           name={`${name}.quantity`}
@@ -988,7 +995,7 @@ const OrderForm = () => {
           rules={{ required: true, min: 1, max: 100 }}
         />
       </Grid>
-      
+
       <Grid item xs={12} md={3}>
         <ValidatedTextField
           name={`${name}.price`}
@@ -998,7 +1005,7 @@ const OrderForm = () => {
           prefix="$"
         />
       </Grid>
-      
+
       <Grid item xs={12} md={3}>
         <ValidatedTextField
           name={`${name}.discount`}
@@ -1011,7 +1018,7 @@ const OrderForm = () => {
     </Grid>
   );
 
-  const handleSubmit = (data) => {
+  const handleSubmit = data => {
     console.log('Order data:', { ...data, subtotal });
   };
 
@@ -1027,7 +1034,7 @@ const OrderForm = () => {
               rules={{ required: 'Customer is required' }}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <ValidatedTextField
               name="orderDate"
@@ -1049,11 +1056,9 @@ const OrderForm = () => {
           maxItems={10}
           defaultValue={{ product: '', quantity: 1, price: 0, discount: 0 }}
         />
-        
+
         <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="h6">
-            Subtotal: ${subtotal.toFixed(2)}
-          </Typography>
+          <Typography variant="h6">Subtotal: ${subtotal.toFixed(2)}</Typography>
         </Box>
       </FormSection>
 
@@ -1077,36 +1082,42 @@ const OrderForm = () => {
 ## Best Practices
 
 ### 1. Form Structure
+
 - Use `FormSection` to organize related fields
 - Group validation rules logically
 - Provide clear field labels and helper text
 - Use appropriate input types for better UX
 
 ### 2. Validation Strategy
+
 - Start with client-side validation for immediate feedback
 - Implement server-side validation for security
 - Use debounced validation for performance
 - Provide specific, actionable error messages
 
 ### 3. Error Handling
+
 - Use error boundaries to catch and handle errors gracefully
 - Map server errors to appropriate form fields
 - Provide retry mechanisms for network errors
 - Log errors for debugging and monitoring
 
 ### 4. Performance
+
 - Use debounced validation to avoid excessive API calls
 - Implement lazy loading for large option lists
 - Cache validation results when appropriate
 - Optimize re-renders with proper memoization
 
 ### 5. Accessibility
+
 - Provide proper ARIA labels and descriptions
 - Ensure keyboard navigation works correctly
 - Use high contrast colors for error states
 - Test with screen readers
 
 ### 6. Internationalization
+
 - Use translation keys instead of hardcoded messages
 - Provide context for translators
 - Format numbers, dates, and currencies according to locale
@@ -1133,7 +1144,7 @@ import { useFormAnalytics } from '@/utils/validation';
 
 const MyForm = () => {
   const analytics = useFormAnalytics();
-  
+
   // Analytics data available:
   // - validation times
   // - error rates
@@ -1180,17 +1191,19 @@ test('form should be accessible', async () => {
 ### Common Issues
 
 #### 1. Validation Not Triggering
+
 ```jsx
 // Problem: Validation doesn't trigger on field change
 // Solution: Check validation mode and rules
 
 const { formMethods } = useEnhancedForm({
   mode: 'onChange', // Make sure this is set
-  rules: { required: true } // Ensure rules are properly defined
+  rules: { required: true }, // Ensure rules are properly defined
 });
 ```
 
 #### 2. Server Errors Not Mapping
+
 ```jsx
 // Problem: Server validation errors not showing in form
 // Solution: Use error mapper
@@ -1205,6 +1218,7 @@ try {
 ```
 
 #### 3. Performance Issues
+
 ```jsx
 // Problem: Form is slow to respond
 // Solution: Check debounce settings and optimize validation
@@ -1217,6 +1231,7 @@ try {
 ```
 
 #### 4. Translation Not Working
+
 ```jsx
 // Problem: Error messages not translated
 // Solution: Check i18n configuration and translation keys
@@ -1235,7 +1250,7 @@ import { initializeValidationFramework } from '@/utils/validation';
 
 initializeValidationFramework({
   enableDebugMode: true,
-  enableAnalytics: true
+  enableAnalytics: true,
 });
 ```
 
@@ -1251,6 +1266,7 @@ initializeValidationFramework({
 This comprehensive validation framework provides a robust foundation for form validation and error handling in React applications. It combines the power of React Hook Form, Yup/Zod schemas, and Material-UI components to create a seamless development experience while ensuring excellent user experience, accessibility, and internationalization support.
 
 The framework is designed to be:
+
 - **Developer-friendly**: Easy to use with minimal boilerplate
 - **User-friendly**: Provides clear, actionable feedback
 - **Accessible**: WCAG 2.1 AA compliant

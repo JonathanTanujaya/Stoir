@@ -25,8 +25,17 @@ class KartuStokController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kartu stok data retrieved successfully',
-                'data' => $kartuStok,
-                'total_shown' => $kartuStok->count(),
+                'data' => $kartuStok->map(fn($k)=>[
+                    'id' => $k->id,
+                    'kodeDivisi' => $k->kodedivisi,
+                    'kodeBarang' => $k->kodebarang,
+                    'tanggal' => $k->tanggal ?? $k->tglproses,
+                    'stokMasuk' => $k->stok_masuk ?? $k->masuk,
+                    'stokKeluar' => $k->stok_keluar ?? $k->keluar,
+                    'stokAkhir' => $k->stok_akhir ?? $k->saldo,
+                    'keterangan' => $k->keterangan
+                ]),
+                'totalCount' => $kartuStok->count(),
                 'note' => 'Showing latest 10 records for testing purposes'
             ], 200);
 
@@ -54,8 +63,17 @@ class KartuStokController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'All kartu stok data retrieved successfully',
-                'data' => $kartuStok,
-                'total_records' => $kartuStok->count()
+                'data' => $kartuStok->map(fn($k)=>[
+                    'id' => $k->id,
+                    'kodeDivisi' => $k->kodedivisi,
+                    'kodeBarang' => $k->kodebarang,
+                    'tanggal' => $k->tanggal ?? $k->tglproses,
+                    'stokMasuk' => $k->stok_masuk ?? $k->masuk,
+                    'stokKeluar' => $k->stok_keluar ?? $k->keluar,
+                    'stokAkhir' => $k->stok_akhir ?? $k->saldo,
+                    'keterangan' => $k->keterangan
+                ]),
+                'totalCount' => $kartuStok->count()
             ], 200);
 
         } catch (\Exception $e) {
@@ -92,10 +110,18 @@ class KartuStokController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kartu stok for barang retrieved successfully',
-                'data' => $kartuStok,
-                'kode_divisi' => $kodeDivisi,
-                'kode_barang' => $kodeBarang,
-                'total_records' => $kartuStok->count()
+                'data' => $kartuStok->map(fn($k)=>[
+                    'id' => $k->id,
+                    'kodeDivisi' => $k->kodedivisi,
+                    'kodeBarang' => $k->kodebarang,
+                    'tanggal' => $k->tanggal ?? $k->tglproses,
+                    'stokMasuk' => $k->stok_masuk ?? $k->masuk,
+                    'stokKeluar' => $k->stok_keluar ?? $k->keluar,
+                    'stokAkhir' => $k->stok_akhir ?? $k->saldo,
+                ]),
+                'kodeDivisi' => $kodeDivisi,
+                'kodeBarang' => $kodeBarang,
+                'totalCount' => $kartuStok->count()
             ], 200);
 
         } catch (\Exception $e) {
@@ -182,7 +208,16 @@ class KartuStokController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kartu stok retrieved successfully',
-                'data' => $kartuStok
+                'data' => [
+                    'id' => $kartuStok->id,
+                    'kodeDivisi' => $kartuStok->kodedivisi,
+                    'kodeBarang' => $kartuStok->kodebarang,
+                    'tanggal' => $kartuStok->tanggal ?? $kartuStok->tglproses,
+                    'stokMasuk' => $kartuStok->stok_masuk ?? $kartuStok->masuk,
+                    'stokKeluar' => $kartuStok->stok_keluar ?? $kartuStok->keluar,
+                    'stokAkhir' => $kartuStok->stok_akhir ?? $kartuStok->saldo,
+                    'keterangan' => $kartuStok->keterangan
+                ]
             ], 200);
 
         } catch (\Exception $e) {
@@ -238,10 +273,20 @@ class KartuStokController extends Controller
 
             $kartuStok->update($validated);
 
+            $fresh = $kartuStok->fresh();
             return response()->json([
                 'success' => true,
                 'message' => 'Kartu stok updated successfully',
-                'data' => $kartuStok->load('barang:kode_barang,nama_barang')
+                'data' => [
+                    'id' => $fresh->id,
+                    'kodeDivisi' => $fresh->kodedivisi,
+                    'kodeBarang' => $fresh->kodebarang,
+                    'tanggal' => $fresh->tanggal ?? $fresh->tglproses,
+                    'stokMasuk' => $fresh->stok_masuk ?? $fresh->masuk,
+                    'stokKeluar' => $fresh->stok_keluar ?? $fresh->keluar,
+                    'stokAkhir' => $fresh->stok_akhir ?? $fresh->saldo,
+                    'keterangan' => $fresh->keterangan
+                ]
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -318,8 +363,15 @@ class KartuStokController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Stock summary retrieved successfully',
-                'data' => $summary,
-                'total_items' => $summary->count()
+                'data' => $summary->map(fn($s)=>[
+                    'kodeBarang' => $s->kode_barang,
+                    'namaBarang' => $s->nama_barang,
+                    'totalMasuk' => $s->total_masuk,
+                    'totalKeluar' => $s->total_keluar,
+                    'stokTerakhir' => $s->stok_terakhir,
+                    'tanggalTerakhir' => $s->tanggal_terakhir
+                ]),
+                'totalCount' => $summary->count()
             ], 200);
 
         } catch (\Exception $e) {

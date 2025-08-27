@@ -2,6 +2,10 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
+
+
+
 use Tests\TestCase;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
@@ -45,8 +49,7 @@ class InvoiceTest extends TestCase
             'status' => 'Active'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_create_invoice()
     {
         $invoice = Invoice::create([
@@ -65,8 +68,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals('INV001', $invoice->noinvoice);
         $this->assertEquals('CASH', $invoice->tipe);
     }
-
-    /** @test */
+    #[Test]
     public function it_has_composite_primary_key()
     {
         $invoice = Invoice::create([
@@ -83,8 +85,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals(['kodedivisi', 'noinvoice'], $invoice->getKeyName());
         $this->assertFalse($invoice->incrementing);
     }
-
-    /** @test */
+    #[Test]
     public function it_belongs_to_customer()
     {
         $invoice = Invoice::create([
@@ -101,8 +102,7 @@ class InvoiceTest extends TestCase
         $this->assertInstanceOf(MCust::class, $invoice->customer);
         $this->assertEquals('CUST001', $invoice->customer->kodecust);
     }
-
-    /** @test */
+    #[Test]
     public function it_belongs_to_sales_person()
     {
         $invoice = Invoice::create([
@@ -119,8 +119,7 @@ class InvoiceTest extends TestCase
         $this->assertInstanceOf(MSales::class, $invoice->sales);
         $this->assertEquals('SALES001', $invoice->sales->kodesales);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_have_details()
     {
         $invoice = Invoice::create([
@@ -146,8 +145,7 @@ class InvoiceTest extends TestCase
         $this->assertCount(1, $invoice->details);
         $this->assertEquals('BRG001', $invoice->details->first()->kodebarang);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_calculate_total_from_details()
     {
         $invoice = Invoice::create([
@@ -173,8 +171,7 @@ class InvoiceTest extends TestCase
         $calculatedTotal = $invoice->calculateTotal();
         $this->assertEquals(100000, $calculatedTotal); // 10 * 10000
     }
-
-    /** @test */
+    #[Test]
     public function it_can_scope_by_customer()
     {
         // Create another customer
@@ -215,8 +212,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals('CUST001', $cust1Invoices->first()->kodecust);
         $this->assertEquals('CUST002', $cust2Invoices->first()->kodecust);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_scope_by_status()
     {
         Invoice::create([
@@ -249,8 +245,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals('Draft', $draftInvoices->first()->status);
         $this->assertEquals('Approved', $approvedInvoices->first()->status);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_scope_pending_invoices()
     {
         Invoice::create([
@@ -283,8 +278,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals('INV001', $pendingInvoices->first()->noinvoice);
         $this->assertEquals(100000, $pendingInvoices->first()->saldo);
     }
-
-    /** @test */
+    #[Test]
     public function it_can_check_if_paid()
     {
         $paidInvoice = Invoice::create([
@@ -314,8 +308,7 @@ class InvoiceTest extends TestCase
         $this->assertTrue($paidInvoice->isPaid());
         $this->assertFalse($unpaidInvoice->isPaid());
     }
-
-    /** @test */
+    #[Test]
     public function it_can_check_if_overdue()
     {
         $overdueInvoice = Invoice::create([
@@ -347,8 +340,7 @@ class InvoiceTest extends TestCase
         $this->assertTrue($overdueInvoice->isOverdue());
         $this->assertFalse($currentInvoice->isOverdue());
     }
-
-    /** @test */
+    #[Test]
     public function it_casts_attributes_correctly()
     {
         $invoice = Invoice::create([

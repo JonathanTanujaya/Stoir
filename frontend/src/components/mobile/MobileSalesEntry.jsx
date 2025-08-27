@@ -25,7 +25,7 @@ import {
   Slide,
   Fab,
   InputAdornment,
-  Avatar
+  Avatar,
 } from '@mui/material';
 import {
   Add,
@@ -42,7 +42,7 @@ import {
   CloudQueue,
   Check,
   Error,
-  Warning
+  Warning,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSwipeable } from 'react-swipeable';
@@ -56,13 +56,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { 
-    isOnline, 
-    saveOfflineSalesEntry, 
-    getCachedData, 
-    handleBarcodeOffline,
-    showNotification 
-  } = useMobilePWA();
+  const { isOnline, saveOfflineSalesEntry, getCachedData, handleBarcodeOffline, showNotification } =
+    useMobilePWA();
   const { saveData, getData, searchByIndex } = useOfflineStorage();
 
   // Sales state
@@ -72,7 +67,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
   const [tax, setTax] = useState(10); // 10% default tax
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [notes, setNotes] = useState('');
-  
+
   // UI state
   const [scannerOpen, setScannerOpen] = useState(false);
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false);
@@ -94,9 +89,9 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
     try {
       const [cachedCustomers, cachedProducts] = await Promise.all([
         getCachedData('customers'),
-        getCachedData('products')
+        getCachedData('products'),
       ]);
-      
+
       setCustomers(cachedCustomers || []);
       setProducts(cachedProducts || []);
     } catch (error) {
@@ -106,7 +101,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
 
   // Calculate totals
   const calculateTotals = useCallback(() => {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const discountAmount = (subtotal * discount) / 100;
     const subtotalAfterDiscount = subtotal - discountAmount;
     const taxAmount = (subtotalAfterDiscount * tax) / 100;
@@ -116,23 +111,23 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
       subtotal: subtotal.toFixed(2),
       discountAmount: discountAmount.toFixed(2),
       taxAmount: taxAmount.toFixed(2),
-      total: total.toFixed(2)
+      total: total.toFixed(2),
     };
   }, [cartItems, discount, tax]);
 
   // Handle barcode scan
-  const handleBarcodeResult = async (result) => {
+  const handleBarcodeResult = async result => {
     setScannerOpen(false);
-    
+
     try {
       // First try to find in cached products
       let product = products.find(p => p.barcode === result.text);
-      
+
       if (!product && !isOnline) {
         // Try offline barcode search
         product = await handleBarcodeOffline(result.text);
       }
-      
+
       if (product) {
         addToCart(product);
         showAlert('Product added to cart', 'success');
@@ -150,12 +145,10 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
   const addToCart = (product, quantity = 1) => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
-      
+
       if (existingItem) {
         return prev.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
         return [...prev, { ...product, quantity }];
@@ -164,7 +157,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
   };
 
   // Remove from cart
-  const removeFromCart = (productId) => {
+  const removeFromCart = productId => {
     setCartItems(prev => prev.filter(item => item.id !== productId));
   };
 
@@ -174,13 +167,9 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
       removeFromCart(productId);
       return;
     }
-    
+
     setCartItems(prev =>
-      prev.map(item =>
-        item.id === productId
-          ? { ...item, quantity: newQuantity }
-          : item
-      )
+      prev.map(item => (item.id === productId ? { ...item, quantity: newQuantity } : item))
     );
   };
 
@@ -192,7 +181,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
     }
 
     setIsProcessing(true);
-    
+
     try {
       const totals = calculateTotals();
       const saleData = {
@@ -205,29 +194,29 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
         notes,
         totals,
         timestamp: new Date().toISOString(),
-        status: isOnline ? 'completed' : 'offline_pending'
+        status: isOnline ? 'completed' : 'offline_pending',
       };
 
       if (isOnline) {
         // Process online
         await onSaveTransaction(saleData);
         showAlert('Sale completed successfully!', 'success');
-        
+
         // Show notification
         await showNotification('Sale Completed', {
           body: `Sale of $${totals.total} completed successfully`,
-          tag: 'sale-completed'
+          tag: 'sale-completed',
         });
       } else {
         // Save offline
         await saveOfflineSalesEntry(saleData);
         await saveData('sales', saleData);
         showAlert('Sale saved offline. Will sync when online.', 'info');
-        
+
         // Show notification
         await showNotification('Sale Saved Offline', {
           body: `Sale of $${totals.total} saved. Will sync when online.`,
-          tag: 'sale-offline'
+          tag: 'sale-offline',
         });
       }
 
@@ -236,7 +225,6 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
       setCustomer(null);
       setDiscount(0);
       setNotes('');
-      
     } catch (error) {
       console.error('Sale processing failed:', error);
       showAlert('Failed to process sale. Please try again.', 'error');
@@ -253,12 +241,13 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
   };
 
   // Swipe gestures for cart items
-  const createSwipeHandlers = (item) => useSwipeable({
-    onSwipedLeft: () => removeFromCart(item.id),
-    onSwipedRight: () => updateQuantity(item.id, item.quantity + 1),
-    preventDefaultTouchmoveEvent: true,
-    trackMouse: false
-  });
+  const createSwipeHandlers = item =>
+    useSwipeable({
+      onSwipedLeft: () => removeFromCart(item.id),
+      onSwipedRight: () => updateQuantity(item.id, item.quantity + 1),
+      preventDefaultTouchmoveEvent: true,
+      trackMouse: false,
+    });
 
   const totals = calculateTotals();
 
@@ -267,9 +256,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
       {/* Header */}
       <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">
-            Sales Entry
-          </Typography>
+          <Typography variant="h6">Sales Entry</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {!isOnline && (
               <Chip
@@ -305,11 +292,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                 )}
               </Box>
             </Box>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => setCustomerSearchOpen(true)}
-            >
+            <Button variant="outlined" size="small" onClick={() => setCustomerSearchOpen(true)}>
               {customer ? 'Change' : 'Select'}
             </Button>
           </Box>
@@ -320,10 +303,16 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
       <Box sx={{ flexGrow: 1, overflow: 'auto', mx: 2 }}>
         <Card>
           <CardContent sx={{ p: 0 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, pb: 1 }}>
-              <Typography variant="h6">
-                Cart ({cartItems.length} items)
-              </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                p: 2,
+                pb: 1,
+              }}
+            >
+              <Typography variant="h6">Cart ({cartItems.length} items)</Typography>
               <Button
                 startIcon={<Add />}
                 variant="outlined"
@@ -333,9 +322,9 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                 Add Item
               </Button>
             </Box>
-            
+
             <Divider />
-            
+
             {cartItems.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <ShoppingCart sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
@@ -364,10 +353,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                           sx={{ mr: 2, width: 40, height: 40 }}
                           variant="rounded"
                         />
-                        <ListItemText
-                          primary={item.name}
-                          secondary={`$${item.price} each`}
-                        />
+                        <ListItemText primary={item.name} secondary={`$${item.price} each`} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <IconButton
                             size="small"
@@ -384,7 +370,10 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                           >
                             <Add />
                           </IconButton>
-                          <Typography variant="body1" sx={{ minWidth: 60, textAlign: 'right', fontWeight: 'bold' }}>
+                          <Typography
+                            variant="body1"
+                            sx={{ minWidth: 60, textAlign: 'right', fontWeight: 'bold' }}
+                          >
                             ${(item.price * item.quantity).toFixed(2)}
                           </Typography>
                           <IconButton
@@ -416,11 +405,13 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                   label="Discount (%)"
                   type="number"
                   value={discount}
-                  onChange={(e) => setDiscount(Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)))}
+                  onChange={e =>
+                    setDiscount(Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)))
+                  }
                   size="small"
                   fullWidth
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">%</InputAdornment>
+                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
                   }}
                 />
               </Grid>
@@ -429,16 +420,16 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                   label="Tax (%)"
                   type="number"
                   value={tax}
-                  onChange={(e) => setTax(Math.max(0, parseFloat(e.target.value) || 0))}
+                  onChange={e => setTax(Math.max(0, parseFloat(e.target.value) || 0))}
                   size="small"
                   fullWidth
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">%</InputAdornment>
+                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
                   }}
                 />
               </Grid>
             </Grid>
-            
+
             <Box sx={{ mt: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>Subtotal:</Typography>
@@ -455,9 +446,11 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h6">Total:</Typography>
-                <Typography variant="h6" color="primary">${totals.total}</Typography>
+                <Typography variant="h6" color="primary">
+                  ${totals.total}
+                </Typography>
               </Box>
-              
+
               <Button
                 fullWidth
                 variant="contained"
@@ -467,12 +460,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
                 startIcon={isOnline ? <Send /> : <Save />}
                 sx={{ height: 48 }}
               >
-                {isProcessing 
-                  ? 'Processing...' 
-                  : isOnline 
-                    ? 'Complete Sale' 
-                    : 'Save Offline'
-                }
+                {isProcessing ? 'Processing...' : isOnline ? 'Complete Sale' : 'Save Offline'}
               </Button>
             </Box>
           </CardContent>
@@ -485,7 +473,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
         sx={{
           position: 'fixed',
           bottom: isMobile ? 80 : 20,
-          right: 20
+          right: 20,
         }}
         onClick={() => setScannerOpen(true)}
       >
@@ -519,37 +507,41 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
             fullWidth
             variant="outlined"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <Search />
                 </InputAdornment>
-              )
+              ),
             }}
           />
           <List>
-            <ListItem button onClick={() => { setCustomer(null); setCustomerSearchOpen(false); }}>
+            <ListItem
+              button
+              onClick={() => {
+                setCustomer(null);
+                setCustomerSearchOpen(false);
+              }}
+            >
               <ListItemText primary="Walk-in Customer" secondary="No customer information" />
             </ListItem>
             {customers
-              .filter(c => 
-                c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (c.phone && c.phone.includes(searchQuery))
+              .filter(
+                c =>
+                  c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (c.phone && c.phone.includes(searchQuery))
               )
-              .map((cust) => (
-                <ListItem 
-                  key={cust.id} 
-                  button 
-                  onClick={() => { 
-                    setCustomer(cust); 
-                    setCustomerSearchOpen(false); 
+              .map(cust => (
+                <ListItem
+                  key={cust.id}
+                  button
+                  onClick={() => {
+                    setCustomer(cust);
+                    setCustomerSearchOpen(false);
                   }}
                 >
-                  <ListItemText 
-                    primary={cust.name} 
-                    secondary={cust.phone || cust.email} 
-                  />
+                  <ListItemText primary={cust.name} secondary={cust.phone || cust.email} />
                 </ListItem>
               ))}
           </List>
@@ -577,37 +569,38 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
             fullWidth
             variant="outlined"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <Search />
                 </InputAdornment>
-              )
+              ),
             }}
           />
           <List>
             {products
-              .filter(p => 
-                p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.barcode.includes(searchQuery)
+              .filter(
+                p =>
+                  p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.barcode.includes(searchQuery)
               )
-              .map((product) => (
-                <ListItem 
-                  key={product.id} 
-                  button 
-                  onClick={() => { 
-                    addToCart(product); 
-                    setProductSearchOpen(false); 
+              .map(product => (
+                <ListItem
+                  key={product.id}
+                  button
+                  onClick={() => {
+                    addToCart(product);
+                    setProductSearchOpen(false);
                     setSearchQuery('');
                   }}
                 >
                   <Avatar src={product.image} sx={{ mr: 2 }} variant="rounded" />
-                  <ListItemText 
-                    primary={product.name} 
-                    secondary={`${product.barcode} • $${product.price}`} 
+                  <ListItemText
+                    primary={product.name}
+                    secondary={`${product.barcode} • $${product.price}`}
                   />
-                  <Chip 
+                  <Chip
                     label={`Stock: ${product.stock || 0}`}
                     color={product.stock > 10 ? 'success' : product.stock > 0 ? 'warning' : 'error'}
                     size="small"
@@ -617,7 +610,12 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => { setProductSearchOpen(false); setSearchQuery(''); }}>
+          <Button
+            onClick={() => {
+              setProductSearchOpen(false);
+              setSearchQuery('');
+            }}
+          >
             Cancel
           </Button>
         </DialogActions>
@@ -630,11 +628,7 @@ const MobileSalesEntry = ({ onSaveTransaction, onPrintReceipt }) => {
         onClose={() => setAlertOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={() => setAlertOpen(false)} 
-          severity={alertSeverity}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={() => setAlertOpen(false)} severity={alertSeverity} sx={{ width: '100%' }}>
           {alertMessage}
         </Alert>
       </Snackbar>

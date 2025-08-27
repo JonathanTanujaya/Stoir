@@ -391,7 +391,7 @@ class InvoiceController extends Controller
                 'success' => true,
                 'message' => 'Products retrieved successfully',
                 'data' => $barangs,
-                'total_count' => $barangs->count()
+                'totalCount' => $barangs->count()
             ]);
 
         } catch (\Exception $e) {

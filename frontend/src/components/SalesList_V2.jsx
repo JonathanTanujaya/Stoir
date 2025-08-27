@@ -5,16 +5,17 @@ import { useConfirmDialog } from './common/LoadingComponents.jsx';
 import DataTable, { StatusBadge, formatCurrency } from './common/DataTable.jsx';
 
 function SalesList({ onEdit, onRefresh }) {
-  const { data: sales, loading, error, refresh } = useDataFetch(
-    salesService.getAll,
-    [onRefresh],
-    { errorMessage: 'Gagal memuat data sales' }
-  );
+  const {
+    data: sales,
+    loading,
+    error,
+    refresh,
+  } = useDataFetch(salesService.getAll, [onRefresh], { errorMessage: 'Gagal memuat data sales' });
 
   const { loading: operationLoading, remove } = useCrudOperations(salesService, refresh);
   const { confirmDelete } = useConfirmDialog();
 
-  const handleDelete = async (sale) => {
+  const handleDelete = async sale => {
     if (!sale.kodedivisi || !sale.kodesales) {
       return;
     }
@@ -25,7 +26,7 @@ function SalesList({ onEdit, onRefresh }) {
     }
   };
 
-  const handleEdit = (sale) => {
+  const handleEdit = sale => {
     if (!sale.kodedivisi || !sale.kodesales) {
       return;
     }
@@ -36,40 +37,40 @@ function SalesList({ onEdit, onRefresh }) {
   const columns = [
     {
       key: 'kodedivisi',
-      header: 'Kode Divisi'
+      header: 'Kode Divisi',
     },
     {
       key: 'kodesales',
-      header: 'Kode Sales'
+      header: 'Kode Sales',
     },
     {
       key: 'namasales',
-      header: 'Nama Sales'
+      header: 'Nama Sales',
     },
     {
       key: 'alamat',
-      header: 'Alamat'
+      header: 'Alamat',
     },
     {
       key: 'nohp',
-      header: 'No HP'
+      header: 'No HP',
     },
     {
       key: 'target',
       header: 'Target',
-      render: (sale) => formatCurrency(sale.target)
+      render: sale => formatCurrency(sale.target),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (sale) => <StatusBadge active={sale.status} />
-    }
+      render: sale => <StatusBadge active={sale.status} />,
+    },
   ];
 
   // Key extractor untuk unique keys
   const keyExtractor = (sale, index) => {
-    return sale.kodedivisi && sale.kodesales 
-      ? `${sale.kodedivisi}-${sale.kodesales}` 
+    return sale.kodedivisi && sale.kodesales
+      ? `${sale.kodedivisi}-${sale.kodesales}`
       : `sale-${index}`;
   };
 

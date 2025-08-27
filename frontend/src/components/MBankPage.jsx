@@ -13,7 +13,7 @@ function MBankPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (bank) => {
+  const handleEdit = bank => {
     setSelectedBank(bank);
     setShowForm(true);
   };

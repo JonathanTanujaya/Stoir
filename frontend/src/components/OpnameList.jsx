@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Button, 
-  CircularProgress 
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  CircularProgress,
 } from '@mui/material';
 import { toast } from 'react-toastify';
 
@@ -28,7 +28,7 @@ const OpnameList = ({ onEdit, onRefresh }) => {
     setError(null);
     try {
       // Ganti dengan endpoint API yang sesuai
-      const response = await fetch('/api/opname'); 
+      const response = await fetch('/api/opname');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -36,13 +36,13 @@ const OpnameList = ({ onEdit, onRefresh }) => {
       setData(result);
     } catch (err) {
       setError(err.message);
-      toast.error("Gagal memuat data: " + err.message);
+      toast.error('Gagal memuat data: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Apakah Anda yakin ingin menghapus item ini?')) {
       try {
         // Ganti dengan endpoint API yang sesuai
@@ -55,13 +55,17 @@ const OpnameList = ({ onEdit, onRefresh }) => {
         toast.success('Data berhasil dihapus!');
         fetchData(); // Refresh list setelah penghapusan
       } catch (err) {
-        toast.error("Gagal menghapus data: " + err.message);
+        toast.error('Gagal menghapus data: ' + err.message);
       }
     }
   };
 
   if (loading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
@@ -80,18 +84,20 @@ const OpnameList = ({ onEdit, onRefresh }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row) => (
-            <TableRow
-              key={row.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
+          {data.map(row => (
+            <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell component="th" scope="row">
                 {row.id}
               </TableCell>
               <TableCell>{row.nama_barang}</TableCell>
               <TableCell>{row.jumlah_fisik}</TableCell>
               <TableCell>
-                <Button variant="contained" color="primary" onClick={() => onEdit(row)} sx={{ mr: 1 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => onEdit(row)}
+                  sx={{ mr: 1 }}
+                >
                   Edit
                 </Button>
                 <Button variant="contained" color="secondary" onClick={() => handleDelete(row.id)}>

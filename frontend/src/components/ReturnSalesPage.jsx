@@ -13,7 +13,7 @@ function ReturnSalesPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (returnSales) => {
+  const handleEdit = returnSales => {
     setSelectedReturnSales(returnSales);
     setShowForm(true);
   };
@@ -33,7 +33,11 @@ function ReturnSalesPage() {
       <h1>Manajemen Retur Penjualan</h1>
       {!showForm && <button onClick={handleAdd}>Tambah Retur Penjualan Baru</button>}
       {showForm ? (
-        <ReturnSalesForm returnSales={selectedReturnSales} onSave={handleSave} onCancel={handleCancel} />
+        <ReturnSalesForm
+          returnSales={selectedReturnSales}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
       ) : (
         <ReturnSalesList onEdit={handleEdit} onRefresh={refreshList} />
       )}

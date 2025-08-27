@@ -13,7 +13,7 @@ function KategoriPage() {
     setRefreshList(prev => !prev);
   };
 
-  const handleEdit = (kategori) => {
+  const handleEdit = kategori => {
     setSelectedKategori(kategori);
     setShowForm(true);
   };

@@ -3,8 +3,28 @@ import ReportTemplate from './ReportTemplate';
 
 const COGSReport = () => {
   const sampleData = [
-    { id: 1, kode_barang: 'BRG001', nama_barang: 'Motor Oil 10W-40', qty_jual: 30, hpp: 45000, total_hpp: 1350000, harga_jual: 55000, total_jual: 1650000, profit: 300000 },
-    { id: 2, kode_barang: 'BRG002', nama_barang: 'Spark Plug NGK', qty_jual: 25, hpp: 25000, total_hpp: 625000, harga_jual: 35000, total_jual: 875000, profit: 250000 }
+    {
+      id: 1,
+      kode_barang: 'BRG001',
+      nama_barang: 'Motor Oil 10W-40',
+      qty_jual: 30,
+      hpp: 45000,
+      total_hpp: 1350000,
+      harga_jual: 55000,
+      total_jual: 1650000,
+      profit: 300000,
+    },
+    {
+      id: 2,
+      kode_barang: 'BRG002',
+      nama_barang: 'Spark Plug NGK',
+      qty_jual: 25,
+      hpp: 25000,
+      total_hpp: 625000,
+      harga_jual: 35000,
+      total_jual: 875000,
+      profit: 250000,
+    },
   ];
 
   return (
@@ -26,7 +46,7 @@ const COGSReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleData.map((item) => (
+                {sampleData.map(item => (
                   <tr key={item.id}>
                     <td>{item.kode_barang}</td>
                     <td>{item.nama_barang}</td>

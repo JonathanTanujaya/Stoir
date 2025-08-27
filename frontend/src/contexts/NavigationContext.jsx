@@ -12,7 +12,7 @@ export const navigationConfig = {
     icon: 'HomeIcon',
     path: '/dashboard',
     color: 'blue',
-    items: []
+    items: [],
   },
   master: {
     id: 'master',
@@ -28,8 +28,8 @@ export const navigationConfig = {
       { label: 'Supplier', path: '/master/supplier', icon: 'TruckIcon' },
       { label: 'Customer', path: '/master/customer', icon: 'UsersIcon' },
       { label: 'Bank', path: '/master/bank', icon: 'BuildingLibraryIcon' },
-      { label: 'Rekening', path: '/master/rekening', icon: 'CreditCardIcon' }
-    ]
+      { label: 'Rekening', path: '/master/rekening', icon: 'CreditCardIcon' },
+    ],
   },
   transactions: {
     id: 'transactions',
@@ -38,15 +38,35 @@ export const navigationConfig = {
     color: 'green',
     items: [
       { label: 'Pembelian', path: '/transactions/pembelian', icon: 'ShoppingCartIcon' },
-      { label: 'Retur Pembelian', path: '/transactions/retur-pembelian', icon: 'ArrowUturnLeftIcon' },
+      {
+        label: 'Retur Pembelian',
+        path: '/transactions/retur-pembelian',
+        icon: 'ArrowUturnLeftIcon',
+      },
       { label: 'Penjualan', path: '/transactions/penjualan', icon: 'CurrencyDollarIcon' },
-      { label: 'Retur Penjualan', path: '/transactions/retur-penjualan', icon: 'ArrowUturnRightIcon' },
-      { label: 'Stok Opname', path: '/transactions/stok-opname', icon: 'ClipboardDocumentCheckIcon' },
+      {
+        label: 'Retur Penjualan',
+        path: '/transactions/retur-penjualan',
+        icon: 'ArrowUturnRightIcon',
+      },
+      {
+        label: 'Stok Opname',
+        path: '/transactions/stok-opname',
+        icon: 'ClipboardDocumentCheckIcon',
+      },
       { label: 'Pembelian Bonus', path: '/transactions/pembelian-bonus', icon: 'GiftIcon' },
       { label: 'Penjualan Bonus', path: '/transactions/penjualan-bonus', icon: 'SparklesIcon' },
-      { label: 'Customer Claim', path: '/transactions/customer-claim', icon: 'ExclamationCircleIcon' },
-      { label: 'Pengembalian Claim', path: '/transactions/pengembalian-claim', icon: 'ArrowPathIcon' }
-    ]
+      {
+        label: 'Customer Claim',
+        path: '/transactions/customer-claim',
+        icon: 'ExclamationCircleIcon',
+      },
+      {
+        label: 'Pengembalian Claim',
+        path: '/transactions/pengembalian-claim',
+        icon: 'ArrowPathIcon',
+      },
+    ],
   },
   finance: {
     id: 'finance',
@@ -58,8 +78,8 @@ export const navigationConfig = {
       { label: 'Piutang Resi', path: '/finance/piutang-resi', icon: 'ClockIcon' },
       { label: 'Piutang Retur', path: '/finance/piutang-retur', icon: 'ArrowPathIcon' },
       { label: 'Penambahan Saldo', path: '/finance/penambahan-saldo', icon: 'PlusCircleIcon' },
-      { label: 'Pengurangan Saldo', path: '/finance/pengurangan-saldo', icon: 'MinusCircleIcon' }
-    ]
+      { label: 'Pengurangan Saldo', path: '/finance/pengurangan-saldo', icon: 'MinusCircleIcon' },
+    ],
   },
   reports: {
     id: 'reports',
@@ -69,9 +89,9 @@ export const navigationConfig = {
     items: [
       { label: 'Stok Barang', path: '/reports/stok-barang', icon: 'CubeIcon' },
       { label: 'Pembelian', path: '/reports/pembelian', icon: 'ShoppingBagIcon' },
-      { label: 'Penjualan', path: '/reports/penjualan', icon: 'BanknotesIcon' }
-    ]
-  }
+      { label: 'Penjualan', path: '/reports/penjualan', icon: 'BanknotesIcon' },
+    ],
+  },
 };
 
 // Custom hook for navigation
@@ -94,7 +114,7 @@ export const NavigationProvider = ({ children }) => {
   useEffect(() => {
     const pathSegments = location.pathname.split('/');
     const categoryFromPath = pathSegments[1];
-    
+
     if (navigationConfig[categoryFromPath]) {
       setActiveCategory(categoryFromPath);
     } else if (location.pathname === '/' || location.pathname === '/dashboard') {
@@ -103,7 +123,7 @@ export const NavigationProvider = ({ children }) => {
   }, [location.pathname]);
 
   // Toggle favorite item
-  const toggleFavorite = (item) => {
+  const toggleFavorite = item => {
     setFavoriteItems(prev => {
       const exists = prev.find(fav => fav.path === item.path);
       if (exists) {
@@ -115,32 +135,33 @@ export const NavigationProvider = ({ children }) => {
   };
 
   // Search functionality
-  const searchItems = (query) => {
+  const searchItems = query => {
     if (!query.trim()) return [];
-    
+
     const allItems = Object.values(navigationConfig).flatMap(cat => {
       const categoryItems = cat.items || [];
       return [
         { ...cat, type: 'category' },
-        ...categoryItems.map(item => ({ ...item, category: cat.label, type: 'item' }))
+        ...categoryItems.map(item => ({ ...item, category: cat.label, type: 'item' })),
       ];
     });
 
-    return allItems.filter(item =>
-      item.label.toLowerCase().includes(query.toLowerCase()) ||
-      (item.category && item.category.toLowerCase().includes(query.toLowerCase()))
+    return allItems.filter(
+      item =>
+        item.label.toLowerCase().includes(query.toLowerCase()) ||
+        (item.category && item.category.toLowerCase().includes(query.toLowerCase()))
     );
   };
 
   // Keyboard shortcuts
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = e => {
       // Ctrl+K or Cmd+K for command palette
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setCommandPaletteOpen(true);
       }
-      
+
       // Escape to close command palette
       if (e.key === 'Escape') {
         setCommandPaletteOpen(false);
@@ -156,26 +177,22 @@ export const NavigationProvider = ({ children }) => {
     activeCategory,
     favoriteItems,
     commandPaletteOpen,
-    
+
     // Actions
     setActiveCategory,
     setCommandPaletteOpen,
     toggleFavorite,
     searchItems,
-    
+
     // Config
     navigationConfig,
-    
+
     // Computed
     activeItems: navigationConfig[activeCategory]?.items || [],
-    activeCategoryConfig: navigationConfig[activeCategory]
+    activeCategoryConfig: navigationConfig[activeCategory],
   };
 
-  return (
-    <NavigationContext.Provider value={value}>
-      {children}
-    </NavigationContext.Provider>
-  );
+  return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>;
 };
 
 export default NavigationProvider;

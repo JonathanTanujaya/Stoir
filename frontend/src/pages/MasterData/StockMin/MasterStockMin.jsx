@@ -7,7 +7,7 @@ const MasterStockMin = () => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     kategori: '',
-    status: ''
+    status: '',
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const MasterStockMin = () => {
           stok_saat_ini: 120,
           stok_minimum: 10,
           status: 'Aman',
-          selisih: 110
+          selisih: 110,
         },
         {
           id: 2,
@@ -42,7 +42,7 @@ const MasterStockMin = () => {
           stok_saat_ini: 5,
           stok_minimum: 20,
           status: 'Kurang',
-          selisih: -15
+          selisih: -15,
         },
         {
           id: 3,
@@ -52,8 +52,8 @@ const MasterStockMin = () => {
           stok_saat_ini: 15,
           stok_minimum: 15,
           status: 'Minimum',
-          selisih: 0
-        }
+          selisih: 0,
+        },
       ];
       setData(sampleData);
     } finally {
@@ -61,47 +61,53 @@ const MasterStockMin = () => {
     }
   };
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = e => {
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const filteredData = Array.isArray(data) ? data.filter(item => {
-    return (!filters.kategori || item.kategori === filters.kategori) &&
-           (!filters.status || item.status === filters.status);
-  }) : [];
+  const filteredData = Array.isArray(data)
+    ? data.filter(item => {
+        return (
+          (!filters.kategori || item.kategori === filters.kategori) &&
+          (!filters.status || item.status === filters.status)
+        );
+      })
+    : [];
 
   const updateStockMin = async (id, newStockMin) => {
     try {
       // Update via API
       const item = Array.isArray(data) ? data.find(d => d.id === id) : null;
       if (item) {
-        await stockMinAPI.update(id, { 
-          ...item, 
-          stok_minimum: newStockMin 
+        await stockMinAPI.update(id, {
+          ...item,
+          stok_minimum: newStockMin,
         });
       }
-      
+
       // Update local state
-      setData(prev => prev.map(item => {
-        if (item.id === id) {
-          const updatedItem = { ...item, stok_minimum: newStockMin };
-          updatedItem.selisih = updatedItem.stok_saat_ini - newStockMin;
-          if (updatedItem.selisih < 0) {
-            updatedItem.status = 'Kurang';
-          } else if (updatedItem.selisih === 0) {
-            updatedItem.status = 'Minimum';
-          } else {
-            updatedItem.status = 'Aman';
+      setData(prev =>
+        prev.map(item => {
+          if (item.id === id) {
+            const updatedItem = { ...item, stok_minimum: newStockMin };
+            updatedItem.selisih = updatedItem.stok_saat_ini - newStockMin;
+            if (updatedItem.selisih < 0) {
+              updatedItem.status = 'Kurang';
+            } else if (updatedItem.selisih === 0) {
+              updatedItem.status = 'Minimum';
+            } else {
+              updatedItem.status = 'Aman';
+            }
+            return updatedItem;
           }
-          return updatedItem;
-        }
-        return item;
-      }));
-      
+          return item;
+        })
+      );
+
       alert('Stock minimum berhasil diupdate!');
     } catch (error) {
       console.error('Error updating stock min:', error);
@@ -109,7 +115,7 @@ const MasterStockMin = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = status => {
     switch (status) {
       case 'Aman':
         return <span className="badge badge-success">Aman</span>;
@@ -167,7 +173,7 @@ const MasterStockMin = () => {
           <div className="form-grid grid-cols-2">
             <div className="form-group">
               <label className="form-label">Kategori</label>
-              <select 
+              <select
                 name="kategori"
                 value={filters.kategori}
                 onChange={handleFilterChange}
@@ -183,7 +189,7 @@ const MasterStockMin = () => {
             </div>
             <div className="form-group">
               <label className="form-label">Status</label>
-              <select 
+              <select
                 name="status"
                 value={filters.status}
                 onChange={handleFilterChange}
@@ -220,7 +226,7 @@ const MasterStockMin = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((item) => (
+                {filteredData.map(item => (
                   <tr key={item.id}>
                     <td>{item.kode_barang}</td>
                     <td>{item.nama_barang}</td>
@@ -230,7 +236,7 @@ const MasterStockMin = () => {
                       <input
                         type="number"
                         value={item.stok_minimum}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newValue = parseInt(e.target.value) || 0;
                           updateStockMin(item.id, newValue);
                         }}
@@ -239,12 +245,15 @@ const MasterStockMin = () => {
                         min="0"
                       />
                     </td>
-                    <td className={`text-right ${item.selisih < 0 ? 'text-danger' : item.selisih === 0 ? 'text-warning' : 'text-success'}`}>
-                      {item.selisih > 0 ? '+' : ''}{item.selisih}
+                    <td
+                      className={`text-right ${item.selisih < 0 ? 'text-danger' : item.selisih === 0 ? 'text-warning' : 'text-success'}`}
+                    >
+                      {item.selisih > 0 ? '+' : ''}
+                      {item.selisih}
                     </td>
                     <td>{getStatusBadge(item.status)}</td>
                     <td>
-                      <button 
+                      <button
                         className="btn btn-sm btn-primary"
                         onClick={() => {
                           // TODO: Open reorder form
@@ -266,8 +275,9 @@ const MasterStockMin = () => {
       {/* Alert for critical items */}
       {data.filter(item => item.status === 'Kurang').length > 0 && (
         <div className="alert alert-warning mt-4">
-          <strong>Perhatian!</strong> Ada {data.filter(item => item.status === 'Kurang').length} barang dengan stok di bawah minimum. 
-          Segera lakukan pemesanan untuk menghindari kehabisan stok.
+          <strong>Perhatian!</strong> Ada {data.filter(item => item.status === 'Kurang').length}{' '}
+          barang dengan stok di bawah minimum. Segera lakukan pemesanan untuk menghindari kehabisan
+          stok.
         </div>
       )}
     </div>

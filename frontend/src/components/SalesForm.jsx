@@ -28,15 +28,15 @@ function SalesForm({ sale, onSave, onCancel }) {
     }
   }, [sale]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (sale) {
@@ -56,11 +56,23 @@ function SalesForm({ sale, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div>
         <label>Kode Divisi:</label>
-        <input type="text" name="KodeDivisi" value={formData.KodeDivisi} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeDivisi"
+          value={formData.KodeDivisi}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Kode Sales:</label>
-        <input type="text" name="KodeSales" value={formData.KodeSales} onChange={handleChange} required />
+        <input
+          type="text"
+          name="KodeSales"
+          value={formData.KodeSales}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
         <label>Nama Sales:</label>
@@ -83,7 +95,9 @@ function SalesForm({ sale, onSave, onCancel }) {
         <input type="checkbox" name="status" checked={formData.status} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

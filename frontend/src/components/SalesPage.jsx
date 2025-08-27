@@ -13,7 +13,7 @@ function SalesPage() {
     setRefreshList(prev => !prev); // Toggle to trigger refresh
   };
 
-  const handleEdit = (sale) => {
+  const handleEdit = sale => {
     setSelectedSale(sale);
     setShowForm(true);
   };

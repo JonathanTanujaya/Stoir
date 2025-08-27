@@ -16,7 +16,7 @@ function AreaPage() {
     toast.success('Data area berhasil disimpan');
   };
 
-  const handleEdit = (area) => {
+  const handleEdit = area => {
     if (loading) return;
     setSelectedArea(area);
     setShowForm(true);
@@ -37,24 +37,14 @@ function AreaPage() {
     <div>
       <h1>Manajemen Area</h1>
       {!showForm && (
-        <button 
-          onClick={handleAdd}
-          disabled={loading}
-        >
+        <button onClick={handleAdd} disabled={loading}>
           {loading ? 'Memuat...' : 'Tambah Area Baru'}
         </button>
       )}
       {showForm ? (
-        <AreaForm 
-          area={selectedArea} 
-          onSave={handleSave} 
-          onCancel={handleCancel} 
-        />
+        <AreaForm area={selectedArea} onSave={handleSave} onCancel={handleCancel} />
       ) : (
-        <AreaList 
-          onEdit={handleEdit} 
-          onRefresh={refreshList} 
-        />
+        <AreaList onEdit={handleEdit} onRefresh={refreshList} />
       )}
     </div>
   );

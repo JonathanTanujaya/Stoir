@@ -17,15 +17,15 @@ function MTTForm({ mtt, onSave, onCancel }) {
     }
   }, [mtt]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       if (mtt) {
@@ -60,7 +60,9 @@ function MTTForm({ mtt, onSave, onCancel }) {
         <input type="text" name="Keterangan" value={formData.Keterangan} onChange={handleChange} />
       </div>
       <button type="submit">Simpan</button>
-      <button type="button" onClick={onCancel}>Batal</button>
+      <button type="button" onClick={onCancel}>
+        Batal
+      </button>
     </form>
   );
 }

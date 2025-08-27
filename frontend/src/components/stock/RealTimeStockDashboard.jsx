@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Grid, 
-  Button, 
-  TextField, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Chip, 
-  Alert, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Button,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   DialogActions,
   IconButton,
   Tooltip,
@@ -30,7 +30,7 @@ import {
   Switch,
   FormControlLabel,
   Divider,
-  Badge
+  Badge,
 } from '@mui/material';
 import {
   Refresh,
@@ -46,9 +46,22 @@ import {
   Inventory,
   Schedule,
   History,
-  NotificationsActive
+  NotificationsActive,
 } from '@mui/icons-material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 import StockEngine from '../../services/StockEngine';
 
 const RealTimeStockDashboard = () => {
@@ -63,7 +76,7 @@ const RealTimeStockDashboard = () => {
   const [refreshInterval, setRefreshInterval] = useState(30); // seconds
   const [viewMode, setViewMode] = useState('overview'); // overview, alerts, analytics
   const [valuationMethod, setValuationMethod] = useState('FIFO');
-  
+
   const stockEngine = useRef(new StockEngine());
   const refreshTimer = useRef(null);
   const wsConnection = useRef(null);
@@ -72,7 +85,7 @@ const RealTimeStockDashboard = () => {
   useEffect(() => {
     initializeStockMonitoring();
     connectWebSocket();
-    
+
     return () => {
       cleanup();
     };
@@ -85,26 +98,22 @@ const RealTimeStockDashboard = () => {
     } else {
       clearInterval(refreshTimer.current);
     }
-    
+
     return () => clearInterval(refreshTimer.current);
   }, [autoRefresh, refreshInterval]);
 
   const initializeStockMonitoring = async () => {
     try {
       setLoading(true);
-      
+
       // Initialize stock engine
       stockEngine.current.startBackgroundCalculations();
-      
+
       // Add listener for calculation updates
       stockEngine.current.addListener(handleStockEngineUpdate);
-      
+
       // Load initial data
-      await Promise.all([
-        loadStockData(),
-        loadStockAlerts(),
-        performCalculations()
-      ]);
+      await Promise.all([loadStockData(), loadStockAlerts(), performCalculations()]);
     } catch (error) {
       console.error('Failed to initialize stock monitoring:', error);
     } finally {
@@ -114,26 +123,26 @@ const RealTimeStockDashboard = () => {
 
   const connectWebSocket = () => {
     if (wsConnection.current) return;
-    
+
     try {
       wsConnection.current = new WebSocket('ws://localhost:8080/stock-updates');
-      
+
       wsConnection.current.onopen = () => {
         console.log('Stock WebSocket connected');
       };
-      
-      wsConnection.current.onmessage = (event) => {
+
+      wsConnection.current.onmessage = event => {
         const data = JSON.parse(event.data);
         handleRealTimeUpdate(data);
       };
-      
+
       wsConnection.current.onclose = () => {
         console.log('Stock WebSocket disconnected');
         // Attempt reconnection after 5 seconds
         setTimeout(connectWebSocket, 5000);
       };
-      
-      wsConnection.current.onerror = (error) => {
+
+      wsConnection.current.onerror = error => {
         console.error('WebSocket error:', error);
       };
     } catch (error) {
@@ -153,7 +162,7 @@ const RealTimeStockDashboard = () => {
       // Mock API call - replace with actual backend call
       const response = await fetch('/api/stock/realtime');
       const data = await response.json();
-      
+
       // Mock data for demonstration
       const mockData = [
         {
@@ -173,8 +182,8 @@ const RealTimeStockDashboard = () => {
           status: 'LOW_STOCK',
           lots: [
             { id: 'LOT001', quantity: 25, expiryDate: '2024-06-15', unitCost: 95 },
-            { id: 'LOT002', quantity: 20, expiryDate: '2024-08-20', unitCost: 105 }
-          ]
+            { id: 'LOT002', quantity: 20, expiryDate: '2024-08-20', unitCost: 105 },
+          ],
         },
         {
           id: 2,
@@ -191,9 +200,7 @@ const RealTimeStockDashboard = () => {
           turnoverRate: 4.2,
           daysOfInventory: 18,
           status: 'OK',
-          lots: [
-            { id: 'LOT003', quantity: 120, expiryDate: '2025-12-31', unitCost: 200 }
-          ]
+          lots: [{ id: 'LOT003', quantity: 120, expiryDate: '2025-12-31', unitCost: 200 }],
         },
         {
           id: 3,
@@ -210,10 +217,10 @@ const RealTimeStockDashboard = () => {
           turnoverRate: 6.8,
           daysOfInventory: 0,
           status: 'OUT_OF_STOCK',
-          lots: []
-        }
+          lots: [],
+        },
       ];
-      
+
       setStockData(mockData);
       return mockData;
     } catch (error) {
@@ -225,62 +232,64 @@ const RealTimeStockDashboard = () => {
   const loadStockAlerts = async () => {
     try {
       // Generate alerts based on stock data
-      const alertsData = stockData.map(product => {
-        const alerts = [];
-        
-        if (product.currentStock <= 0) {
-          alerts.push({
-            id: `${product.id}-out-of-stock`,
-            productId: product.id,
-            productName: product.name,
-            type: 'OUT_OF_STOCK',
-            severity: 'error',
-            message: `${product.name} is out of stock`,
-            timestamp: new Date().toISOString()
-          });
-        } else if (product.currentStock <= product.reorderPoint) {
-          alerts.push({
-            id: `${product.id}-low-stock`,
-            productId: product.id,
-            productName: product.name,
-            type: 'LOW_STOCK',
-            severity: 'warning',
-            message: `${product.name} is below reorder point (${product.currentStock}/${product.reorderPoint})`,
-            timestamp: new Date().toISOString()
-          });
-        }
-        
-        // Check for near-expiry items
-        product.lots?.forEach(lot => {
-          const expiryDate = new Date(lot.expiryDate);
-          const daysToExpiry = Math.ceil((expiryDate - new Date()) / (24 * 60 * 60 * 1000));
-          
-          if (daysToExpiry <= 30 && daysToExpiry > 0) {
+      const alertsData = stockData
+        .map(product => {
+          const alerts = [];
+
+          if (product.currentStock <= 0) {
             alerts.push({
-              id: `${product.id}-${lot.id}-near-expiry`,
+              id: `${product.id}-out-of-stock`,
               productId: product.id,
               productName: product.name,
-              type: 'NEAR_EXPIRY',
-              severity: 'warning',
-              message: `Lot ${lot.id} expires in ${daysToExpiry} days`,
-              timestamp: new Date().toISOString()
-            });
-          } else if (daysToExpiry <= 0) {
-            alerts.push({
-              id: `${product.id}-${lot.id}-expired`,
-              productId: product.id,
-              productName: product.name,
-              type: 'EXPIRED',
+              type: 'OUT_OF_STOCK',
               severity: 'error',
-              message: `Lot ${lot.id} has expired`,
-              timestamp: new Date().toISOString()
+              message: `${product.name} is out of stock`,
+              timestamp: new Date().toISOString(),
+            });
+          } else if (product.currentStock <= product.reorderPoint) {
+            alerts.push({
+              id: `${product.id}-low-stock`,
+              productId: product.id,
+              productName: product.name,
+              type: 'LOW_STOCK',
+              severity: 'warning',
+              message: `${product.name} is below reorder point (${product.currentStock}/${product.reorderPoint})`,
+              timestamp: new Date().toISOString(),
             });
           }
-        });
-        
-        return alerts;
-      }).flat();
-      
+
+          // Check for near-expiry items
+          product.lots?.forEach(lot => {
+            const expiryDate = new Date(lot.expiryDate);
+            const daysToExpiry = Math.ceil((expiryDate - new Date()) / (24 * 60 * 60 * 1000));
+
+            if (daysToExpiry <= 30 && daysToExpiry > 0) {
+              alerts.push({
+                id: `${product.id}-${lot.id}-near-expiry`,
+                productId: product.id,
+                productName: product.name,
+                type: 'NEAR_EXPIRY',
+                severity: 'warning',
+                message: `Lot ${lot.id} expires in ${daysToExpiry} days`,
+                timestamp: new Date().toISOString(),
+              });
+            } else if (daysToExpiry <= 0) {
+              alerts.push({
+                id: `${product.id}-${lot.id}-expired`,
+                productId: product.id,
+                productName: product.name,
+                type: 'EXPIRED',
+                severity: 'error',
+                message: `Lot ${lot.id} has expired`,
+                timestamp: new Date().toISOString(),
+              });
+            }
+          });
+
+          return alerts;
+        })
+        .flat();
+
       setAlerts(alertsData);
       return alertsData;
     } catch (error) {
@@ -303,19 +312,15 @@ const RealTimeStockDashboard = () => {
 
   const refreshStockData = useCallback(async () => {
     try {
-      await Promise.all([
-        loadStockData(),
-        loadStockAlerts(),
-        performCalculations()
-      ]);
+      await Promise.all([loadStockData(), loadStockAlerts(), performCalculations()]);
     } catch (error) {
       console.error('Failed to refresh stock data:', error);
     }
   }, [stockData]);
 
-  const handleStockEngineUpdate = (event) => {
+  const handleStockEngineUpdate = event => {
     const { type, data } = event;
-    
+
     switch (type) {
       case 'calculationUpdate':
         setCalculations(prev => new Map(prev.set(data.productId, data.results)));
@@ -325,16 +330,18 @@ const RealTimeStockDashboard = () => {
     }
   };
 
-  const handleRealTimeUpdate = (data) => {
+  const handleRealTimeUpdate = data => {
     const { type, payload } = data;
-    
+
     switch (type) {
       case 'STOCK_UPDATED':
-        setStockData(prev => prev.map(product => 
-          product.id === payload.productId 
-            ? { ...product, currentStock: payload.newStock, lastMovement: payload.timestamp }
-            : product
-        ));
+        setStockData(prev =>
+          prev.map(product =>
+            product.id === payload.productId
+              ? { ...product, currentStock: payload.newStock, lastMovement: payload.timestamp }
+              : product
+          )
+        );
         break;
       case 'ALERT_GENERATED':
         setAlerts(prev => [payload, ...prev]);
@@ -344,67 +351,77 @@ const RealTimeStockDashboard = () => {
     }
   };
 
-  const getStockStatusColor = (status) => {
+  const getStockStatusColor = status => {
     switch (status) {
-      case 'OUT_OF_STOCK': return 'error';
-      case 'LOW_STOCK': return 'warning';
-      case 'OK': return 'success';
-      case 'OVERSTOCK': return 'info';
-      default: return 'default';
+      case 'OUT_OF_STOCK':
+        return 'error';
+      case 'LOW_STOCK':
+        return 'warning';
+      case 'OK':
+        return 'success';
+      case 'OVERSTOCK':
+        return 'info';
+      default:
+        return 'default';
     }
   };
 
-  const getAlertSeverityColor = (severity) => {
+  const getAlertSeverityColor = severity => {
     switch (severity) {
-      case 'error': return 'error';
-      case 'warning': return 'warning';
-      case 'info': return 'info';
-      default: return 'default';
+      case 'error':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      case 'info':
+        return 'info';
+      default:
+        return 'default';
     }
   };
 
-  const calculateStockValue = (product) => {
+  const calculateStockValue = product => {
     if (valuationMethod === 'FIFO') {
-      const movements = product.lots?.map(lot => ({
-        type: 'IN',
-        quantity: lot.quantity,
-        unitCost: lot.unitCost,
-        date: lot.date,
-        lotNumber: lot.id
-      })) || [];
-      
+      const movements =
+        product.lots?.map(lot => ({
+          type: 'IN',
+          quantity: lot.quantity,
+          unitCost: lot.unitCost,
+          date: lot.date,
+          lotNumber: lot.id,
+        })) || [];
+
       const valuation = stockEngine.current.calculateFIFOValuation(movements);
       return valuation.totalValue;
     }
-    
+
     return product.currentStock * product.cost;
   };
 
-  const generateTrendData = (product) => {
+  const generateTrendData = product => {
     // Mock trend data - replace with actual historical data
     const days = 30;
     const data = [];
     let stock = product.currentStock;
-    
+
     for (let i = days; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      
+
       // Simulate stock movements
       stock += Math.floor(Math.random() * 20) - 10;
       stock = Math.max(0, stock);
-      
+
       data.push({
         date: date.toLocaleDateString(),
         stock,
-        reorderPoint: product.reorderPoint
+        reorderPoint: product.reorderPoint,
       });
     }
-    
+
     return data;
   };
 
-  const handleProductClick = (product) => {
+  const handleProductClick = product => {
     setSelectedProduct(product);
     setDetailsOpen(true);
   };
@@ -413,20 +430,20 @@ const RealTimeStockDashboard = () => {
     try {
       const reportData = stockData.map(product => ({
         'Product Name': product.name,
-        'Barcode': product.barcode,
+        Barcode: product.barcode,
         'Current Stock': product.currentStock,
         'Reorder Point': product.reorderPoint,
         'Stock Value': calculateStockValue(product),
-        'Status': product.status,
-        'Location': product.location,
-        'Last Movement': new Date(product.lastMovement).toLocaleDateString()
+        Status: product.status,
+        Location: product.location,
+        'Last Movement': new Date(product.lastMovement).toLocaleDateString(),
       }));
-      
+
       const csvContent = [
         Object.keys(reportData[0]).join(','),
-        ...reportData.map(row => Object.values(row).join(','))
+        ...reportData.map(row => Object.values(row).join(',')),
       ].join('\n');
-      
+
       const blob = new Blob([csvContent], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -442,9 +459,11 @@ const RealTimeStockDashboard = () => {
   const renderOverviewCards = () => {
     const totalProducts = stockData.length;
     const outOfStock = stockData.filter(p => p.currentStock <= 0).length;
-    const lowStock = stockData.filter(p => p.currentStock > 0 && p.currentStock <= p.reorderPoint).length;
+    const lowStock = stockData.filter(
+      p => p.currentStock > 0 && p.currentStock <= p.reorderPoint
+    ).length;
     const totalValue = stockData.reduce((sum, p) => sum + calculateStockValue(p), 0);
-    
+
     return (
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
@@ -464,7 +483,7 @@ const RealTimeStockDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -482,7 +501,7 @@ const RealTimeStockDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -500,7 +519,7 @@ const RealTimeStockDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -539,8 +558,8 @@ const RealTimeStockDashboard = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {stockData.map((product) => (
-            <TableRow 
+          {stockData.map(product => (
+            <TableRow
               key={product.id}
               hover
               onClick={() => handleProductClick(product)}
@@ -554,7 +573,7 @@ const RealTimeStockDashboard = () => {
               </TableCell>
               <TableCell>{product.barcode}</TableCell>
               <TableCell align="right">
-                <Typography 
+                <Typography
                   variant="body2"
                   color={product.currentStock <= product.reorderPoint ? 'error' : 'inherit'}
                 >
@@ -562,20 +581,16 @@ const RealTimeStockDashboard = () => {
                 </Typography>
               </TableCell>
               <TableCell align="right">{product.reorderPoint}</TableCell>
-              <TableCell align="right">
-                ${calculateStockValue(product).toLocaleString()}
-              </TableCell>
+              <TableCell align="right">${calculateStockValue(product).toLocaleString()}</TableCell>
               <TableCell>
-                <Chip 
-                  label={product.status} 
+                <Chip
+                  label={product.status}
                   color={getStockStatusColor(product.status)}
                   size="small"
                 />
               </TableCell>
               <TableCell>{product.location}</TableCell>
-              <TableCell>
-                {new Date(product.lastMovement).toLocaleDateString()}
-              </TableCell>
+              <TableCell>{new Date(product.lastMovement).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Tooltip title="View Details">
                   <IconButton size="small" onClick={() => handleProductClick(product)}>
@@ -597,16 +612,12 @@ const RealTimeStockDashboard = () => {
           Stock Alerts
           <Badge badgeContent={alerts.length} color="error" sx={{ ml: 2 }} />
         </Typography>
-        
+
         {alerts.length === 0 ? (
           <Alert severity="success">No active stock alerts</Alert>
         ) : (
-          alerts.map((alert) => (
-            <Alert 
-              key={alert.id}
-              severity={getAlertSeverityColor(alert.severity)}
-              sx={{ mb: 1 }}
-            >
+          alerts.map(alert => (
+            <Alert key={alert.id} severity={getAlertSeverityColor(alert.severity)} sx={{ mb: 1 }}>
               <Typography variant="subtitle2">{alert.productName}</Typography>
               <Typography variant="body2">{alert.message}</Typography>
               <Typography variant="caption" color="text.secondary">
@@ -625,29 +636,17 @@ const RealTimeStockDashboard = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">
           Real-Time Stock Dashboard
-          <IconButton 
-            onClick={refreshStockData} 
-            disabled={loading}
-            sx={{ ml: 1 }}
-          >
+          <IconButton onClick={refreshStockData} disabled={loading} sx={{ ml: 1 }}>
             <Refresh />
           </IconButton>
         </Typography>
-        
+
         <Box display="flex" gap={1}>
-          <Button
-            variant="outlined"
-            startIcon={<Download />}
-            onClick={exportStockReport}
-          >
+          <Button variant="outlined" startIcon={<Download />} onClick={exportStockReport}>
             Export
           </Button>
-          
-          <Button
-            variant="outlined"
-            startIcon={<Settings />}
-            onClick={() => setSettingsOpen(true)}
-          >
+
+          <Button variant="outlined" startIcon={<Settings />} onClick={() => setSettingsOpen(true)}>
             Settings
           </Button>
         </Box>
@@ -658,20 +657,22 @@ const RealTimeStockDashboard = () => {
 
       {/* View Mode Tabs */}
       <Box display="flex" gap={1} mb={3}>
-        <Button 
+        <Button
           variant={viewMode === 'overview' ? 'contained' : 'outlined'}
           onClick={() => setViewMode('overview')}
         >
           Overview
         </Button>
-        <Button 
+        <Button
           variant={viewMode === 'alerts' ? 'contained' : 'outlined'}
           onClick={() => setViewMode('alerts')}
-          startIcon={alerts.length > 0 ? <Badge badgeContent={alerts.length} color="error" /> : null}
+          startIcon={
+            alerts.length > 0 ? <Badge badgeContent={alerts.length} color="error" /> : null
+          }
         >
           Alerts
         </Button>
-        <Button 
+        <Button
           variant={viewMode === 'analytics' ? 'contained' : 'outlined'}
           onClick={() => setViewMode('analytics')}
         >
@@ -694,14 +695,27 @@ const RealTimeStockDashboard = () => {
           <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>Stock Distribution</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Stock Distribution
+                </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
                       data={[
-                        { name: 'In Stock', value: stockData.filter(p => p.currentStock > p.reorderPoint).length },
-                        { name: 'Low Stock', value: stockData.filter(p => p.currentStock > 0 && p.currentStock <= p.reorderPoint).length },
-                        { name: 'Out of Stock', value: stockData.filter(p => p.currentStock <= 0).length }
+                        {
+                          name: 'In Stock',
+                          value: stockData.filter(p => p.currentStock > p.reorderPoint).length,
+                        },
+                        {
+                          name: 'Low Stock',
+                          value: stockData.filter(
+                            p => p.currentStock > 0 && p.currentStock <= p.reorderPoint
+                          ).length,
+                        },
+                        {
+                          name: 'Out of Stock',
+                          value: stockData.filter(p => p.currentStock <= 0).length,
+                        },
                       ]}
                       cx="50%"
                       cy="50%"
@@ -720,18 +734,20 @@ const RealTimeStockDashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>Stock Value by Category</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Stock Value by Category
+                </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={stockData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="category" />
                     <YAxis />
-                    <RechartsTooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Value']} />
-                    <Bar dataKey={(item) => calculateStockValue(item)} fill="#2196f3" />
+                    <RechartsTooltip formatter={value => [`$${value.toLocaleString()}`, 'Value']} />
+                    <Bar dataKey={item => calculateStockValue(item)} fill="#2196f3" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -741,62 +757,76 @@ const RealTimeStockDashboard = () => {
       )}
 
       {/* Product Details Dialog */}
-      <Dialog 
-        open={detailsOpen} 
-        onClose={() => setDetailsOpen(false)}
-        maxWidth="lg"
-        fullWidth
-      >
+      <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="lg" fullWidth>
         {selectedProduct && (
           <>
-            <DialogTitle>
-              {selectedProduct.name} - Stock Details
-            </DialogTitle>
+            <DialogTitle>{selectedProduct.name} - Stock Details</DialogTitle>
             <DialogContent>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="h6" gutterBottom>Stock Information</Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Stock Information
+                  </Typography>
                   <Box display="flex" flexDirection="column" gap={1}>
-                    <Typography>Current Stock: <strong>{selectedProduct.currentStock}</strong></Typography>
-                    <Typography>Reorder Point: <strong>{selectedProduct.reorderPoint}</strong></Typography>
-                    <Typography>Max Stock: <strong>{selectedProduct.maxStock}</strong></Typography>
-                    <Typography>Stock Value: <strong>${calculateStockValue(selectedProduct).toLocaleString()}</strong></Typography>
-                    <Typography>Turnover Rate: <strong>{selectedProduct.turnoverRate}x</strong></Typography>
-                    <Typography>Days of Inventory: <strong>{selectedProduct.daysOfInventory}</strong></Typography>
+                    <Typography>
+                      Current Stock: <strong>{selectedProduct.currentStock}</strong>
+                    </Typography>
+                    <Typography>
+                      Reorder Point: <strong>{selectedProduct.reorderPoint}</strong>
+                    </Typography>
+                    <Typography>
+                      Max Stock: <strong>{selectedProduct.maxStock}</strong>
+                    </Typography>
+                    <Typography>
+                      Stock Value:{' '}
+                      <strong>${calculateStockValue(selectedProduct).toLocaleString()}</strong>
+                    </Typography>
+                    <Typography>
+                      Turnover Rate: <strong>{selectedProduct.turnoverRate}x</strong>
+                    </Typography>
+                    <Typography>
+                      Days of Inventory: <strong>{selectedProduct.daysOfInventory}</strong>
+                    </Typography>
                   </Box>
-                  
+
                   <Divider sx={{ my: 2 }} />
-                  
-                  <Typography variant="h6" gutterBottom>Lot Information</Typography>
-                  {selectedProduct.lots?.map((lot) => (
+
+                  <Typography variant="h6" gutterBottom>
+                    Lot Information
+                  </Typography>
+                  {selectedProduct.lots?.map(lot => (
                     <Box key={lot.id} sx={{ mb: 1, p: 1, bgcolor: 'grey.100', borderRadius: 1 }}>
                       <Typography variant="subtitle2">Lot {lot.id}</Typography>
                       <Typography variant="body2">Quantity: {lot.quantity}</Typography>
                       <Typography variant="body2">Unit Cost: ${lot.unitCost}</Typography>
-                      <Typography variant="body2">Expiry: {new Date(lot.expiryDate).toLocaleDateString()}</Typography>
+                      <Typography variant="body2">
+                        Expiry: {new Date(lot.expiryDate).toLocaleDateString()}
+                      </Typography>
                     </Box>
                   ))}
                 </Grid>
-                
+
                 <Grid item xs={12} md={6}>
-                  <Typography variant="h6" gutterBottom>Stock Trend (30 days)</Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Stock Trend (30 days)
+                  </Typography>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={generateTrendData(selectedProduct)}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />
                       <RechartsTooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="stock" 
-                        stroke="#2196f3" 
+                      <Line
+                        type="monotone"
+                        dataKey="stock"
+                        stroke="#2196f3"
                         strokeWidth={2}
                         name="Stock Level"
                       />
-                      <Line 
-                        type="monotone" 
-                        dataKey="reorderPoint" 
-                        stroke="#ff9800" 
+                      <Line
+                        type="monotone"
+                        dataKey="reorderPoint"
+                        stroke="#ff9800"
                         strokeDasharray="5 5"
                         name="Reorder Point"
                       />
@@ -822,29 +852,23 @@ const RealTimeStockDashboard = () => {
           <Box display="flex" flexDirection="column" gap={3} pt={1}>
             <FormControlLabel
               control={
-                <Switch
-                  checked={autoRefresh}
-                  onChange={(e) => setAutoRefresh(e.target.checked)}
-                />
+                <Switch checked={autoRefresh} onChange={e => setAutoRefresh(e.target.checked)} />
               }
               label="Auto Refresh"
             />
-            
+
             <TextField
               label="Refresh Interval (seconds)"
               type="number"
               value={refreshInterval}
-              onChange={(e) => setRefreshInterval(parseInt(e.target.value))}
+              onChange={e => setRefreshInterval(parseInt(e.target.value))}
               disabled={!autoRefresh}
               inputProps={{ min: 10, max: 300 }}
             />
-            
+
             <FormControl fullWidth>
               <InputLabel>Valuation Method</InputLabel>
-              <Select
-                value={valuationMethod}
-                onChange={(e) => setValuationMethod(e.target.value)}
-              >
+              <Select value={valuationMethod} onChange={e => setValuationMethod(e.target.value)}>
                 <MenuItem value="FIFO">FIFO (First In, First Out)</MenuItem>
                 <MenuItem value="LIFO">LIFO (Last In, First Out)</MenuItem>
                 <MenuItem value="WEIGHTED_AVERAGE">Weighted Average</MenuItem>

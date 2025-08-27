@@ -21,7 +21,7 @@ import {
   ListItemText,
   ListItemIcon,
   Divider,
-  Button
+  Button,
 } from '@mui/material';
 import {
   Search,
@@ -38,7 +38,7 @@ import {
   ViewList,
   Refresh,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSwipeable } from 'react-swipeable';
@@ -47,15 +47,10 @@ import { FixedSizeList as VirtualizedList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import MobileBarcodeScanner from './MobileBarcodeScanner';
 
-const MobileStockManager = ({ 
-  onAddProduct, 
-  onEditProduct, 
-  onViewProduct,
-  onScanBarcode 
-}) => {
+const MobileStockManager = ({ onAddProduct, onEditProduct, onViewProduct, onScanBarcode }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // State management
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -70,12 +65,12 @@ const MobileStockManager = ({
   const [error, setError] = useState('');
   const [hasNextPage, setHasNextPage] = useState(true);
   const [page, setPage] = useState(1);
-  
+
   // Pull-to-refresh state
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
   const pullThreshold = 80;
-  
+
   // Refs
   const listRef = useRef();
   const containerRef = useRef();
@@ -90,7 +85,7 @@ const MobileStockManager = ({
     { value: 'food', label: 'Food & Beverages' },
     { value: 'books', label: 'Books' },
     { value: 'tools', label: 'Tools' },
-    { value: 'sports', label: 'Sports' }
+    { value: 'sports', label: 'Sports' },
   ];
 
   // Sort options
@@ -101,7 +96,7 @@ const MobileStockManager = ({
     { value: 'stock_high', label: 'High Stock First' },
     { value: 'price_low', label: 'Price (Low-High)' },
     { value: 'price_high', label: 'Price (High-Low)' },
-    { value: 'updated', label: 'Recently Updated' }
+    { value: 'updated', label: 'Recently Updated' },
   ];
 
   // Load products
@@ -109,10 +104,10 @@ const MobileStockManager = ({
     try {
       setLoading(true);
       setError('');
-      
+
       // Simulate API call with pagination
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Mock product data
       const mockProducts = Array.from({ length: 20 }, (_, index) => ({
         id: (pageNum - 1) * 20 + index + 1,
@@ -123,15 +118,15 @@ const MobileStockManager = ({
         minStock: 10,
         price: (Math.random() * 100 + 10).toFixed(2),
         image: `https://picsum.photos/200/200?random=${(pageNum - 1) * 20 + index + 1}`,
-        lastUpdated: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+        lastUpdated: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
       }));
-      
+
       if (append) {
         setProducts(prev => [...prev, ...mockProducts]);
       } else {
         setProducts(mockProducts);
       }
-      
+
       setHasNextPage(pageNum < 5); // Simulate 5 pages max
     } catch (error) {
       setError('Failed to load products. Please try again.');
@@ -150,20 +145,21 @@ const MobileStockManager = ({
   // Filter and sort products
   useEffect(() => {
     let filtered = [...products];
-    
+
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.barcode.includes(searchQuery)
+      filtered = filtered.filter(
+        product =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.barcode.includes(searchQuery)
       );
     }
-    
+
     // Filter by category
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
-    
+
     // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -185,25 +181,25 @@ const MobileStockManager = ({
           return 0;
       }
     });
-    
+
     setFilteredProducts(filtered);
   }, [products, searchQuery, selectedCategory, sortBy]);
 
   // Pull-to-refresh handlers
-  const handleTouchStart = (e) => {
+  const handleTouchStart = e => {
     if (containerRef.current?.scrollTop === 0) {
       startYRef.current = e.touches[0].clientY;
       setIsPulling(true);
     }
   };
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = e => {
     if (!isPulling || containerRef.current?.scrollTop > 0) {
       setIsPulling(false);
       setPullDistance(0);
       return;
     }
-    
+
     currentYRef.current = e.touches[0].clientY;
     const distance = Math.max(0, currentYRef.current - startYRef.current);
     setPullDistance(Math.min(distance, pullThreshold * 1.5));
@@ -228,17 +224,18 @@ const MobileStockManager = ({
   }, [loading, hasNextPage, page, loadProducts]);
 
   // Check if item is loaded for infinite scroll
-  const isItemLoaded = (index) => index < filteredProducts.length;
+  const isItemLoaded = index => index < filteredProducts.length;
 
   // Get stock status
-  const getStockStatus = (product) => {
+  const getStockStatus = product => {
     if (product.stock === 0) return { status: 'out', color: 'error', icon: <Error /> };
-    if (product.stock <= product.minStock) return { status: 'low', color: 'warning', icon: <Warning /> };
+    if (product.stock <= product.minStock)
+      return { status: 'low', color: 'warning', icon: <Warning /> };
     return { status: 'ok', color: 'success', icon: <CheckCircle /> };
   };
 
   // Handle barcode scan result
-  const handleScanResult = (result) => {
+  const handleScanResult = result => {
     setSearchQuery(result.text);
     setScannerOpen(false);
   };
@@ -246,7 +243,7 @@ const MobileStockManager = ({
   // Product Card Component
   const ProductCard = ({ product, style = {} }) => {
     const stockStatus = getStockStatus(product);
-    
+
     return (
       <motion.div
         style={style}
@@ -255,18 +252,18 @@ const MobileStockManager = ({
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
       >
-        <Card 
-          sx={{ 
-            m: 1, 
+        <Card
+          sx={{
+            m: 1,
             height: viewMode === 'grid' ? 280 : 120,
             display: 'flex',
             flexDirection: viewMode === 'grid' ? 'column' : 'row',
             cursor: 'pointer',
             '&:hover': {
               transform: 'translateY(-2px)',
-              boxShadow: 4
+              boxShadow: 4,
             },
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
           }}
           onClick={() => onViewProduct(product)}
         >
@@ -279,7 +276,7 @@ const MobileStockManager = ({
                   style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'cover'
+                    objectFit: 'cover',
                   }}
                 />
                 <Chip
@@ -292,7 +289,7 @@ const MobileStockManager = ({
                     top: 8,
                     right: 8,
                     bgcolor: `${stockStatus.color}.main`,
-                    color: 'white'
+                    color: 'white',
                   }}
                 />
               </Box>
@@ -308,7 +305,13 @@ const MobileStockManager = ({
                     ${product.price}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEditProduct(product); }}>
+                    <IconButton
+                      size="small"
+                      onClick={e => {
+                        e.stopPropagation();
+                        onEditProduct(product);
+                      }}
+                    >
                       <Edit fontSize="small" />
                     </IconButton>
                   </Box>
@@ -317,13 +320,15 @@ const MobileStockManager = ({
             </>
           ) : (
             <>
-              <Avatar
-                src={product.image}
-                sx={{ width: 80, height: 80, m: 2 }}
-                variant="rounded"
-              />
+              <Avatar src={product.image} sx={{ width: 80, height: 80, m: 2 }} variant="rounded" />
               <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="h6" noWrap>
                       {product.name}
@@ -335,14 +340,22 @@ const MobileStockManager = ({
                       ${product.price}
                     </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                  <Box
+                    sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}
+                  >
                     <Chip
                       icon={stockStatus.icon}
                       label={product.stock}
                       color={stockStatus.color}
                       size="small"
                     />
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEditProduct(product); }}>
+                    <IconButton
+                      size="small"
+                      onClick={e => {
+                        e.stopPropagation();
+                        onEditProduct(product);
+                      }}
+                    >
                       <Edit fontSize="small" />
                     </IconButton>
                   </Box>
@@ -376,7 +389,7 @@ const MobileStockManager = ({
           fullWidth
           placeholder="Search products or scan barcode..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -389,11 +402,11 @@ const MobileStockManager = ({
                   <QrCodeScanner />
                 </IconButton>
               </InputAdornment>
-            )
+            ),
           }}
           sx={{ mb: 2 }}
         />
-        
+
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
           <Button
             startIcon={<FilterList />}
@@ -403,7 +416,7 @@ const MobileStockManager = ({
           >
             Filters
           </Button>
-          
+
           <Box sx={{ display: 'flex', gap: 1 }}>
             <IconButton
               onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
@@ -411,7 +424,7 @@ const MobileStockManager = ({
             >
               {viewMode === 'grid' ? <ViewList /> : <GridView />}
             </IconButton>
-            
+
             <IconButton
               onClick={() => {
                 setRefreshing(true);
@@ -437,14 +450,16 @@ const MobileStockManager = ({
               justifyContent: 'center',
               alignItems: 'center',
               backgroundColor: theme.palette.primary.light,
-              color: 'white'
+              color: 'white',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Refresh sx={{ 
-                transform: `rotate(${pullDistance * 4}deg)`,
-                transition: 'transform 0.1s ease'
-              }} />
+              <Refresh
+                sx={{
+                  transform: `rotate(${pullDistance * 4}deg)`,
+                  transition: 'transform 0.1s ease',
+                }}
+              />
               <Typography variant="body2">
                 {pullDistance >= pullThreshold ? 'Release to refresh' : 'Pull to refresh'}
               </Typography>
@@ -461,7 +476,7 @@ const MobileStockManager = ({
       )}
 
       {/* Products List */}
-      <Box 
+      <Box
         ref={containerRef}
         sx={{ flexGrow: 1, overflow: 'hidden' }}
         onTouchStart={handleTouchStart}
@@ -508,22 +523,22 @@ const MobileStockManager = ({
           sx: {
             maxHeight: '80vh',
             borderTopLeftRadius: 16,
-            borderTopRightRadius: 16
-          }
+            borderTopRightRadius: 16,
+          },
         }}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="h6" gutterBottom>
             Filters & Sort
           </Typography>
-          
+
           <Divider sx={{ mb: 2 }} />
-          
+
           <Typography variant="subtitle2" gutterBottom>
             Category
           </Typography>
           <List dense>
-            {categories.map((category) => (
+            {categories.map(category => (
               <ListItem
                 key={category.value}
                 button
@@ -534,14 +549,14 @@ const MobileStockManager = ({
               </ListItem>
             ))}
           </List>
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           <Typography variant="subtitle2" gutterBottom>
             Sort By
           </Typography>
           <List dense>
-            {sortOptions.map((option) => (
+            {sortOptions.map(option => (
               <ListItem
                 key={option.value}
                 button
@@ -564,7 +579,7 @@ const MobileStockManager = ({
         sx={{
           position: 'fixed',
           bottom: isMobile ? 80 : 20,
-          right: 20
+          right: 20,
         }}
         onClick={onAddProduct}
       >

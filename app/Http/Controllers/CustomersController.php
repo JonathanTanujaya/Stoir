@@ -21,27 +21,26 @@ class CustomersController extends Controller
                 return [
                     'id' => $customer->kodecust,
                     'nama' => $customer->namacust,
-                    'kode_customer' => $customer->kodecust,
-                    'kodedivisi' => $customer->kodedivisi,
-                    'kodearea' => $customer->kodearea,
+                    'kodeCustomer' => $customer->kodecust,
+                    'kodeDivisi' => $customer->kodedivisi,
+                    'kodeArea' => $customer->kodearea,
                     'alamat' => $customer->alamat,
                     'telepon' => $customer->telp,
                     'contact' => $customer->contact,
-                    'creditlimit' => (float) ($customer->creditlimit ?? 0),
-                    'jatuhtempo' => $customer->jatuhtempo ?? 0,
-                    'email' => '', // Not available in database
-                    'status' => $customer->status ? 'aktif' : 'tidak aktif',
-                    'nonpwp' => $customer->nonpwp ?? '',
-                    'namapajak' => $customer->namapajak ?? '',
-                    'alamatpajak' => $customer->alamatpajak ?? '',
+                    'creditLimit' => (float) ($customer->creditlimit ?? 0),
+                    'jatuhTempo' => $customer->jatuhtempo ?? 0,
+                    'email' => '',
+                    'status' => (bool)$customer->status,
+                    'noNpwp' => $customer->nonpwp ?? '',
+                    'namaPajak' => $customer->namapajak ?? '',
+                    'alamatPajak' => $customer->alamatpajak ?? '',
                 ];
             });
 
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'data' => $transformedCustomers // Laravel pagination format
-                ],
+                'data' => $transformedCustomers,
+                'totalCount' => $transformedCustomers->count(),
                 'message' => 'Customers retrieved successfully'
             ]);
         } catch (\Exception $e) {
@@ -64,7 +63,7 @@ class CustomersController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'nama' => 'required|string|max:255',
-                'kode_customer' => 'required|string|max:50|unique:dbo.m_cust,kodecust',
+                'kodeCustomer' => 'required|string|max:50|unique:dbo.m_cust,kodecust',
                 'alamat' => 'required|string',
                 'telepon' => 'required|string|max:20',
                 'email' => 'nullable|email|max:255',
@@ -81,7 +80,7 @@ class CustomersController extends Controller
             }
 
             $customer = MCust::create([
-                'kodecust' => $request->kode_customer,
+                'kodecust' => $request->kodeCustomer,
                 'namacust' => $request->nama,
                 'alamat' => $request->alamat,
                 'telepon' => $request->telepon,
@@ -94,11 +93,11 @@ class CustomersController extends Controller
                 'data' => [
                     'id' => $customer->kodecust,
                     'nama' => $customer->namacust,
-                    'kode_customer' => $customer->kodecust,
+                    'kodeCustomer' => $customer->kodecust,
                     'alamat' => $customer->alamat,
                     'telepon' => $customer->telepon,
                     'email' => $customer->email,
-                    'status' => $customer->status ? 'aktif' : 'tidak aktif'
+                    'status' => (bool)$customer->status
                 ],
                 'message' => 'Customer created successfully'
             ], 201);
@@ -132,11 +131,11 @@ class CustomersController extends Controller
                 'data' => [
                     'id' => $customer->kodecust,
                     'nama' => $customer->namacust,
-                    'kode_customer' => $customer->kodecust,
+                    'kodeCustomer' => $customer->kodecust,
                     'alamat' => $customer->alamat,
                     'telepon' => $customer->telepon,
                     'email' => $customer->email,
-                    'status' => $customer->status ? 'aktif' : 'tidak aktif'
+                    'status' => (bool)$customer->status
                 ],
                 'message' => 'Customer retrieved successfully'
             ]);
@@ -167,7 +166,7 @@ class CustomersController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'nama' => 'required|string|max:255',
-                'kode_customer' => 'required|string|max:50|unique:dbo.m_cust,kodecust,' . $id . ',kodecust',
+                'kodeCustomer' => 'required|string|max:50|unique:dbo.m_cust,kodecust,' . $id . ',kodecust',
                 'alamat' => 'required|string',
                 'telepon' => 'required|string|max:20',
                 'email' => 'nullable|email|max:255',
@@ -184,7 +183,7 @@ class CustomersController extends Controller
             }
 
             $customer->update([
-                'kodecust' => $request->kode_customer,
+                'kodecust' => $request->kodeCustomer,
                 'namacust' => $request->nama,
                 'alamat' => $request->alamat,
                 'telepon' => $request->telepon,
@@ -197,11 +196,11 @@ class CustomersController extends Controller
                 'data' => [
                     'id' => $customer->kodecust,
                     'nama' => $customer->namacust,
-                    'kode_customer' => $customer->kodecust,
+                    'kodeCustomer' => $customer->kodecust,
                     'alamat' => $customer->alamat,
                     'telepon' => $customer->telepon,
                     'email' => $customer->email,
-                    'status' => $customer->status ? 'aktif' : 'tidak aktif'
+                    'status' => (bool)$customer->status
                 ],
                 'message' => 'Customer updated successfully'
             ]);

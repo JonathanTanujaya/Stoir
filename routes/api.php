@@ -8,12 +8,10 @@ use App\Http\Controllers\AuthController;
 
 // Master Data Controllers
 use App\Http\Controllers\AreaController;
-use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\BarangsController;
 use App\Http\Controllers\MasterUserController;
 use App\Http\Controllers\MBankController;
 use App\Http\Controllers\MCOAController;
@@ -93,12 +91,6 @@ Route::get('suppliers/{id}', [SuppliersController::class, 'show']);
 Route::put('suppliers/{id}', [SuppliersController::class, 'update']);
 Route::delete('suppliers/{id}', [SuppliersController::class, 'destroy']);
 
-Route::get('barangs', [BarangsController::class, 'index']);
-Route::post('barangs', [BarangsController::class, 'store']);
-Route::get('barangs/{id}', [BarangsController::class, 'show']);
-Route::put('barangs/{id}', [BarangsController::class, 'update']);
-Route::delete('barangs/{id}', [BarangsController::class, 'destroy']);
-
 Route::get('invoices', [InvoiceController::class, 'index']);
 Route::get('sales', [SalesController::class, 'index']);
 
@@ -126,12 +118,6 @@ Route::get('areas/{kodeDivisi}', [AreaController::class, 'showByDivisi']);
 Route::get('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'show']);
 Route::put('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'update']);
 Route::delete('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'destroy']);
-
-// Barang routes with composite keys - Use different endpoint to avoid conflict
-Route::get('master-barang/{kodeDivisi}', [BarangController::class, 'showByDivisi']); 
-Route::get('master-barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'show']);
-Route::put('master-barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'update']);
-Route::delete('master-barang/{kodeDivisi}/{kodeBarang}', [BarangController::class, 'destroy']);
 
 // Customer routes with composite keys - COMMENTED OUT DUE TO ROUTE CONFLICT
 // Route::get('customers', [CustomerController::class, 'index']);
@@ -207,13 +193,13 @@ Route::get('divisis/{kodeDivisi}', [MDivisiController::class, 'show']);
 Route::put('divisis/{kodeDivisi}', [MDivisiController::class, 'update']);
 Route::delete('divisis/{kodeDivisi}', [MDivisiController::class, 'destroy']);
 
-// Sparepart routes (using barang data)
+// Sparepart routes (from d_barang table)
 Route::get('spareparts', [SparepartController::class, 'index']);
 Route::post('spareparts', [SparepartController::class, 'store']);
 Route::get('spareparts/search', [SparepartController::class, 'search']);
-Route::get('spareparts/{kodeDivisi}/{kodeBarang}', [SparepartController::class, 'show']);
-Route::put('spareparts/{kodeDivisi}/{kodeBarang}', [SparepartController::class, 'update']);
-Route::delete('spareparts/{kodeDivisi}/{kodeBarang}', [SparepartController::class, 'destroy']);
+Route::get('spareparts/{kodeDivisi}/{kodeBarang}/{id}', [SparepartController::class, 'show']);
+Route::put('spareparts/{kodeDivisi}/{kodeBarang}/{id}', [SparepartController::class, 'update']);
+Route::delete('spareparts/{kodeDivisi}/{kodeBarang}/{id}', [SparepartController::class, 'destroy']);
 
 // ===========================
 // TRANSACTION ROUTES
@@ -356,6 +342,21 @@ Route::post('tmp-print-tt', [TmpPrintTTController::class, 'store']);
 Route::get('tmp-print-tt/{id}', [TmpPrintTTController::class, 'show']);
 Route::put('tmp-print-tt/{id}', [TmpPrintTTController::class, 'update']);
 Route::delete('tmp-print-tt/{id}', [TmpPrintTTController::class, 'destroy']);
+
+// M Resi routes
+Route::get('resi', [MResiController::class, 'index']);
+Route::get('m-resi', [MResiController::class, 'index']); // Alias
+Route::post('resi', [MResiController::class, 'store']);
+Route::get('resi/{kodeDivisi}/{noResi}', [MResiController::class, 'show']);
+Route::put('resi/{kodeDivisi}/{noResi}', [MResiController::class, 'update']);
+Route::delete('resi/{kodeDivisi}/{noResi}', [MResiController::class, 'destroy']);
+
+// SPV routes  
+Route::get('spv', [SPVController::class, 'index']);
+Route::post('spv', [SPVController::class, 'store']);
+Route::get('spv/{id}', [SPVController::class, 'show']);
+Route::put('spv/{id}', [SPVController::class, 'update']);
+Route::delete('spv/{id}', [SPVController::class, 'destroy']);
 
 // Additional view routes for Return Sales
 Route::get('v-cust-retur', [ReturnSalesController::class, 'getVCustRetur']);

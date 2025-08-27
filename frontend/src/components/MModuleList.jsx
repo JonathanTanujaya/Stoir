@@ -33,7 +33,7 @@ function MModuleList({ onEdit, onRefresh }) {
     fetchModules();
   }, [onRefresh]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (window.confirm('Apakah Anda yakin ingin menghapus modul ini?')) {
       try {
         await axios.delete(`${API_URL}/mmodule/${id}`);

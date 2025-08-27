@@ -26,12 +26,21 @@ class JournalController extends Controller
                              ->orderBy('tanggal', 'desc')
                              ->limit(10)
                              ->get();
-            
+            $data = $journals->map(fn($j)=>[
+                'id' => $j->id,
+                'tanggal' => $j->tanggal,
+                'transaksi' => $j->transaksi,
+                'kodeCoa' => $j->kodecoa,
+                'namaCoa' => optional($j->coa)->namacoa,
+                'keterangan' => $j->keterangan,
+                'debet' => (float)$j->debet,
+                'kredit' => (float)$j->kredit
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Data journals retrieved successfully (limited to 10 for testing)',
-                'data' => $journals,
-                'total_shown' => $journals->count(),
+                'data' => $data,
+                'totalCount' => $data->count(),
                 'note' => 'Data limited to 10 records for Laravel testing'
             ]);
         } catch (\Exception $e) {
@@ -106,12 +115,21 @@ class JournalController extends Controller
             $journals = Journal::with(['coa'])
                              ->orderBy('tanggal', 'desc')
                              ->get();
-            
+            $data = $journals->map(fn($j)=>[
+                'id' => $j->id,
+                'tanggal' => $j->tanggal,
+                'transaksi' => $j->transaksi,
+                'kodeCoa' => $j->kodecoa,
+                'namaCoa' => optional($j->coa)->namacoa,
+                'keterangan' => $j->keterangan,
+                'debet' => (float)$j->debet,
+                'kredit' => (float)$j->kredit
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'All journal data retrieved for frontend',
-                'data' => $journals,
-                'total_records' => $journals->count()
+                'data' => $data,
+                'totalCount' => $data->count()
             ]);
         } catch (\Exception $e) {
             return response()->json([

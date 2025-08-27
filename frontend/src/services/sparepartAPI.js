@@ -1,85 +1,89 @@
 import axios from 'axios';
 
-// Base URL - fallback to localhost if env var not available
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-
-export const sparepartAPI = {
-  /**
-   * Get all spareparts
-   */
-  getAll: async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/spareparts`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching spareparts:', error);
-      throw error;
-    }
+// Create axios instance
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
+});
 
-  /**
-   * Get sparepart by kode divisi and kode barang
-   */
-  getById: async (kodeDivisi, kodeBarang) => {
+// Response interceptor
+apiClient.interceptors.response.use(
+  response => {
+    if (import.meta.env.DEV) {
+      console.log(`API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
+        status: response.status,
+        data: response.data,
+      });
+    }
+    return response;
+  },
+  error => {
+    console.error('API Error:', error);
+    throw error;
+  }
+);
+
+// Sparepart API
+export const sparepartAPI = {
+  // Get all sparepart
+  getAll: async (perPage = 'all') => {
     try {
-      const response = await axios.get(`${BASE_URL}/spareparts/${kodeDivisi}/${kodeBarang}`);
-      return response.data;
+      const response = await apiClient.get('/spareparts', {
+        params: {
+          per_page: perPage
+        }
+      });
+      return response;
     } catch (error) {
       console.error('Error fetching sparepart:', error);
       throw error;
     }
   },
 
-  /**
-   * Create new sparepart
-   */
-  create: async (sparepartData) => {
+  // Get sparepart by ID  
+  getById: async (kodeDivisi, kodeBarang, id) => {
     try {
-      const response = await axios.post(`${BASE_URL}/spareparts`, sparepartData);
-      return response.data;
+      const response = await apiClient.get(`/spareparts/${kodeDivisi}/${kodeBarang}/${id}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching sparepart:', error);
+      throw error;
+    }
+  },
+
+  // Create new sparepart
+  create: async (data) => {
+    try {
+      const response = await apiClient.post('/spareparts', data);
+      return response;
     } catch (error) {
       console.error('Error creating sparepart:', error);
       throw error;
     }
   },
 
-  /**
-   * Update sparepart
-   */
-  update: async (kodeDivisi, kodeBarang, sparepartData) => {
+  // Update sparepart
+  update: async (kodeDivisi, kodeBarang, id, data) => {
     try {
-      const response = await axios.put(`${BASE_URL}/spareparts/${kodeDivisi}/${kodeBarang}`, sparepartData);
-      return response.data;
+      const response = await apiClient.put(`/spareparts/${kodeDivisi}/${kodeBarang}/${id}`, data);
+      return response;
     } catch (error) {
       console.error('Error updating sparepart:', error);
       throw error;
     }
   },
 
-  /**
-   * Delete sparepart (soft delete)
-   */
-  delete: async (kodeDivisi, kodeBarang) => {
+  // Delete sparepart
+  delete: async (kodeDivisi, kodeBarang, id) => {
     try {
-      const response = await axios.delete(`${BASE_URL}/spareparts/${kodeDivisi}/${kodeBarang}`);
-      return response.data;
+      const response = await apiClient.delete(`/spareparts/${kodeDivisi}/${kodeBarang}/${id}`);
+      return response;
     } catch (error) {
       console.error('Error deleting sparepart:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Search spareparts
-   */
-  search: async (searchParams) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/spareparts/search`, {
-        params: searchParams
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error searching spareparts:', error);
       throw error;
     }
   }
