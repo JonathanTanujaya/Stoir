@@ -268,4 +268,3 @@ export const documentsAPI = dokumensAPI;
 export const sparepartsAPI = barangAPI;
 export const stockMinAPI = stockAPI;
 export const checklistAPI = dokumensAPI;
-export const rekeningAPI = coasAPI;

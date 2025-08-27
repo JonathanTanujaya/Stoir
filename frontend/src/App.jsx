@@ -41,7 +41,6 @@ const MasterSparepart = lazy(() => import('./pages/MasterData/Sparepart/MasterSp
 const MasterArea = lazy(() => import('./pages/MasterData/Area/MasterAreaOptimized'));
 const MasterChecklist = lazy(() => import('./pages/MasterData/Checklist/MasterChecklistOptimized'));
 const MasterBank = lazy(() => import('./pages/MasterData/Bank/MasterBank'));
-const MasterRekening = lazy(() => import('./pages/MasterData/Rekening/MasterRekening'));
 const PurchasingIndex = lazy(() => import('./pages/Purchasing/PurchasingIndex'));
 const PurchaseList = lazy(() => import('./pages/Purchasing/PurchaseList'));
 const SalesIndex = lazy(() => import('./pages/Sales/SalesIndex'));
@@ -159,7 +158,6 @@ function App() {
                   <Route path="master/area" element={<MasterArea />} />
                   <Route path="master/checklist" element={<MasterChecklist />} />
                   <Route path="master/bank" element={<MasterBank />} />
-                  <Route path="master/rekening" element={<MasterRekening />} />
 
                   {/* Purchasing Module - Simplified Routes */}
                   <Route path="transactions/purchasing" element={<PurchasingIndex />} />

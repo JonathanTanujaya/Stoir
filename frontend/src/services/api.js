@@ -224,13 +224,6 @@ export const checklistAPI = {
   delete: (kodeDivisi, kodeDokumen) => api.delete(`/dokumens/${kodeDivisi}/${kodeDokumen}`),
 };
 
-export const rekeningAPI = {
-  getAll: () => api.get('/coas'),
-  create: data => api.post('/coas', data),
-  update: (kodeDivisi, kodeCOA, data) => api.put(`/coas/${kodeDivisi}/${kodeCOA}`, data),
-  delete: (kodeDivisi, kodeCOA) => api.delete(`/coas/${kodeDivisi}/${kodeCOA}`),
-};
-
 // Transaction APIs
 export const mergeBarangAPI = {
   getAll: () => api.get('/barang'),
@@ -362,7 +355,6 @@ export const reportsAPI = {
   cogs: () => api.get('/kartu-stok/all'),
   returnSales: () => api.get('/return-sales'),
   tampilInvoice: () => api.get('/invoices'),
-  saldoRekening: () => api.get('/journals/all'),
   pembayaranCustomer: () => api.get('/penerimaan-finance/all'),
   tagihan: () => api.get('/invoices'),
   pemotonganReturnCustomer: () => api.get('/return-sales'),

@@ -6748,16 +6748,16 @@
         },
         {
             "name": "laravel/roster",
-            "version": "v0.2.3",
+            "version": "v0.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/roster.git",
-                "reference": "caeed7609b02c00c3f1efec52812d8d87c5d4096"
+                "reference": "d5b04fafd28bbab1f4cedd48f83c7abbddca4d76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/roster/zipball/caeed7609b02c00c3f1efec52812d8d87c5d4096",
-                "reference": "caeed7609b02c00c3f1efec52812d8d87c5d4096",
+                "url": "https://api.github.com/repos/laravel/roster/zipball/d5b04fafd28bbab1f4cedd48f83c7abbddca4d76",
+                "reference": "d5b04fafd28bbab1f4cedd48f83c7abbddca4d76",
                 "shasum": ""
             },
             "require": {
@@ -6805,7 +6805,7 @@
                 "issues": "https://github.com/laravel/roster/issues",
                 "source": "https://github.com/laravel/roster"
             },
-            "time": "2025-08-13T15:00:25+00:00"
+            "time": "2025-08-27T09:45:13+00:00"
         },
         {
             "name": "laravel/sail",

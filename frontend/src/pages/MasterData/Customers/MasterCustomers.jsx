@@ -30,8 +30,15 @@ const MasterCustomers = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    console.log('🔄 MasterCustomers component mounted, fetching data...');
     fetchCustomers();
   }, []);
+
+  // Debug logging untuk state changes
+  useEffect(() => {
+    console.log('📊 AppState changed:', appState);
+    console.log('📊 Data length:', appState.data?.length || 0);
+  }, [appState]);
 
   const fetchCustomers = async () => {
     try {
@@ -41,15 +48,17 @@ const MasterCustomers = () => {
       const response = await customersAPI.getAll();
       console.log('📊 Raw API Response:', response);
 
-      // Standardize API response
-      const standardResponse = standardizeApiResponse(response.data);
-      console.log('📊 Standardized Response:', standardResponse);
+      // Langsung akses response.data karena Laravel sudah mengembalikan struktur yang benar
+      const responseData = response.data;
+      console.log('📊 Response Data:', responseData);
 
-      if (standardResponse.success) {
+      if (responseData && responseData.success && responseData.data) {
         // Standardize semua customer data
-        const standardizedCustomers = standardResponse.data
+        const standardizedCustomers = responseData.data
           .map(customer => standardizeCustomer(customer))
           .filter(customer => customer !== null);
+
+        console.log('📊 Standardized Customers:', standardizedCustomers);
 
         setAppState({
           loading: false,
@@ -58,7 +67,7 @@ const MasterCustomers = () => {
           total: standardizedCustomers.length,
         });
       } else {
-        throw new Error(standardResponse.message);
+        throw new Error(responseData?.message || 'No data received');
       }
     } catch (error) {
       console.error('❌ Error fetching customers:', error);
@@ -75,10 +84,22 @@ const MasterCustomers = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
+      // Transform form data untuk API sesuai dengan ekspektasi backend
+      const apiData = {
+        nama: formData.nama,
+        kodeCustomer: formData.kode_customer, // Backend expect kodeCustomer
+        alamat: formData.alamat,
+        telepon: formData.telepon,
+        email: formData.email,
+        status: formData.status,
+      };
+
+      console.log('📤 Sending customer data:', apiData);
+
       if (editingId) {
-        await customersAPI.update(editingId, formData);
+        await customersAPI.update(editingId, apiData);
       } else {
-        await customersAPI.create(formData);
+        await customersAPI.create(apiData);
       }
 
       resetForm();
@@ -131,8 +152,18 @@ const MasterCustomers = () => {
   };
 
   // Filter and pagination dengan safe operations
-  const searchFields = ['namacust', 'nama', 'kodecust', 'kode_customer', 'alamat', 'email'];
+  const searchFields = ['nama', 'kode', 'alamat', 'telepon', 'email'];
   const filteredCustomers = safeFilter(appState.data, searchTerm, searchFields);
+  
+  // Debug logging yang lebih detail
+  console.log('🔍 Debug Customer Data:');
+  console.log('  - appState:', appState);
+  console.log('  - appState.data type:', typeof appState.data);
+  console.log('  - appState.data length:', Array.isArray(appState.data) ? appState.data.length : 'Not an array');
+  console.log('  - first customer:', appState.data?.[0]);
+  console.log('  - filteredCustomers:', filteredCustomers);
+  console.log('  - filteredCustomers length:', filteredCustomers?.length);
+  console.log('  - searchTerm:', searchTerm);
 
   const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

@@ -81,7 +81,6 @@ const navigationItems = [
       { title: 'Areas', path: '/master/area', icon: <Business /> },
       { title: 'Checklist', path: '/master/checklist', icon: <Assignment /> },
       { title: 'Banks', path: '/master/bank', icon: <AccountBalance /> },
-      { title: 'Bank Accounts', path: '/master/rekening', icon: <MonetizationOn /> },
     ],
   },
   {
@@ -129,7 +128,6 @@ const navigationItems = [
       { title: 'COGS Report', path: '/reports/cogs', icon: <PieChart /> },
       { title: 'Sales Return', path: '/reports/return-sales', icon: <TrendingUp /> },
       { title: 'Invoice Display', path: '/reports/tampil-invoice', icon: <Receipt /> },
-      { title: 'Account Balance', path: '/reports/saldo-rekening', icon: <AccountBalance /> },
       { title: 'Customer Payment', path: '/reports/pembayaran-customer', icon: <MonetizationOn /> },
       { title: 'Bills Report', path: '/reports/tagihan', icon: <Receipt /> },
       {

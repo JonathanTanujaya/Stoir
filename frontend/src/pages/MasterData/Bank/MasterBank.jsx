@@ -8,11 +8,12 @@ const MasterBank = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
-    kode_bank: '',
-    nama_bank: '',
-    alamat: '',
-    telepon: '',
-    status: 'Aktif',
+    kodedivisi: '01',
+    kodebank: 'BANK', // Default value
+    norekening: '0000000000', // Default value  
+    atasnama: '',
+    saldo: '0',
+    status: true,
   });
 
   useEffect(() => {
@@ -22,35 +23,26 @@ const MasterBank = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Fetching bank data...');
       const response = await banksAPI.getAll();
-      setData(response.data || []);
+      console.log('📊 Bank API Response:', response);
+      
+      const bankData = response.data || [];
+      console.log('📊 Bank Data:', bankData);
+      console.log('📊 First bank item:', bankData[0]);
+      
+      setData(bankData);
     } catch (error) {
       console.error('Error fetching bank data:', error);
       // Fallback to sample data if API fails
       const sampleData = [
         {
-          id: 1,
-          kode_bank: 'BCA',
-          nama_bank: 'Bank Central Asia',
-          alamat: 'Jakarta',
-          telepon: '021-1500888',
-          status: 'Aktif',
-        },
-        {
-          id: 2,
-          kode_bank: 'BNI',
-          nama_bank: 'Bank Negara Indonesia',
-          alamat: 'Jakarta',
-          telepon: '021-500046',
-          status: 'Aktif',
-        },
-        {
-          id: 3,
-          kode_bank: 'BRI',
-          nama_bank: 'Bank Rakyat Indonesia',
-          alamat: 'Jakarta',
-          telepon: '021-57987400',
-          status: 'Aktif',
+          kodedivisi: '01',
+          kodebank: 'BCA',
+          norekening: '1234567890',
+          atasnama: 'Bank Central Asia',
+          saldo: '1000000.00',
+          status: true,
         },
       ];
       setData(sampleData);
@@ -68,16 +60,18 @@ const MasterBank = () => {
     e.preventDefault();
     try {
       if (editingItem) {
-        await banksAPI.update(editingItem.id, formData);
+        // Update dengan composite key
+        await banksAPI.update(`${editingItem.kodedivisi}/${editingItem.kodebank}`, formData);
         setData(prev =>
           prev.map(item =>
-            item.id === editingItem.id ? { ...formData, id: editingItem.id } : item
+            (item.kodedivisi === editingItem.kodedivisi && item.kodebank === editingItem.kodebank) 
+              ? { ...formData } : item
           )
         );
         alert('Data bank berhasil diupdate!');
       } else {
         const response = await banksAPI.create(formData);
-        const newItem = response.data || { ...formData, id: Date.now() };
+        const newItem = response.data || formData;
         setData(prev => [...prev, newItem]);
         alert('Data bank berhasil ditambahkan!');
       }
@@ -90,15 +84,23 @@ const MasterBank = () => {
 
   const handleEdit = item => {
     setEditingItem(item);
-    setFormData(item);
+    setFormData({
+      kodedivisi: item.kodedivisi,
+      kodebank: item.kodebank,
+      norekening: item.norekening,
+      atasnama: item.atasnama,
+      saldo: item.saldo || '0',
+      status: item.status
+    });
     setShowForm(true);
   };
 
-  const handleDelete = async id => {
+  const handleDelete = async (kodedivisi, kodebank) => {
     if (confirm('Yakin ingin menghapus data ini?')) {
       try {
-        await banksAPI.delete(id);
-        setData(prev => prev.filter(item => item.id !== id));
+        // Backend menggunakan composite key, jadi perlu disesuaikan
+        await banksAPI.delete(`${kodedivisi}/${kodebank}`);
+        setData(prev => prev.filter(item => !(item.kodedivisi === kodedivisi && item.kodebank === kodebank)));
         alert('Data berhasil dihapus!');
       } catch (error) {
         console.error('Error deleting bank:', error);
@@ -108,7 +110,14 @@ const MasterBank = () => {
   };
 
   const resetForm = () => {
-    setFormData({ kode_bank: '', nama_bank: '', alamat: '', telepon: '', status: 'Aktif' });
+    setFormData({ 
+      kodedivisi: '01',
+      kodebank: 'BANK', // Default value
+      norekening: '0000000000', // Default value
+      atasnama: '',
+      saldo: '0',
+      status: true
+    });
     setEditingItem(null);
     setShowForm(false);
   };
@@ -137,46 +146,51 @@ const MasterBank = () => {
             <form onSubmit={handleSubmit}>
               <div className="form-grid grid-cols-2">
                 <div className="form-group">
-                  <label className="form-label">Kode Bank</label>
+                  <label className="form-label">Kode Divisi</label>
                   <input
                     type="text"
-                    name="kode_bank"
-                    value={formData.kode_bank}
+                    name="kodedivisi"
+                    value={formData.kodedivisi}
                     onChange={handleInputChange}
                     className="form-control"
+                    maxLength="2"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nama Bank</label>
+                  <label className="form-label">Atas Nama</label>
                   <input
                     type="text"
-                    name="nama_bank"
-                    value={formData.nama_bank}
+                    name="atasnama"
+                    value={formData.atasnama}
                     onChange={handleInputChange}
                     className="form-control"
+                    maxLength="100"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Alamat</label>
+                  <label className="form-label">Saldo</label>
                   <input
-                    type="text"
-                    name="alamat"
-                    value={formData.alamat}
+                    type="number"
+                    name="saldo"
+                    value={formData.saldo}
                     onChange={handleInputChange}
                     className="form-control"
+                    step="0.01"
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Telepon</label>
-                  <input
-                    type="text"
-                    name="telepon"
-                    value={formData.telepon}
-                    onChange={handleInputChange}
+                  <label className="form-label">Status</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={(e) => setFormData(prev => ({...prev, status: e.target.value === 'true'}))}
                     className="form-control"
-                  />
+                  >
+                    <option value={true}>Aktif</option>
+                    <option value={false}>Nonaktif</option>
+                  </select>
                 </div>
               </div>
               <div className="form-actions">
@@ -201,23 +215,21 @@ const MasterBank = () => {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Kode</th>
-                  <th>Nama Bank</th>
-                  <th>Alamat</th>
-                  <th>Telepon</th>
+                  <th>Nama/Atas Nama</th>
+                  <th>Saldo</th>
                   <th>Status</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {data.map(item => (
-                  <tr key={item.id}>
-                    <td>{item.kode_bank}</td>
-                    <td>{item.nama_bank}</td>
-                    <td>{item.alamat}</td>
-                    <td>{item.telepon}</td>
+                  <tr key={`${item.kodedivisi}-${item.kodebank}`}>
+                    <td>{item.atasnama}</td>
+                    <td>{parseFloat(item.saldo || 0).toLocaleString('id-ID')}</td>
                     <td>
-                      <span className="badge badge-success">{item.status}</span>
+                      <span className={`badge ${item.status ? 'badge-success' : 'badge-danger'}`}>
+                        {item.status ? 'Aktif' : 'Nonaktif'}
+                      </span>
                     </td>
                     <td>
                       <div className="action-buttons">
@@ -229,7 +241,7 @@ const MasterBank = () => {
                         </button>
                         <button
                           className="btn btn-sm btn-danger"
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => handleDelete(item.kodedivisi, item.kodebank)}
                         >
                           Hapus
                         </button>

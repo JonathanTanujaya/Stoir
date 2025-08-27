@@ -26,14 +26,12 @@ const FIELD_MAPPING_IMPORTS = {
   'MasterBarang.jsx': `import { standardizeBarang } from '../../../utils/fieldMapping';`,
   'MasterSparepart.jsx': `import { standardizeSparepart } from '../../../utils/fieldMapping';`,
   'MasterBank.jsx': `import { standardizeBank } from '../../../utils/fieldMapping';`,
-  'MasterRekening.jsx': `import { standardizeRekening } from '../../../utils/fieldMapping';`,
 };
 
 // Komponen yang perlu diperbaiki
 const COMPONENTS_TO_FIX = [
   'Bank/MasterBank.jsx',
   'Checklist/MasterChecklist.jsx',
-  'Rekening/MasterRekening.jsx',
   'Sales/MasterSales.jsx',
   'Suppliers/MasterSuppliers.jsx',
   'Categories/MasterCategories.jsx',

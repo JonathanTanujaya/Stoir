@@ -7,7 +7,7 @@
 export const customerFieldMap = {
   // Standard field -> Possible database variants
   id: ['id', 'ID', 'customer_id', 'custid'],
-  kode: ['kodecust', 'kode_customer', 'customer_code', 'code'],
+  kode: ['kodeCustomer', 'kodecust', 'kode_customer', 'customer_code', 'code'],
   nama: ['namacust', 'nama', 'nama_customer', 'customer_name', 'name'],
   alamat: ['alamat', 'address', 'alamat_customer'],
   telepon: ['telepon', 'phone', 'no_telepon', 'telp', 'hp'],
@@ -49,16 +49,6 @@ export const bankFieldMap = {
   no_rekening: ['no_rekening', 'norekening', 'account_number', 'rekening'],
   atas_nama: ['atas_nama', 'atasnama', 'account_name', 'nama_rekening'],
   saldo: ['saldo', 'balance', 'current_balance'],
-};
-
-// Mapping untuk Rekening fields
-export const rekeningFieldMap = {
-  id: ['id', 'ID', 'rekening_id'],
-  no_rekening: ['no_rekening', 'norekening', 'account_number', 'rekening'],
-  nama_rekening: ['nama_rekening', 'namarekening', 'account_name', 'nama'],
-  jenis: ['jenis', 'type', 'account_type', 'jenis_rekening'],
-  bank: ['bank', 'bank_name', 'nama_bank'],
-  saldo: ['saldo', 'balance', 'current_balance', 'amount'],
 };
 
 /**
@@ -152,22 +142,6 @@ export const standardizeBank = bank => {
 };
 
 /**
- * Standardize Rekening object
- */
-export const standardizeRekening = rekening => {
-  if (!rekening) return null;
-
-  return {
-    id: mapField(rekening, rekeningFieldMap, 'id'),
-    no_rekening: mapField(rekening, rekeningFieldMap, 'no_rekening', ''),
-    nama_rekening: mapField(rekening, rekeningFieldMap, 'nama_rekening', ''),
-    jenis: mapField(rekening, rekeningFieldMap, 'jenis', ''),
-    bank: mapField(rekening, rekeningFieldMap, 'bank', ''),
-    saldo: mapField(rekening, rekeningFieldMap, 'saldo', 0),
-  };
-};
-
-/**
  * Auto-detect dan standardize berdasarkan tipe data
  */
 export const autoStandardize = (data, dataType) => {
@@ -187,10 +161,6 @@ export const autoStandardize = (data, dataType) => {
     case 'bank':
     case 'banks':
       return standardizeBank(data);
-    case 'rekening':
-    case 'account':
-    case 'accounts':
-      return standardizeRekening(data);
     default:
       return data; // Return original jika tidak dikenali
   }
@@ -207,6 +177,5 @@ export default {
   standardizeBarang,
   standardizeSparepart,
   standardizeBank,
-  standardizeRekening,
   autoStandardize,
 };
