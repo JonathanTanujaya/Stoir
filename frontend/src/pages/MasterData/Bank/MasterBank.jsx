@@ -23,13 +23,9 @@ const MasterBank = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Fetching bank data...');
       const response = await banksAPI.getAll();
-      console.log('📊 Bank API Response:', response);
       
       const bankData = response.data || [];
-      console.log('📊 Bank Data:', bankData);
-      console.log('📊 First bank item:', bankData[0]);
       
       setData(bankData);
     } catch (error) {

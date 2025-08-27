@@ -6,8 +6,6 @@ const MasterCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Debug initial state
-  console.log('🚀 MasterCustomers component render - Loading:', loading, 'Customers:', customers.length);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,54 +34,27 @@ const MasterCustomers = () => {
     fetchCustomers();
   }, []);
 
-  // Debug state changes
-  useEffect(() => {
-    console.log('📊 Customers state changed:', customers.length, 'items');
-    if (customers.length > 0) {
-      console.log('📊 First 3 customers:', customers.slice(0, 3));
-      console.log('📊 Sample customer fields:', Object.keys(customers[0]));
-    } else {
-      console.log('📊 No customers in state!');
-    }
-  }, [customers]);
-
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Fetching customers from API...');
-      console.log('🔄 customersAPI.getAll function exists:', typeof customersAPI.getAll);
       
       const response = await customersAPI.getAll();
-      console.log('📊 Raw API Response:', response);
-      console.log('📊 Response type:', typeof response);
-      console.log('📊 Response.data:', response.data);
-      console.log('📊 Response.data.data:', response.data?.data);
-      console.log('📊 Data length:', response.data?.data?.length || 0);
       
       // Try different data access patterns
       let customersData = [];
       if (response.data?.data && Array.isArray(response.data.data)) {
         customersData = response.data.data;
-        console.log('📊 Using response.data.data');
       } else if (response.data && Array.isArray(response.data)) {
         customersData = response.data;
-        console.log('📊 Using response.data directly');
       } else if (Array.isArray(response)) {
         customersData = response;
-        console.log('📊 Using response directly');
       }
       
-      console.log('📊 Final customers data:', customersData);
-      console.log('📊 Final customers data type:', Array.isArray(customersData));
-      console.log('📊 Setting customers state with', customersData.length, 'items');
-      
       setCustomers(customersData);
-      console.log('📊 After setCustomers called');
     } catch (error) {
       console.error('❌ Error fetching customers:', error);
       console.error('❌ Error details:', error.message, error.response?.status);
     } finally {
-      console.log('📊 Setting loading to false');
       setLoading(false);
     }
   };
@@ -149,9 +120,7 @@ const MasterCustomers = () => {
 
   // Filter
   const filteredCustomers = useMemo(() => {
-    console.log('🔍 Filtering customers - input:', customers.length, 'search:', debouncedSearch);
     if (!debouncedSearch) {
-      console.log('🔍 No search term, returning all', customers.length, 'customers');
       return customers;
     }
     const q = debouncedSearch.toLowerCase();
@@ -164,13 +133,11 @@ const MasterCustomers = () => {
         c.telepon?.toLowerCase().includes(q) ||
         c.email?.toLowerCase().includes(q)
     );
-    console.log('🔍 Filtered to', filtered.length, 'customers');
     return filtered;
   }, [customers, debouncedSearch]);
 
   // Sorting
   const sortedCustomers = useMemo(() => {
-    console.log('🔃 Sorting customers - input:', filteredCustomers.length, 'key:', sortKey, 'dir:', sortDir);
     const data = [...filteredCustomers];
     data.sort((a, b) => {
       const va = (a[sortKey] ?? '').toString().toLowerCase();
@@ -179,7 +146,6 @@ const MasterCustomers = () => {
       if (va > vb) return sortDir === 'asc' ? 1 : -1;
       return 0;
     });
-    console.log('🔃 Sorted result:', data.length, 'customers');
     return data;
   }, [filteredCustomers, sortKey, sortDir]);
 
@@ -187,18 +153,8 @@ const MasterCustomers = () => {
   const paginatedCustomers = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     const result = sortedCustomers.slice(start, start + pageSize);
-    console.log('📄 Paginating customers - page:', currentPage, 'size:', pageSize, 'start:', start, 'result:', result.length);
-    console.log('📄 Final paginated data:', result);
     return result;
   }, [sortedCustomers, currentPage, pageSize]);
-
-  // Debug paginated customers after definition
-  useEffect(() => {
-    console.log('📊 Paginated customers changed:', paginatedCustomers.length, 'items');
-    if (paginatedCustomers.length > 0) {
-      console.log('📊 First paginated customer:', paginatedCustomers[0]);
-    }
-  }, [paginatedCustomers]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -399,8 +355,6 @@ const MasterCustomers = () => {
 
         {/* Enhanced Data Table */}
         <div className="data-table-container">
-          {/* Debug loading state */}
-          {console.log('🔍 LOADING STATE:', loading, 'CUSTOMERS LENGTH:', customers.length)}
           {loading ? (
             <div className="table-wrapper">
               <table className="data-table customers-table">
@@ -510,15 +464,6 @@ const MasterCustomers = () => {
                         <td className="ph-cell center">Aksi</td>
                       </tr>
                     )}
-                    {/* Debug rendering condition */}
-                    {console.log('🔍 RENDER CHECK:', {
-                      paginatedCustomersLength: paginatedCustomers.length,
-                      loading,
-                      searchTerm,
-                      customersLength: customers.length,
-                      sortedCustomersLength: sortedCustomers.length,
-                      filteredCustomersLength: filteredCustomers.length
-                    })}
                     {paginatedCustomers.length === 0 ? (
                       <tr>
                         <td colSpan="7" className="text-center py-16">

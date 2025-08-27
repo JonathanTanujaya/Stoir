@@ -27,21 +27,14 @@ const MasterSuppliers = () => {
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Fetching suppliers from:', 'http://localhost:8000/api/suppliers');
       
       const response = await suppliersAPI.getAll();
-      console.log('📊 Suppliers API Full Response:', response);
-      console.log('📊 Suppliers API Response Data:', response.data);
       
       // Since suppliersAPI.getAll() returns Laravel response: {success: true, message: "...", data: [...]}
       // We need to access response.data to get the array
       const suppliersData = response.data || [];
-      console.log('📊 Final Suppliers Data:', suppliersData);
-      console.log('📊 Suppliers Data Type:', typeof suppliersData);
-      console.log('📊 Is Array:', Array.isArray(suppliersData));
       
       setSuppliers(suppliersData);
-      console.log('✅ Suppliers state set successfully');
     } catch (error) {
       console.error('❌ Error fetching suppliers:', error);
       console.error('❌ Error response:', error.response);

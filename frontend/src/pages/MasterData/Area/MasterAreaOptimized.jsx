@@ -81,7 +81,6 @@ const MasterAreaOptimized = () => {
       setError(null);
       
       const response = await areaAPI.getAll();
-      console.log('Area API Response:', response.data);
       
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setAreas(response.data.data);

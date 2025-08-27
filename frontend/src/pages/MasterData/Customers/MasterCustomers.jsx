@@ -30,35 +30,23 @@ const MasterCustomers = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    console.log('🔄 MasterCustomers component mounted, fetching data...');
     fetchCustomers();
   }, []);
-
-  // Debug logging untuk state changes
-  useEffect(() => {
-    console.log('📊 AppState changed:', appState);
-    console.log('📊 Data length:', appState.data?.length || 0);
-  }, [appState]);
 
   const fetchCustomers = async () => {
     try {
       setAppState(prev => ({ ...prev, loading: true, error: null }));
-      console.log('🔄 Fetching customers...');
 
       const response = await customersAPI.getAll();
-      console.log('📊 Raw API Response:', response);
 
       // Langsung akses response.data karena Laravel sudah mengembalikan struktur yang benar
       const responseData = response.data;
-      console.log('📊 Response Data:', responseData);
 
       if (responseData && responseData.success && responseData.data) {
         // Standardize semua customer data
         const standardizedCustomers = responseData.data
           .map(customer => standardizeCustomer(customer))
           .filter(customer => customer !== null);
-
-        console.log('📊 Standardized Customers:', standardizedCustomers);
 
         setAppState({
           loading: false,
@@ -93,8 +81,6 @@ const MasterCustomers = () => {
         email: formData.email,
         status: formData.status,
       };
-
-      console.log('📤 Sending customer data:', apiData);
 
       if (editingId) {
         await customersAPI.update(editingId, apiData);
@@ -154,16 +140,6 @@ const MasterCustomers = () => {
   // Filter and pagination dengan safe operations
   const searchFields = ['nama', 'kode', 'alamat', 'telepon', 'email'];
   const filteredCustomers = safeFilter(appState.data, searchTerm, searchFields);
-  
-  // Debug logging yang lebih detail
-  console.log('🔍 Debug Customer Data:');
-  console.log('  - appState:', appState);
-  console.log('  - appState.data type:', typeof appState.data);
-  console.log('  - appState.data length:', Array.isArray(appState.data) ? appState.data.length : 'Not an array');
-  console.log('  - first customer:', appState.data?.[0]);
-  console.log('  - filteredCustomers:', filteredCustomers);
-  console.log('  - filteredCustomers length:', filteredCustomers?.length);
-  console.log('  - searchTerm:', searchTerm);
 
   const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

@@ -95,7 +95,6 @@ const MasterCategories = () => {
   ];
 
   useEffect(() => {
-    console.log('Component mounted, fetching categories...');
     fetchCategories();
   }, []);
 
@@ -104,10 +103,6 @@ const MasterCategories = () => {
       setLoading(true);
       setError(null);
       const response = await categoriesAPI.getAll();
-      console.log('Full API Response:', response);
-      console.log('Response data:', response.data);
-      console.log('Response data type:', typeof response.data);
-      console.log('Response data keys:', Object.keys(response.data || {}));
       
       // Handle different response structures
       let categoriesData = [];
@@ -115,87 +110,40 @@ const MasterCategories = () => {
         // Try different possible structures
         if (Array.isArray(response.data.data)) {
           categoriesData = response.data.data;
-          console.log('Using response.data.data (Laravel format)');
         } else if (Array.isArray(response.data)) {
           categoriesData = response.data;
-          console.log('Using response.data (direct array)');
         } else if (response.data.categories && Array.isArray(response.data.categories)) {
           categoriesData = response.data.categories;
-          console.log('Using response.data.categories');
         } else {
-          console.log('Response structure:', response.data);
           // Try to extract any array from the response
           const values = Object.values(response.data);
           const arrayValue = values.find(val => Array.isArray(val));
           if (arrayValue) {
             categoriesData = arrayValue;
-            console.log('Found array in response values');
           }
         }
       }
-      
-      console.log('=== DEBUGGING API RESPONSE ===');
-      console.log('Full response:', response);
-      console.log('Response.data:', response.data);
-      console.log('Response.data type:', typeof response.data);
       
       // Handle different response structures
       let rawData = [];
       if (response.data) {
-        console.log('Response.data exists');
-        
         // Check all possible structures
         if (Array.isArray(response.data)) {
-          console.log('response.data is direct array');
           rawData = response.data;
         } else if (response.data.data && Array.isArray(response.data.data)) {
-          console.log('response.data.data is array');
           rawData = response.data.data;
         } else if (response.data.categories && Array.isArray(response.data.categories)) {
-          console.log('response.data.categories is array');
           rawData = response.data.categories;
         } else {
-          console.log('Searching for arrays in response.data...');
-          console.log('Response.data keys:', Object.keys(response.data));
           const values = Object.values(response.data);
           const arrayValue = values.find(val => Array.isArray(val));
           if (arrayValue) {
             rawData = arrayValue;
-            console.log('Found array in values');
           }
         }
       }
       
-      console.log('=== EXTRACTED DATA ===');
-      console.log('rawData:', rawData);
-      console.log('rawData length:', rawData.length);
-      console.log('First 3 items:', rawData.slice(0, 3));
-      
-      // If we have data, examine structure
-      if (rawData.length > 0) {
-        const firstItem = rawData[0];
-        console.log('=== FIRST ITEM ANALYSIS ===');
-        console.log('First item:', firstItem);
-        console.log('First item type:', typeof firstItem);
-        console.log('Is array:', Array.isArray(firstItem));
-        console.log('Is object:', typeof firstItem === 'object' && !Array.isArray(firstItem));
-        
-        if (Array.isArray(firstItem)) {
-          console.log('=== ARRAY STRUCTURE ===');
-          firstItem.forEach((val, idx) => {
-            console.log(`[${idx}]: "${val}" (${typeof val})`);
-          });
-        } else if (typeof firstItem === 'object') {
-          console.log('=== OBJECT STRUCTURE ===');
-          console.log('Keys:', Object.keys(firstItem));
-          Object.entries(firstItem).forEach(([key, val]) => {
-            console.log(`${key}: "${val}" (${typeof val})`);
-          });
-        }
-      }
-      
       // Always set the data as-is first
-      console.log('Setting raw data to state...');
       setCategories(rawData);
       
       if (categoriesData.length > 0) {
@@ -282,12 +230,8 @@ const MasterCategories = () => {
 
   // Filter dan sort data
   const filteredAndSortedCategories = useMemo(() => {
-    console.log('Processing categories in useMemo:', categories);
-    console.log('Categories length:', categories.length);
-    console.log('Search term:', searchTerm);
     
     if (!Array.isArray(categories) || categories.length === 0) {
-      console.log('Categories is not array or empty');
       return [];
     }
 
@@ -304,9 +248,6 @@ const MasterCategories = () => {
       });
     }
 
-    console.log('Filtered categories:', filtered);
-    console.log('Filtered length:', filtered.length);
-
     // Sort data
     if (sortKey && filtered.length > 0) {
       filtered.sort((a, b) => {
@@ -321,7 +262,6 @@ const MasterCategories = () => {
       });
     }
 
-    console.log('Final sorted categories:', filtered);
     return filtered;
   }, [categories, searchTerm, sortKey, sortDir]);
 
@@ -329,8 +269,6 @@ const MasterCategories = () => {
   const paginatedCategories = useMemo(() => {
     const startIndex = currentPage * pageSize;
     const result = filteredAndSortedCategories.slice(startIndex, startIndex + pageSize);
-    console.log('Paginated categories:', result);
-    console.log('Paginated length:', result.length);
     return result;
   }, [filteredAndSortedCategories, currentPage, pageSize]);
 
@@ -342,14 +280,6 @@ const MasterCategories = () => {
     setPageSize(parseInt(event.target.value, 10));
     setCurrentPage(0);
   };
-
-  // Debug log current state
-  console.log('=== MasterCategories Render ===');
-  console.log('categories state:', categories);
-  console.log('loading state:', loading);
-  console.log('categories length:', categories.length);
-  console.log('filteredAndSortedCategories length:', filteredAndSortedCategories.length);
-  console.log('paginatedCategories length:', paginatedCategories.length);
 
   return (
     <Box p={3}>
@@ -462,12 +392,6 @@ const MasterCategories = () => {
                   </TableHead>
                   <TableBody>
                     {(() => {
-                      console.log('=== TABLE RENDER ===');
-                      console.log('paginatedCategories in render:', paginatedCategories);
-                      console.log('paginatedCategories.length in render:', paginatedCategories.length);
-                      console.log('categories.length:', categories.length);
-                      console.log('filteredAndSortedCategories.length:', filteredAndSortedCategories.length);
-                      
                       if (paginatedCategories.length === 0) {
                         return (
                           <TableRow>
@@ -484,7 +408,6 @@ const MasterCategories = () => {
                       }
                       
                       return paginatedCategories.map((category, index) => {
-                        console.log(`Rendering category ${index}:`, category);
                         
                         // Use the correct field names from API response
                         const kodeKategori = category.kodekategori || '-';

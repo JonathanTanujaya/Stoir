@@ -79,16 +79,10 @@ const MasterSparepartOptimized = () => {
       
       // Request with large page size but not all to avoid performance issues
       const response = await sparepartAPI.getAll(100);
-      console.log('Sparepart API Response:', response.data);
       
       if (response.data && Array.isArray(response.data.data)) {
         setSpareparts(response.data.data);
         setFilteredSpareparts(response.data.data);
-        
-        // Log total count if available
-        if (response.data.totalCount) {
-          console.log(`Loaded ${response.data.data.length} of ${response.data.totalCount} total spareparts`);
-        }
       } else {
         console.warn('Unexpected sparepart data structure:', response.data);
         setSpareparts([]);

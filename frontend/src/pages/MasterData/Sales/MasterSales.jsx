@@ -27,35 +27,25 @@ const MasterSales = () => {
   const fetchSales = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Fetching sales from:', 'http://localhost:8000/api/sales');
 
       // Test with direct fetch first
       const directResponse = await fetch('http://localhost:8000/api/sales');
       const directData = await directResponse.json();
-      console.log('🧪 Direct fetch result:', directData);
       
       if (directData.success && Array.isArray(directData.data)) {
         setSales(directData.data);
-        console.log('✅ Direct fetch successful, set sales:', directData.data);
         return;
       }
 
       // Fallback to salesAPI
       const response = await salesAPI.getAll();
-      console.log('📊 Sales API Full Response:', response);
-      console.log('📊 Sales API Response Keys:', Object.keys(response));
-      console.log('📊 Sales API Response Data:', response.data);
 
       // Since api.get returns the Laravel response which has structure:
       // { success: true, message: "...", data: [...] }
       // We need to access response.data to get the array
       const salesData = response.data || [];
-      console.log('📊 Final Sales Data:', salesData);
-      console.log('📊 Sales Data Type:', typeof salesData);
-      console.log('📊 Is Array:', Array.isArray(salesData));
       
       setSales(salesData);
-      console.log('✅ Sales state set successfully');
     } catch (error) {
       console.error('❌ Error fetching sales:', error);
       console.error('❌ Error message:', error.message);
@@ -72,7 +62,6 @@ const MasterSales = () => {
       // Set empty array on error (already set in catch, but keep for safety)
       // setSales([]); // Optional: comment out if you only want to set in catch
       setLoading(false);
-      console.log('🔄 Loading set to false');
     }
   };
 
@@ -151,15 +140,6 @@ const MasterSales = () => {
   const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredSales.slice(startIndex, startIndex + itemsPerPage);
-
-  // Debug log untuk troubleshooting
-  console.log('🔍 DEBUG SALES TABLE:');
-  console.log('sales state:', sales);
-  console.log('sales.length:', sales.length);
-  console.log('filteredSales.length:', filteredSales.length);
-  console.log('currentData.length:', currentData.length);
-  console.log('currentData:', currentData);
-  console.log('loading:', loading);
 
   if (loading) {
     return (

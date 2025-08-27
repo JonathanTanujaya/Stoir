@@ -22,7 +22,6 @@ const MasterArea = () => {
   const fetchData = async () => {
     try {
       const response = await areasAPI.getAll();
-      console.log('Areas API response:', response);
 
       // Handle API response structure: {success: true, data: [...]}
       let dataArray = [];

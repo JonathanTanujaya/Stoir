@@ -36,14 +36,11 @@ const MasterBarang = () => {
   const fetchBarangs = async () => {
     try {
       setAppState(prev => ({ ...prev, loading: true, error: null }));
-      console.log('🔄 Fetching barangs...');
 
       const response = await barangAPI.getAll();
-      console.log('📊 Raw Barangs API Response:', response);
 
       // Standardize API response
       const standardResponse = standardizeApiResponse(response.data);
-      console.log('📊 Standardized Barangs Response:', standardResponse);
 
       if (standardResponse.success) {
         // Data sudah dalam format yang benar dari API baru

@@ -78,7 +78,6 @@ const MasterSparepartOptimized = () => {
       setError(null);
       
       const response = await sparepartAPI.getAll();
-      console.log('Sparepart API Response:', response.data);
       
       if (response.data && Array.isArray(response.data.data)) {
         setSpareparts(response.data.data);
