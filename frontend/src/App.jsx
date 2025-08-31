@@ -22,7 +22,8 @@ const queryClient = new QueryClient({
 
 // Layout Components (keep these as regular imports for core functionality)
 import ModernLayout from './components/Layout/ModernLayout';
-import DashboardLayout from './components/Layout/DashboardLayout';
+import UniversalModernLayout from './components/Layout/UniversalModernLayout';
+import DashboardOnlyLayout from './components/Layout/DashboardOnlyLayout';
 import ErrorBoundary, { NotFound } from './components/ErrorBoundary';
 import { PageLoading } from './components/LoadingComponents';
 
@@ -100,8 +101,8 @@ function App() {
           <Router>
             <div className="App">
               <Routes>
-                {/* Dashboard Route with Custom Layout */}
-                <Route path="/dashboard" element={<DashboardLayout />}>
+                {/* Dashboard Route with Modern Layout - Top Bar Only */}
+                <Route path="/dashboard" element={<DashboardOnlyLayout />}>
                   <Route
                     index
                     element={
@@ -110,6 +111,82 @@ function App() {
                       </Suspense>
                     }
                   />
+                </Route>
+
+                {/* Universal Modern Layout - All routes except dashboard */}
+                <Route path="/" element={<UniversalModernLayout />}>
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+
+                  {/* Search Route */}
+                  <Route
+                    path="search"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <SearchResultsPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* Master Data Routes */}
+                  <Route
+                    path="master/categories"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <MasterCategories />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="master/kategori"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <MasterCategories />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="master/customer"
+                    element={
+                      <Suspense fallback={<PageLoading />}>
+                        <MasterCustomers />
+                      </Suspense>
+                    }
+                  />
+                  <Route path="master/supplier" element={<MasterSuppliers />} />
+                  <Route path="master/sparepart" element={<MasterSparepart />} />
+                  <Route path="master/sales" element={<MasterSales />} />
+                  <Route path="master/area" element={<MasterArea />} />
+                  <Route path="master/checklist" element={<MasterChecklist />} />
+                  <Route path="master/bank" element={<MasterBank />} />
+
+                  {/* Transaction Routes */}
+                  <Route path="transactions/pembelian" element={<PurchaseForm />} />
+                  <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
+                  <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
+                  <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
+                  <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
+                  <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
+                  <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
+                  <Route path="transactions/customer-claim" element={<CustomerClaimForm />} />
+                  <Route path="transactions/pengembalian-claim" element={<PengembalianClaimForm />} />
+
+                  {/* Finance Routes */}
+                  <Route path="finance/penerimaan-resi" element={<PenerimaanResi />} />
+                  <Route path="finance/piutang-resi" element={<PiutangResi />} />
+                  <Route path="finance/piutang-retur" element={<PiutangRetur />} />
+                  <Route path="finance/penambahan-saldo" element={<PenambahanSaldo />} />
+                  <Route path="finance/pengurangan-saldo" element={<PenguranganSaldo />} />
+
+                  {/* Reports Routes */}
+                  <Route path="reports/stok-barang" element={<StokBarangReport />} />
+                  <Route path="reports/pembelian" element={<PembelianReport />} />
+                  <Route path="reports/penjualan" element={<PenjualanReport />} />
+
+                  {/* Legacy routes for backward compatibility */}
+                  <Route path="pembelian/form" element={<PurchaseForm />} />
+                  <Route path="pembelian/list" element={<PurchaseList />} />
+                  <Route path="retur/pembelian" element={<ReturPembelianForm />} />
+                  <Route path="retur/penjualan" element={<ReturPenjualanForm />} />
                 </Route>
 
                 {/* Main Application Routes with Modern Layout */}
@@ -178,21 +255,6 @@ function App() {
                   <Route
                     path="transactions/sales/retur-penjualan"
                     element={<ReturPenjualanForm />}
-                  />
-
-                  {/* New Transaction Routes */}
-                  <Route path="transactions/pembelian" element={<PurchaseForm />} />
-                  <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
-                  <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
-                  <Route path="transactions/penjualan-new" element={<SalesTransactionForm />} />
-                  <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
-                  <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
-                  <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
-                  <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
-                  <Route path="transactions/customer-claim" element={<CustomerClaimForm />} />
-                  <Route
-                    path="transactions/pengembalian-claim"
-                    element={<PengembalianClaimForm />}
                   />
 
                   {/* Legacy routes for backward compatibility */}

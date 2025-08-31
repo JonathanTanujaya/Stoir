@@ -184,10 +184,6 @@ const REPORT_TYPES = [
     icon: <AttachMoney />,
     color: 'warning',
     reports: [
-      { id: 'profit_loss', name: 'Profit & Loss', endpoint: 'saldoRekening' },
-      { id: 'cash_flow', name: 'Cash Flow', endpoint: 'saldoRekening' },
-      { id: 'balance_sheet', name: 'Balance Sheet', endpoint: 'saldoRekening' },
-      { id: 'account_balances', name: 'Account Balances', endpoint: 'saldoRekening' },
       { id: 'cogs_analysis', name: 'COGS Analysis', endpoint: 'cogs' },
     ],
   },

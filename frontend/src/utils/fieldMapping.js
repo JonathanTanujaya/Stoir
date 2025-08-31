@@ -171,7 +171,6 @@ export default {
   barangFieldMap,
   sparepartFieldMap,
   bankFieldMap,
-  rekeningFieldMap,
   mapField,
   standardizeCustomer,
   standardizeBarang,

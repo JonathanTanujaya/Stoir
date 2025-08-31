@@ -7,7 +7,6 @@ export { default as PenjualanReport } from './PenjualanReport';
 export { default as COGSReport } from './COGSReport';
 export { default as ReturnSalesReport } from './ReturnSalesReport';
 export { default as TampilInvoiceReport } from './TampilInvoiceReport';
-export { default as SaldoRekeningReport } from './SaldoRekeningReport';
 export { default as PembayaranCustomerReport } from './PembayaranCustomerReport';
 export { default as TagihanReport } from './TagihanReport';
 export { default as PemotonganReturnCustomerReport } from './PemotonganReturnCustomerReport';
