@@ -1,9 +1,9 @@
 import React from 'react';
-import ModernPurchaseForm from '../../components/ModernPurchaseForm';
+import ModernPurchaseFormCompact from '../../components/ModernPurchaseFormCompact';
 
 function PurchaseForm() {
-  // Modern inventory management form with clean design
-  return <ModernPurchaseForm />;
+  // Compact modern purchase form - no scrolling required for single item
+  return <ModernPurchaseFormCompact />;
 }
 
 export default PurchaseForm;

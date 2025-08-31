@@ -162,7 +162,7 @@ function App() {
                   {/* Transaction Routes */}
                   <Route path="transactions/pembelian" element={<PurchaseForm />} />
                   <Route path="transactions/retur-pembelian" element={<ReturPembelianForm />} />
-                  <Route path="transactions/penjualan" element={<SalesTransactionForm />} />
+                  <Route path="transactions/penjualan" element={<SalesForm />} />
                   <Route path="transactions/retur-penjualan" element={<ReturPenjualanForm />} />
                   <Route path="transactions/stok-opname" element={<StokOpnameForm />} />
                   <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />

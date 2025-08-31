@@ -23,17 +23,18 @@ const TopNavigation = ({ isDarkMode, toggleDarkMode }) => {
     }
   };
 
-  const mainCategories = Object.values(navigationConfig);
+  const mainCategories = Object.values(navigationConfig).filter(category => category.id !== 'dashboard');
 
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         {/* Left side: Brand and Navigation */}
         <div className="flex items-center space-x-8">
-          {/* Brand */}
+          {/* Brand - Dashboard Button */}
           <div 
-            className="text-2xl font-bold text-blue-600 cursor-pointer hover:text-blue-700 transition-colors duration-200"
+            className="text-2xl font-bold text-blue-600 cursor-pointer hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200 border border-transparent hover:border-blue-200"
             onClick={() => navigate('/dashboard')}
+            title="Go to Dashboard"
           >
             Stoir
           </div>

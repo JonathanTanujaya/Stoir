@@ -283,18 +283,6 @@ const MasterCategories = () => {
 
   return (
     <Box p={3}>
-      {/* Alert Messages */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
-          {success}
-        </Alert>
-      )}
-
       {/* Search */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
