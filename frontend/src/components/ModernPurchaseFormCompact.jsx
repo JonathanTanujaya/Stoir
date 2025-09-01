@@ -71,11 +71,11 @@ const ModernPurchaseFormCompact = () => {
   const totals = calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4">
         
         {/* Header Form - Compact 3 columns */}
-        <div className="bg-white rounded-lg shadow-sm border p-4">
+        <div className="bg-white shadow-sm border p-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">TGL TERIMA</label>
@@ -146,7 +146,7 @@ const ModernPurchaseFormCompact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           
           {/* Items Table - 3/4 width */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow-sm border">
+          <div className="lg:col-span-3 bg-white shadow-sm border">
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Daftar Barang</h3>
@@ -215,7 +215,7 @@ const ModernPurchaseFormCompact = () => {
 
           {/* Sticky Summary Panel - 1/4 width */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-4">
+            <div className="bg-white shadow-sm border p-4 sticky top-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Ringkasan</h3>
               
               {/* PPN & Diskon */}

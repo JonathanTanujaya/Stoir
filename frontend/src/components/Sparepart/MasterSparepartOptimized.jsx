@@ -293,14 +293,10 @@ const MasterSparepartOptimized = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
+    <Box sx={{ width: '100%', px: 3, pb: 3 }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        {/* Header */}
+        {/* Search and Controls */}
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <Typography variant="h5" component="h1" gutterBottom>
-            Master Data Sparepart
-          </Typography>
-          
           {/* Error Alert */}
           {error && (
             <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>

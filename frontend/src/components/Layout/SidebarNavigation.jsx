@@ -130,7 +130,7 @@ const SidebarNavigation = () => {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto">
-      <div className="p-6">
+      <div className="px-6 pb-6">
         {/* Category Header */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-gray-900">

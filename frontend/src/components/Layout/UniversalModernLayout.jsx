@@ -23,16 +23,14 @@ const UniversalModernLayout = () => {
         {/* Top Navigation Bar */}
         <TopNavigation isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
         
-        {/* Main Content Area */}
+        {/* Main Content Area - No gap */}
         <div className="flex h-[calc(100vh-73px)]">
           {/* Sidebar Navigation */}
           <SidebarNavigation />
           
           {/* Main Content */}
           <main className="flex-1 overflow-auto bg-white">
-            <div className="p-6">
-              <Outlet />
-            </div>
+            <Outlet />
           </main>
         </div>
       </div>

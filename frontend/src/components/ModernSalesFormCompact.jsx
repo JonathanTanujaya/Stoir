@@ -132,16 +132,11 @@ const ModernSalesFormCompact = () => {
   const totals = calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4">
         
         {/* Header Form - Compact */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 border-l-4 border-green-500">
-          <div className="flex items-center mb-4">
-            <ShoppingCart className="w-5 h-5 text-green-600 mr-2" />
-            <h2 className="text-lg font-semibold text-gray-900">Form Penjualan</h2>
-          </div>
-          
+        <div className="bg-white shadow-sm border p-3 border-l-4 border-green-500">
           {/* Row 1: Tanggal, Customer, Sales */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
@@ -223,7 +218,7 @@ const ModernSalesFormCompact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           
           {/* Items Table - 3/4 width */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow-sm border">
+          <div className="lg:col-span-3 bg-white shadow-sm border">
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Daftar Barang</h3>
@@ -331,7 +326,7 @@ const ModernSalesFormCompact = () => {
 
           {/* Sticky Summary Panel - 1/4 width */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-4">
+            <div className="bg-white shadow-sm border p-4 sticky top-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Ringkasan Penjualan</h3>
               
               {/* Customer Info */}

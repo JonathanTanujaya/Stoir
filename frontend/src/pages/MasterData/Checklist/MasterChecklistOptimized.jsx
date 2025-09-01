@@ -11,14 +11,10 @@ import {
 
 const MasterChecklistOptimized = () => {
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
+    <Box sx={{ width: '100%', px: 3, pb: 3 }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <Box sx={{ p: 4, textAlign: 'center' }}>
           <ConstructionIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          
-          <Typography variant="h5" component="h1" gutterBottom>
-            Master Data Checklist
-          </Typography>
           
           <Typography variant="body1" color="text.secondary" paragraph>
             Halaman checklist sedang dalam pengembangan.

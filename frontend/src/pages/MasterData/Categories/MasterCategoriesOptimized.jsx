@@ -282,7 +282,7 @@ const MasterCategories = () => {
   };
 
   return (
-    <Box p={3}>
+    <Box px={3} pb={3}>
       {/* Search */}
       <Card sx={{ mb: 3 }}>
         <CardContent>

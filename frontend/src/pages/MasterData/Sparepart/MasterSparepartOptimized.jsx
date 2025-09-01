@@ -275,14 +275,10 @@ const MasterSparepartOptimized = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
+    <Box sx={{ width: '100%', px: 3, pb: 3 }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        {/* Header */}
+        {/* Search and Controls */}
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <Typography variant="h5" component="h1" gutterBottom>
-            Master Data Sparepart
-          </Typography>
-          
           {spareparts.length > 0 && (
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Menampilkan {filteredSpareparts.length} dari {spareparts.length} data sparepart
