@@ -60,11 +60,6 @@ export const navigationConfig = {
         path: '/transactions/customer-claim',
         icon: 'AlertTriangleIcon',
       },
-      {
-        label: 'Pengembalian Claim',
-        path: '/transactions/pengembalian-claim',
-        icon: 'RefreshCwIcon',
-      },
     ],
   },
   finance: {

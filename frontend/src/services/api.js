@@ -263,12 +263,6 @@ export const customerClaimAPI = {
   getInvoices: () => api.get('/return-sales/invoices'),
 };
 
-export const pengembalianClaimAPI = {
-  getAll: () => api.get('/return-purchases'),
-  create: data => api.post('/return-purchases', data),
-  getPurchases: () => api.get('/return-purchases/purchases'),
-};
-
 // Sales Form APIs
 export const salesFormAPI = {
   getCustomers: () => api.get('/customers'),

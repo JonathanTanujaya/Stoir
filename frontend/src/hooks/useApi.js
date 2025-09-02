@@ -88,6 +88,13 @@ export const useBarang = (params = {}, options = {}) => {
   });
 };
 
+export const useMasterBarang = (params = {}, options = {}) => {
+  return useApiQuery(ENDPOINTS.MASTER_BARANG, params, {
+    staleTime: 2 * 60 * 1000,
+    ...options,
+  });
+};
+
 export const useBarangItem = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.barangItem(id),
@@ -448,6 +455,18 @@ export const useDeleteResi = () => {
       api.deleteByCompositeKey(ENDPOINTS.M_RESI, kodeDivisi, noResi),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.resi() });
+    },
+  });
+};
+
+// Purchase mutations
+export const useCreatePurchase = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: data => api.post(ENDPOINTS.PURCHASES, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['purchases'] });
     },
   });
 };

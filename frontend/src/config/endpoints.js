@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   CATEGORIES_ALT: '/categories',
   BARANG: '/barang',
   BARANGS: '/barangs',
+  MASTER_BARANG: '/master-barang',
   USERS: '/users',
   MASTER_USERS: '/master-users',
   DIVISIONS: '/divisis',
@@ -43,6 +44,7 @@ export const ENDPOINTS = {
   // Return/Retur Endpoints
   RETURN_PURCHASES: '/return-purchases',
   RETURN_SALES: '/return-sales',
+  PURCHASES: '/purchases',
 
   // Print/Temporary Endpoints
   TMP_PRINT_INVOICES: '/tmp-print-invoices',

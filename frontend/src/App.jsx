@@ -62,12 +62,9 @@ const CustomerClaimForm = lazy(() =>
 const PembelianBonusForm = lazy(() =>
   import('./pages/Transactions').then(module => ({ default: module.PembelianBonusForm }))
 );
-const PengembalianClaimForm = lazy(() =>
-  import('./pages/Transactions').then(module => ({ default: module.PengembalianClaimForm }))
-);
 
 // Lazy load individual transaction component
-const PenjualanBonus = lazy(() => import('./pages/transactions/PenjualanBonus'));
+const PenjualanBonus = lazy(() => import('./pages/Transactions/PenjualanBonus'));
 
 // Lazy load Search Components
 const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'));
@@ -168,7 +165,6 @@ function App() {
                   <Route path="transactions/pembelian-bonus" element={<PembelianBonusForm />} />
                   <Route path="transactions/penjualan-bonus" element={<PenjualanBonus />} />
                   <Route path="transactions/customer-claim" element={<CustomerClaimForm />} />
-                  <Route path="transactions/pengembalian-claim" element={<PengembalianClaimForm />} />
 
                   {/* Finance Routes */}
                   <Route path="finance/penerimaan-resi" element={<PenerimaanResi />} />

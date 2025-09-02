@@ -14,7 +14,7 @@ class SparepartController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = DB::table('dbo.d_barang')
+            $query = DB::table('d_barang')
                 ->select(
                     'kodedivisi',
                     'kodebarang',
@@ -109,7 +109,7 @@ class SparepartController extends Controller
 
         try {
             // Get next ID
-            $nextId = DB::table('dbo.d_barang')
+            $nextId = DB::table('d_barang')
                 ->where('kodedivisi', $request->kodeDivisi)
                 ->where('kodebarang', $request->kodeBarang)
                 ->max('id') + 1;
@@ -118,7 +118,7 @@ class SparepartController extends Controller
                 $nextId = 1;
             }
 
-            $inserted = DB::table('dbo.d_barang')->insert([
+            $inserted = DB::table('d_barang')->insert([
                 'kodedivisi' => $request->kodeDivisi,
                 'kodebarang' => $request->kodeBarang,
                 'tglmasuk' => $request->tglMasuk,
@@ -129,7 +129,7 @@ class SparepartController extends Controller
 
             if ($inserted) {
                 // Retrieve the created record
-                $created = DB::table('dbo.d_barang')
+                $created = DB::table('d_barang')
                     ->where('kodedivisi', $request->kodeDivisi)
                     ->where('kodebarang', $request->kodeBarang)
                     ->where('id', $nextId)
@@ -167,7 +167,7 @@ class SparepartController extends Controller
     public function show($kodeDivisi, $kodeBarang, $id)
     {
         try {
-            $barang = DB::table('dbo.d_barang')
+            $barang = DB::table('d_barang')
                 ->where('kodedivisi', $kodeDivisi)
                 ->where('kodebarang', $kodeBarang)
                 ->where('id', $id)
@@ -220,7 +220,7 @@ class SparepartController extends Controller
         }
 
         try {
-            $barang = DB::table('dbo.d_barang')
+            $barang = DB::table('d_barang')
                 ->where('kodedivisi', $kodeDivisi)
                 ->where('kodebarang', $kodeBarang)
                 ->where('id', $id)
@@ -233,7 +233,7 @@ class SparepartController extends Controller
                 ], 404);
             }
 
-            DB::table('dbo.d_barang')
+            DB::table('d_barang')
                 ->where('kodedivisi', $kodeDivisi)
                 ->where('kodebarang', $kodeBarang)
                 ->where('id', $id)
@@ -243,7 +243,7 @@ class SparepartController extends Controller
                     'stok' => $request->stok
                 ]);
 
-            $updatedBarang = DB::table('dbo.d_barang')
+            $updatedBarang = DB::table('d_barang')
                 ->where('kodedivisi', $kodeDivisi)
                 ->where('kodebarang', $kodeBarang)
                 ->where('id', $id)
@@ -275,7 +275,7 @@ class SparepartController extends Controller
     public function destroy($kodeDivisi, $kodeBarang, $id)
     {
         try {
-            $barang = DB::table('dbo.d_barang')
+            $barang = DB::table('d_barang')
                 ->where('kodedivisi', $kodeDivisi)
                 ->where('kodebarang', $kodeBarang)
                 ->where('id', $id)
@@ -288,7 +288,7 @@ class SparepartController extends Controller
                 ], 404);
             }
 
-            $deleted = DB::table('dbo.d_barang')
+            $deleted = DB::table('d_barang')
                 ->where('kodedivisi', $kodeDivisi)
                 ->where('kodebarang', $kodeBarang)
                 ->where('id', $id)
@@ -312,7 +312,7 @@ class SparepartController extends Controller
     public function search(Request $request)
     {
         try {
-            $query = DB::table('dbo.d_barang')
+            $query = DB::table('d_barang')
                 ->select(
                     'kodedivisi',
                     'kodebarang',

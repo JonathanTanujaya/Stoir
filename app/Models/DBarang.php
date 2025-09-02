@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DBarang extends Model
 {
-    protected $table = 'dbo.d_barang';
+    protected $table = 'd_barang';
     
     // No auto-incrementing primary key since we have composite key
     public $incrementing = false;

@@ -10,7 +10,7 @@ class MBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_barang';
+    protected $table = 'dbo.d_barang';
     protected $primaryKey = ['kodedivisi', 'kodebarang'];
     public $incrementing = false;
     public $timestamps = false;
@@ -19,28 +19,17 @@ class MBarang extends Model
     protected $fillable = [
         'kodedivisi',
         'kodebarang',
-        'namabarang',
-        'kodekategori',
-        'hargalist',
-        'hargajual',
-        'hargalist2',
-        'hargajual2',
-        'satuan',
-        'disc1',
-        'disc2',
-        'merk',
-        'barcode',
-        'status',
-        'lokasi',
-        'stokmin',
-        'checklist'
+        'tglmasuk',
+        'modal',
+        'stok',
+        'id'
     ];
 
     protected $casts = [
-        'hargajual' => 'decimal:2',
-        'hargabeli' => 'decimal:2',
-        'stok_min' => 'integer',
-        'aktif' => 'boolean'
+        'tglmasuk' => 'datetime',
+        'modal' => 'decimal:4',
+        'stok' => 'integer',
+        'id' => 'integer'
     ];
 
     // Relationships

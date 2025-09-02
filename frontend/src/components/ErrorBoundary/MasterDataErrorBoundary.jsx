@@ -72,7 +72,7 @@ class MasterDataErrorBoundary extends React.Component {
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 bg-gray-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="flex-1 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 🏠 Refresh Halaman
               </button>

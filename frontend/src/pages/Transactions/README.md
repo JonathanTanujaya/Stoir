@@ -66,11 +66,10 @@ Modul transaksi untuk sistem inventory management dengan 11 jenis transaksi.
 - `/transactions/pembelian-bonus` - Pembelian Bonus
 - `/transactions/penjualan-bonus` - Penjualan Bonus
 - `/transactions/customer-claim` - Customer Claim
-- `/transactions/pengembalian-claim` - Pengembalian Claim
 
 ## Navigation
 
-Semua transaksi dapat diakses melalui sidebar menu "Transaksi" dengan 11 submenu.
+Semua transaksi dapat diakses melalui sidebar menu "Transaksi" dengan 10 submenu.
 
 ## Status Development
 

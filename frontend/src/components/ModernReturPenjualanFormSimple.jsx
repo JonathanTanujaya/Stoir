@@ -272,7 +272,7 @@ const ModernReturPenjualanFormSimple = () => {
 
         {/* Confirmation Modal */}
         {showConfirmation && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
               <div className="flex items-center mb-4">
                 <AlertCircle className="w-6 h-6 text-orange-600 mr-3" />
@@ -343,7 +343,7 @@ const ModernReturPenjualanFormSimple = () => {
 
         {/* Customer Selection Modal */}
         {showCustomerModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
               <h3 className="text-lg font-semibold mb-4">Pilih Customer</h3>
               <div className="max-h-60 overflow-y-auto">

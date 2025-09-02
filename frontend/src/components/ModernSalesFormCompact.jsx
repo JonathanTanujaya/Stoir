@@ -396,7 +396,7 @@ const ModernSalesFormCompact = () => {
                 <button className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
                   Simpan Penjualan
                 </button>
-                <button className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm">
+                <button className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm">
                   Simpan Draft
                 </button>
                 <button className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm">
@@ -409,7 +409,7 @@ const ModernSalesFormCompact = () => {
 
         {/* Barang Selection Modal */}
         {showBarangModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
               <h3 className="text-lg font-semibold mb-4">Pilih Barang</h3>
               <div className="max-h-60 overflow-y-auto">

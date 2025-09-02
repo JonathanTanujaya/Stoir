@@ -47,6 +47,7 @@ use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\ReturPenjualanController;
 use App\Http\Controllers\PurchasesController;
 use App\Http\Controllers\SparepartController;
+use App\Http\Controllers\BarangController;
 
 // Global Search Controller
 use App\Http\Controllers\Api\GlobalSearchController;
@@ -90,6 +91,9 @@ Route::post('suppliers', [SuppliersController::class, 'store']);
 Route::get('suppliers/{id}', [SuppliersController::class, 'show']);
 Route::put('suppliers/{id}', [SuppliersController::class, 'update']);
 Route::delete('suppliers/{id}', [SuppliersController::class, 'destroy']);
+
+Route::get('master-barang', [BarangController::class, 'index']);
+Route::get('master-barang/search', [BarangController::class, 'search']);
 
 Route::get('invoices', [InvoiceController::class, 'index']);
 Route::get('sales', [SalesController::class, 'index']);
