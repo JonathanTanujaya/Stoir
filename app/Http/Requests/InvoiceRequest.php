@@ -1,68 +1,117 @@
 <?php
+// File: app/Http/Requests/InvoiceRequest.php
 
 namespace App\Http\Requests;
 
-use App\Models\MCust;
-use App\Models\MSales;
-use App\Models\DBarang;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class InvoiceRequest extends BaseRequest
+class InvoiceRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
         return [
-            // Header validation
-            'kodedivisi' => $this->divisionRules(),
-            'noinvoice' => [
+            // Header validation dengan field name baru
+            'kode_divisi' => [
                 'required',
                 'string',
-                'max:50',
-                Rule::unique('dbo.invoice', 'noinvoice')
-                    ->where('kodedivisi', $this->kodedivisi)
-                    ->ignore($this->route('invoice'))
+                'max:5',
+                'exists:M_DIVISI,KODE_DIVISI'
             ],
-            'tanggal' => $this->dateRules(),
-            'kodecust' => $this->customerCodeRules(),
-            'kodesales' => [
+            'no_invoice' => [
+                'nullable',
+                'string',
+                'max:15',
+                Rule::unique('INVOICE', 'NO_INVOICE')
+                    ->where('KODE_DIVISI', $this->kode_divisi)
+            ],
+            'tgl_invoice' => [
+                'required',
+                'date'
+            ],
+            'kode_cust' => [
                 'required',
                 'string',
-                'max:20',
-                'exists:dbo.m_sales,kodesales'
+                'max:5',
+                'exists:M_CUST,KODE_CUST'
+            ],
+            'kode_sales' => [
+                'required',
+                'string',
+                'max:5',
+                'exists:M_SALES,KODE_SALES'
             ],
             'tipe' => [
                 'required',
                 'string',
                 'in:CASH,CREDIT,TRANSFER'
             ],
-            'total' => $this->moneyRules(),
-            'diskon' => [
+            'jatuh_tempo' => [
+                'required',
+                'date',
+                'after_or_equal:tgl_invoice'
+            ],
+            'total' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+            'disc' => [
                 'nullable',
                 'numeric',
                 'min:0',
-                'max:100' // percentage
+                'max:100'
             ],
             'pajak' => [
                 'nullable',
                 'numeric',
                 'min:0',
-                'max:100' // percentage
+                'max:100'
             ],
-            'keterangan' => 'nullable|string|max:255',
-            'status' => [
+            'grand_total' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+            'ket' => [
+                'nullable',
+                'string',
+                'max:500'
+            ],
+            
+            // Detail validation dengan field name baru
+            'details' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+            'details.*.kode_barang' => [
                 'required',
                 'string',
-                'in:Draft,Pending,Approved,Cancelled'
+                'max:30',
+                'exists:M_BARANG,KODE_BARANG'
             ],
-
-            // Detail validation
-            'details' => 'required|array|min:1|max:100',
-            'details.*.kodebarang' => $this->itemCodeRules(),
-            'details.*.qty' => $this->quantityRules(),
-            'details.*.harga' => $this->moneyRules(),
+            'details.*.qty_supply' => [
+                'required',
+                'integer',
+                'min:1'
+            ],
+            'details.*.harga_jual' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
             'details.*.diskon1' => [
                 'nullable',
                 'numeric',
@@ -75,70 +124,17 @@ class InvoiceRequest extends BaseRequest
                 'min:0',
                 'max:100'
             ],
-            'details.*.harganett' => $this->moneyRules(),
+            'details.*.harga_nett' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+            'details.*.jenis' => [
+                'nullable',
+                'string',
+                'in:A,B,C'
+            ]
         ];
-    }
-
-    /**
-     * Configure the validator instance.
-     */
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $this->validateBusinessRules($validator);
-        });
-    }
-
-    /**
-     * Validate business rules
-     */
-    protected function validateBusinessRules($validator): void
-    {
-        // Check customer credit limit for CREDIT invoices
-        if ($this->tipe === 'CREDIT') {
-            $customer = MCust::where('kodecust', $this->kodecust)->first();
-            if ($customer && $customer->credit_limit > 0) {
-                $currentDebt = $customer->getCurrentDebt();
-                if (($currentDebt + $this->total) > $customer->credit_limit) {
-                    $validator->errors()->add('total', 'Invoice total exceeds customer credit limit');
-                }
-            }
-        }
-
-        // Validate stock availability
-        if ($this->has('details')) {
-            foreach ($this->details as $index => $detail) {
-                $item = DBarang::where('kodebarang', $detail['kodebarang'])->first();
-                if ($item && $item->stok < $detail['qty']) {
-                    $validator->errors()->add(
-                        "details.{$index}.qty", 
-                        "Insufficient stock. Available: {$item->stok}, Requested: {$detail['qty']}"
-                    );
-                }
-            }
-        }
-
-        // Validate calculated totals
-        if ($this->has('details')) {
-            $calculatedTotal = 0;
-            foreach ($this->details as $detail) {
-                $lineTotal = $detail['qty'] * $detail['harganett'];
-                $calculatedTotal += $lineTotal;
-            }
-
-            // Apply discounts and taxes
-            if ($this->diskon) {
-                $calculatedTotal -= ($calculatedTotal * $this->diskon / 100);
-            }
-            if ($this->pajak) {
-                $calculatedTotal += ($calculatedTotal * $this->pajak / 100);
-            }
-
-            $difference = abs($calculatedTotal - $this->total);
-            if ($difference > 0.01) { // Allow 1 cent tolerance
-                $validator->errors()->add('total', 'Total amount does not match calculated total');
-            }
-        }
     }
 
     /**
@@ -147,15 +143,60 @@ class InvoiceRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'noinvoice.unique' => 'Invoice number already exists in this division',
-            'kodecust.exists' => 'The selected customer does not exist',
-            'kodesales.exists' => 'The selected sales person does not exist',
-            'tipe.in' => 'Payment type must be CASH, CREDIT, or TRANSFER',
-            'status.in' => 'Status must be Draft, Pending, Approved, or Cancelled',
-            'details.required' => 'Invoice must have at least one item',
-            'details.min' => 'Invoice must have at least one item',
-            'details.max' => 'Invoice cannot have more than 100 items',
-            'details.*.kodebarang.exists' => 'The selected item does not exist',
+            'kode_divisi.required' => 'Kode divisi wajib diisi',
+            'kode_divisi.exists' => 'Kode divisi tidak valid',
+            'no_invoice.unique' => 'Nomor invoice sudah digunakan',
+            'tgl_invoice.required' => 'Tanggal invoice wajib diisi',
+            'kode_cust.required' => 'Customer wajib dipilih',
+            'kode_cust.exists' => 'Customer tidak valid',
+            'kode_sales.required' => 'Sales wajib dipilih',
+            'kode_sales.exists' => 'Sales tidak valid',
+            'tipe.required' => 'Tipe invoice wajib dipilih',
+            'tipe.in' => 'Tipe invoice harus CASH, CREDIT, atau TRANSFER',
+            'jatuh_tempo.after_or_equal' => 'Jatuh tempo tidak boleh sebelum tanggal invoice',
+            'total.required' => 'Total wajib diisi',
+            'total.min' => 'Total tidak boleh negatif',
+            'grand_total.required' => 'Grand total wajib diisi',
+            'grand_total.min' => 'Grand total tidak boleh negatif',
+            'details.required' => 'Detail barang wajib diisi',
+            'details.min' => 'Minimal 1 barang harus diisi',
+            'details.*.kode_barang.required' => 'Kode barang wajib diisi',
+            'details.*.kode_barang.exists' => 'Kode barang tidak valid',
+            'details.*.qty_supply.required' => 'Quantity wajib diisi',
+            'details.*.qty_supply.min' => 'Quantity minimal 1',
+            'details.*.harga_jual.required' => 'Harga jual wajib diisi',
+            'details.*.harga_jual.min' => 'Harga jual tidak boleh negatif',
+            'details.*.harga_nett.required' => 'Harga nett wajib diisi',
+            'details.*.harga_nett.min' => 'Harga nett tidak boleh negatif'
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'kode_divisi' => 'Kode Divisi',
+            'no_invoice' => 'Nomor Invoice',
+            'tgl_invoice' => 'Tanggal Invoice',
+            'kode_cust' => 'Customer',
+            'kode_sales' => 'Sales',
+            'tipe' => 'Tipe Invoice',
+            'jatuh_tempo' => 'Jatuh Tempo',
+            'total' => 'Total',
+            'disc' => 'Diskon',
+            'pajak' => 'Pajak',
+            'grand_total' => 'Grand Total',
+            'ket' => 'Keterangan',
+            'details' => 'Detail Barang',
+            'details.*.kode_barang' => 'Kode Barang',
+            'details.*.qty_supply' => 'Quantity',
+            'details.*.harga_jual' => 'Harga Jual',
+            'details.*.diskon1' => 'Diskon 1',
+            'details.*.diskon2' => 'Diskon 2',
+            'details.*.harga_nett' => 'Harga Nett',
+            'details.*.jenis' => 'Jenis'
         ];
     }
 
@@ -164,24 +205,59 @@ class InvoiceRequest extends BaseRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'kodedivisi' => strtoupper($this->kodedivisi ?? ''),
-            'noinvoice' => strtoupper($this->noinvoice ?? ''),
-            'kodecust' => strtoupper($this->kodecust ?? ''),
-            'kodesales' => strtoupper($this->kodesales ?? ''),
-            'tipe' => strtoupper($this->tipe ?? ''),
-            'status' => ucfirst(strtolower($this->status ?? '')),
-        ]);
-
-        // Prepare details
-        if ($this->has('details')) {
-            $details = collect($this->details)->map(function ($detail) {
-                return array_merge($detail, [
-                    'kodebarang' => strtoupper($detail['kodebarang'] ?? ''),
-                ]);
-            })->toArray();
-
-            $this->merge(['details' => $details]);
+        // Auto-calculate grand total if not provided
+        if (!$this->has('grand_total') && $this->has('total')) {
+            $total = $this->input('total', 0);
+            $disc = $this->input('disc', 0);
+            $pajak = $this->input('pajak', 0);
+            
+            $afterDiscount = $total - ($total * $disc / 100);
+            $grandTotal = $afterDiscount + ($afterDiscount * $pajak / 100);
+            
+            $this->merge([
+                'grand_total' => $grandTotal,
+                'sisa_invoice' => $grandTotal
+            ]);
         }
+        
+        // Set default status
+        if (!$this->has('status')) {
+            $this->merge(['status' => 'Active']);
+        }
+        
+        // Set default lunas
+        if (!$this->has('lunas')) {
+            $this->merge(['lunas' => false]);
+        }
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            // Custom validation: Check stock availability
+            if ($this->has('details')) {
+                foreach ($this->input('details') as $index => $detail) {
+                    // Check stock availability (akan ditangani oleh stored procedure)
+                    // Validasi ini bisa ditambahkan jika diperlukan
+                }
+            }
+            
+            // Custom validation: Validate grand total calculation
+            if ($this->has('total') && $this->has('grand_total')) {
+                $total = $this->input('total');
+                $disc = $this->input('disc', 0);
+                $pajak = $this->input('pajak', 0);
+                
+                $expectedGrandTotal = $total - ($total * $disc / 100);
+                $expectedGrandTotal += ($expectedGrandTotal * $pajak / 100);
+                
+                if (abs($this->input('grand_total') - $expectedGrandTotal) > 0.01) {
+                    $validator->errors()->add('grand_total', 'Grand total calculation is incorrect');
+                }
+            }
+        });
     }
 }

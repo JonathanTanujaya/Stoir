@@ -9,35 +9,35 @@ class PartPenerimaan extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.partpenerimaan';
-    protected $primaryKey = ['kodedivisi', 'nopenerimaan'];
+    protected $table = 'part_penerimaan';
+    protected $primaryKey = ['kode_divisi', 'no_penerimaan'];
     public $incrementing = false;
     public $timestamps = false;
 
     protected $fillable = [
-        'kodedivisi',
-        'nopenerimaan',
-        'tglpenerimaan',
-        'kodevalas',
+        'kode_divisi',
+        'no_penerimaan',
+        'tgl_penerimaan',
+        'kode_valas',
         'kurs',
-        'kodesupplier',
-        'jatuhtempo',
-        'nofaktur',
+        'kode_supplier',
+        'jatuh_tempo',
+        'no_faktur',
         'total',
         'discount',
         'pajak',
-        'grandtotal',
+        'grand_total',
         'status'
     ];
 
     protected $casts = [
-        'tglpenerimaan' => 'date',
-        'jatuhtempo' => 'date',
+        'tgl_penerimaan' => 'date',
+        'jatuh_tempo' => 'date',
         'kurs' => 'decimal:4',
-        'total' => 'decimal:4',
+        'total' => 'decimal:2',
         'discount' => 'decimal:2',
         'pajak' => 'decimal:2',
-        'grandtotal' => 'decimal:4'
+        'grand_total' => 'decimal:2'
     ];
 
     // Override methods for composite keys
@@ -63,27 +63,32 @@ class PartPenerimaan extends Model
         return $query;
     }
 
-    // Relationships
+    // Relationships (simplified for composite key compatibility)
     public function supplier()
     {
-        return $this->belongsTo(MSupplier::class, ['kodedivisi', 'kodesupplier'], ['kodedivisi', 'kodesupplier']);
+        return $this->belongsTo(MasterSupplier::class, 'kode_supplier', 'kode_supplier');
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(MasterDivisi::class, 'kode_divisi', 'kode_divisi');
     }
 
     public function details()
     {
-        return $this->hasMany(PartPenerimaanDetail::class, ['kodedivisi', 'nopenerimaan'], ['kodedivisi', 'nopenerimaan']);
+        return $this->hasMany(PartPenerimaanDetail::class, 'no_penerimaan', 'no_penerimaan');
     }
 
     // Scopes
     public function scopeBySupplier($query, $kodeDivisi, $kodeSupplier)
     {
-        return $query->where('kodedivisi', $kodeDivisi)
-                    ->where('kodesupplier', $kodeSupplier);
+        return $query->where('kode_divisi', $kodeDivisi)
+                    ->where('kode_supplier', $kodeSupplier);
     }
 
     public function scopeByPeriod($query, $startDate, $endDate)
     {
-        return $query->whereBetween('tglpenerimaan', [$startDate, $endDate]);
+        return $query->whereBetween('tgl_penerimaan', [$startDate, $endDate]);
     }
 
     public function scopeOpen($query)
@@ -91,29 +96,49 @@ class PartPenerimaan extends Model
         return $query->where('status', 'Open');
     }
 
-    public function scopeClosed($query)
+    public function scopeFinish($query)
     {
-        return $query->where('status', 'Close');
+        return $query->where('status', 'Finish');
+    }
+
+    public function scopeCancel($query)
+    {
+        return $query->where('status', 'Cancel');
     }
 
     // Helper methods
-    public function isOpen()
+    public function isOpen(): bool
     {
         return $this->status === 'Open';
     }
 
-    public function isClosed()
+    public function isFinish(): bool
     {
-        return $this->status === 'Close';
+        return $this->status === 'Finish';
     }
 
-    public function getTotalWithTax()
+    public function isCancel(): bool
+    {
+        return $this->status === 'Cancel';
+    }
+
+    public function getTotalWithTax(): float
     {
         return $this->total + $this->pajak - $this->discount;
     }
 
-    public function getDiscountPercentage()
+    public function getDiscountPercentage(): float
     {
         return $this->total > 0 ? ($this->discount / $this->total) * 100 : 0;
+    }
+
+    public function getTotalNetto(): float
+    {
+        return $this->total - $this->discount;
+    }
+
+    public function getTotalAfterTax(): float
+    {
+        return $this->getTotalNetto() + $this->pajak;
     }
 }

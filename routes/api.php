@@ -216,13 +216,17 @@ Route::get('invoices/{id}', [InvoiceController::class, 'show']);
 Route::put('invoices/{id}', [InvoiceController::class, 'update']);
 Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
 
-// Part Penerimaan routes
-Route::get('part-penerimaan', [PartPenerimaanController::class, 'index']); // Limited untuk testing Laravel
-Route::get('part-penerimaan/all', [PartPenerimaanController::class, 'getAllForFrontend']); // Semua data untuk frontend
-Route::post('part-penerimaan', [PartPenerimaanController::class, 'store']);
-Route::get('part-penerimaan/{id}', [PartPenerimaanController::class, 'show']);
-Route::put('part-penerimaan/{id}', [PartPenerimaanController::class, 'update']);
-Route::delete('part-penerimaan/{id}', [PartPenerimaanController::class, 'destroy']);
+// Part Penerimaan routes (Modern API with Stored Procedures)
+Route::prefix('part-penerimaan')->group(function () {
+    Route::get('/', [PartPenerimaanController::class, 'index']);
+    Route::post('/', [PartPenerimaanController::class, 'store']);
+    Route::get('/generate-number', [PartPenerimaanController::class, 'generateNumber']);
+    Route::get('/suppliers', [PartPenerimaanController::class, 'getSuppliers']);
+    Route::get('/products', [PartPenerimaanController::class, 'getProducts']);
+    Route::get('/summary', [PartPenerimaanController::class, 'getSummary']);
+    Route::get('/{kodeDivisi}/{noPenerimaan}', [PartPenerimaanController::class, 'show']);
+    Route::patch('/{kodeDivisi}/{noPenerimaan}/status', [PartPenerimaanController::class, 'updateStatus']);
+});
 
 // Purchases routes (Modern API)
 Route::get('purchases', [PurchasesController::class, 'index']);
