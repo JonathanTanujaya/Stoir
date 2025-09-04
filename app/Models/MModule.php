@@ -9,7 +9,7 @@ class MModule extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_module';
+    protected $table = 'm_module';
     protected $primaryKey = 'btid';
     public $incrementing = false;
     public $timestamps = false;

@@ -9,7 +9,7 @@ class MResi extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_resi';
+    protected $table = 'm_resi';
     protected $primaryKey = ['kodedivisi', 'noresi'];
     public $incrementing = false;
     public $timestamps = false;

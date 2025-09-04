@@ -9,7 +9,7 @@ class SaldoBank extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.saldobank';
+    protected $table = 'saldo_bank';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;

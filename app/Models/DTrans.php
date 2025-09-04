@@ -9,7 +9,7 @@ class DTrans extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.d_trans';
+    protected $table = 'd_trans';
     protected $primaryKey = ['KodeTrans', 'KodeCOA'];
     public $incrementing = false;
     public $timestamps = false;

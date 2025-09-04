@@ -9,7 +9,7 @@ class Opname extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.opname';
+    protected $table = 'opname';
     protected $primaryKey = ['kodedivisi', 'noopname'];
     public $incrementing = false;
     public $timestamps = false;

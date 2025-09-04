@@ -9,7 +9,7 @@ class ClaimPenjualanDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.claim_penjualan_detail';
+    protected $table = 'claim_penjualan_detail';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;

@@ -38,7 +38,6 @@ use App\Http\Controllers\PartPenerimaanController;
 use App\Http\Controllers\PartPenerimaanBonusController;
 use App\Http\Controllers\PenerimaanFinanceController;
 use App\Http\Controllers\ReturnSalesController;
-use App\Http\Controllers\ReturPenerimaanController;
 use App\Http\Controllers\SPVController;
 use App\Http\Controllers\StokClaimController;
 use App\Http\Controllers\OpnameController;

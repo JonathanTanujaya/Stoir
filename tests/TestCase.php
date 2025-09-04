@@ -26,41 +26,32 @@ abstract class TestCase extends BaseTestCase
      */
     protected function seedTestData(): void
     {
+        // Skip company creation for now since it's not in SQLite test database
         // Create test company
-        Company::create([
-            'kodecompany' => 'TEST01',
-            'namacompany' => 'Test Company',
-            'alamat' => 'Test Address',
-            'status' => 'Active'
-        ]);
+        // Company::create([
+        //     'company_name' => 'Test Company',
+        //     'alamat' => 'Test Address',
+        // ]);
 
         // Create test division
         MDivisi::create([
-            'kodedivisi' => 'TEST',
-            'namadivisi' => 'Test Division',
-            'kodecompany' => 'TEST01',
-            'status' => 'Active'
+            'kode_divisi' => 'TEST',
+            'nama_divisi' => 'Test Division',
         ]);
 
         // Create test users
         MasterUser::create([
+            'kode_divisi' => 'TEST',
             'username' => 'testadmin',
             'password' => 'password123',
             'nama' => 'Test Admin',
-            'email' => 'admin@test.com',
-            'level' => 'Administrator',
-            'status' => 'Active',
-            'kodedivisi' => 'TEST'
         ]);
 
         MasterUser::create([
+            'kode_divisi' => 'TEST',
             'username' => 'testuser',
             'password' => 'password123',
             'nama' => 'Test User',
-            'email' => 'user@test.com',
-            'level' => 'User',
-            'status' => 'Active',
-            'kodedivisi' => 'TEST'
         ]);
     }
 
@@ -70,13 +61,10 @@ abstract class TestCase extends BaseTestCase
     protected function createAuthenticatedUser($level = 'User'): MasterUser
     {
         $user = MasterUser::create([
+            'kode_divisi' => 'TEST',
             'username' => 'auth_test_' . uniqid(),
             'password' => 'password123',
             'nama' => 'Auth Test User',
-            'email' => 'authtest@test.com',
-            'level' => $level,
-            'status' => 'Active',
-            'kodedivisi' => 'TEST'
         ]);
 
         return $user;

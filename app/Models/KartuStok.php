@@ -9,7 +9,7 @@ class KartuStok extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.kartustok';
+    protected $table = 'kartu_stok';
     protected $primaryKey = 'urut';
     public $incrementing = true;
     public $timestamps = false;

@@ -9,7 +9,7 @@ class DBank extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.d_bank';
+    protected $table = 'd_bank';
     protected $primaryKey = ['KodeDivisi', 'NoRekening'];
     public $incrementing = false;
     public $timestamps = false;

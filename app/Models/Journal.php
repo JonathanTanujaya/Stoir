@@ -9,7 +9,7 @@ class Journal extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.journal';
+    protected $table = 'journal';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;

@@ -9,7 +9,7 @@ class MDokumen extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_dokumen';
+    protected $table = 'm_dokumen';
     
     // Use composite primary key
     protected $primaryKey = ['kodedivisi', 'kodedok'];

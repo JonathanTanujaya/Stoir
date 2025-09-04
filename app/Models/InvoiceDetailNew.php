@@ -12,31 +12,31 @@ class InvoiceDetail extends Model
     use HasFactory;
 
     protected $table = 'invoice_detail';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'ID';
     public $incrementing = true;
     public $timestamps = false;
     protected $keyType = 'int';
 
     protected $fillable = [
-        'kode_divisi',
-        'no_invoice',
-        'kode_barang',
-        'qty_supply',
-        'harga_jual',
-        'jenis',
-        'diskon1',
-        'diskon2',
-        'harga_nett',
-        'status'
+        'KODE_DIVISI',
+        'NO_INVOICE',
+        'KODE_BARANG',
+        'QTY_SUPPLY',
+        'HARGA_JUAL',
+        'JENIS',
+        'DISKON1',
+        'DISKON2',
+        'HARGA_NETT',
+        'STATUS'
     ];
 
     protected $casts = [
-        'qty_supply' => 'integer',
-        'harga_jual' => 'decimal:2',
-        'diskon1' => 'decimal:2',
-        'diskon2' => 'decimal:2',
-        'harga_nett' => 'decimal:2',
-        'id' => 'integer'
+        'QTY_SUPPLY' => 'integer',
+        'HARGA_JUAL' => 'decimal:2',
+        'DISKON1' => 'decimal:2',
+        'DISKON2' => 'decimal:2',
+        'HARGA_NETT' => 'decimal:2',
+        'ID' => 'integer'
     ];
 
     // Relationships
@@ -47,14 +47,12 @@ class InvoiceDetail extends Model
 
     public function masterBarang(): BelongsTo
     {
-        // Temporarily keep pointing to MasterBarang (belum dihapus)
-        return $this->belongsTo(MasterBarang::class, 'kode_barang', 'kode_barang');
+        return $this->belongsTo(MasterBarang::class, 'KODE_BARANG', 'KODE_BARANG');
     }
 
     public function divisi(): BelongsTo
     {
-    // Refactored to MDivisi
-    return $this->belongsTo(MDivisi::class, 'kode_divisi', 'kodedivisi');
+        return $this->belongsTo(MasterDivisi::class, 'KODE_DIVISI', 'KODE_DIVISI');
     }
 
     // Scopes

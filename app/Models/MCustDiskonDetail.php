@@ -9,7 +9,7 @@ class MCustDiskonDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_cust_diskon_detail';
+    protected $table = 'm_cust_diskon_detail';
     public $incrementing = false;
     public $timestamps = false;
 

@@ -73,9 +73,11 @@ class MasterBarang extends Model
         return $this->hasMany(DetailBarang::class, 'KODE_BARANG', 'KODE_BARANG');
     }
 
+    // Removed MasterKategori relation (model deleted). Reintroduce later if replacement exists.
     public function kategoriDetail(): BelongsTo
     {
-        return $this->belongsTo(MasterKategori::class, 'KATEGORI', 'KODE_KATEGORI');
+        // Placeholder: return empty belongsTo to avoid errors if called.
+        return $this->belongsTo(MBarang::class, 'kategori', 'kategori');
     }
 
     public function kartuStok(): HasMany

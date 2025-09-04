@@ -9,7 +9,7 @@ class ReturPenerimaan extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.retur_penerimaan';
+    protected $table = 'retur_penerimaan';
     public $incrementing = false;
     public $timestamps = false;
 

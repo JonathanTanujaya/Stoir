@@ -9,7 +9,7 @@ class StokClaim extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.stok_claim';
+    protected $table = 'stok_claim';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;

@@ -9,14 +9,14 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.company';
-    protected $primaryKey = 'companyname';
+    protected $table = 'company';
+    protected $primaryKey = 'company_name';
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
-        'companyname',
+        'company_name',
         'alamat',
         'kota',
         'an',

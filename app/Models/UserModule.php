@@ -9,7 +9,7 @@ class UserModule extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.user_module';
+    protected $table = 'user_module';
     protected $primaryKey = ['kodedivisi', 'username', 'btid'];
     public $incrementing = false;
     public $timestamps = false;

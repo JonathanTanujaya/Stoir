@@ -9,7 +9,7 @@ class MVoucher extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_voucher';
+    protected $table = 'm_voucher';
     protected $primaryKey = 'novoucher';
     public $incrementing = false;
     public $timestamps = false;

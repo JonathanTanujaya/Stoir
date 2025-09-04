@@ -9,7 +9,7 @@ class SPV extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.spv';
+    protected $table = 'spv';
     public $incrementing = false;
     public $timestamps = false;
 

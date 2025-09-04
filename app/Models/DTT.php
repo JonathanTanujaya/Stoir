@@ -9,7 +9,7 @@ class DTT extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.d_tt';
+    protected $table = 'd_tt';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;

@@ -9,7 +9,7 @@ class DPaket extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.d_paket';
+    protected $table = 'd_paket';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;

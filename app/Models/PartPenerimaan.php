@@ -66,12 +66,14 @@ class PartPenerimaan extends Model
     // Relationships (simplified for composite key compatibility)
     public function supplier()
     {
-        return $this->belongsTo(MasterSupplier::class, 'kode_supplier', 'kode_supplier');
+        // Refactored to MSupplier
+        return $this->belongsTo(MSupplier::class, 'kode_supplier', 'kodesupplier');
     }
 
     public function divisi()
     {
-        return $this->belongsTo(MasterDivisi::class, 'kode_divisi', 'kode_divisi');
+        // Refactored to MDivisi
+        return $this->belongsTo(MDivisi::class, 'kode_divisi', 'kodedivisi');
     }
 
     public function details()

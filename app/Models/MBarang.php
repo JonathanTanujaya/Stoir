@@ -10,7 +10,7 @@ class MBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.d_barang';
+    protected $table = 'd_barang';
     protected $primaryKey = ['kodedivisi', 'kodebarang'];
     public $incrementing = false;
     public $timestamps = false;

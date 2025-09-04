@@ -9,7 +9,7 @@ class MCOA extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_coa';
+    protected $table = 'm_coa';
     protected $primaryKey = 'KodeCOA';
     public $incrementing = false;
     public $timestamps = false;

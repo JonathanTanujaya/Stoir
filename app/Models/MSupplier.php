@@ -9,7 +9,7 @@ class MSupplier extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_supplier';
+    protected $table = 'm_supplier';
     protected $primaryKey = ['kodedivisi', 'kodesupplier'];
     public $incrementing = false;
     public $timestamps = false;

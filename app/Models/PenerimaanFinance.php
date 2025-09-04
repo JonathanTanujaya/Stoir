@@ -9,7 +9,7 @@ class PenerimaanFinance extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.penerimaanfinance';
+    protected $table = 'penerimaan_finance';
     protected $primaryKey = ['kodedivisi', 'nopenerimaan'];
     public $incrementing = false;
     public $timestamps = false;
@@ -41,19 +41,19 @@ class PenerimaanFinance extends Model
     public function customer()
     {
         return $this->belongsTo(MCust::class, 'kodecust', 'kodecust')
-                    ->where('dbo.m_cust.kodedivisi', '=', $this->kodedivisi ?? '');
+                    ->where('m_cust.kodedivisi', '=', $this->kodedivisi ?? '');
     }
 
     public function sales()
     {
         return $this->belongsTo(MSales::class, 'kodesales', 'kodesales')
-                    ->where('dbo.m_sales.kodedivisi', '=', $this->kodedivisi ?? '');
+                    ->where('m_sales.kodedivisi', '=', $this->kodedivisi ?? '');
     }
 
     public function details()
     {
         return $this->hasMany(PenerimaanFinanceDetail::class, 'nopenerimaan', 'nopenerimaan')
-                    ->where('dbo.penerimaanfinance_detail.kodedivisi', '=', $this->kodedivisi ?? '');
+                    ->where('penerimaanfinance_detail.kodedivisi', '=', $this->kodedivisi ?? '');
     }
 
     // Scopes

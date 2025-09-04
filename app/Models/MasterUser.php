@@ -12,7 +12,7 @@ class MasterUser extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
-    protected $table = 'dbo.master_user';
+    protected $table = 'master_user';
     
     // Use single key for simplicity during testing
     protected $primaryKey = 'kodedivisi';

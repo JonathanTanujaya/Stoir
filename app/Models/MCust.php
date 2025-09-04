@@ -9,7 +9,7 @@ class MCust extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_cust';
+    protected $table = 'm_cust';
     
     // Use kodecust as primary key for simplicity
     protected $primaryKey = 'kodecust';

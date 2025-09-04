@@ -12,7 +12,7 @@ class DetailBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'D_BARANG';
+    protected $table = 'd_barang';
     protected $primaryKey = 'ID';
     public $incrementing = true;
     public $timestamps = false;
@@ -41,7 +41,8 @@ class DetailBarang extends Model
 
     public function divisi(): BelongsTo
     {
-        return $this->belongsTo(MasterDivisi::class, 'KODE_DIVISI', 'KODE_DIVISI');
+        // Refactored to MDivisi after removing MasterDivisi
+        return $this->belongsTo(MDivisi::class, 'kode_divisi', 'kodedivisi');
     }
 
     // Scopes

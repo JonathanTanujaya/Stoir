@@ -9,7 +9,7 @@ class MArea extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_area';
+    protected $table = 'm_area';
     
     // Use first column as primary key for Laravel compatibility
     protected $primaryKey = 'kodedivisi';

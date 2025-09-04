@@ -14,38 +14,40 @@ class Invoice extends Model
     use HasFactory;
 
     protected $table = 'invoice';
-    protected $primaryKey = ['kode_divisi', 'no_invoice'];
+    protected $primaryKey = ['KODE_DIVISI', 'NO_INVOICE'];
     public $incrementing = false;
     public $timestamps = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'kode_divisi',
-        'no_invoice',
-        'tgl_faktur',
-        'kode_cust',
-        'kode_sales',
-        'tipe',
-        'jatuh_tempo',
-        'total',
-        'disc',
-        'pajak',
-        'grand_total',
-        'sisa_invoice',
-        'ket',
-        'status',
-        'username',
-        'tt'
+        'KODE_DIVISI',
+        'NO_INVOICE',
+        'TGL_INVOICE',
+        'KODE_CUST',
+        'KODE_SALES',
+        'TIPE',
+        'JATUH_TEMPO',
+        'TOTAL',
+        'DISC',
+        'PAJAK',
+        'GRAND_TOTAL',
+        'SISA_INVOICE',
+        'KET',
+        'STATUS',
+        'USERNAME',
+        'TT',
+        'LUNAS'
     ];
 
     protected $casts = [
-        'tgl_faktur' => 'date',
-        'jatuh_tempo' => 'date',
-        'total' => 'decimal:2',
-        'disc' => 'decimal:2',
-        'pajak' => 'decimal:2',
-        'grand_total' => 'decimal:2',
-        'sisa_invoice' => 'decimal:2'
+        'TGL_INVOICE' => 'date',
+        'JATUH_TEMPO' => 'date',
+        'TOTAL' => 'decimal:2',
+        'DISC' => 'decimal:2',
+        'PAJAK' => 'decimal:2',
+        'GRAND_TOTAL' => 'decimal:2',
+        'SISA_INVOICE' => 'decimal:2',
+        'LUNAS' => 'boolean'
     ];
 
     // Relationships
@@ -56,20 +58,17 @@ class Invoice extends Model
 
     public function customer(): BelongsTo
     {
-        // Refactored from MasterCustomer to MCust
-        return $this->belongsTo(MCust::class, 'kode_cust', 'kodecust');
+        return $this->belongsTo(MasterCustomer::class, 'KODE_CUST', 'KODE_CUST');
     }
 
     public function sales(): BelongsTo
     {
-        // Refactored from MasterSales to MSales
-        return $this->belongsTo(MSales::class, 'kode_sales', 'kodesales');
+        return $this->belongsTo(MasterSales::class, 'KODE_SALES', 'KODE_SALES');
     }
 
     public function divisi(): BelongsTo
     {
-        // Refactored from MasterDivisi to MDivisi
-        return $this->belongsTo(MDivisi::class, 'kode_divisi', 'kodedivisi');
+        return $this->belongsTo(MasterDivisi::class, 'KODE_DIVISI', 'KODE_DIVISI');
     }
 
     public function masterTT(): HasMany

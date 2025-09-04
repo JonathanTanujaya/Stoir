@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PartPenerimaanRequest;
 use App\Models\PartPenerimaan;
 use App\Models\PartPenerimaanDetail;
-use App\Models\MasterSupplier;
-use App\Models\MasterBarang;
-use App\Models\MasterDivisi;
+use App\Models\MSupplier;
+use App\Models\MasterBarang; // tetap sementara
+use App\Models\MDivisi;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -315,7 +315,7 @@ class PartPenerimaanController extends Controller
     public function getSuppliers(Request $request): JsonResponse
     {
         try {
-            $query = MasterSupplier::select('kode_divisi', 'kode_supplier', 'nama_supplier')
+            $query = MSupplier::select('kodedivisi as kode_divisi', 'kodesupplier as kode_supplier', 'namasupplier as nama_supplier')
                 ->where('status', true);
 
             if ($request->filled('kode_divisi')) {
@@ -353,13 +353,13 @@ class PartPenerimaanController extends Controller
     {
         try {
             $query = MasterBarang::select(
-                'kode_divisi', 
-                'kode_barang', 
-                'nama_barang', 
+                'kode_divisi',
+                'kode_barang',
+                'nama_barang',
                 'satuan',
                 'merk',
                 'harga_list'
-            )->where('status', true);
+            )->where('status', true); // dibiarkan, MasterBarang masih ada
 
             if ($request->filled('kode_divisi')) {
                 $query->where('kode_divisi', $request->kode_divisi);

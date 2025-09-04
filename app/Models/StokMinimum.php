@@ -9,7 +9,7 @@ class StokMinimum extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.stok_minimum';
+    protected $table = 'stok_minimum';
     public $incrementing = false;
     public $timestamps = false;
 

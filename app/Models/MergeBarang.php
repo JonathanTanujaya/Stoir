@@ -9,7 +9,7 @@ class MergeBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.merge_barang';
+    protected $table = 'merge_barang';
     protected $primaryKey = ['kodedivisi', 'nocreate'];
     public $incrementing = false;
     public $timestamps = false;

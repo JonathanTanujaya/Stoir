@@ -9,7 +9,7 @@ class MTT extends Model
 {
     use HasFactory;
 
-    protected $table = 'dbo.m_tt';
+    protected $table = 'm_tt';
     public $incrementing = false;
     public $timestamps = false;
 

@@ -24,29 +24,29 @@ class InvoiceTest extends TestCase
         
         // Create test customer
         MCust::create([
-            'kodecust' => 'CUST001',
-            'namacust' => 'Test Customer',
+            'kode_divisi' => 'TEST',
+            'kode_cust' => 'CUST001',
+            'nama_cust' => 'Test Customer',
             'alamat' => 'Test Address',
             'credit_limit' => 5000000,
-            'status' => 'Active'
+            'status' => true
         ]);
 
         // Create test sales person
         MSales::create([
-            'kodesales' => 'SALES001',
-            'namasales' => 'Test Sales',
-            'status' => 'Active'
+            'kode_divisi' => 'TEST',
+            'kode_sales' => 'SALES001',
+            'nama_sales' => 'Test Sales',
+            'status' => true
         ]);
 
         // Create test items
         DBarang::create([
-            'kodedivisi' => 'TEST',
-            'kodebarang' => 'BRG001',
-            'namabarang' => 'Test Item 1',
+            'kode_divisi' => 'TEST',
+            'kode_barang' => 'BRG001',
+            'tgl_masuk' => now(),
+            'modal' => 8000,
             'stok' => 100,
-            'harga_jual' => 10000,
-            'harga_minimum' => 8000,
-            'status' => 'Active'
         ]);
     }
     #[Test]
