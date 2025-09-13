@@ -1,24 +1,21 @@
 <?php
-// File: app/Models/Invoice.php
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\HasCompositeKey;
 
 class Invoice extends Model
 {
-    use HasFactory;
-
+    use HasFactory, HasCompositeKey;
+    
     protected $table = 'invoice';
-    protected $primaryKey = ['kode_divisi', 'no_invoice'];
     public $incrementing = false;
-    public $timestamps = false;
-    protected $keyType = 'string';
-
+    public $timestamps = true;
+    
     protected $fillable = [
         'kode_divisi',
         'no_invoice',
@@ -48,154 +45,59 @@ class Invoice extends Model
         'sisa_invoice' => 'decimal:2'
     ];
 
-    // Relationships
-    public function details(): HasMany
+    // No soft deletes column in schema; keep hard deletes only
+
+    public function divisi(): BelongsTo
     {
-        return $this->hasMany(InvoiceDetail::class, ['KODE_DIVISI', 'NO_INVOICE'], ['KODE_DIVISI', 'NO_INVOICE']);
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
     public function customer(): BelongsTo
     {
-        // Refactored from MasterCustomer to MCust
-        return $this->belongsTo(MCust::class, 'kode_cust', 'kodecust');
+        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
     public function sales(): BelongsTo
     {
-        // Refactored from MasterSales to MSales
-        return $this->belongsTo(MSales::class, 'kode_sales', 'kodesales');
+        return $this->belongsTo(Sales::class, 'kode_sales', 'kode_sales')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function divisi(): BelongsTo
+    public function invoiceDetails(): HasMany
     {
-        // Refactored from MasterDivisi to MDivisi
-        return $this->belongsTo(MDivisi::class, 'kode_divisi', 'kodedivisi');
+        return $this->hasMany(InvoiceDetail::class, 'no_invoice', 'no_invoice')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function masterTT(): HasMany
+    public function getRouteKeyName(): string
     {
-        return $this->hasMany(MasterTT::class, 'NO_REF', 'NO_INVOICE');
+        return 'no_invoice';
     }
 
-    public function returnSales(): HasMany
+    public function getKeyName(): array
     {
-        return $this->hasMany(ReturnSales::class, 'NO_INVOICE', 'NO_INVOICE');
+        return ['kode_divisi', 'no_invoice'];
     }
 
-    // Scopes
-    public function scopeActive($query)
+    public function getKey()
     {
-        return $query->where('STATUS', '!=', 'Cancel');
+        return [
+            'kode_divisi' => $this->getAttribute('kode_divisi'),
+            'no_invoice' => $this->getAttribute('no_invoice')
+        ];
     }
 
-    public function scopeByDivisi($query, $kodeDivisi)
-    {
-        return $query->where('KODE_DIVISI', $kodeDivisi);
-    }
-
-    public function scopeByCustomer($query, $kodeCustomer)
-    {
-        return $query->where('KODE_CUST', $kodeCustomer);
-    }
-
-    public function scopeByPeriod($query, $startDate, $endDate)
-    {
-        return $query->whereBetween('TGL_INVOICE', [$startDate, $endDate]);
-    }
-
-    public function scopeOverdue($query)
-    {
-        return $query->where('JATUH_TEMPO', '<', Carbon::now())
-            ->where('LUNAS', false)
-            ->where('STATUS', '!=', 'Cancel');
-    }
-
-    public function scopeUnpaid($query)
-    {
-        return $query->where('LUNAS', false)
-            ->where('STATUS', '!=', 'Cancel');
-    }
-
-    // Accessors
-    public function getFormattedTglInvoiceAttribute(): string
-    {
-        return $this->TGL_INVOICE ? $this->TGL_INVOICE->format('d/m/Y') : '';
-    }
-
-    public function getFormattedJatuhTempoAttribute(): string
-    {
-        return $this->JATUH_TEMPO ? $this->JATUH_TEMPO->format('d/m/Y') : '';
-    }
-
-    public function getFormattedGrandTotalAttribute(): string
-    {
-        return number_format($this->GRAND_TOTAL, 2, ',', '.');
-    }
-
-    public function getIsOverdueAttribute(): bool
-    {
-        return $this->JATUH_TEMPO && $this->JATUH_TEMPO->isPast() && !$this->LUNAS;
-    }
-
-    public function getDaysOverdueAttribute(): int
-    {
-        if (!$this->is_overdue) {
-            return 0;
-        }
-        return $this->JATUH_TEMPO->diffInDays(Carbon::now());
-    }
-
-    // Methods
-    public function getTotalQuantity(): int
-    {
-        return $this->details()->sum('QTY_SUPPLY');
-    }
-
-    public function getTotalItems(): int
-    {
-        return $this->details()->count();
-    }
-
-    public function markAsPaid(): bool
-    {
-        $this->LUNAS = true;
-        $this->SISA_INVOICE = 0;
-        return $this->save();
-    }
-
-    public function cancel(): bool
-    {
-        $this->STATUS = 'Cancel';
-        $this->GRAND_TOTAL = 0;
-        $this->SISA_INVOICE = 0;
-        return $this->save();
-    }
-
-    // Override key methods for composite primary key
+    /**
+     * Ensure updates target the correct row when using composite keys.
+     */
     protected function setKeysForSaveQuery($query)
     {
-        $keys = $this->getKeyName();
-        if (!is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
+        foreach ($this->getKeyName() as $key) {
+            $query->where($key, '=', $this->getAttribute($key));
         }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
         return $query;
     }
 
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
-    }
+    // Deletions are hard deletes; use controller's cancel() to cancel invoices
 }

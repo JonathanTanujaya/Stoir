@@ -40,6 +40,7 @@ return [
             'busy_timeout' => null,
             'journal_mode' => null,
             'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
         ],
 
         'mysql' => [
@@ -82,7 +83,7 @@ return [
             ]) : [],
         ],
 
-                'pgsql' => [
+        'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -91,20 +92,6 @@ return [
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => env('DB_PREFIX', ''),
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
-        ],
-
-        'pgsql_testing' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_TEST_DATABASE', 'stoir_test'),
-            'username' => env('DB_USERNAME', 'postgres'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
@@ -172,6 +159,10 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
+            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
         'cache' => [
@@ -181,6 +172,10 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
+            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
     ],

@@ -10,6 +10,65 @@ const apiClient = axios.create({
   },
 });
 
+// Division-aware routing helpers and endpoint normalization
+const getCurrentDivisi = () =>
+  localStorage.getItem('kode_divisi') || import.meta.env.VITE_DEFAULT_KODE_DIVISI || '01';
+
+const endpointAliasMap = new Map([
+  ['/categories', '/kategoris'],
+  ['/divisions', '/divisi'],
+  ['/documents', '/mdokumens'],
+  ['/dokumens', '/mdokumens'],
+  ['/barang', '/barangs'],
+  ['/penerimaan-finance', '/penerimaan-finances'],
+]);
+
+const requiresDivisiPrefix = [
+  '/customers',
+  '/suppliers',
+  '/sales',
+  '/areas',
+  '/kategoris',
+  '/categories',
+  '/barangs',
+  '/users',
+  '/banks',
+  '/saldo-banks',
+  '/mdokumens',
+  '/mresis',
+  '/mtts',
+  '/mvouchers',
+  '/penerimaan-finances',
+  '/return-sales',
+  '/invoices',
+];
+
+const normalizeEndpoint = (url) => {
+  for (const [legacy, target] of endpointAliasMap.entries()) {
+    if (url === legacy || url.startsWith(`${legacy}/`)) {
+      return url.replace(legacy, target);
+    }
+  }
+  return url;
+};
+
+const buildUrl = (url, kodeDivisi) => {
+  const normalized = normalizeEndpoint(url);
+  if (normalized.startsWith('/divisi/')) {
+    return normalized;
+  }
+  const needsPrefix = requiresDivisiPrefix.some((p) => normalized === p || normalized.startsWith(`${p}/`));
+  if (!needsPrefix) {
+    return normalized;
+  }
+  const kd = kodeDivisi || getCurrentDivisi();
+  if (!kd) {
+    console.warn('kode_divisi not set. Set localStorage.kode_divisi to enable division-scoped API calls.');
+    return normalized;
+  }
+  return `/divisi/${encodeURIComponent(kd)}${normalized}`;
+};
+
 // Response interceptor for error handling and response transformation
 apiClient.interceptors.response.use(
   response => {
@@ -107,56 +166,95 @@ apiClient.interceptors.response.use(
 // Generic API methods
 export const api = {
   // GET requests
-  get: async (url, params = {}) => {
-    const response = await apiClient.get(url, { params });
+  get: async (url, params = {}, options = {}) => {
+    const fullUrl = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.get(fullUrl, { params });
     return response.data;
   },
 
   // GET single item by ID
-  getById: async (url, id) => {
-    const response = await apiClient.get(`${url}/${id}`);
+  getById: async (url, id, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.get(`${base}/${id}`);
     return response.data;
   },
 
   // POST requests
-  post: async (url, data = {}) => {
-    const response = await apiClient.post(url, data);
+  post: async (url, data = {}, options = {}) => {
+    const fullUrl = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.post(fullUrl, data);
     return response.data;
   },
 
   // PUT requests (full update)
-  put: async (url, id, data = {}) => {
-    const response = await apiClient.put(`${url}/${id}`, data);
+  put: async (url, id, data = {}, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.put(`${base}/${id}`, data);
     return response.data;
   },
 
   // PATCH requests (partial update)
-  patch: async (url, id, data = {}) => {
-    const response = await apiClient.patch(`${url}/${id}`, data);
+  patch: async (url, id, data = {}, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.patch(`${base}/${id}`, data);
     return response.data;
   },
 
   // DELETE requests
-  delete: async (url, id) => {
-    const response = await apiClient.delete(`${url}/${id}`);
+  delete: async (url, id, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.delete(`${base}/${id}`);
     return response.data;
   },
 
   // Special method for composite keys (like m_resi)
-  getByCompositeKey: async (url, key1, key2) => {
-    const response = await apiClient.get(`${url}/${key1}/${key2}`);
+  getByCompositeKey: async (url, key1, key2, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.get(`${base}/${key1}/${key2}`);
     return response.data;
   },
 
   // Special method for composite key updates
-  updateByCompositeKey: async (url, key1, key2, data = {}) => {
-    const response = await apiClient.put(`${url}/${key1}/${key2}`, data);
+  updateByCompositeKey: async (url, key1, key2, data = {}, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.put(`${base}/${key1}/${key2}`, data);
     return response.data;
   },
 
   // Special method for composite key deletes
-  deleteByCompositeKey: async (url, key1, key2) => {
-    const response = await apiClient.delete(`${url}/${key1}/${key2}`);
+  deleteByCompositeKey: async (url, key1, key2, options = {}) => {
+    const base = buildUrl(url, options.kodeDivisi);
+    const response = await apiClient.delete(`${base}/${key1}/${key2}`);
+    return response.data;
+  },
+
+  // Nested: Invoice Details under Invoices
+  getInvoiceDetails: async (noInvoice, params = {}, options = {}) => {
+    const kd = options.kodeDivisi || getCurrentDivisi();
+    if (!kd) { throw new Error('kode_divisi not set for invoice details'); }
+    const url = `/divisi/${encodeURIComponent(kd)}/invoices/${encodeURIComponent(noInvoice)}/details`;
+    const response = await apiClient.get(url, { params });
+    return response.data;
+  },
+  createInvoiceDetail: async (noInvoice, data = {}, options = {}) => {
+    const kd = options.kodeDivisi || getCurrentDivisi();
+    if (!kd) { throw new Error('kode_divisi not set for invoice details'); }
+    const url = `/divisi/${encodeURIComponent(kd)}/invoices/${encodeURIComponent(noInvoice)}/details`;
+    const response = await apiClient.post(url, data);
+    return response.data;
+  },
+  updateInvoiceDetail: async (noInvoice, id, data = {}, options = {}) => {
+    const kd = options.kodeDivisi || getCurrentDivisi();
+    if (!kd) { throw new Error('kode_divisi not set for invoice details'); }
+    const url = `/divisi/${encodeURIComponent(kd)}/invoices/${encodeURIComponent(noInvoice)}/details/${encodeURIComponent(id)}`;
+    const response = await apiClient.put(url, data);
+    return response.data;
+  },
+  deleteInvoiceDetail: async (noInvoice, id, options = {}) => {
+    const kd = options.kodeDivisi || getCurrentDivisi();
+    if (!kd) { throw new Error('kode_divisi not set for invoice details'); }
+    const url = `/divisi/${encodeURIComponent(kd)}/invoices/${encodeURIComponent(noInvoice)}/details/${encodeURIComponent(id)}`;
+    const response = await apiClient.delete(url);
     return response.data;
   },
 
@@ -212,27 +310,30 @@ export const usersAPI = createAPIService('/users');
 
 // Extended API services for all modules
 export const stockMinAPI = {
-  getAll: () => api.get('/barang'),
-  update: (kodeDivisi, kodeBarang, data) => api.put(`/barang/${kodeDivisi}/${kodeBarang}`, data),
+  getAll: (options = {}) => api.get('/barangs', {}, options),
+  update: (kodeDivisi, kodeBarang, data) => api.put('/barangs', kodeBarang, data, { kodeDivisi }),
 };
 
 export const checklistAPI = {
-  getAll: () => api.get('/dokumens'),
-  create: data => api.post('/dokumens', data),
-  update: (kodeDivisi, kodeDokumen, data) =>
-    api.put(`/dokumens/${kodeDivisi}/${kodeDokumen}`, data),
-  delete: (kodeDivisi, kodeDokumen) => api.delete(`/dokumens/${kodeDivisi}/${kodeDokumen}`),
+  getAll: (options = {}) => api.get('/mdokumens', {}, options),
+  create: (data, options = {}) => api.post('/mdokumens', data, options),
+  update: (kodeDivisi, kodeDokumen, data) => api.put('/mdokumens', kodeDokumen, data, { kodeDivisi }),
+  delete: (kodeDivisi, kodeDokumen) => api.delete('/mdokumens', kodeDokumen, { kodeDivisi }),
 };
 
 // Transaction APIs
 export const mergeBarangAPI = {
-  getAll: () => api.get('/barang'),
-  merge: data => api.post('/barang', data),
+  getAll: (options = {}) => api.get('/barangs', {}, options),
+  merge: data => api.post('/procedures/merge-barang', data),
 };
 
 export const invoiceCancelAPI = {
   getAll: () => api.get('/invoices'),
-  cancel: id => api.delete(`/invoices/${id}`),
+  cancel: (noInvoice, options = {}) => {
+    const kd = options.kodeDivisi || localStorage.getItem('kode_divisi') || import.meta.env.VITE_DEFAULT_KODE_DIVISI;
+    if (!kd) { throw new Error('kode_divisi not set for invoice cancel'); }
+    return apiClient.patch(`/divisi/${encodeURIComponent(kd)}/invoices/${encodeURIComponent(noInvoice)}/cancel`).then(r => r.data);
+  },
 };
 
 export const stockOpnameAPI = {
@@ -267,7 +368,7 @@ export const customerClaimAPI = {
 export const salesFormAPI = {
   getCustomers: () => api.get('/customers'),
   getSalesPersons: () => api.get('/sales'),
-  getBarang: () => api.get('/barang'),
+  getBarang: () => api.get('/barangs'),
   createInvoice: data => api.post('/invoices', data),
 };
 

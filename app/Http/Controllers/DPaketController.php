@@ -2,70 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\DPaket;
 use Illuminate\Http\Request;
-use App\Models\DPaket; // Import model
+use Illuminate\Http\JsonResponse;
 
 class DPaketController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $items = DPaket::all();
-        return response()->json(['data' => $items]);
+        $dPakets = DPaket::with(['divisi', 'barang'])->get();
+        return response()->json($dPakets);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        $validatedData = $request->validate([
-            'NamaPaket' => 'required|string|max:255',
-            'Deskripsi' => 'nullable|string|max:255',
+        // Return view for create form if needed
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'kode_paket' => 'required|string|max:15',
+            'kode_barang' => 'required|string|max:15|exists:m_barang,kode_barang',
+            'qty' => 'required|integer|min:1'
         ]);
 
-        $item = DPaket::create($validatedData);
-
-        return response()->json(['message' => 'Item created successfully', 'data' => $item], 201);
+        $dPaket = DPaket::create($request->all());
+        return response()->json($dPaket, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $kodeDivisi, string $kodePaket, string $kodeBarang): JsonResponse
     {
-        $item = DPaket::findOrFail($id);
-        return response()->json(['data' => $item]);
+        $dPaket = DPaket::with(['divisi', 'barang'])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('kode_paket', $kodePaket)
+            ->where('kode_barang', $kodeBarang)
+            ->firstOrFail();
+        return response()->json($dPaket);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(string $kodeDivisi, string $kodePaket, string $kodeBarang)
     {
-        $item = DPaket::findOrFail($id);
+        // Return view for edit form if needed
+    }
 
-        $validatedData = $request->validate([
-            'NamaPaket' => 'required|string|max:255',
-            'Deskripsi' => 'nullable|string|max:255',
+    public function update(Request $request, string $kodeDivisi, string $kodePaket, string $kodeBarang): JsonResponse
+    {
+        $request->validate([
+            'qty' => 'required|integer|min:1'
         ]);
 
-        $item->update($validatedData);
-
-        return response()->json(['message' => 'Item updated successfully', 'data' => $item]);
+        $dPaket = DPaket::where('kode_divisi', $kodeDivisi)
+            ->where('kode_paket', $kodePaket)
+            ->where('kode_barang', $kodeBarang)
+            ->firstOrFail();
+        
+        $dPaket->update($request->all());
+        return response()->json($dPaket);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $kodeDivisi, string $kodePaket, string $kodeBarang): JsonResponse
     {
-        $item = DPaket::findOrFail($id);
-        $item->delete();
-
-        return response()->json(['message' => 'Item deleted successfully']);
+        $dPaket = DPaket::where('kode_divisi', $kodeDivisi)
+            ->where('kode_paket', $kodePaket)
+            ->where('kode_barang', $kodeBarang)
+            ->firstOrFail();
+        
+        $dPaket->delete();
+        return response()->json(['message' => 'DPaket deleted successfully']);
     }
 }

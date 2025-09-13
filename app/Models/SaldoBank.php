@@ -2,86 +2,45 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SaldoBank extends Model
 {
-    use HasFactory;
-
     protected $table = 'saldo_bank';
     protected $primaryKey = 'id';
-    public $incrementing = true;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'kodedivisi',
-        'norekening',
-        'tglproses',
-        'keterangan',
-        'debet',
-        'kredit',
-        'saldo'
+        'kode_divisi',
+        'kode_bank',
+        'no_rekening',
+        'tgl_saldo',
+        'saldo_awal',
+        'saldo_akhir',
+        'keterangan'
     ];
 
     protected $casts = [
-        'tglproses' => 'date',
-        'debet' => 'decimal:4',
-        'kredit' => 'decimal:4',
-        'saldo' => 'decimal:4',
-        'id' => 'integer'
+        'tgl_saldo' => 'date',
+        'saldo_awal' => 'decimal:2',
+        'saldo_akhir' => 'decimal:2'
     ];
 
-    // Relationships
-    public function bank()
+    public function divisi(): BelongsTo
     {
-        return $this->belongsTo(MBank::class, 'norekening', 'norekening');
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
-    // Scopes
-    public function scopeByDivisi($query, $kodeDivisi)
+    public function bank(): BelongsTo
     {
-        return $query->where('kodedivisi', $kodeDivisi);
+        return $this->belongsTo(Bank::class, 'kode_bank', 'kode_bank')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function scopeByRekening($query, $noRekening)
+    public function detailBank(): BelongsTo
     {
-        return $query->where('norekening', $noRekening);
-    }
-
-    public function scopeByPeriod($query, $startDate, $endDate)
-    {
-        return $query->whereBetween('tglproses', [$startDate, $endDate]);
-    }
-
-    public function scopeDebet($query)
-    {
-        return $query->where('debet', '>', 0);
-    }
-
-    public function scopeKredit($query)
-    {
-        return $query->where('kredit', '>', 0);
-    }
-
-    // Helper methods
-    public function isDebet()
-    {
-        return $this->debet > 0;
-    }
-
-    public function isKredit()
-    {
-        return $this->kredit > 0;
-    }
-
-    public function getTransactionAmount()
-    {
-        return $this->debet > 0 ? $this->debet : $this->kredit;
-    }
-
-    public function getTransactionType()
-    {
-        return $this->debet > 0 ? 'Debet' : 'Kredit';
+        return $this->belongsTo(DetailBank::class, 'no_rekening', 'no_rekening')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 }

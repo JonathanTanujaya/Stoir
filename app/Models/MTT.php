@@ -2,21 +2,48 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class MTT extends Model
+class MTt extends Model
 {
-    use HasFactory;
-
     protected $table = 'm_tt';
     public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'NoTT',
-        'Tanggal',
-        'KodeCust',
-        'Keterangan',
+        'kode_divisi',
+        'no_tt',
+        'tgl_tt',
+        'kode_cust',
+        'nilai',
+        'status'
     ];
+
+    protected $casts = [
+        'tgl_tt' => 'date',
+        'nilai' => 'decimal:2',
+        'status' => 'boolean'
+    ];
+
+    public function divisi(): BelongsTo
+    {
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, ['kode_divisi', 'kode_cust'], ['kode_divisi', 'kode_cust']);
+    }
+
+    public function dTts(): HasMany
+    {
+        return $this->hasMany(DTt::class, ['kode_divisi', 'no_tt'], ['kode_divisi', 'no_tt']);
+    }
+
+    public function getKeyName(): array
+    {
+        return ['kode_divisi', 'no_tt'];
+    }
 }

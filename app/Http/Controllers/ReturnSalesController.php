@@ -3,124 +3,77 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReturnSales;
-use App\Models\MCust;
-use App\Models\Invoice;
-use App\Models\MSales;
-use App\Models\ReturnSalesDetail;
-use App\Models\MBarang;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ReturnSalesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $returnSales = ReturnSales::with(['divisi', 'customer', 'invoice', 'returnSalesDetails'])->get();
+        return response()->json($returnSales);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        //
+        // Return view for create form if needed
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(ReturnSales $returnSales)
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'no_return_sales' => 'required|string|max:20',
+            'tgl_return' => 'required|date',
+            'kode_cust' => 'required|string|max:15',
+            'no_invoice' => 'required|string|max:20',
+            'nilai' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:255'
+        ]);
+
+        $returnSales = ReturnSales::create($request->all());
+        return response()->json($returnSales, 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ReturnSales $returnSales)
+    public function show(string $kodeDivisi, string $noReturnSales): JsonResponse
     {
-        //
+        $returnSales = ReturnSales::with(['divisi', 'customer', 'invoice', 'returnSalesDetails'])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('no_return_sales', $noReturnSales)
+            ->firstOrFail();
+        return response()->json($returnSales);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ReturnSales $returnSales)
+    public function edit(string $kodeDivisi, string $noReturnSales)
     {
-        //
+        // Return view for edit form if needed
     }
 
-    public function getVCustRetur()
+    public function update(Request $request, string $kodeDivisi, string $noReturnSales): JsonResponse
     {
-        $vCustRetur = ReturnSales::leftJoin('m_cust', function ($join) {
-            $join->on('return_sales.KodeDivisi', '=', 'm_cust.KodeDivisi')
-                 ->on('return_sales.KodeCust', '=', 'm_cust.KodeCust');
-        })
-        ->select(
-            'return_sales.KodeDivisi',
-            'return_sales.NoRetur',
-            'return_sales.TglRetur',
-            'return_sales.KodeCust',
-            'm_cust.NamaCust',
-            'return_sales.Total',
-            'return_sales.SisaRetur',
-            'return_sales.Keterangan',
-            'return_sales.Status'
-        )
-        ->get();
+        $request->validate([
+            'tgl_return' => 'required|date',
+            'kode_cust' => 'required|string|max:15',
+            'no_invoice' => 'required|string|max:20',
+            'nilai' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:255'
+        ]);
 
-        return response()->json($vCustRetur);
+        $returnSales = ReturnSales::where('kode_divisi', $kodeDivisi)
+            ->where('no_return_sales', $noReturnSales)
+            ->firstOrFail();
+        
+        $returnSales->update($request->all());
+        return response()->json($returnSales);
     }
 
-    public function getVReturnSalesDetail()
+    public function destroy(string $kodeDivisi, string $noReturnSales): JsonResponse
     {
-        $vReturnSalesDetail = MSales::rightJoin('invoice', function ($join) {
-            $join->on('m_sales.KodeDivisi', '=', 'invoice.KodeDivisi')
-                 ->on('m_sales.KodeSales', '=', 'invoice.KodeSales');
-        })
-        ->rightJoin('return_sales', function ($join) {
-            $join->on('return_sales.KodeDivisi', '=', 'invoice.KodeDivisi')
-                 ->on('return_sales.NoRetur', '=', 'invoice.NoInvoice');
-        })
-        ->leftJoin('m_cust', function ($join) {
-            $join->on('return_sales.KodeDivisi', '=', 'm_cust.KodeDivisi')
-                 ->on('return_sales.KodeCust', '=', 'm_cust.KodeCust');
-        })
-        ->rightJoin('return_sales_detail', function ($join) {
-            $join->on('return_sales.KodeDivisi', '=', 'return_sales_detail.KodeDivisi')
-                 ->on('return_sales.NoRetur', '=', 'return_sales_detail.NoRetur');
-        })
-        ->leftJoin('m_barang', function ($join) {
-            $join->on('return_sales_detail.KodeDivisi', '=', 'm_barang.KodeDivisi')
-                 ->on('return_sales_detail.KodeBarang', '=', 'm_barang.KodeBarang');
-        })
-        ->select(
-            'return_sales.KodeDivisi',
-            'return_sales.NoRetur',
-            'return_sales.TglRetur',
-            'return_sales.KodeCust',
-            'm_cust.NamaCust',
-            'm_cust.Alamat AS AlamatCust',
-            'return_sales.Total',
-            'return_sales_detail.NoInvoice',
-            'invoice.TglFaktur',
-            'invoice.KodeSales',
-            'm_sales.NamaSales',
-            'return_sales_detail.KodeBarang',
-            'm_barang.NamaBarang',
-            'm_barang.Satuan',
-            'm_barang.merk',
-            'return_sales_detail.QtyRetur',
-            'return_sales_detail.HargaNett',
-            'm_cust.Telp',
-            'return_sales.Status',
-            'return_sales.TT',
-            'return_sales.SisaRetur'
-        )
-        ->get();
-
-        return response()->json($vReturnSalesDetail);
+        $returnSales = ReturnSales::where('kode_divisi', $kodeDivisi)
+            ->where('no_return_sales', $noReturnSales)
+            ->firstOrFail();
+        
+        $returnSales->delete();
+        return response()->json(['message' => 'ReturnSales deleted successfully']);
     }
 }

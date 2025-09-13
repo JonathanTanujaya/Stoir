@@ -2,236 +2,223 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MKategori;
+use App\Http\Requests\StoreKategoriRequest;
+use App\Http\Requests\UpdateKategoriRequest;
+use App\Http\Resources\KategoriCollection;
+use App\Http\Resources\KategoriResource;
+use App\Models\Kategori;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class KategoriController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, string $kodeDivisi): JsonResponse
     {
         try {
-            $kategori = MKategori::all()->map(function($k){
-                return [
-                    'kodeDivisi' => $k->kodedivisi,
-                    'kodeKategori' => $k->kodekategori,
-                    'namaKategori' => $k->kategori,
-                    'status' => (bool)$k->status
-                ];
-            });
-            return response()->json([
-                'success' => true,
-                'message' => 'Data kategori retrieved successfully',
-                'data' => $kategori,
-                'totalCount' => $kategori->count()
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve kategori data',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
+            $request->attributes->set('query_start_time', microtime(true));
 
-    /**
-     * Show kategori by divisi.
-     */
-    public function showByDivisi($kodeDivisi)
-    {
-        try {
-            $kategori = MKategori::where('kodedivisi', $kodeDivisi)->get()->map(function($k){
-                return [
-                    'kodeDivisi' => $k->kodedivisi,
-                    'kodeKategori' => $k->kodekategori,
-                    'namaKategori' => $k->kategori,
-                    'status' => (bool)$k->status
-                ];
-            });
-            
-            if ($kategori->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No kategori found for this divisi',
-                    'data' => []
-                ], Response::HTTP_NOT_FOUND);
+            $query = Kategori::query()
+                ->where('kode_divisi', $kodeDivisi)
+                ->with(['divisi', 'barangs', 'dPakets']);
+
+            // Search functionality (PostgreSQL friendly)
+            if ($request->filled('search')) {
+                $search = $request->get('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('kode_kategori', 'ILIKE', "%{$search}%")
+                      ->orWhere('kategori', 'ILIKE', "%{$search}%");
+                });
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Kategori by divisi retrieved successfully',
-                'data' => $kategori,
-                'totalCount' => $kategori->count()
-            ], Response::HTTP_OK);
+            // Filter by status
+            if ($request->filled('status')) {
+                $query->where('status', $request->boolean('status'));
+            }
+
+            // Sorting
+            $sortBy = $request->get('sort', $request->get('sort_by', 'kode_kategori'));
+            $sortOrder = $request->get('direction', $request->get('sort_order', 'asc'));
+            $allowedSort = ['kode_kategori', 'kategori', 'status'];
+            if (in_array($sortBy, $allowedSort, true)) {
+                $query->orderBy($sortBy, $sortOrder === 'desc' ? 'desc' : 'asc');
+            }
+
+            // Pagination
+            $perPage = min((int) $request->get('per_page', 15), 100);
+            $kategoris = $query->paginate($perPage);
+
+            return response()->json(new KategoriCollection($kategoris));
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve kategori by divisi',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'Gagal mengambil data kategori',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreKategoriRequest $request, string $kodeDivisi): JsonResponse
     {
         try {
-            $validatedData = $request->validate([
-                'kodedivisi' => 'required|string|max:50',
-                'kodekategori' => 'required|string|max:50',
-                'kategori' => 'required|string|max:100',
-                'status' => 'boolean'
-            ]);
+            $data = $request->validated();
+            $data['kode_divisi'] = $kodeDivisi;
+            $data['status'] = $data['status'] ?? true;
 
-            // Check if kategori with this combination already exists
-            $existingKategori = MKategori::findByCompositeKey(
-                $validatedData['kodedivisi'],
-                $validatedData['kodekategori']
-            );
-
-            if ($existingKategori) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Kategori with this kodedivisi and kodekategori combination already exists'
-                ], Response::HTTP_CONFLICT);
-            }
-
-            $kategori = MKategori::create($validatedData);
-
+            $kategori = Kategori::create($data);
+            $kategori->load(['divisi']);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Kategori created successfully',
-                'data' => $kategori
-            ], Response::HTTP_CREATED);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                'message' => 'Kategori berhasil dibuat',
+                'data' => (new KategoriResource($kategori))->resolve($request),
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create kategori',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'Gagal membuat kategori',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($kodeDivisi, $kodeKategori)
+    public function show(string $kodeDivisi, string $kodeKategori): JsonResponse
     {
         try {
-            $kategori = MKategori::findByCompositeKey($kodeDivisi, $kodeKategori);
-
-            if (!$kategori) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Kategori not found'
-                ], Response::HTTP_NOT_FOUND);
-            }
-
+            $kategori = Kategori::with(['divisi', 'barangs', 'dPakets'])
+                ->where('kode_divisi', $kodeDivisi)
+                ->where('kode_kategori', $kodeKategori)
+                ->firstOrFail();
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Kategori retrieved successfully',
-                'data' => [
-                    'kodeDivisi' => $kategori->kodedivisi,
-                    'kodeKategori' => $kategori->kodekategori,
-                    'namaKategori' => $kategori->kategori,
-                    'status' => (bool)$kategori->status
-                ]
-            ], Response::HTTP_OK);
+                'data' => (new KategoriResource($kategori))->resolve(request()),
+            ]);
         } catch (\Exception $e) {
+            $status = $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ? 404 : 500;
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve kategori',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => $status === 404 ? 'Kategori tidak ditemukan' : 'Gagal mengambil data kategori',
+                'error' => $e->getMessage(),
+            ], $status);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $kodeDivisi, $kodeKategori)
+    public function update(UpdateKategoriRequest $request, string $kodeDivisi, string $kodeKategori): JsonResponse
     {
         try {
-            $kategori = MKategori::findByCompositeKey($kodeDivisi, $kodeKategori);
+            $kategori = Kategori::where('kode_divisi', $kodeDivisi)
+                ->where('kode_kategori', $kodeKategori)
+                ->firstOrFail();
 
-            if (!$kategori) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Kategori not found'
-                ], Response::HTTP_NOT_FOUND);
+            $data = $request->validated();
+            
+            if (isset($data['kode_kategori']) && $data['kode_kategori'] !== $kodeKategori) {
+                $newData = array_merge($kategori->toArray(), $data);
+                $newData['kode_divisi'] = $kodeDivisi;
+                $newKategori = Kategori::create($newData);
+                $kategori->delete();
+                $newKategori->load(['divisi']);
+                $kategori = $newKategori;
+            } else {
+                \DB::table('m_kategori')
+                    ->where('kode_divisi', $kodeDivisi)
+                    ->where('kode_kategori', $kodeKategori)
+                    ->update($data);
+                $kategori->refresh();
+                $kategori->load(['divisi']);
             }
-
-            $validatedData = $request->validate([
-                'kategori' => 'sometimes|required|string|max:100',
-                'status' => 'sometimes|boolean'
-            ]);
-
-            $kategori->update($validatedData);
-
-            $fresh = $kategori->fresh();
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Kategori updated successfully',
-                'data' => [
-                    'kodeDivisi' => $fresh->kodedivisi,
-                    'kodeKategori' => $fresh->kodekategori,
-                    'namaKategori' => $fresh->kategori,
-                    'status' => (bool)$fresh->status
-                ]
-            ], Response::HTTP_OK);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                'message' => 'Kategori berhasil diperbarui',
+                'data' => (new KategoriResource($kategori))->resolve($request),
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update kategori',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'Gagal memperbarui kategori',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($kodeDivisi, $kodeKategori)
+    public function destroy(string $kodeDivisi, string $kodeKategori): JsonResponse
     {
         try {
-            $kategori = MKategori::findByCompositeKey($kodeDivisi, $kodeKategori);
-
-            if (!$kategori) {
+            $kategori = Kategori::withCount(['barangs', 'dPakets'])
+                ->where('kode_divisi', $kodeDivisi)
+                ->where('kode_kategori', $kodeKategori)
+                ->firstOrFail();
+            
+            if ($kategori->barangs_count > 0 || $kategori->d_pakets_count > 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Kategori not found'
-                ], Response::HTTP_NOT_FOUND);
+                    'message' => 'Kategori tidak dapat dihapus karena masih memiliki data terkait',
+                    'details' => [
+                        'barangs_count' => $kategori->barangs_count,
+                        'd_pakets_count' => $kategori->d_pakets_count,
+                    ],
+                ], 422);
             }
 
-            $kategori->delete();
+            \DB::table('m_kategori')
+                ->where('kode_divisi', $kodeDivisi)
+                ->where('kode_kategori', $kodeKategori)
+                ->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            $status = $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ? 404 : 500;
+            return response()->json([
+                'success' => false,
+                'message' => $status === 404 ? 'Kategori tidak ditemukan' : 'Gagal menghapus kategori',
+                'error' => $e->getMessage(),
+            ], $status);
+        }
+    }
+
+    /**
+     * Get statistics for categories in a specific division.
+     */
+    public function stats(string $kodeDivisi): JsonResponse
+    {
+        try {
+            $stats = [
+                'total_kategoris' => Kategori::where('kode_divisi', $kodeDivisi)->count(),
+                'active_kategoris' => Kategori::where('kode_divisi', $kodeDivisi)->where('status', true)->count(),
+                'inactive_kategoris' => Kategori::where('kode_divisi', $kodeDivisi)->where('status', false)->count(),
+                'total_barangs' => \DB::table('m_barang')->where('kode_divisi', $kodeDivisi)->count(),
+                'total_dpakets' => \DB::table('d_paket')->where('kode_divisi', $kodeDivisi)->count(),
+            ];
 
             return response()->json([
                 'success' => true,
-                'message' => 'Kategori deleted successfully'
-            ], Response::HTTP_OK);
+                'data' => $stats,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete kategori',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'Gagal mengambil statistik kategori',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

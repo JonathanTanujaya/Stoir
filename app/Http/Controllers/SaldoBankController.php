@@ -2,72 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\SaldoBank;
 use Illuminate\Http\Request;
-use App\Models\SaldoBank; // Import model
+use Illuminate\Http\JsonResponse;
 
 class SaldoBankController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $items = SaldoBank::all();
-        return response()->json(['data' => $items]);
+        $saldoBanks = SaldoBank::with(['bank'])->get();
+        return response()->json($saldoBanks);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        $validatedData = $request->validate([
-            'KodeBank' => 'required|string|max:255',
-            'Tanggal' => 'required|date',
-            'SaldoAwal' => 'required|numeric',
+        // Return view for create form if needed
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'kode_bank' => 'required|string|max:10',
+            'tanggal' => 'required|date',
+            'saldo' => 'required|numeric'
         ]);
 
-        $item = SaldoBank::create($validatedData);
-
-        return response()->json(['message' => 'Item created successfully', 'data' => $item], 201);
+        $saldoBank = SaldoBank::create($request->all());
+        return response()->json($saldoBank, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
-        $item = SaldoBank::findOrFail($id);
-        return response()->json(['data' => $item]);
+        $saldoBank = SaldoBank::with(['bank'])
+            ->findOrFail($id);
+        return response()->json($saldoBank);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(string $id)
     {
-        $item = SaldoBank::findOrFail($id);
+        // Return view for edit form if needed
+    }
 
-        $validatedData = $request->validate([
-            'KodeBank' => 'required|string|max:255',
-            'Tanggal' => 'required|date',
-            'SaldoAwal' => 'required|numeric',
+    public function update(Request $request, string $id): JsonResponse
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'saldo' => 'required|numeric'
         ]);
 
-        $item->update($validatedData);
-
-        return response()->json(['message' => 'Item updated successfully', 'data' => $item]);
+        $saldoBank = SaldoBank::findOrFail($id);
+        $saldoBank->update($request->all());
+        return response()->json($saldoBank);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        $item = SaldoBank::findOrFail($id);
-        $item->delete();
+        $saldoBank = SaldoBank::findOrFail($id);
+        $saldoBank->delete();
+        return response()->json(['message' => 'SaldoBank deleted successfully']);
+    }
 
-        return response()->json(['message' => 'Item deleted successfully']);
+    public function getByBank($kodeDivisi, $kodeBank): JsonResponse
+    {
+        $saldoBanks = SaldoBank::where('kode_divisi', $kodeDivisi)
+            ->where('kode_bank', $kodeBank)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+        return response()->json($saldoBanks);
+    }
+
+    public function getLatest($kodeDivisi, $kodeBank): JsonResponse
+    {
+        $latestSaldo = SaldoBank::where('kode_divisi', $kodeDivisi)
+            ->where('kode_bank', $kodeBank)
+            ->orderBy('tanggal', 'desc')
+            ->first();
+        return response()->json($latestSaldo);
     }
 }

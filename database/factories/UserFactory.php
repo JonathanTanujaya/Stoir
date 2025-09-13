@@ -24,11 +24,10 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'kode_divisi' => 'SLS', // Default division for testing (max 5 chars)
+            'username' => substr(fake()->unique()->userName(), 0, 20), // Max 50 chars, but keep shorter for uniqueness
+            'nama' => substr(fake()->name(), 0, 50), // Max 50 chars
+            'password' => 'test123', // Plain text since field is only 50 chars
         ];
     }
 

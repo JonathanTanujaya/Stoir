@@ -2,125 +2,76 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MTT;
-use App\Models\MCust;
-use App\Models\DTT;
-use App\Models\Invoice;
-use App\Models\MSales;
-use App\Models\ReturnSales;
-use App\Models\ReturnSalesDetail;
-use App\Models\MBarang;
+use App\Models\MTt;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
-class MTTController extends Controller
+class MTtController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $mTts = MTt::with(['divisi', 'customer', 'dTts'])->get();
+        return response()->json($mTts);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        //
+        // Return view for create form if needed
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MTT $mTT)
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'no_tt' => 'required|string|max:20',
+            'tgl_tt' => 'required|date',
+            'kode_cust' => 'required|string|max:15',
+            'nilai' => 'required|numeric|min:0',
+            'status' => 'required|boolean'
+        ]);
+
+        $mTt = MTt::create($request->all());
+        return response()->json($mTt, 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MTT $mTT)
+    public function show(string $kodeDivisi, string $noTt): JsonResponse
     {
-        //
+        $mTt = MTt::with(['divisi', 'customer', 'dTts'])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('no_tt', $noTt)
+            ->firstOrFail();
+        return response()->json($mTt);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MTT $mTT)
+    public function edit(string $kodeDivisi, string $noTt)
     {
-        //
+        // Return view for edit form if needed
     }
 
-    public function getVTT()
+    public function update(Request $request, string $kodeDivisi, string $noTt): JsonResponse
     {
-        $vtt = MTT::leftJoin('m_cust', 'm_tt.KodeCust', '=', 'm_cust.KodeCust')
-            ->select(
-                'm_tt.NoTT',
-                'm_tt.Tanggal',
-                'm_tt.KodeCust',
-                'm_cust.NamaCust',
-                'm_tt.Keterangan'
-            )
-            ->get();
+        $request->validate([
+            'tgl_tt' => 'required|date',
+            'kode_cust' => 'required|string|max:15',
+            'nilai' => 'required|numeric|min:0',
+            'status' => 'required|boolean'
+        ]);
 
-        return response()->json($vtt);
+        $mTt = MTt::where('kode_divisi', $kodeDivisi)
+            ->where('no_tt', $noTt)
+            ->firstOrFail();
+        
+        $mTt->update($request->all());
+        return response()->json($mTt);
     }
 
-    public function getVTTInvoice()
+    public function destroy(string $kodeDivisi, string $noTt): JsonResponse
     {
-        $vttInvoice = MTT::join('d_tt', 'm_tt.NoTT', '=', 'd_tt.NoTT')
-            ->join('m_cust', 'm_tt.KodeCust', '=', 'm_cust.KodeCust')
-            ->join('invoice', 'd_tt.NoRef', '=', 'invoice.NoInvoice')
-            ->join('m_sales', 'invoice.KodeSales', '=', 'm_sales.KodeSales')
-            ->select(
-                'm_tt.NoTT',
-                'm_tt.Tanggal',
-                'm_tt.KodeCust',
-                'm_cust.NamaCust',
-                'm_tt.Keterangan',
-                'd_tt.NoRef',
-                'invoice.TglFaktur',
-                'm_sales.NamaSales',
-                'invoice.GrandTotal',
-                'invoice.SisaInvoice'
-            )
-            ->get();
-
-        return response()->json($vttInvoice);
-    }
-
-    public function getVTTRetur()
-    {
-        $vttRetur = MTT::join('m_cust', 'm_tt.KodeCust', '=', 'm_cust.KodeCust')
-            ->join('d_tt', 'm_tt.NoTT', '=', 'd_tt.NoTT')
-            ->join('return_sales', 'd_tt.NoRef', '=', 'return_sales.NoRetur')
-            ->join('return_sales_detail', function ($join) {
-                $join->on('return_sales.KodeDivisi', '=', 'return_sales_detail.KodeDivisi')
-                     ->on('return_sales.NoRetur', '=', 'return_sales_detail.NoRetur');
-            })
-            ->join('m_barang', function ($join) {
-                $join->on('return_sales_detail.KodeDivisi', '=', 'm_barang.KodeDivisi')
-                     ->on('return_sales_detail.KodeBarang', '=', 'm_barang.KodeBarang');
-            })
-            ->select(
-                'm_tt.NoTT',
-                'm_tt.Tanggal',
-                'm_tt.KodeCust',
-                'm_cust.NamaCust',
-                'd_tt.NoRef',
-                'return_sales.TglRetur',
-                'return_sales_detail.KodeBarang',
-                'm_barang.NamaBarang',
-                'return_sales_detail.QtyRetur',
-                'return_sales_detail.HargaNett',
-                'm_barang.merk',
-                'return_sales.Status'
-            )
-            ->get();
-
-        return response()->json($vttRetur);
+        $mTt = MTt::where('kode_divisi', $kodeDivisi)
+            ->where('no_tt', $noTt)
+            ->firstOrFail();
+        
+        $mTt->delete();
+        return response()->json(['message' => 'MTt deleted successfully']);
     }
 }

@@ -2,100 +2,56 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MResi extends Model
 {
-    use HasFactory;
-
     protected $table = 'm_resi';
-    protected $primaryKey = ['kodedivisi', 'noresi'];
     public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'kodedivisi',
-        'noresi',
-        'norekeningtujuan',
-        'tglpembayaran',
-        'kodecust',
-        'jumlah',
-        'sisaresi',
-        'keterangan',
+        'kode_divisi',
+        'no_resi',
+        'tgl_resi',
+        'kode_cust',
+        'no_rekening_tujuan',
+        'nilai',
         'status'
     ];
 
     protected $casts = [
-        'tglpembayaran' => 'date',
-        'jumlah' => 'decimal:4',
-        'sisaresi' => 'decimal:4'
+        'tgl_resi' => 'date',
+        'nilai' => 'decimal:2',
+        'status' => 'boolean'
     ];
 
-    // Override methods for composite keys
-    public function getKeyName()
+    public function divisi(): BelongsTo
     {
-        return $this->primaryKey;
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
-    public function getKey()
+    public function customer(): BelongsTo
     {
-        $keys = [];
-        foreach ($this->getKeyName() as $key) {
-            $keys[$key] = $this->getAttribute($key);
-        }
-        return $keys;
+        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    protected function setKeysForSaveQuery($query)
+    public function detailBank(): BelongsTo
     {
-        foreach ($this->getKeyName() as $key) {
-            $query->where($key, '=', $this->getAttribute($key));
-        }
-        return $query;
+        return $this->belongsTo(DetailBank::class, 'no_rekening_tujuan', 'no_rekening')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    // Relationships
-    public function customer()
+    public function penerimaanFinanceDetails(): HasMany
     {
-        return $this->belongsTo(MCust::class, ['kodedivisi', 'kodecust'], ['kodedivisi', 'kodecust']);
+        return $this->hasMany(PenerimaanFinanceDetail::class, ['kode_divisi', 'no_resi'], ['kode_divisi', 'no_resi']);
     }
 
-    // Scopes
-    public function scopeByCustomer($query, $kodeDivisi, $kodeCust)
+    public function getKeyName(): array
     {
-        return $query->where('kodedivisi', $kodeDivisi)
-                    ->where('kodecust', $kodeCust);
-    }
-
-    public function scopeByPeriod($query, $startDate, $endDate)
-    {
-        return $query->whereBetween('tglpembayaran', [$startDate, $endDate]);
-    }
-
-    public function scopeFinished($query)
-    {
-        return $query->where('status', 'Finish');
-    }
-
-    public function scopeHasSisa($query)
-    {
-        return $query->where('sisaresi', '>', 0);
-    }
-
-    // Helper methods
-    public function isFinished()
-    {
-        return $this->status === 'Finish';
-    }
-
-    public function hasSisa()
-    {
-        return $this->sisaresi > 0;
-    }
-
-    public function getTotalPaid()
-    {
-        return $this->jumlah - $this->sisaresi;
+        return ['kode_divisi', 'no_resi'];
     }
 }

@@ -2,369 +2,198 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-// Authentication Controller
-use App\Http\Controllers\AuthController;
-
-// Master Data Controllers
-use App\Http\Controllers\AreaController;
-use App\Http\Controllers\KategoriController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\CustomersController;
-use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\MasterUserController;
-use App\Http\Controllers\MBankController;
-use App\Http\Controllers\MCOAController;
-use App\Http\Controllers\MDivisiController;
-use App\Http\Controllers\MDokumenController;
-use App\Http\Controllers\UserModuleController;
-use App\Http\Controllers\MResiController;
-use App\Http\Controllers\MTTController;
-use App\Http\Controllers\MTransController;
-use App\Http\Controllers\MVoucherController;
-use App\Http\Controllers\SalesController;
+use App\Http\Controllers\DivisiController;
+use App\Http\Controllers\BankController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\TmpPrintInvoiceController;
-use App\Http\Controllers\TmpPrintTTController;
-use App\Http\Controllers\KartuStokController;
-use App\Http\Controllers\SaldoBankController;
-
-// Transaction Controllers
-use App\Http\Controllers\ClaimController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\JournalController;
-use App\Http\Controllers\PartPenerimaanController;
-use App\Http\Controllers\PartPenerimaanBonusController;
-use App\Http\Controllers\PenerimaanFinanceController;
-use App\Http\Controllers\ReturnSalesController;
-use App\Http\Controllers\SPVController;
-use App\Http\Controllers\StokClaimController;
-use App\Http\Controllers\OpnameController;
-// Return/Retur controllers
-use App\Http\Controllers\ReturPembelianController;
-use App\Http\Controllers\ReturPenjualanController;
-use App\Http\Controllers\PurchasesController;
-use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProcedureController;
+use App\Http\Controllers\DPaketController;
+use App\Http\Controllers\DTtController;
+use App\Http\Controllers\DVoucherController;
+use App\Http\Controllers\MDokumenController;
+use App\Http\Controllers\MResiController;
+use App\Http\Controllers\MTtController;
+use App\Http\Controllers\MVoucherController;
+use App\Http\Controllers\PenerimaanFinanceController;
+use App\Http\Controllers\PenerimaanFinanceDetailController;
+use App\Http\Controllers\ReturPenerimaanController;
+use App\Http\Controllers\ReturPenerimaanDetailController;
+use App\Http\Controllers\ReturnSalesController;
+use App\Http\Controllers\ReturnSalesDetailController;
+use App\Http\Controllers\SaldoBankController;
+use App\Http\Controllers\StokMinimumController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\InvoiceDetailController;
+use App\Http\Controllers\PartPenerimaanDetailController;
+use App\Http\Controllers\DBankController;
+use App\Http\Controllers\DBarangController;
+use App\Http\Controllers\DatabaseTestController;
 
-// Global Search Controller
-use App\Http\Controllers\Api\GlobalSearchController;
-
-// ===========================
-// AUTHENTICATION ROUTES (PUBLIC FOR DEVELOPMENT)
-// ===========================
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::post('auth/register', [AuthController::class, 'register']); // Removed middleware for development
-Route::post('auth/logout', [AuthController::class, 'logout']); // Made public for development
-Route::get('auth/me', [AuthController::class, 'me']); // Made public for development
-
-// ===========================
-// GLOBAL SEARCH ROUTES
-// ===========================
-Route::prefix('search')->group(function () {
-    Route::get('/', [GlobalSearchController::class, 'search']);
-    Route::get('/suggestions', [GlobalSearchController::class, 'suggestions']);
-    Route::get('/analytics', [GlobalSearchController::class, 'analytics']);
-    Route::post('/clear-cache', [GlobalSearchController::class, 'clearCache']);
-});
-Route::post('auth/change-password', [AuthController::class, 'changePassword']); // Made public for development
-
-// ===========================
-// PUBLIC ROUTES FOR DEVELOPMENT
-// ===========================
-Route::get('categories', [CategoriesController::class, 'index']);
-Route::post('categories', [CategoriesController::class, 'store']);
-Route::get('categories/{id}', [CategoriesController::class, 'show']);
-Route::put('categories/{id}', [CategoriesController::class, 'update']);
-Route::delete('categories/{id}', [CategoriesController::class, 'destroy']);
-
-Route::get('customers', [CustomersController::class, 'index']);
-Route::post('customers', [CustomersController::class, 'store']);
-Route::get('customers/{id}', [CustomersController::class, 'show']);
-Route::put('customers/{id}', [CustomersController::class, 'update']);
-Route::delete('customers/{id}', [CustomersController::class, 'destroy']);
-
-Route::get('suppliers', [SuppliersController::class, 'index']);
-Route::post('suppliers', [SuppliersController::class, 'store']);
-Route::get('suppliers/{id}', [SuppliersController::class, 'show']);
-Route::put('suppliers/{id}', [SuppliersController::class, 'update']);
-Route::delete('suppliers/{id}', [SuppliersController::class, 'destroy']);
-
-Route::get('master-barang', [BarangController::class, 'index']);
-Route::get('master-barang/search', [BarangController::class, 'search']);
-
-Route::get('invoices', [InvoiceController::class, 'index']);
-Route::get('sales', [SalesController::class, 'index']);
-
-// ===========================
-// USER ROUTES (PUBLIC FOR DEVELOPMENT)
-// ===========================
 Route::get('/user', function (Request $request) {
-    // Return dummy user for development
-    return response()->json([
-        'id' => 1,
-        'name' => 'Development User',
-        'email' => 'dev@stockflow.com',
-        'role' => 'admin'
-    ]);
+    return $request->user();
+})->middleware('auth:sanctum');
+
+// PUBLIC: Reports (read-only)
+Route::prefix('reports')->group(function () {
+    Route::get('/bank', [ReportController::class, 'getBankReport']);
+    Route::get('/barang', [ReportController::class, 'getBarangReport']);
+    Route::get('/invoice', [ReportController::class, 'getInvoiceReport']);
+    Route::get('/invoice-header', [ReportController::class, 'getInvoiceHeaderReport']);
+    Route::get('/kartu-stok', [ReportController::class, 'getKartuStokReport']);
+    Route::get('/part-penerimaan', [ReportController::class, 'getPartPenerimaanReport']);
+    Route::get('/penerimaan-finance', [ReportController::class, 'getPenerimaanFinanceReport']);
+    Route::get('/return-sales-detail', [ReportController::class, 'getReturnSalesDetailReport']);
+    Route::get('/stok-summary', [ReportController::class, 'stokSummary']);
+    Route::get('/financial', [ReportController::class, 'financialReport']);
+    Route::get('/aging', [ReportController::class, 'agingReport']);
+    Route::get('/sales-summary', [ReportController::class, 'salesSummary']);
+    Route::get('/return-summary', [ReportController::class, 'returnSummary']);
+    Route::get('/dashboard-kpi', [ReportController::class, 'dashboardKpi']);
+    Route::get('/journal', [ReportController::class, 'getJournalReport']);
+    Route::get('/tt', [ReportController::class, 'getTtReport']);
+    Route::get('/voucher', [ReportController::class, 'getVoucherReport']);
 });
 
-// ===========================
-// MASTER DATA ROUTES
-// ===========================
-
-// Area routes with composite keys
-Route::get('areas', [AreaController::class, 'index']);
-Route::post('areas', [AreaController::class, 'store']);
-Route::get('areas/{kodeDivisi}', [AreaController::class, 'showByDivisi']); 
-Route::get('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'show']);
-Route::put('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'update']);
-Route::delete('areas/{kodeDivisi}/{kodeArea}', [AreaController::class, 'destroy']);
-
-// Customer routes with composite keys - COMMENTED OUT DUE TO ROUTE CONFLICT
-// Route::get('customers', [CustomerController::class, 'index']);
-// Route::post('customers', [CustomerController::class, 'store']);
-// Route::get('customers/{kodeDivisi}', [CustomerController::class, 'showByDivisi']); 
-// Route::get('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'show']);
-// Route::put('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'update']);
-// Route::delete('customers/{kodeDivisi}/{kodeCust}', [CustomerController::class, 'destroy']);
-
-// Sales routes with composite keys
-Route::get('sales', [SalesController::class, 'index']);
-Route::post('sales', [SalesController::class, 'store']);
-Route::get('sales/{kodeDivisi}', [SalesController::class, 'showByDivisi']); 
-Route::get('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'show']);
-Route::put('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'update']);
-Route::delete('sales/{kodeDivisi}/{kodeSales}', [SalesController::class, 'destroy']);
-
-// Sales Transaction/Form specific routes
-// Route::get('customers', [InvoiceController::class, 'getCustomers']); // COMMENTED OUT DUE TO ROUTE CONFLICT
-Route::get('sales-persons', [InvoiceController::class, 'getSalesPersons']);
-Route::get('barang', [InvoiceController::class, 'getBarang']);
-Route::get('sales/transactions', [InvoiceController::class, 'index']);
-Route::post('sales/transactions', [InvoiceController::class, 'store']);
-Route::get('sales/transactions/{id}', [InvoiceController::class, 'show']);
-
-// Master Supplier routes with composite keys
-Route::get('master-suppliers', [SupplierController::class, 'index']);
-Route::post('master-suppliers', [SupplierController::class, 'store']);
-Route::get('master-suppliers/{kodeDivisi}', [SupplierController::class, 'showByDivisi']); 
-Route::get('master-suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'show']);
-Route::put('master-suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'update']);
-Route::delete('master-suppliers/{kodeDivisi}/{kodeSupplier}', [SupplierController::class, 'destroy']);
-
-// Kategori routes
-Route::get('kategoris', [KategoriController::class, 'index']);
-// Route::get('categories', [KategoriController::class, 'index']); // Alias - DISABLED, use CategoriesController instead
-Route::post('kategoris', [KategoriController::class, 'store']);
-Route::get('kategoris/{kodeDivisi}', [KategoriController::class, 'showByDivisi']); 
-Route::get('kategoris/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'show']);
-Route::put('kategoris/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'update']);
-Route::delete('kategoris/{kodeDivisi}/{kodeKategori}', [KategoriController::class, 'destroy']);
-
-// Master User routes
-Route::get('master-users', [MasterUserController::class, 'index']);
-Route::get('users', [MasterUserController::class, 'index']); // Alias
-Route::post('master-users', [MasterUserController::class, 'store']);
-Route::get('master-users/{kodeDivisi}', [MasterUserController::class, 'showByDivisi']); 
-Route::get('master-users/{kodeDivisi}/{username}', [MasterUserController::class, 'show']);
-Route::put('master-users/{kodeDivisi}/{username}', [MasterUserController::class, 'update']);
-Route::delete('master-users/{kodeDivisi}/{username}', [MasterUserController::class, 'destroy']);
-
-// Bank routes
-Route::get('banks', [MBankController::class, 'index']);
-Route::post('banks', [MBankController::class, 'store']);
-Route::get('banks/{kodeDivisi}', [MBankController::class, 'showByDivisi']); 
-Route::get('banks/{kodeDivisi}/{kodeBank}', [MBankController::class, 'show']);
-Route::put('banks/{kodeDivisi}/{kodeBank}', [MBankController::class, 'update']);
-Route::delete('banks/{kodeDivisi}/{kodeBank}', [MBankController::class, 'destroy']);
-
-// COA routes
-Route::get('coas', [MCOAController::class, 'index']);
-Route::post('coas', [MCOAController::class, 'store']);
-Route::get('coas/{kodeDivisi}', [MCOAController::class, 'showByDivisi']); 
-Route::get('coas/{kodeDivisi}/{kodeCOA}', [MCOAController::class, 'show']);
-Route::put('coas/{kodeDivisi}/{kodeCOA}', [MCOAController::class, 'update']);
-Route::delete('coas/{kodeDivisi}/{kodeCOA}', [MCOAController::class, 'destroy']);
-
-// Divisi routes
-Route::get('divisis', [MDivisiController::class, 'index']);
-Route::get('divisions', [MDivisiController::class, 'index']); // Alias
-Route::post('divisis', [MDivisiController::class, 'store']);
-Route::get('divisis/{kodeDivisi}', [MDivisiController::class, 'show']);
-Route::put('divisis/{kodeDivisi}', [MDivisiController::class, 'update']);
-Route::delete('divisis/{kodeDivisi}', [MDivisiController::class, 'destroy']);
-
-// Sparepart routes (from d_barang table)
-Route::get('spareparts', [SparepartController::class, 'index']);
-Route::post('spareparts', [SparepartController::class, 'store']);
-Route::get('spareparts/search', [SparepartController::class, 'search']);
-Route::get('spareparts/{kodeDivisi}/{kodeBarang}/{id}', [SparepartController::class, 'show']);
-Route::put('spareparts/{kodeDivisi}/{kodeBarang}/{id}', [SparepartController::class, 'update']);
-Route::delete('spareparts/{kodeDivisi}/{kodeBarang}/{id}', [SparepartController::class, 'destroy']);
-
-// ===========================
-// TRANSACTION ROUTES
-// ===========================
-
-// Invoice routes
-Route::get('invoices', [InvoiceController::class, 'index']);
-Route::post('invoices', [InvoiceController::class, 'store']);
-Route::get('invoices/{id}', [InvoiceController::class, 'show']);
-Route::put('invoices/{id}', [InvoiceController::class, 'update']);
-Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
-
-// Part Penerimaan routes (Modern API with Stored Procedures)
-Route::prefix('part-penerimaan')->group(function () {
-    Route::get('/', [PartPenerimaanController::class, 'index']);
-    Route::post('/', [PartPenerimaanController::class, 'store']);
-    Route::get('/generate-number', [PartPenerimaanController::class, 'generateNumber']);
-    Route::get('/suppliers', [PartPenerimaanController::class, 'getSuppliers']);
-    Route::get('/products', [PartPenerimaanController::class, 'getProducts']);
-    Route::get('/summary', [PartPenerimaanController::class, 'getSummary']);
-    Route::get('/{kodeDivisi}/{noPenerimaan}', [PartPenerimaanController::class, 'show']);
-    Route::patch('/{kodeDivisi}/{noPenerimaan}/status', [PartPenerimaanController::class, 'updateStatus']);
+// PUBLIC: Procedure endpoints (mutating business logic)
+Route::prefix('procedures')->group(function () {
+    Route::post('/invoice', [ProcedureController::class, 'createInvoice']);
+    Route::post('/part-penerimaan', [ProcedureController::class, 'createPartPenerimaan']);
+    Route::post('/retur-sales', [ProcedureController::class, 'createReturSales']);
+    Route::post('/batalkan-invoice', [ProcedureController::class, 'batalkanInvoice']);
+    Route::post('/stok-opname', [ProcedureController::class, 'stokOpname']);
+    Route::post('/generate-nomor', [ProcedureController::class, 'generateNomor']);
+    Route::post('/master-resi', [ProcedureController::class, 'createMasterResi']);
+    Route::post('/tambah-saldo', [ProcedureController::class, 'tambahSaldo']);
+    Route::post('/tanda-terima', [ProcedureController::class, 'createTandaTerima']);
+    Route::post('/voucher', [ProcedureController::class, 'createVoucher']);
+    Route::post('/merge-barang', [ProcedureController::class, 'mergeBarang']);
+    Route::post('/journal-invoice', [ProcedureController::class, 'journalInvoice']);
+    Route::post('/journal-retur-sales', [ProcedureController::class, 'journalReturSales']);
+    Route::post('/journal-penerimaan', [ProcedureController::class, 'journalPenerimaan']);
 });
 
-// Purchases routes (Modern API)
-Route::get('purchases', [PurchasesController::class, 'index']);
-Route::post('purchases', [PurchasesController::class, 'store']);
-Route::get('purchases/check-invoice', [PurchasesController::class, 'checkInvoice']);
-Route::get('purchases/{id}', [PurchasesController::class, 'show']);
-Route::delete('purchases/{id}', [PurchasesController::class, 'destroy']);
+// PUBLIC: Core routes (full CRUD where applicable)
+// Divisi
+Route::get('divisi/stats', [DivisiController::class, 'stats']);
+Route::apiResource('divisi', DivisiController::class)
+    ->parameters(['divisi' => 'kodeDivisi']);
 
-// Return Pembelian routes
-Route::get('return-purchases', [ReturPembelianController::class, 'index']);
-Route::post('return-purchases', [ReturPembelianController::class, 'store']);
-Route::get('return-purchases/purchases', [ReturPembelianController::class, 'getPurchases']);
-Route::get('return-purchases/purchase-details/{purchaseId}', [ReturPembelianController::class, 'getPurchaseDetails']);
+// Nested under divisi (read-only)
+Route::prefix('divisi/{kodeDivisi}')->group(function () {
+    // Banks
+    Route::apiResource('banks', BankController::class)
+        ->parameters(['banks' => 'kodeBank']);
 
-// Return Penjualan routes
-Route::get('return-sales', [ReturPenjualanController::class, 'index']);
-Route::post('return-sales', [ReturPenjualanController::class, 'store']);
-Route::get('return-sales/invoices', [ReturPenjualanController::class, 'getInvoices']);
-Route::get('return-sales/invoice-details/{invoiceNumber}', [ReturPenjualanController::class, 'getInvoiceDetails']);
-Route::get('return-sales/customers', [ReturPenjualanController::class, 'getCustomers']);
+    // Areas
+    Route::get('areas/stats', [AreaController::class, 'stats']);
+    Route::apiResource('areas', AreaController::class)
+        ->parameters(['areas' => 'kodeArea']);
 
-// Penerimaan Finance routes
-Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']); // Limited untuk testing Laravel
-Route::get('penerimaan-finance/all', [PenerimaanFinanceController::class, 'getAllForFrontend']); // Semua data untuk frontend
-Route::post('penerimaan-finance', [PenerimaanFinanceController::class, 'store']);
-Route::get('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'show']);
-Route::put('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'update']);
-Route::delete('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'destroy']);
+    // Kategoris
+    Route::get('kategoris/stats', [KategoriController::class, 'stats']);
+    Route::apiResource('kategoris', KategoriController::class)
+        ->parameters(['kategoris' => 'kodeKategori']);
 
-// ===========================
-// JOURNAL & REPORTING ROUTES
-// ===========================
+    // Sales
+    Route::apiResource('sales', SalesController::class)
+        ->parameters(['sales' => 'kodeSales']);
+    Route::get('sales/{kodeSales}/stats', [SalesController::class, 'getSalesStats']);
 
-// Journal routes
-Route::get('journals', [JournalController::class, 'index']); // Limited untuk testing Laravel
-Route::get('journals/all', [JournalController::class, 'getAllForFrontend']); // Semua data untuk frontend
-Route::post('journals', [JournalController::class, 'store']);
-Route::get('journals/{id}', [JournalController::class, 'show']);
-Route::put('journals/{id}', [JournalController::class, 'update']);
-Route::delete('journals/{id}', [JournalController::class, 'destroy']);
+    // Customers
+    Route::apiResource('customers', CustomerController::class)
+        ->parameters(['customers' => 'kodeCust']);
+    Route::get('customers/{kodeCust}/credit-info', [CustomerController::class, 'getCreditInfo']);
+    Route::get('areas/{kodeArea}/customers', [CustomerController::class, 'getByArea']);
+    Route::get('sales/{kodeSales}/customers', [CustomerController::class, 'getBySales']);
 
-// Kartu Stok routes
-Route::get('kartu-stok', [KartuStokController::class, 'index']); // Limited untuk testing Laravel
-Route::get('kartu-stok/all', [KartuStokController::class, 'getAllForFrontend']); // Semua data untuk frontend
-Route::post('kartu-stok', [KartuStokController::class, 'store']);
-Route::get('kartu-stok/{id}', [KartuStokController::class, 'show']);
-Route::put('kartu-stok/{id}', [KartuStokController::class, 'update']);
-Route::delete('kartu-stok/{id}', [KartuStokController::class, 'destroy']);
-Route::get('kartu-stok/by-barang/{kodeDivisi}/{kodeBarang}', [KartuStokController::class, 'getByBarang']);
+    // Suppliers
+    Route::apiResource('suppliers', SupplierController::class)
+        ->parameters(['suppliers' => 'kodeSupplier']);
+    Route::get('suppliers/{kodeSupplier}/stats', [SupplierController::class, 'getSupplierStats']);
 
-// Company routes
-Route::get('companies', [CompanyController::class, 'index']);
-Route::post('companies', [CompanyController::class, 'store']);
-Route::get('companies/{id}', [CompanyController::class, 'show']);
-Route::put('companies/{id}', [CompanyController::class, 'update']);
-Route::delete('companies/{id}', [CompanyController::class, 'destroy']);
+    // Barangs
+    Route::apiResource('barangs', BarangController::class)
+        ->parameters(['barangs' => 'kodeBarang']);
+    Route::get('barangs/{kodeBarang}/stock-info', [BarangController::class, 'getStockInfo']);
+    Route::get('categories', [BarangController::class, 'getCategories']);
 
-// Tmp Print Invoice routes
-Route::get('tmp-print-invoices', [TmpPrintInvoiceController::class, 'index']);
-Route::post('tmp-print-invoices', [TmpPrintInvoiceController::class, 'store']);
-Route::get('tmp-print-invoices/{id}', [TmpPrintInvoiceController::class, 'show']);
-Route::put('tmp-print-invoices/{id}', [TmpPrintInvoiceController::class, 'update']);
-Route::delete('tmp-print-invoices/{id}', [TmpPrintInvoiceController::class, 'destroy']);
+    // Invoices
+    Route::apiResource('invoices', InvoiceController::class)
+        ->parameters(['invoices' => 'noInvoice']);
+    Route::get('invoices-summary', [InvoiceController::class, 'getSummary']);
+    Route::patch('invoices/{noInvoice}/cancel', [InvoiceController::class, 'cancel']);
 
-// Opname routes
-Route::get('opnames', [OpnameController::class, 'index']);
-Route::post('opnames', [OpnameController::class, 'store']);
-Route::get('opnames/{id}', [OpnameController::class, 'show']);
-Route::put('opnames/{id}', [OpnameController::class, 'update']);
-Route::delete('opnames/{id}', [OpnameController::class, 'destroy']);
+    // Invoice details (nested)
+    Route::prefix('invoices/{noInvoice}')->group(function () {
+        Route::apiResource('details', InvoiceDetailController::class);
+        Route::get('details-stats', [InvoiceDetailController::class, 'stats']);
+    });
 
-// Dokumen routes
-Route::get('dokumens', [MDokumenController::class, 'index']);
-Route::get('documents', [MDokumenController::class, 'index']); // Alias
-Route::post('dokumens', [MDokumenController::class, 'store']);
-Route::get('dokumens/{kodeDivisi}', [MDokumenController::class, 'showByDivisi']); 
-Route::get('dokumens/{kodeDivisi}/{kodeDokumen}', [MDokumenController::class, 'show']);
-Route::put('dokumens/{kodeDivisi}/{kodeDokumen}', [MDokumenController::class, 'update']);
-Route::delete('dokumens/{kodeDivisi}/{kodeDokumen}', [MDokumenController::class, 'destroy']);
+    // Saldo Banks
+    Route::apiResource('saldo-banks', SaldoBankController::class);
+    Route::get('saldo-banks/bank/{kodeBank}', [SaldoBankController::class, 'getByBank']);
+    Route::get('saldo-banks/bank/{kodeBank}/latest', [SaldoBankController::class, 'getLatest']);
+});
 
-// Module routes
-Route::get('user-modules', [UserModuleController::class, 'index']);
-Route::get('modules', [UserModuleController::class, 'index']); // Alias
-Route::post('user-modules', [UserModuleController::class, 'store']);
-Route::get('user-modules/{kodeDivisi}', [UserModuleController::class, 'showByDivisi']); 
-Route::get('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'show']);
-Route::put('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'update']);
-Route::delete('user-modules/{kodeDivisi}/{kodeModule}', [UserModuleController::class, 'destroy']);
+// AUTHENTICATED: Database Testing only
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('test')->group(function () {
+        Route::get('/connection', [DatabaseTestController::class, 'testConnection']);
+        Route::get('/views', [DatabaseTestController::class, 'testViews']);
+        Route::get('/procedures', [DatabaseTestController::class, 'testProcedures']);
+        Route::get('/foreign-keys', [DatabaseTestController::class, 'testForeignKeys']);
+        Route::get('/models', [DatabaseTestController::class, 'testModelRelationships']);
+        Route::get('/full', [DatabaseTestController::class, 'fullTest']);
+    });
+});
 
-// Return Sales routes - handled by ReturPenjualanController above
+// PUBLIC: Additional modules (full CRUD)
+Route::prefix('divisi/{kodeDivisi}')->group(function () {
+    Route::apiResource('dpakets', DPaketController::class);
+    Route::apiResource('dtts', DTtController::class);
+    Route::apiResource('dvouchers', DVoucherController::class);
+    Route::apiResource('mdokumens', MDokumenController::class);
+    Route::apiResource('mresis', MResiController::class);
+    Route::apiResource('mtts', MTtController::class);
+    Route::apiResource('mvouchers', MVoucherController::class);
+    Route::apiResource('penerimaan-finances', PenerimaanFinanceController::class);
+    Route::apiResource('penerimaan-finance-details', PenerimaanFinanceDetailController::class);
+    Route::apiResource('retur-penerimaans', ReturPenerimaanController::class);
+    Route::prefix('retur-penerimaan/{noRetur}')->group(function () {
+        Route::apiResource('details', ReturPenerimaanDetailController::class);
+        Route::get('details-stats', [ReturPenerimaanDetailController::class, 'stats']);
+    });
+    Route::apiResource('return-sales', ReturnSalesController::class);
+    Route::prefix('return-sales/{noRetur}')->group(function () {
+        Route::apiResource('details', ReturnSalesDetailController::class);
+        Route::get('details-stats', [ReturnSalesDetailController::class, 'stats']);
+    });
+    Route::apiResource('stok-minimums', StokMinimumController::class);
+    Route::apiResource('users', UserController::class)->parameters(['users' => 'username']);
+    Route::get('users-stats', [UserController::class, 'stats']);
 
-// Invoice Details routes (assume handled by InvoiceController)
-Route::get('invoice-details', [InvoiceController::class, 'getAllDetails']);
-Route::get('invoices/{invoiceId}/details', [InvoiceController::class, 'getDetails']);
+    // Part Penerimaan Detail routes (limited in controller)
+    Route::prefix('part-penerimaan/{noPenerimaan}')->group(function () {
+        Route::get('details', [PartPenerimaanDetailController::class, 'index']);
+        Route::post('details', [PartPenerimaanDetailController::class, 'store']);
+        Route::get('details-stats', [PartPenerimaanDetailController::class, 'stats']);
+        Route::delete('details-bulk', [PartPenerimaanDetailController::class, 'bulkDelete']);
+    });
 
-// Additional Finance routes
-Route::get('penerimaan-finance', [PenerimaanFinanceController::class, 'index']);
-Route::get('penerimaan-finance/all', [PenerimaanFinanceController::class, 'getAllForFrontend']);
-Route::post('penerimaan-finance', [PenerimaanFinanceController::class, 'store']);
-Route::get('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'show']);
-Route::put('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'update']);
-Route::delete('penerimaan-finance/{id}', [PenerimaanFinanceController::class, 'destroy']);
+    // Bank Account Detail routes
+    Route::apiResource('bank-accounts', DBankController::class)->parameters(['bank-accounts' => 'noRekening']);
+    Route::get('bank-accounts-statistics', [DBankController::class, 'statistics']);
 
-// Saldo Bank routes  
-Route::get('saldo-bank', [SaldoBankController::class, 'index']);
-Route::post('saldo-bank', [SaldoBankController::class, 'store']);
-Route::get('saldo-bank/{id}', [SaldoBankController::class, 'show']);
-Route::put('saldo-bank/{id}', [SaldoBankController::class, 'update']);
-Route::delete('saldo-bank/{id}', [SaldoBankController::class, 'destroy']);
+    // Barang Detail routes
+    Route::prefix('barangs/{kodeBarang}')->group(function () {
+        Route::apiResource('details', DBarangController::class);
+        Route::get('details-statistics', [DBarangController::class, 'statistics']);
+    });
+});
 
-// Stock Claim routes
-Route::get('stok-claims', [StokClaimController::class, 'index']);
-Route::post('stok-claims', [StokClaimController::class, 'store']);
-Route::get('stok-claims/{id}', [StokClaimController::class, 'show']);
-Route::put('stok-claims/{id}', [StokClaimController::class, 'update']);
-Route::delete('stok-claims/{id}', [StokClaimController::class, 'destroy']);
-
-// TmpPrintTT routes
-Route::get('tmp-print-tt', [TmpPrintTTController::class, 'index']);
-Route::post('tmp-print-tt', [TmpPrintTTController::class, 'store']);
-Route::get('tmp-print-tt/{id}', [TmpPrintTTController::class, 'show']);
-Route::put('tmp-print-tt/{id}', [TmpPrintTTController::class, 'update']);
-Route::delete('tmp-print-tt/{id}', [TmpPrintTTController::class, 'destroy']);
-
-// M Resi routes
-Route::get('resi', [MResiController::class, 'index']);
-Route::get('m-resi', [MResiController::class, 'index']); // Alias
-Route::post('resi', [MResiController::class, 'store']);
-Route::get('resi/{kodeDivisi}/{noResi}', [MResiController::class, 'show']);
-Route::put('resi/{kodeDivisi}/{noResi}', [MResiController::class, 'update']);
-Route::delete('resi/{kodeDivisi}/{noResi}', [MResiController::class, 'destroy']);
-
-// SPV routes  
-Route::get('spv', [SPVController::class, 'index']);
-Route::post('spv', [SPVController::class, 'store']);
-Route::get('spv/{id}', [SPVController::class, 'show']);
-Route::put('spv/{id}', [SPVController::class, 'update']);
-Route::delete('spv/{id}', [SPVController::class, 'destroy']);
-
-// Additional view routes for Return Sales
-Route::get('v-cust-retur', [ReturnSalesController::class, 'getVCustRetur']);
-Route::get('v-return-sales-detail', [ReturnSalesController::class, 'getVReturnSalesDetail']);

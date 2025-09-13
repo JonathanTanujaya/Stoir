@@ -2,72 +2,78 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\ReturPenerimaan;
 use Illuminate\Http\Request;
-use App\Models\ReturPenerimaan; // Import model
+use Illuminate\Http\JsonResponse;
 
 class ReturPenerimaanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $items = ReturPenerimaan::all();
-        return response()->json(['data' => $items]);
+        $returPenerimaans = ReturPenerimaan::with(['divisi', 'supplier', 'partPenerimaan', 'returPenerimaanDetails'])->get();
+        return response()->json($returPenerimaans);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        $validatedData = $request->validate([
-            'NoRetur' => 'required|string|max:255|unique:retur_penerimaan,NoRetur',
-            'TglRetur' => 'required|date',
-            'Keterangan' => 'nullable|string|max:255',
+        // Return view for create form if needed
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'no_retur_penerimaan' => 'required|string|max:20',
+            'tgl_retur' => 'required|date',
+            'kode_supplier' => 'required|string|max:15',
+            'no_penerimaan' => 'required|string|max:20',
+            'nilai' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:255'
         ]);
 
-        $item = ReturPenerimaan::create($validatedData);
-
-        return response()->json(['message' => 'Item created successfully', 'data' => $item], 201);
+        $returPenerimaan = ReturPenerimaan::create($request->all());
+        return response()->json($returPenerimaan, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $kodeDivisi, string $noReturPenerimaan): JsonResponse
     {
-        $item = ReturPenerimaan::findOrFail($id);
-        return response()->json(['data' => $item]);
+        $returPenerimaan = ReturPenerimaan::with(['divisi', 'supplier', 'partPenerimaan', 'returPenerimaanDetails'])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('no_retur_penerimaan', $noReturPenerimaan)
+            ->firstOrFail();
+        return response()->json($returPenerimaan);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(string $kodeDivisi, string $noReturPenerimaan)
     {
-        $item = ReturPenerimaan::findOrFail($id);
+        // Return view for edit form if needed
+    }
 
-        $validatedData = $request->validate([
-            'NoRetur' => 'required|string|max:255|unique:retur_penerimaan,NoRetur,' . $id . ',ID',
-            'TglRetur' => 'required|date',
-            'Keterangan' => 'nullable|string|max:255',
+    public function update(Request $request, string $kodeDivisi, string $noReturPenerimaan): JsonResponse
+    {
+        $request->validate([
+            'tgl_retur' => 'required|date',
+            'kode_supplier' => 'required|string|max:15',
+            'no_penerimaan' => 'required|string|max:20',
+            'nilai' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:255'
         ]);
 
-        $item->update($validatedData);
-
-        return response()->json(['message' => 'Item updated successfully', 'data' => $item]);
+        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
+            ->where('no_retur_penerimaan', $noReturPenerimaan)
+            ->firstOrFail();
+        
+        $returPenerimaan->update($request->all());
+        return response()->json($returPenerimaan);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $kodeDivisi, string $noReturPenerimaan): JsonResponse
     {
-        $item = ReturPenerimaan::findOrFail($id);
-        $item->delete();
-
-        return response()->json(['message' => 'Item deleted successfully']);
+        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
+            ->where('no_retur_penerimaan', $noReturPenerimaan)
+            ->firstOrFail();
+        
+        $returPenerimaan->delete();
+        return response()->json(['message' => 'ReturPenerimaan deleted successfully']);
     }
 }

@@ -2,25 +2,46 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DPaket extends Model
 {
-    use HasFactory;
-
     protected $table = 'd_paket';
-    protected $primaryKey = 'id';
-    public $incrementing = true;
+    public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'KodeDivisi',
-        'KodePaket',
-        'KodeKategori',
-        'QtyMin',
-        'QtyMax',
-        'Diskon1',
-        'Diskon2',
+        'kode_divisi',
+        'kode_paket',
+        'kode_barang',
+        'kode_kategori',
+        'qty'
     ];
+
+    protected $casts = [
+        'qty' => 'integer'
+    ];
+
+    public function divisi(): BelongsTo
+    {
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
+    }
+
+    public function barang(): BelongsTo
+    {
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')
+            ->where('kode_divisi', $this->kode_divisi);
+    }
+
+    public function kategori(): BelongsTo
+    {
+        return $this->belongsTo(Kategori::class, 'kode_kategori', 'kode_kategori')
+            ->where('kode_divisi', $this->kode_divisi);
+    }
+
+    public function getKeyName(): array
+    {
+        return ['kode_divisi', 'kode_paket', 'kode_barang'];
+    }
 }

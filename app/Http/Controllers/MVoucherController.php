@@ -2,72 +2,76 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\MVoucher;
 use Illuminate\Http\Request;
-use App\Models\MVoucher; // Import model
+use Illuminate\Http\JsonResponse;
 
 class MVoucherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $items = MVoucher::all();
-        return response()->json(['data' => $items]);
+        $mVouchers = MVoucher::with(['divisi', 'sales', 'dVouchers'])->get();
+        return response()->json($mVouchers);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        $validatedData = $request->validate([
-            'KodeVoucher' => 'required|string|max:255|unique:m_voucher,KodeVoucher',
-            'NamaVoucher' => 'required|string|max:255',
-            'Nilai' => 'required|numeric|min:0',
+        // Return view for create form if needed
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'no_voucher' => 'required|string|max:20',
+            'tgl_voucher' => 'required|date',
+            'kode_sales' => 'required|string|max:10',
+            'nilai' => 'required|numeric|min:0',
+            'status' => 'required|boolean'
         ]);
 
-        $item = MVoucher::create($validatedData);
-
-        return response()->json(['message' => 'Item created successfully', 'data' => $item], 201);
+        $mVoucher = MVoucher::create($request->all());
+        return response()->json($mVoucher, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $kodeDivisi, string $noVoucher): JsonResponse
     {
-        $item = MVoucher::findOrFail($id);
-        return response()->json(['data' => $item]);
+        $mVoucher = MVoucher::with(['divisi', 'sales', 'dVouchers'])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('no_voucher', $noVoucher)
+            ->firstOrFail();
+        return response()->json($mVoucher);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(string $kodeDivisi, string $noVoucher)
     {
-        $item = MVoucher::findOrFail($id);
+        // Return view for edit form if needed
+    }
 
-        $validatedData = $request->validate([
-            'KodeVoucher' => 'required|string|max:255|unique:m_voucher,KodeVoucher,' . $id . ',ID',
-            'NamaVoucher' => 'required|string|max:255',
-            'Nilai' => 'required|numeric|min:0',
+    public function update(Request $request, string $kodeDivisi, string $noVoucher): JsonResponse
+    {
+        $request->validate([
+            'tgl_voucher' => 'required|date',
+            'kode_sales' => 'required|string|max:10',
+            'nilai' => 'required|numeric|min:0',
+            'status' => 'required|boolean'
         ]);
 
-        $item->update($validatedData);
-
-        return response()->json(['message' => 'Item updated successfully', 'data' => $item]);
+        $mVoucher = MVoucher::where('kode_divisi', $kodeDivisi)
+            ->where('no_voucher', $noVoucher)
+            ->firstOrFail();
+        
+        $mVoucher->update($request->all());
+        return response()->json($mVoucher);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $kodeDivisi, string $noVoucher): JsonResponse
     {
-        $item = MVoucher::findOrFail($id);
-        $item->delete();
-
-        return response()->json(['message' => 'Item deleted successfully']);
+        $mVoucher = MVoucher::where('kode_divisi', $kodeDivisi)
+            ->where('no_voucher', $noVoucher)
+            ->firstOrFail();
+        
+        $mVoucher->delete();
+        return response()->json(['message' => 'MVoucher deleted successfully']);
     }
 }

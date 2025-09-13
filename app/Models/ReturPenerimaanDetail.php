@@ -2,86 +2,48 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReturPenerimaanDetail extends Model
 {
-    use HasFactory;
-
     protected $table = 'retur_penerimaan_detail';
     protected $primaryKey = 'id';
-    public $incrementing = true;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'kodedivisi',
-        'noretur',
-        'nopenerimaan',
-        'kodebarang',
-        'qtyretur',
-        'harganett',
-        'status',
+        'kode_divisi',
+        'no_retur',
+        'no_penerimaan',
+        'kode_barang',
+        'qty_retur',
+        'harga_nett',
+        'status'
     ];
 
     protected $casts = [
-        'qtyretur' => 'decimal:4',
-        'harganett' => 'decimal:4',
+        'qty_retur' => 'integer',
+        'harga_nett' => 'decimal:2'
     ];
 
-    /**
-     * Relationship: Retur Penerimaan header
-     */
-    public function returPenerimaan()
+    // Note: These relationships are simplified due to composite key constraints
+    // They may require additional where clauses in queries for proper scoping
+    
+    public function returPenerimaan(): BelongsTo
     {
-        return $this->belongsTo(ReturPenerimaan::class, ['kodedivisi', 'noretur'], ['kodedivisi', 'noretur']);
+        // This is a simplified relationship - may need manual scoping by kode_divisi
+        return $this->belongsTo(ReturPenerimaan::class, 'no_retur', 'no_retur_penerimaan');
     }
 
-    /**
-     * Relationship: Part Penerimaan reference
-     */
-    public function partPenerimaan()
+    public function barang(): BelongsTo
     {
-        return $this->belongsTo(PartPenerimaan::class, ['kodedivisi', 'nopenerimaan'], ['kodedivisi', 'nopenerimaan']);
+        // This is a simplified relationship - may need manual scoping by kode_divisi
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
 
-    /**
-     * Relationship: Barang (item)
-     */
-    public function barang()
+    public function partPenerimaan(): BelongsTo
     {
-        return $this->belongsTo(DBarang::class, 'kodebarang', 'kodebarang');
-    }
-
-    /**
-     * Scope: Filter by division
-     */
-    public function scopeByDivision($query, $kodeDivisi)
-    {
-        return $query->where('kodedivisi', $kodeDivisi);
-    }
-
-    /**
-     * Scope: Filter by status
-     */
-    public function scopeByStatus($query, $status)
-    {
-        return $query->where('status', $status);
-    }
-
-    /**
-     * Calculate total retur value
-     */
-    public function getTotalReturAttribute()
-    {
-        return $this->qtyretur * $this->harganett;
-    }
-
-    /**
-     * Check if return is processed
-     */
-    public function isProcessed()
-    {
-        return $this->status === 'Finish';
+        // This is a simplified relationship - may need manual scoping by kode_divisi
+        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan');
     }
 }

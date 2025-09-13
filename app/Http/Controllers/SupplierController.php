@@ -2,249 +2,270 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MSupplier;
-use App\Models\PartPenerimaan;
+use App\Http\Requests\StoreSupplierRequest;
+use App\Http\Requests\UpdateSupplierRequest;
+use App\Http\Resources\SupplierResource;
+use App\Http\Resources\SupplierCollection;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class SupplierController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of suppliers with pagination and filtering.
      */
-    public function index()
+    public function index(Request $request, string $kodeDivisi): JsonResponse
     {
         try {
-            $suppliers = MSupplier::active()->get()->map(function ($s) {
-                return [
-                    'kodeDivisi' => $s->kodedivisi ?? $s->KodeDivisi ?? null,
-                    'kodeSupplier' => $s->kodesupplier ?? $s->KodeSupplier ?? null,
-                    'namaSupplier' => $s->namasupplier ?? $s->NamaSupplier ?? null,
-                    'alamat' => $s->alamat,
-                    'telepon' => $s->telp ?? $s->telepon ?? null,
-                    'contact' => $s->contact,
-                    'status' => $s->status
-                ];
-            });
+            $request->attributes->set('query_start_time', microtime(true));
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Data suppliers retrieved successfully',
-                'data' => $suppliers
-            ]);
+            $query = Supplier::query()
+                ->where('kode_divisi', $kodeDivisi)
+                ->with(['divisi']);
+
+            // Apply search filter
+            if ($request->filled('search')) {
+                $search = $request->get('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_supplier', 'ILIKE', "%{$search}%")
+                      ->orWhere('kode_supplier', 'ILIKE', "%{$search}%")
+                      ->orWhere('alamat', 'ILIKE', "%{$search}%")
+                      ->orWhere('contact', 'ILIKE', "%{$search}%");
+                });
+            }
+
+            // Apply status filter
+            if ($request->filled('status')) {
+                $query->where('status', $request->boolean('status'));
+            }
+
+            // Apply sorting
+            $sortField = $request->get('sort', 'kode_supplier');
+            $sortDirection = $request->get('direction', 'asc');
+            
+            $allowedSortFields = ['kode_supplier', 'nama_supplier', 'alamat', 'telp', 'contact'];
+            if (in_array($sortField, $allowedSortFields)) {
+                $query->orderBy($sortField, $sortDirection);
+            }
+
+            // Pagination
+            $perPage = min($request->get('per_page', 15), 100);
+            $suppliers = $query->paginate($perPage);
+
+            return response()->json(new SupplierCollection($suppliers));
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve suppliers data',
+                'message' => 'Gagal mengambil data supplier',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created supplier.
      */
-    public function store(Request $request)
+    public function store(StoreSupplierRequest $request, string $kodeDivisi)
     {
         try {
-            $request->validate([
-                'kodedivisi' => 'required|string|max:2',
-                'kodesupplier' => 'required|string|max:10',
-                'namasupplier' => 'required|string|max:100',
-                'alamat' => 'nullable|string',
-                'telp' => 'nullable|string',
-                'contact' => 'nullable|string',
-                'status' => 'boolean'
-            ]);
+            DB::beginTransaction();
 
-            $supplier = MSupplier::create($request->all());
+            $validated = $request->validated();
+            $validated['kode_divisi'] = $kodeDivisi;
+
+            $supplier = Supplier::create($validated);
+            $supplier->load(['divisi']);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Supplier created successfully',
-                'data' => $supplier
+                'data' => (new SupplierResource($supplier))->resolve($request),
             ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
+
         } catch (\Exception $e) {
+            DB::rollBack();
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create supplier',
+                'message' => 'Gagal membuat supplier',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Display suppliers by division.
+     * Display the specified supplier.
      */
-    public function showByDivisi($kodeDivisi)
+    public function show(string $kodeDivisi, string $kodeSupplier)
     {
         try {
-            $suppliers = MSupplier::byDivisi($kodeDivisi)->active()->get()->map(function ($s) {
-                return [
-                    'kodeDivisi' => $s->kodedivisi ?? $s->KodeDivisi ?? null,
-                    'kodeSupplier' => $s->kodesupplier ?? $s->KodeSupplier ?? null,
-                    'namaSupplier' => $s->namasupplier ?? $s->NamaSupplier ?? null,
-                    'alamat' => $s->alamat,
-                    'telepon' => $s->telp ?? $s->telepon ?? null,
-                    'contact' => $s->contact,
-                    'status' => $s->status
-                ];
-            });
-            
+            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
+                ->where('kode_supplier', $kodeSupplier)
+                ->with(['divisi'])
+                ->firstOrFail();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Suppliers retrieved successfully',
-                'data' => $suppliers
+                'data' => (new SupplierResource($supplier))->resolve(request()),
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve suppliers',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($kodeDivisi, $kodeSupplier)
-    {
-        try {
-            $supplier = MSupplier::findByCompositeKey($kodeDivisi, $kodeSupplier);
-            
-            if (!$supplier) {
+        } catch (\Exception $e) {
+            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Supplier not found'
+                    'message' => 'Supplier tidak ditemukan',
                 ], 404);
             }
 
             return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data supplier',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the specified supplier.
+     */
+    public function update(UpdateSupplierRequest $request, string $kodeDivisi, string $kodeSupplier)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
+                ->where('kode_supplier', $kodeSupplier)
+                ->firstOrFail();
+
+            $validated = $request->validated();
+            $supplier->update($validated);
+            $supplier->load(['divisi']);
+
+            DB::commit();
+
+            return response()->json([
                 'success' => true,
-                'message' => 'Supplier retrieved successfully',
+                'message' => 'Supplier berhasil diperbarui',
+                'data' => (new SupplierResource($supplier))->resolve($request),
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Error updating supplier: ' . $e->getMessage(), [
+                'kodeDivisi' => $kodeDivisi,
+                'kodeSupplier' => $kodeSupplier,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui supplier',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove the specified supplier.
+     */
+    public function destroy(string $kodeDivisi, string $kodeSupplier): JsonResponse
+    {
+        try {
+            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
+                               ->where('kode_supplier', $kodeSupplier)
+                               ->first();
+
+            if (!$supplier) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Supplier tidak ditemukan'
+                ], 404);
+            }
+
+            // Check if supplier has any part penerimaan
+            $hasPartPenerimaan = $supplier->partPenerimaans()->exists();
+            if ($hasPartPenerimaan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Supplier tidak dapat dihapus karena masih memiliki data penerimaan'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+            
+            // Manual delete to avoid composite key issues
+            Supplier::where('kode_divisi', $kodeDivisi)
+                    ->where('kode_supplier', $kodeSupplier)
+                    ->delete();
+                    
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Supplier berhasil dihapus'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus supplier',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get supplier statistics and summary.
+     */
+    public function getSupplierStats(string $kodeDivisi, string $kodeSupplier): JsonResponse
+    {
+        try {
+            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
+                               ->where('kode_supplier', $kodeSupplier)
+                               ->with(['partPenerimaans'])
+                               ->first();
+
+            if (!$supplier) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Supplier tidak ditemukan'
+                ], 404);
+            }
+
+            $totalPenerimaan = $supplier->partPenerimaans()->count();
+            $totalNilaiPenerimaan = $supplier->partPenerimaans()->sum('grand_total');
+            $lastPenerimaan = $supplier->partPenerimaans()->latest('tgl_penerimaan')->first();
+
+            return response()->json([
+                'success' => true,
                 'data' => [
-                    'kodeDivisi' => $supplier->kodedivisi ?? $supplier->KodeDivisi,
-                    'kodeSupplier' => $supplier->kodesupplier ?? $supplier->KodeSupplier,
-                    'namaSupplier' => $supplier->namasupplier ?? $supplier->NamaSupplier,
-                    'alamat' => $supplier->alamat,
-                    'telepon' => $supplier->telp ?? $supplier->telepon,
-                    'contact' => $supplier->contact,
-                    'status' => $supplier->status
+                    'supplier_info' => [
+                        'kode_supplier' => $supplier->kode_supplier,
+                        'nama_supplier' => $supplier->nama_supplier
+                    ],
+                    'statistics' => [
+                        'total_penerimaan' => $totalPenerimaan,
+                        'total_nilai_penerimaan' => $totalNilaiPenerimaan,
+                        'total_nilai_formatted' => 'Rp ' . number_format($totalNilaiPenerimaan, 0, ',', '.'),
+                        'rata_rata_nilai' => $totalPenerimaan > 0 ? $totalNilaiPenerimaan / $totalPenerimaan : 0,
+                        'last_penerimaan' => $lastPenerimaan ? $lastPenerimaan->tgl_penerimaan->format('Y-m-d') : null
+                    ]
                 ]
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve supplier',
+                'message' => 'Gagal mengambil statistik supplier',
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $kodeDivisi, $kodeSupplier)
-    {
-        try {
-            $supplier = MSupplier::findByCompositeKey($kodeDivisi, $kodeSupplier);
-            
-            if (!$supplier) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Supplier not found'
-                ], 404);
-            }
-
-            $request->validate([
-                'namasupplier' => 'required|string|max:100',
-                'alamat' => 'nullable|string',
-                'telp' => 'nullable|string',
-                'contact' => 'nullable|string',
-                'status' => 'boolean'
-            ]);
-
-            $supplier->update($request->all());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Supplier updated successfully',
-                'data' => [
-                    'kodeDivisi' => $supplier->kodedivisi ?? $supplier->KodeDivisi,
-                    'kodeSupplier' => $supplier->kodesupplier ?? $supplier->KodeSupplier,
-                    'namaSupplier' => $supplier->namasupplier ?? $supplier->NamaSupplier,
-                    'alamat' => $supplier->alamat,
-                    'telepon' => $supplier->telp ?? $supplier->telepon,
-                    'contact' => $supplier->contact,
-                    'status' => $supplier->status
-                ]
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update supplier',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($kodeDivisi, $kodeSupplier)
-    {
-        try {
-            $supplier = MSupplier::findByCompositeKey($kodeDivisi, $kodeSupplier);
-            
-            if (!$supplier) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Supplier not found'
-                ], 404);
-            }
-
-            $supplier->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Supplier deleted successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete supplier',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getNamaSupplier(Request $request)
-    {
-        $kodedivisi = $request->input('kodedivisi');
-        $noref = $request->input('noref');
-
-        $nama = null;
-
-        $partPenerimaan = PartPenerimaan::where('KodeDivisi', $kodedivisi)->where('NoPenerimaan', $noref)->first();
-        if ($partPenerimaan) {
-            $supplier = MSupplier::where('KodeDivisi', $kodedivisi)->where('KodeSupplier', $partPenerimaan->KodeSupplier)->first();
-            if ($supplier) {
-                $nama = $supplier->NamaSupplier;
-            }
-        }
-
-        return response()->json(['nama' => $nama]);
     }
 }

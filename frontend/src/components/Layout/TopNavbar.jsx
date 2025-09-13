@@ -20,6 +20,7 @@ import {
   ChartBarIcon,
   Bars3Icon,
   CommandLineIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigation } from '../../contexts/NavigationContext';
 
@@ -49,6 +50,16 @@ const TopNavbar = () => {
 
   const { activeCategory, setActiveCategory, setCommandPaletteOpen, navigationConfig } =
     useNavigation();
+
+  // Mobile menu toggle (placeholder for future drawer integration)
+  const handleMenuToggle = () => {
+    // If you add a mobile drawer, toggle it here. For now, open command palette as a quick action.
+    try {
+      setCommandPaletteOpen(true);
+    } catch (e) {
+      // no-op
+    }
+  };
 
   const handleCategoryChange = (event, newCategory) => {
     if (newCategory === 'dashboard') {

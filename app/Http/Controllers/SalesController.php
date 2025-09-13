@@ -2,230 +2,303 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MSales;
+use App\Http\Requests\StoreSalesRequest;
+use App\Http\Requests\UpdateSalesRequest;
+use App\Http\Resources\SalesResource;
+use App\Http\Resources\SalesCollection;
+use App\Models\Sales;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SalesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of sales with pagination and filtering.
      */
-    public function index()
+    public function index(Request $request, string $kodeDivisi): JsonResponse
     {
         try {
-            $sales = MSales::all();
+            $request->attributes->set('query_start_time', microtime(true));
             
-            // Transform data for frontend
-            $transformedSales = $sales->map(function ($sale) {
-                return [
-                    'id' => $sale->kodesales,
-                    'kodeDivisi' => $sale->kodedivisi,
-                    'kodeSales' => $sale->kodesales,
-                    'namaSales' => $sale->namasales,
-                    'alamat' => $sale->alamat,
-                    'noHp' => $sale->nohp,
-                    'target' => (float) $sale->target,
-                    'status' => $sale->status ? 'Aktif' : 'Tidak Aktif'
-                ];
-            });
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Data sales retrieved successfully',
-                'data' => $transformedSales
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve sales data',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
+                $query = Sales::where('kode_divisi', $kodeDivisi)
+                                 ->with(['divisi', 'area' => function ($q) use ($kodeDivisi) {
+                                     $q->where('kode_divisi', $kodeDivisi);
+                                 }]);
 
-    /**
-     * Show sales by divisi.
-     */
-    public function showByDivisi($kodeDivisi)
-    {
-        try {
-            $sales = MSales::where('kodedivisi', $kodeDivisi)->get();
-            
-            if ($sales->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No sales found for this divisi',
-                    'data' => []
-                ], Response::HTTP_NOT_FOUND);
+            // Apply search filter
+            if ($request->filled('search')) {
+                $search = $request->get('search');
+                $driver = DB::connection()->getDriverName();
+                $searchOperator = $driver === 'pgsql' ? 'ILIKE' : 'LIKE';
+                $query->where(function ($q) use ($search, $searchOperator) {
+                    $q->where('nama_sales', $searchOperator, "%{$search}%")
+                      ->orWhere('kode_sales', $searchOperator, "%{$search}%")
+                      ->orWhere('alamat', $searchOperator, "%{$search}%")
+                      ->orWhere('no_hp', $searchOperator, "%{$search}%");
+                });
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Sales by divisi retrieved successfully',
-                'data' => $sales
-            ], Response::HTTP_OK);
+            // Apply area filter
+            if ($request->filled('area')) {
+                $query->where('kode_area', $request->get('area'));
+            }
+
+            // Apply status filter
+            if ($request->filled('status')) {
+                $query->where('status', $request->boolean('status'));
+            }
+
+            // Apply sorting
+            $sortField = $request->get('sort', 'kode_sales');
+            $sortDirection = $request->get('direction', 'asc');
+            
+            $allowedSortFields = ['kode_sales', 'nama_sales', 'kode_area', 'target', 'status'];
+            if (in_array($sortField, $allowedSortFields)) {
+                $query->orderBy($sortField, $sortDirection);
+            }
+
+            // Paginate results
+            $perPage = min($request->get('per_page', 15), 100);
+            $sales = $query->paginate($perPage);
+
+            return response()->json(new SalesCollection($sales));
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve sales by divisi',
+                'message' => 'Gagal mengambil data sales',
                 'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], 500);
         }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created sales.
      */
-    public function store(Request $request)
+    public function store(StoreSalesRequest $request, string $kodeDivisi): JsonResponse
     {
         try {
-            $validatedData = $request->validate([
-                'kodedivisi' => 'required|string|max:50',
-                'kodesales' => 'required|string|max:50',
-                'namasales' => 'required|string|max:100',
-                'alamat' => 'nullable|string|max:200',
-                'nohp' => 'nullable|string|max:20',
-                'target' => 'nullable|numeric',
-                'status' => 'boolean'
+            DB::beginTransaction();
+
+            $salesData = $request->validated();
+            $salesData['kode_divisi'] = $kodeDivisi;
+
+            $sales = Sales::create($salesData);
+            // Ensure fresh state and relations are loaded with constrained area
+            $sales->refresh()->load([
+                'divisi',
+                'area' => function ($q) use ($kodeDivisi) {
+                    $q->where('kode_divisi', $kodeDivisi);
+                }
             ]);
 
-            // Check if sales with this combination already exists
-            $existingSales = MSales::findByCompositeKey(
-                $validatedData['kodedivisi'],
-                $validatedData['kodesales']
-            );
-
-            if ($existingSales) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sales with this kodedivisi and kodesales combination already exists'
-                ], Response::HTTP_CONFLICT);
-            }
-
-            $sales = MSales::create($validatedData);
+            DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Sales created successfully',
-                'data' => $sales
-            ], Response::HTTP_CREATED);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                'message' => 'Sales berhasil dibuat',
+                'data' => new SalesResource($sales)
+            ], 201);
+
         } catch (\Exception $e) {
+            DB::rollBack();
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create sales',
+                'message' => 'Gagal membuat sales',
                 'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], 500);
         }
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified sales.
      */
-    public function show($kodeDivisi, $kodeSales)
+    public function show(string $kodeDivisi, string $kodeSales): JsonResponse
     {
         try {
-            $sales = MSales::findByCompositeKey($kodeDivisi, $kodeSales);
+            $sales = Sales::with(['divisi', 'area' => function ($q) use ($kodeDivisi) {
+                            $q->where('kode_divisi', $kodeDivisi);
+                        }])
+                         ->where('kode_divisi', $kodeDivisi)
+                         ->where('kode_sales', $kodeSales)
+                         ->first();
 
             if (!$sales) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Sales not found'
-                ], Response::HTTP_NOT_FOUND);
+                    'message' => 'Sales tidak ditemukan'
+                ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Sales retrieved successfully',
-                'data' => $sales
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve sales',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $kodeDivisi, $kodeSales)
-    {
-        try {
-            $sales = MSales::findByCompositeKey($kodeDivisi, $kodeSales);
-
-            if (!$sales) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sales not found'
-                ], Response::HTTP_NOT_FOUND);
-            }
-
-            $validatedData = $request->validate([
-                'namasales' => 'sometimes|required|string|max:100',
-                'alamat' => 'sometimes|nullable|string|max:200',
-                'nohp' => 'sometimes|nullable|string|max:20',
-                'target' => 'sometimes|nullable|numeric',
-                'status' => 'sometimes|boolean'
+                'data' => new SalesResource($sales)
             ]);
 
-            $sales->update($validatedData);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Sales updated successfully',
-                'data' => $sales->fresh()
-            ], Response::HTTP_OK);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update sales',
+                'message' => 'Gagal mengambil data sales',
                 'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], 500);
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified sales.
      */
-    public function destroy($kodeDivisi, $kodeSales)
+    public function update(UpdateSalesRequest $request, string $kodeDivisi, string $kodeSales): JsonResponse
     {
         try {
-            $sales = MSales::findByCompositeKey($kodeDivisi, $kodeSales);
+            $sales = Sales::where('kode_divisi', $kodeDivisi)
+                         ->where('kode_sales', $kodeSales)
+                         ->first();
 
             if (!$sales) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Sales not found'
-                ], Response::HTTP_NOT_FOUND);
+                    'message' => 'Sales tidak ditemukan'
+                ], 404);
             }
 
-            $sales->delete();
+            DB::beginTransaction();
+
+            // Update manual untuk composite key
+            Sales::where('kode_divisi', $kodeDivisi)
+                 ->where('kode_sales', $kodeSales)
+                 ->update($request->validated());
+            
+            // Refresh model untuk response
+            $sales = Sales::with(['divisi', 'area' => function ($q) use ($kodeDivisi) {
+                            $q->where('kode_divisi', $kodeDivisi);
+                        }])
+                         ->where('kode_divisi', $kodeDivisi)
+                         ->where('kode_sales', $kodeSales)
+                         ->first();
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Sales deleted successfully'
-            ], Response::HTTP_OK);
+                'message' => 'Sales berhasil diperbarui',
+                'data' => new SalesResource($sales)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui sales',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove the specified sales.
+     */
+    public function destroy(string $kodeDivisi, string $kodeSales): JsonResponse
+    {
+        try {
+            $sales = Sales::where('kode_divisi', $kodeDivisi)
+                         ->where('kode_sales', $kodeSales)
+                         ->first();
+
+            if (!$sales) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sales tidak ditemukan'
+                ], 404);
+            }
+
+            DB::beginTransaction();
+
+            // Check if sales has related invoices
+            $hasInvoices = $sales->invoices()->exists();
+            if ($hasInvoices) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sales tidak dapat dihapus karena memiliki data invoice terkait'
+                ], 422);
+            }
+
+            // Delete manual untuk composite key
+            Sales::where('kode_divisi', $kodeDivisi)
+                 ->where('kode_sales', $kodeSales)
+                 ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sales berhasil dihapus'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to delete sales', [
+                'kode_divisi' => $kodeDivisi,
+                'kode_sales' => $kodeSales,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus sales',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get sales performance statistics.
+     */
+    public function getSalesStats(string $kodeDivisi, string $kodeSales): JsonResponse
+    {
+        try {
+            $sales = Sales::with(['invoices' => function ($query) {
+                $query->selectRaw('kode_sales, kode_divisi, COUNT(*) as total_invoices, SUM(grand_total) as total_sales')
+                      ->groupBy('kode_sales', 'kode_divisi');
+            }])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('kode_sales', $kodeSales)
+            ->first();
+
+            if (!$sales) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sales tidak ditemukan'
+                ], 404);
+            }
+
+            $totalSales = $sales->invoices->sum('grand_total');
+            $totalInvoices = $sales->invoices->count();
+            $achievement = $sales->target > 0 ? ($totalSales / $sales->target) * 100 : 0;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'sales_info' => new SalesResource($sales),
+                    'performance_stats' => [
+                        'total_invoices' => $totalInvoices,
+                        'total_sales_value' => $totalSales,
+                        'target' => $sales->target,
+                        'achievement_percentage' => round($achievement, 2),
+                        'status' => $achievement >= 100 ? 'Target Tercapai' : 'Belum Tercapai Target'
+                    ]
+                ]
+            ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete sales',
+                'message' => 'Gagal mengambil statistik sales',
                 'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], 500);
         }
     }
 }

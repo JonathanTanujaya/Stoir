@@ -30,12 +30,6 @@ const ModernLayout = () => {
               overflow: 'auto',
               backgroundColor: 'background.default',
               p: 3,
-              '& .css-13q5uu1': {
-                display: 'none !important',
-              },
-              '& .MuiBox-root:contains("flex")': {
-                display: 'none !important',
-              },
             }}
           >
             <Outlet />

@@ -19,13 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Disable migration repository checks
-        $this->app->bind('migrator', function ($app) {
-            return new \Illuminate\Database\Migrations\Migrator(
-                new \App\Database\NullMigrationRepository,
-                $app['db'],
-                $app['files']
-            );
-        });
+        //
     }
 }

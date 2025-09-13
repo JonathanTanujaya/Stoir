@@ -2,90 +2,69 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PenerimaanFinance extends Model
 {
-    use HasFactory;
-
     protected $table = 'penerimaan_finance';
-    protected $primaryKey = ['kodedivisi', 'nopenerimaan'];
     public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'kodedivisi',
-        'nopenerimaan',
-        'tglpenerimaan',
-        'tipe',
-        'noref',
-        'tglref',
-        'tglpencairan',
-        'bankref',
-        'norektujuan',
-        'kodecust',
-        'jumlah',
-        'status',
-        'novoucher',
+        'kode_divisi',
+        'no_penerimaan_finance',
+        'tgl_penerimaan',
+        'kode_bank',
+        'no_rekening',
+        'no_rek_tujuan',
+        'kode_cust',
+        'nilai',
+        'keterangan'
     ];
 
     protected $casts = [
-        'tglpenerimaan' => 'date',
-        'tglref' => 'date',
-        'tglpencairan' => 'date',
-        'jumlah' => 'decimal:4'
+        'tgl_penerimaan' => 'date',
+        'nilai' => 'decimal:2'
     ];
 
-    // Relationships (perbaikan untuk composite key)
-    public function customer()
+    public function divisi(): BelongsTo
     {
-        return $this->belongsTo(MCust::class, 'kodecust', 'kodecust')
-                    ->where('m_cust.kodedivisi', '=', $this->kodedivisi ?? '');
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
-    public function sales()
+    public function bank(): BelongsTo
     {
-        return $this->belongsTo(MSales::class, 'kodesales', 'kodesales')
-                    ->where('m_sales.kodedivisi', '=', $this->kodedivisi ?? '');
+        return $this->belongsTo(Bank::class, 'kode_bank', 'kode_bank')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function details()
+    public function detailBank(): BelongsTo
     {
-        return $this->hasMany(PenerimaanFinanceDetail::class, 'nopenerimaan', 'nopenerimaan')
-                    ->where('penerimaanfinance_detail.kodedivisi', '=', $this->kodedivisi ?? '');
+        return $this->belongsTo(DetailBank::class, 'no_rekening', 'no_rekening')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    // Scopes
-    public function scopeByCustomer($query, $kodeDivisi, $kodeCust)
+    public function detailBankTujuan(): BelongsTo
     {
-        return $query->where('kodedivisi', $kodeDivisi)
-                    ->where('kodecust', $kodeCust);
+        return $this->belongsTo(DetailBank::class, 'no_rek_tujuan', 'no_rekening')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function scopeByPeriod($query, $startDate, $endDate)
+    public function customer(): BelongsTo
     {
-        return $query->whereBetween('tglpenerimaan', [$startDate, $endDate]);
+        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function scopeFinished($query)
+    public function penerimaanFinanceDetails(): HasMany
     {
-        return $query->where('status', 'Finish');
+        return $this->hasMany(PenerimaanFinanceDetail::class, ['kode_divisi', 'no_penerimaan_finance'], ['kode_divisi', 'no_penerimaan_finance']);
     }
 
-    public function scopeByType($query, $tipe)
+    public function getKeyName(): array
     {
-        return $query->where('tipe', $tipe);
-    }
-
-    // Helper methods
-    public function isFinished()
-    {
-        return $this->status === 'Finish';
-    }
-
-    public function getTotalDetails()
-    {
-        return $this->details()->sum('nominal');
+        return ['kode_divisi', 'no_penerimaan_finance'];
     }
 }

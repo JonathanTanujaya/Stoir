@@ -2,83 +2,49 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MVoucher extends Model
 {
-    use HasFactory;
-
     protected $table = 'm_voucher';
-    protected $primaryKey = 'novoucher';
     public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'novoucher',
-        'tanggal',
-        'kodesales',
-        'totalomzet',
-        'komisi',
-        'jumlahkomisi',
+        'kode_divisi',
+        'no_voucher',
+        'tgl_voucher',
+        'kode_sales',
+        'nilai',
+        'status'
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
-        'totalomzet' => 'decimal:4',
-        'komisi' => 'decimal:2',
-        'jumlahkomisi' => 'decimal:4',
+        'tgl_voucher' => 'date',
+        'nilai' => 'decimal:2',
+        'status' => 'boolean'
     ];
 
-    /**
-     * Relationship: Sales person
-     */
-    public function sales()
+    public function divisi(): BelongsTo
     {
-        return $this->belongsTo(MSales::class, 'kodesales', 'kodesales');
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
-    /**
-     * Scope: Filter by sales
-     */
-    public function scopeBySales($query, $kodeSales)
+    public function sales(): BelongsTo
     {
-        return $query->where('kodesales', $kodeSales);
+        return $this->belongsTo(Sales::class, 'kode_sales', 'kode_sales')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    /**
-     * Scope: Filter by date range
-     */
-    public function scopeByDateRange($query, $startDate, $endDate)
+    public function dVouchers(): HasMany
     {
-        return $query->whereBetween('tanggal', [$startDate, $endDate]);
+        return $this->hasMany(DVoucher::class, ['kode_divisi', 'no_voucher'], ['kode_divisi', 'no_voucher']);
     }
 
-    /**
-     * Scope: Filter by month and year
-     */
-    public function scopeByMonth($query, $year, $month)
+    public function getKeyName(): array
     {
-        return $query->whereYear('tanggal', $year)
-                    ->whereMonth('tanggal', $month);
-    }
-
-    /**
-     * Calculate commission percentage
-     */
-    public function getCommissionPercentageAttribute()
-    {
-        if ($this->totalomzet > 0) {
-            return ($this->jumlahkomisi / $this->totalomzet) * 100;
-        }
-        return 0;
-    }
-
-    /**
-     * Check if voucher has valid commission
-     */
-    public function hasValidCommission()
-    {
-        return $this->jumlahkomisi > 0 && $this->totalomzet > 0;
+        return ['kode_divisi', 'no_voucher'];
     }
 }

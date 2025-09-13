@@ -26,7 +26,7 @@ export const useCustomers = (params = {}, options = {}) => {
 export const useCustomer = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.customer(id),
-    queryFn: () => api.getById(ENDPOINTS.CUSTOMERS, id),
+    queryFn: () => api.getById(ENDPOINTS.CUSTOMERS, id, { kodeDivisi: options.kodeDivisi }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     ...options,
@@ -43,7 +43,7 @@ export const useSuppliers = (params = {}, options = {}) => {
 export const useSupplier = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.supplier(id),
-    queryFn: () => api.getById(ENDPOINTS.SUPPLIERS, id),
+    queryFn: () => api.getById(ENDPOINTS.SUPPLIERS, id, { kodeDivisi: options.kodeDivisi }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     ...options,
@@ -60,7 +60,7 @@ export const useSales = (params = {}, options = {}) => {
 export const useSalesperson = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.salesperson(id),
-    queryFn: () => api.getById(ENDPOINTS.SALES, id),
+    queryFn: () => api.getById(ENDPOINTS.SALES, id, { kodeDivisi: options.kodeDivisi }),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     ...options,
@@ -98,7 +98,7 @@ export const useMasterBarang = (params = {}, options = {}) => {
 export const useBarangItem = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.barangItem(id),
-    queryFn: () => api.getById(ENDPOINTS.BARANGS, id),
+    queryFn: () => api.getById(ENDPOINTS.BARANGS, id, { kodeDivisi: options.kodeDivisi }),
     enabled: !!id,
     staleTime: 2 * 60 * 1000,
     ...options,
@@ -167,18 +167,18 @@ export const useInvoices = (params = {}, options = {}) => {
 export const useInvoice = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.invoice(id),
-    queryFn: () => api.getById(ENDPOINTS.INVOICES, id),
+    queryFn: () => api.getById(ENDPOINTS.INVOICES, id, { kodeDivisi: options.kodeDivisi }),
     enabled: !!id,
     staleTime: 1 * 60 * 1000,
     ...options,
   });
 };
 
-export const useInvoiceDetails = (invoiceId, options = {}) => {
+export const useInvoiceDetails = (noInvoice, params = {}, options = {}) => {
   return useQuery({
-    queryKey: queryKeys.invoiceDetails(invoiceId),
-    queryFn: () => api.get(ENDPOINTS.INVOICE_DETAILS, { invoice_id: invoiceId }),
-    enabled: !!invoiceId,
+    queryKey: queryKeys.invoiceDetails(noInvoice),
+    queryFn: () => api.getInvoiceDetails(noInvoice, params, { kodeDivisi: options.kodeDivisi }),
+    enabled: !!noInvoice,
     staleTime: 1 * 60 * 1000,
     ...options,
   });

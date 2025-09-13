@@ -1,5 +1,4 @@
 <?php
-// File: app/Models/InvoiceDetail.php
 
 namespace App\Models;
 
@@ -10,13 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class InvoiceDetail extends Model
 {
     use HasFactory;
-
+    
     protected $table = 'invoice_detail';
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;
-    protected $keyType = 'int';
-
+    
     protected $fillable = [
         'kode_divisi',
         'no_invoice',
@@ -36,88 +34,31 @@ class InvoiceDetail extends Model
         'diskon1' => 'decimal:2',
         'diskon2' => 'decimal:2',
         'harga_nett' => 'decimal:2',
-        'id' => 'integer'
     ];
 
-    // Relationships
+    /**
+     * Relationship with Invoice
+     */
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class, ['KODE_DIVISI', 'NO_INVOICE'], ['KODE_DIVISI', 'NO_INVOICE']);
+        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function masterBarang(): BelongsTo
+    /**
+     * Relationship with Barang
+     */
+    public function barang(): BelongsTo
     {
-        // Temporarily keep pointing to MasterBarang (belum dihapus)
-        return $this->belongsTo(MasterBarang::class, 'kode_barang', 'kode_barang');
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
+    /**
+     * Relationship with Divisi
+     */
     public function divisi(): BelongsTo
     {
-    // Refactored to MDivisi
-    return $this->belongsTo(MDivisi::class, 'kode_divisi', 'kodedivisi');
-    }
-
-    // Scopes
-    public function scopeByInvoice($query, $kodeDivisi, $noInvoice)
-    {
-        return $query->where('KODE_DIVISI', $kodeDivisi)
-            ->where('NO_INVOICE', $noInvoice);
-    }
-
-    public function scopeByBarang($query, $kodeBarang)
-    {
-        return $query->where('KODE_BARANG', $kodeBarang);
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('STATUS', '!=', 'Cancel');
-    }
-
-    // Accessors
-    public function getFormattedHargaJualAttribute(): string
-    {
-        return number_format($this->HARGA_JUAL, 2, ',', '.');
-    }
-
-    public function getFormattedHargaNettAttribute(): string
-    {
-        return number_format($this->HARGA_NETT, 2, ',', '.');
-    }
-
-    public function getTotalDiskonAttribute(): float
-    {
-        return $this->DISKON1 + $this->DISKON2;
-    }
-
-    public function getSubTotalAttribute(): float
-    {
-        return $this->QTY_SUPPLY * $this->HARGA_NETT;
-    }
-
-    // Methods
-    public function calculateDiscount(): float
-    {
-        $discountAmount = 0;
-        
-        // Calculate discount 1
-        if ($this->DISKON1 > 0) {
-            $discountAmount += ($this->QTY_SUPPLY * $this->HARGA_JUAL) * ($this->DISKON1 / 100);
-        }
-        
-        // Calculate discount 2 from remaining amount
-        if ($this->DISKON2 > 0) {
-            $afterDiscount1 = ($this->QTY_SUPPLY * $this->HARGA_JUAL) - $discountAmount;
-            $discountAmount += $afterDiscount1 * ($this->DISKON2 / 100);
-        }
-        
-        return $discountAmount;
-    }
-
-    public function calculateNettPrice(): float
-    {
-        $grossAmount = $this->QTY_SUPPLY * $this->HARGA_JUAL;
-        $discountAmount = $this->calculateDiscount();
-        return $grossAmount - $discountAmount;
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 }

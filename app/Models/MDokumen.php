@@ -2,56 +2,42 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MDokumen extends Model
 {
-    use HasFactory;
-
     protected $table = 'm_dokumen';
-    
-    // Use composite primary key
-    protected $primaryKey = ['kodedivisi', 'kodedok'];
     public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'kodedivisi',
-        'kodedok',
+        'kode_divisi',
+        'kode_trans',
         'nomor',
+        'prefix',
+        'tahun',
+        'bulan'
     ];
 
-    // Override getKeyName for composite keys
-    public function getKeyName()
+    protected $casts = [
+        'nomor' => 'integer',
+        'tahun' => 'integer',
+        'bulan' => 'integer'
+    ];
+
+    public function divisi(): BelongsTo
     {
-        return $this->primaryKey;
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
-    // Override getKey for composite keys
-    public function getKey()
+    public function transactionType(): BelongsTo
     {
-        $keys = [];
-        foreach ($this->getKeyName() as $key) {
-            $keys[$key] = $this->getAttribute($key);
-        }
-        return $keys;
+        return $this->belongsTo(TransactionType::class, 'kode_trans', 'kode_trans');
     }
 
-    // Override setKeysForSaveQuery for composite keys
-    protected function setKeysForSaveQuery($query)
+    public function getKeyName(): array
     {
-        foreach ($this->getKeyName() as $key) {
-            $query->where($key, '=', $this->getAttribute($key));
-        }
-        return $query;
-    }
-    
-    // Custom method to find by composite key
-    public static function findByCompositeKey($kodeDivisi, $kodeDok)
-    {
-        return self::where('kodedivisi', $kodeDivisi)
-                   ->where('kodedok', $kodeDok)
-                   ->first();
+        return ['kode_divisi', 'kode_trans'];
     }
 }

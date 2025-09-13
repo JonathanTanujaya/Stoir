@@ -2,70 +2,86 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\StokMinimum;
 use Illuminate\Http\Request;
-use App\Models\StokMinimum; // Import model
+use Illuminate\Http\JsonResponse;
 
 class StokMinimumController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $items = StokMinimum::all();
-        return response()->json(['data' => $items]);
+        $stokMinimums = StokMinimum::with(['barang'])->get();
+        return response()->json($stokMinimums);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
     {
-        $validatedData = $request->validate([
-            'KodeBarang' => 'required|string|max:255|unique:stok_minimum,KodeBarang',
-            'StokMin' => 'required|integer|min:0',
+        // Return view for create form if needed
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'kode_barang' => 'required|string|max:15',
+            'minimal' => 'required|integer|min:0'
         ]);
 
-        $item = StokMinimum::create($validatedData);
-
-        return response()->json(['message' => 'Item created successfully', 'data' => $item], 201);
+        $stokMinimum = StokMinimum::create($request->all());
+        return response()->json($stokMinimum, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
-        $item = StokMinimum::findOrFail($id);
-        return response()->json(['data' => $item]);
+        $stokMinimum = StokMinimum::with(['barang'])
+            ->findOrFail($id);
+        return response()->json($stokMinimum);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(string $id)
     {
-        $item = StokMinimum::findOrFail($id);
+        // Return view for edit form if needed
+    }
 
-        $validatedData = $request->validate([
-            'KodeBarang' => 'required|string|max:255|unique:stok_minimum,KodeBarang,' . $id . ',ID',
-            'StokMin' => 'required|integer|min:0',
+    public function update(Request $request, string $id): JsonResponse
+    {
+        $request->validate([
+            'minimal' => 'required|integer|min:0'
         ]);
 
-        $item->update($validatedData);
-
-        return response()->json(['message' => 'Item updated successfully', 'data' => $item]);
+        $stokMinimum = StokMinimum::findOrFail($id);
+        $stokMinimum->update($request->all());
+        return response()->json($stokMinimum);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        $item = StokMinimum::findOrFail($id);
-        $item->delete();
+        $stokMinimum = StokMinimum::findOrFail($id);
+        $stokMinimum->delete();
+        return response()->json(['message' => 'StokMinimum deleted successfully']);
+    }
 
-        return response()->json(['message' => 'Item deleted successfully']);
+    public function checkLowStock($kodeDivisi): JsonResponse
+    {
+        $lowStock = StokMinimum::select('stok_minimum.*')
+            ->join('m_barang', 'm_barang.kode_barang', '=', 'stok_minimum.kode_barang')
+            ->leftJoin('kartu_stok', function($join) {
+                $join->on('kartu_stok.kode_barang', '=', 'stok_minimum.kode_barang')
+                     ->on('kartu_stok.kode_divisi', '=', 'stok_minimum.kode_divisi');
+            })
+            ->where('stok_minimum.kode_divisi', $kodeDivisi)
+            ->whereRaw('COALESCE(kartu_stok.stok_akhir, 0) <= stok_minimum.minimal')
+            ->with(['barang'])
+            ->get();
+        
+        return response()->json($lowStock);
+    }
+
+    public function getByDivisi($kodeDivisi): JsonResponse
+    {
+        $stokMinimums = StokMinimum::where('kode_divisi', $kodeDivisi)
+            ->with(['barang'])
+            ->get();
+        return response()->json($stokMinimums);
     }
 }

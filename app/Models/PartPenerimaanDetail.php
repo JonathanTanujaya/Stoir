@@ -4,15 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PartPenerimaanDetail extends Model
 {
     use HasFactory;
-
+    
     protected $table = 'part_penerimaan_detail';
+    
+    // No primary key defined in database schema
+    protected $primaryKey = null;
     public $incrementing = false;
     public $timestamps = false;
-
+    
     protected $fillable = [
         'kode_divisi',
         'no_penerimaan',
@@ -29,46 +33,40 @@ class PartPenerimaanDetail extends Model
         'harga' => 'decimal:2',
         'diskon1' => 'decimal:2',
         'diskon2' => 'decimal:2',
-        'harga_nett' => 'decimal:2'
+        'harga_nett' => 'decimal:2',
     ];
 
-    // Relationships (simplified)
-    public function partPenerimaan()
+    /**
+     * Relationship with PartPenerimaan
+     */
+    public function partPenerimaan(): BelongsTo
     {
-        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan');
+        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    public function barang()
+    /**
+     * Relationship with Barang
+     */
+    public function barang(): BelongsTo
     {
-        return $this->belongsTo(MasterBarang::class, 'kode_barang', 'kode_barang');
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')
+            ->where('kode_divisi', $this->kode_divisi);
     }
 
-    // Helper methods
-    public function getSubtotal(): float
+    /**
+     * Relationship with Divisi
+     */
+    public function divisi(): BelongsTo
     {
-        return $this->qty_supply * $this->harga;
+        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 
-    public function getTotalDiscount(): float
+    /**
+     * Override getKeyName to return null since no primary key is defined
+     */
+    public function getKeyName()
     {
-        $subtotal = $this->getSubtotal();
-        $afterDiskon1 = $subtotal - ($subtotal * $this->diskon1 / 100);
-        return ($subtotal * $this->diskon1 / 100) + ($afterDiskon1 * $this->diskon2 / 100);
-    }
-
-    public function getNettoAmount(): float
-    {
-        return $this->getSubtotal() - $this->getTotalDiscount();
-    }
-
-    public function getDiscount1Amount(): float
-    {
-        return $this->getSubtotal() * $this->diskon1 / 100;
-    }
-
-    public function getDiscount2Amount(): float
-    {
-        $afterDiskon1 = $this->getSubtotal() - $this->getDiscount1Amount();
-        return $afterDiskon1 * $this->diskon2 / 100;
+        return null;
     }
 }

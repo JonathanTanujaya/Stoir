@@ -2,84 +2,76 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MDokumen;
 use Illuminate\Http\Request;
-use App\Models\MDokumen; // Asumsi model MDokumen ada
+use Illuminate\Http\JsonResponse;
 
 class MDokumenController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $items = MDokumen::all()->map(fn($d)=>[
-            'id' => $d->id,
-            'namaDokumen' => $d->nama_dokumen
-        ]);
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-            'totalCount' => $items->count()
-        ]);
+        $mDokumens = MDokumen::with(['divisi', 'transactionType'])->get();
+        return response()->json($mDokumens);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create()
+    {
+        // Return view for create form if needed
+    }
+
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'nama_dokumen' => 'required|string|max:255|unique:m_dokumens',
+            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
+            'kode_trans' => 'required|string|max:10|exists:m_trans,kode_trans',
+            'nomor' => 'required|integer|min:1',
+            'prefix' => 'nullable|string|max:10',
+            'tahun' => 'required|integer|min:2000|max:2100',
+            'bulan' => 'required|integer|min:1|max:12'
         ]);
 
-        $mdokumen = MDokumen::create($request->all());
-        return response()->json([
-            'success' => true,
-            'data' => [ 'id' => $mdokumen->id, 'namaDokumen' => $mdokumen->nama_dokumen ],
-            'message' => 'Dokumen created'
-        ], 201);
+        $mDokumen = MDokumen::create($request->all());
+        return response()->json($mDokumen, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $kodeDivisi, string $kodeTrans): JsonResponse
     {
-        $mdokumen = MDokumen::findOrFail($id);
-        return response()->json([
-            'success' => true,
-            'data' => [ 'id' => $mdokumen->id, 'namaDokumen' => $mdokumen->nama_dokumen ]
-        ]);
+        $mDokumen = MDokumen::with(['divisi', 'transactionType'])
+            ->where('kode_divisi', $kodeDivisi)
+            ->where('kode_trans', $kodeTrans)
+            ->firstOrFail();
+        return response()->json($mDokumen);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(string $kodeDivisi, string $kodeTrans)
+    {
+        // Return view for edit form if needed
+    }
+
+    public function update(Request $request, string $kodeDivisi, string $kodeTrans): JsonResponse
     {
         $request->validate([
-            'nama_dokumen' => 'required|string|max:255|unique:m_dokumens,nama_dokumen,' . $id,
+            'nomor' => 'required|integer|min:1',
+            'prefix' => 'nullable|string|max:10',
+            'tahun' => 'required|integer|min:2000|max:2100',
+            'bulan' => 'required|integer|min:1|max:12'
         ]);
 
-        $mdokumen = MDokumen::findOrFail($id);
-        $mdokumen->update($request->all());
-        return response()->json([
-            'success' => true,
-            'data' => [ 'id' => $mdokumen->id, 'namaDokumen' => $mdokumen->nama_dokumen ],
-            'message' => 'Dokumen updated'
-        ]);
+        $mDokumen = MDokumen::where('kode_divisi', $kodeDivisi)
+            ->where('kode_trans', $kodeTrans)
+            ->firstOrFail();
+        
+        $mDokumen->update($request->all());
+        return response()->json($mDokumen);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $kodeDivisi, string $kodeTrans): JsonResponse
     {
-        $mdokumen = MDokumen::findOrFail($id);
-        $mdokumen->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Dokumen deleted'
-        ]);
+        $mDokumen = MDokumen::where('kode_divisi', $kodeDivisi)
+            ->where('kode_trans', $kodeTrans)
+            ->firstOrFail();
+        
+        $mDokumen->delete();
+        return response()->json(['message' => 'MDokumen deleted successfully']);
     }
 }

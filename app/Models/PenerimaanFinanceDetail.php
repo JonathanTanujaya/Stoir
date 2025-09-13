@@ -2,80 +2,43 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PenerimaanFinanceDetail extends Model
 {
-    use HasFactory;
-
     protected $table = 'penerimaan_finance_detail';
     protected $primaryKey = 'id';
-    public $incrementing = true;
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'kodedivisi',
-        'nopenerimaan',
-        'noinvoice',
-        'jumlahinvoice',
-        'sisainvoice',
-        'jumlahbayar',
-        'jumlahdispensasi',
-        'status',
+        'kode_divisi',
+        'no_penerimaan',
+        'no_invoice',
+        'jumlah_invoice',
+        'sisa_invoice',
+        'jumlah_bayar',
+        'jumlah_dispensasi',
+        'status'
     ];
 
     protected $casts = [
-        'jumlahinvoice' => 'decimal:4',
-        'sisainvoice' => 'decimal:4',
-        'jumlahbayar' => 'decimal:4',
-        'jumlahdispensasi' => 'decimal:4',
-        'id' => 'integer'
+        'id' => 'int',
+        'jumlah_invoice' => 'decimal:2',
+        'sisa_invoice' => 'decimal:2',
+        'jumlah_bayar' => 'decimal:2',
+        'jumlah_dispensasi' => 'decimal:2'
     ];
 
-    // Relationships (perbaikan untuk composite key)
-    public function penerimaanFinance()
+    public function penerimaanFinance(): BelongsTo
     {
-        return $this->belongsTo(PenerimaanFinance::class, 'nopenerimaan', 'nopenerimaan')
-                    ->where('penerimaanfinance.kodedivisi', '=', $this->kodedivisi ?? '');
+        return $this->belongsTo(PenerimaanFinance::class, 'no_penerimaan', 'no_penerimaan')
+                    ->where('penerimaan_finance.kode_divisi', $this->kode_divisi);
     }
 
-    public function invoice()
+    public function invoice(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class, 'noinvoice', 'noinvoice')
-                    ->where('invoice.kodedivisi', '=', $this->kodedivisi ?? '');
-    }
-
-    // Scopes
-    public function scopeByPenerimaan($query, $kodeDivisi, $noPenerimaan)
-    {
-        return $query->where('kodedivisi', $kodeDivisi)
-                    ->where('nopenerimaan', $noPenerimaan);
-    }
-
-    public function scopeFinished($query)
-    {
-        return $query->where('status', 'Finish');
-    }
-
-    public function scopeWithDispensasi($query)
-    {
-        return $query->where('jumlahdispensasi', '>', 0);
-    }
-
-    // Helper methods
-    public function isFinished()
-    {
-        return $this->status === 'Finish';
-    }
-
-    public function hasDispensasi()
-    {
-        return $this->jumlahdispensasi > 0;
-    }
-
-    public function getNetPayment()
-    {
-        return $this->jumlahbayar + $this->jumlahdispensasi;
+        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice')
+                    ->where('invoice.kode_divisi', $this->kode_divisi);
     }
 }
