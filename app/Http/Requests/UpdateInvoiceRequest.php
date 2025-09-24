@@ -22,8 +22,6 @@ class UpdateInvoiceRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'tgl_faktur' => 'sometimes|required|date',
             'kode_cust' => [
@@ -31,18 +29,14 @@ class UpdateInvoiceRequest extends FormRequest
                 'required',
                 'string',
                 'max:5',
-                Rule::exists('m_cust', 'kode_cust')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_cust', 'kode_cust')
             ],
             'kode_sales' => [
                 'sometimes',
                 'nullable',
                 'string',
                 'max:5',
-                Rule::exists('m_sales', 'kode_sales')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_sales', 'kode_sales')
             ],
             'tipe' => 'sometimes|nullable|string|in:1,2',
             'jatuh_tempo' => 'sometimes|required|date|after_or_equal:tgl_faktur',

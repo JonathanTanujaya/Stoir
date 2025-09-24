@@ -22,17 +22,13 @@ class StoreSupplierRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_supplier' => [
                 'required',
                 'string',
                 'max:15',
                 'regex:/^[A-Z0-9\-_]+$/',
-                Rule::unique('m_supplier')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::unique('m_supplier', 'kode_supplier')
             ],
             'nama_supplier' => 'required|string|max:50',
             'alamat' => 'nullable|string|max:100',

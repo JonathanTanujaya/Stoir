@@ -17,16 +17,14 @@ class PenerimaanFinanceDetailController extends Controller
     /**
      * Display a listing of the penerimaan finance details.
      */
-    public function index(Request $request, string $kodeDivisi, string $noPenerimaan): JsonResponse
+    public function index(Request $request, string $noPenerimaan): JsonResponse
     {
         try {
             // Verify parent penerimaan finance exists
-            $penerimaanFinance = PenerimaanFinance::where('kode_divisi', $kodeDivisi)
-                ->where('no_penerimaan', $noPenerimaan)
+            $penerimaanFinance = PenerimaanFinance::where('no_penerimaan', $noPenerimaan)
                 ->firstOrFail();
 
             $query = PenerimaanFinanceDetail::query()
-                ->where('kode_divisi', $kodeDivisi)
                 ->where('no_penerimaan', $noPenerimaan)
                 ->with(['penerimaanFinance', 'invoice']);
 
@@ -100,17 +98,15 @@ class PenerimaanFinanceDetailController extends Controller
     /**
      * Store a newly created penerimaan finance detail.
      */
-    public function store(StorePenerimaanFinanceDetailRequest $request, string $kodeDivisi, string $noPenerimaan): JsonResponse
+    public function store(StorePenerimaanFinanceDetailRequest $request, string $noPenerimaan): JsonResponse
     {
         try {
             // Verify parent penerimaan finance exists
-            $penerimaanFinance = PenerimaanFinance::where('kode_divisi', $kodeDivisi)
-                ->where('no_penerimaan', $noPenerimaan)
+            $penerimaanFinance = PenerimaanFinance::where('no_penerimaan', $noPenerimaan)
                 ->firstOrFail();
 
             // Check for duplicate invoice in the same penerimaan
-            $existingDetail = PenerimaanFinanceDetail::where('kode_divisi', $kodeDivisi)
-                ->where('no_penerimaan', $noPenerimaan)
+            $existingDetail = PenerimaanFinanceDetail::where('no_penerimaan', $noPenerimaan)
                 ->where('no_invoice', $request->no_invoice)
                 ->first();
 
@@ -145,11 +141,11 @@ class PenerimaanFinanceDetailController extends Controller
     /**
      * Display the specified penerimaan finance detail.
      */
-    public function show(string $kodeDivisi, string $noPenerimaan, PenerimaanFinanceDetail $detail): JsonResponse
+    public function show(string $noPenerimaan, PenerimaanFinanceDetail $detail): JsonResponse
     {
         try {
             // Verify the detail belongs to the specified penerimaan finance
-            if ($detail->kode_divisi !== $kodeDivisi || $detail->no_penerimaan !== $noPenerimaan) {
+            if ($detail->no_penerimaan !== $noPenerimaan) {
                 return response()->json([
                     'message' => 'Detail tidak ditemukan atau tidak terkait dengan penerimaan finance ini.'
                 ], 404);
@@ -176,11 +172,11 @@ class PenerimaanFinanceDetailController extends Controller
     /**
      * Update the specified penerimaan finance detail.
      */
-    public function update(UpdatePenerimaanFinanceDetailRequest $request, string $kodeDivisi, string $noPenerimaan, PenerimaanFinanceDetail $detail): JsonResponse
+    public function update(UpdatePenerimaanFinanceDetailRequest $request, string $noPenerimaan, PenerimaanFinanceDetail $detail): JsonResponse
     {
         try {
             // Verify the detail belongs to the specified penerimaan finance
-            if ($detail->kode_divisi !== $kodeDivisi || $detail->no_penerimaan !== $noPenerimaan) {
+            if ($detail->no_penerimaan !== $noPenerimaan) {
                 return response()->json([
                     'message' => 'Detail tidak ditemukan atau tidak terkait dengan penerimaan finance ini.'
                 ], 404);
@@ -188,8 +184,7 @@ class PenerimaanFinanceDetailController extends Controller
 
             // Check for duplicate invoice if invoice is being changed
             if ($request->filled('no_invoice') && $request->no_invoice !== $detail->no_invoice) {
-                $existingDetail = PenerimaanFinanceDetail::where('kode_divisi', $kodeDivisi)
-                    ->where('no_penerimaan', $noPenerimaan)
+                $existingDetail = PenerimaanFinanceDetail::where('no_penerimaan', $noPenerimaan)
                     ->where('no_invoice', $request->no_invoice)
                     ->where('id', '!=', $detail->id)
                     ->first();
@@ -227,11 +222,11 @@ class PenerimaanFinanceDetailController extends Controller
     /**
      * Remove the specified penerimaan finance detail.
      */
-    public function destroy(string $kodeDivisi, string $noPenerimaan, PenerimaanFinanceDetail $detail): JsonResponse
+    public function destroy(string $noPenerimaan, PenerimaanFinanceDetail $detail): JsonResponse
     {
         try {
             // Verify the detail belongs to the specified penerimaan finance
-            if ($detail->kode_divisi !== $kodeDivisi || $detail->no_penerimaan !== $noPenerimaan) {
+            if ($detail->no_penerimaan !== $noPenerimaan) {
                 return response()->json([
                     'message' => 'Detail tidak ditemukan atau tidak terkait dengan penerimaan finance ini.'
                 ], 404);
@@ -258,16 +253,14 @@ class PenerimaanFinanceDetailController extends Controller
     /**
      * Get statistics for penerimaan finance details.
      */
-    public function stats(Request $request, string $kodeDivisi, string $noPenerimaan): JsonResponse
+    public function stats(Request $request, string $noPenerimaan): JsonResponse
     {
         try {
             // Verify parent penerimaan finance exists
-            $penerimaanFinance = PenerimaanFinance::where('kode_divisi', $kodeDivisi)
-                ->where('no_penerimaan', $noPenerimaan)
+            $penerimaanFinance = PenerimaanFinance::where('no_penerimaan', $noPenerimaan)
                 ->firstOrFail();
 
             $query = PenerimaanFinanceDetail::query()
-                ->where('kode_divisi', $kodeDivisi)
                 ->where('no_penerimaan', $noPenerimaan);
 
             // Apply filters if provided

@@ -1,37 +1,32 @@
 -- =================================================================
--- POSTGRESQL VIEWS UNTUK SISTEM MANAJEMEN INVENTORY & KEUANGAN
+-- POSTGRESQL VIEWS UNTUK SISTEM SINGLE-TENANT 
 -- =================================================================
--- File: uptView.txt (Optimized PostgreSQL Views)
--- Author: Database Migration Expert
--- Date: 2025-09-03
+-- File: uptView_fixed.sql (Fixed for Single-Tenant Architecture)
+-- Date: 2025-09-18
 -- 
 -- Deskripsi: 
--- File ini berisi definisi VIEW yang telah dioptimasi untuk PostgreSQL
--- dengan penamaan snake_case dan foreign key yang konsisten.
--- 
--- Total Views: 24 views
--- - 18 views utama (migrasi dari MSSQL)
--- - 6 views tambahan untuk monitoring dan reporting
+-- File ini berisi definisi VIEW yang telah diperbaiki untuk arsitektur
+-- single-tenant (menghapus kode_divisi dan referensi tabel yang dihapus)
 -- =================================================================
 
--- 1. VIEW v_bank
--- Deskripsi: Menampilkan daftar rekening bank dengan detail bank
+-- 1. VIEW v_bank (FIXED - Using rekening_bank table)
+-- Deskripsi: Menampilkan daftar rekening bank dari tabel rekening_bank
 CREATE OR REPLACE VIEW v_bank AS
 SELECT 
-    db.kode_divisi, 
-    db.no_rekening, 
-    db.kode_bank, 
-    mb.nama_bank, 
-    db.atas_nama, 
-    db.status
-FROM d_bank db
-RIGHT JOIN m_bank mb ON mb.kode_divisi = db.kode_divisi AND mb.kode_bank = db.kode_bank;
+    rb.no_rekening, 
+    rb.kode_bank, 
+    rb.nama_bank, 
+    rb.atas_nama, 
+    rb.status_rekening AS status,
+    rb.saldo,
+    rb.created_at,
+    rb.updated_at
+FROM rekening_bank rb;
 
--- 2. VIEW v_barang  
+-- 2. VIEW v_barang (FIXED - Removed kode_divisi)
 -- Deskripsi: Menampilkan master barang dengan detail stok dan harga
 CREATE OR REPLACE VIEW v_barang AS
 SELECT 
-    mb.kode_divisi, 
     mb.kode_barang, 
     mb.nama_barang, 
     mb.kode_kategori, 
@@ -47,34 +42,34 @@ SELECT
     mb.barcode, 
     mb.status, 
     db.id,
-    mb.lokasi
+    mb.lokasi,
+    mb.stok_min
 FROM m_barang mb
-LEFT JOIN d_barang db ON mb.kode_divisi = db.kode_divisi AND mb.kode_barang = db.kode_barang;
+LEFT JOIN d_barang db ON mb.kode_barang = db.kode_barang;
 
--- 3. VIEW v_customer_resi
+-- 3. VIEW v_customer_resi (FIXED - Using penerimaan_finance)
+-- Deskripsi: Menggunakan penerimaan_finance sebagai pengganti m_resi
 CREATE OR REPLACE VIEW v_customer_resi AS
 SELECT 
-    mr.kode_divisi, 
-    mr.no_resi, 
-    mr.no_rekening_tujuan, 
-    mr.tgl_pembayaran, 
-    mr.kode_cust, 
+    pf.no_penerimaan AS no_resi, 
+    pf.no_rek_tujuan AS no_rekening_tujuan, 
+    pf.tgl_penerimaan AS tgl_pembayaran, 
+    pf.kode_cust, 
     mc.nama_cust, 
-    mr.jumlah, 
-    mr.sisa_resi, 
-    mr.keterangan,
-    mr.status, 
-    db.kode_bank, 
-    mb.nama_bank
-FROM m_resi mr
-LEFT JOIN d_bank db ON mr.kode_divisi = db.kode_divisi AND mr.no_rekening_tujuan = db.no_rekening
-LEFT JOIN m_bank mb ON db.kode_divisi = mb.kode_divisi AND db.kode_bank = mb.kode_bank
-LEFT JOIN m_cust mc ON mr.kode_divisi = mc.kode_divisi AND mr.kode_cust = mc.kode_cust;
+    pf.jumlah, 
+    (pf.jumlah - COALESCE((SELECT SUM(pfd.jumlah_bayar) FROM penerimaan_finance_detail pfd WHERE pfd.no_penerimaan = pf.no_penerimaan), 0)) AS sisa_resi, 
+    pf.keterangan,
+    pf.status, 
+    rb.kode_bank, 
+    rb.nama_bank
+FROM penerimaan_finance pf
+LEFT JOIN rekening_bank rb ON pf.no_rek_tujuan = rb.no_rekening
+LEFT JOIN m_cust mc ON pf.kode_cust = mc.kode_cust
+WHERE pf.tipe = 'Resi';
 
--- 4. VIEW v_cust_retur
+-- 4. VIEW v_cust_retur (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_cust_retur AS
 SELECT 
-    rs.kode_divisi, 
     rs.no_retur, 
     rs.tgl_retur, 
     rs.kode_cust, 
@@ -84,9 +79,9 @@ SELECT
     rs.keterangan,
     rs.status
 FROM return_sales rs
-LEFT JOIN m_cust mc ON rs.kode_divisi = mc.kode_divisi AND rs.kode_cust = mc.kode_cust;
+LEFT JOIN m_cust mc ON rs.kode_cust = mc.kode_cust;
 
--- 5. VIEW v_invoice
+-- 5. VIEW v_invoice (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_invoice AS
 SELECT 
     i.no_invoice, 
@@ -95,7 +90,6 @@ SELECT
     mc.nama_cust, 
     i.kode_sales, 
     ms.nama_sales, 
-    mc.kode_divisi, 
     mc.kode_area, 
     ma.area,
     i.tipe, 
@@ -121,27 +115,20 @@ SELECT
     i.total, 
     i.disc, 
     i.pajak, 
-    c.company_name,
-    c.alamat, 
-    c.kota, 
-    c.an, 
     mc.telp AS telp_cust, 
     mc.no_npwp AS npwp_cust, 
-    c.telp, 
-    c.npwp, 
     mb.satuan, 
     i.username,
     i.tt
 FROM invoice i
-JOIN invoice_detail id ON i.kode_divisi = id.kode_divisi AND i.no_invoice = id.no_invoice
-JOIN m_barang mb ON id.kode_divisi = mb.kode_divisi AND id.kode_barang = mb.kode_barang
-LEFT JOIN m_kategori mk ON mb.kode_divisi = mk.kode_divisi AND mb.kode_kategori = mk.kode_kategori
-LEFT JOIN m_cust mc ON i.kode_divisi = mc.kode_divisi AND i.kode_cust = mc.kode_cust
-LEFT JOIN m_area ma ON mc.kode_divisi = ma.kode_divisi AND mc.kode_area = ma.kode_area
-LEFT JOIN m_sales ms ON i.kode_divisi = ms.kode_divisi AND i.kode_sales = ms.kode_sales
-CROSS JOIN company c;
+JOIN invoice_detail id ON i.no_invoice = id.no_invoice
+JOIN m_barang mb ON id.kode_barang = mb.kode_barang
+LEFT JOIN m_kategori mk ON mb.kode_kategori = mk.kode_kategori
+LEFT JOIN m_cust mc ON i.kode_cust = mc.kode_cust
+LEFT JOIN m_area ma ON mc.kode_area = ma.kode_area
+LEFT JOIN m_sales ms ON i.kode_sales = ms.kode_sales;
 
--- 6. VIEW v_invoice_header
+-- 6. VIEW v_invoice_header (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_invoice_header AS
 SELECT 
     i.no_invoice, 
@@ -158,293 +145,275 @@ SELECT
     i.sisa_invoice, 
     i.ket, 
     i.status, 
-    i.kode_divisi, 
     i.total, 
     i.disc, 
     i.pajak,
     mc.no_npwp, 
     mc.nama_pajak, 
     mc.alamat_pajak, 
-    i.username, 
     i.tt
 FROM invoice i
-LEFT JOIN m_sales ms ON i.kode_divisi = ms.kode_divisi AND i.kode_sales = ms.kode_sales
-LEFT JOIN m_cust mc ON i.kode_divisi = mc.kode_divisi AND i.kode_cust = mc.kode_cust
-LEFT JOIN m_area ma ON mc.kode_divisi = ma.kode_divisi AND mc.kode_area = ma.kode_area;
+LEFT JOIN m_sales ms ON i.kode_sales = ms.kode_sales
+LEFT JOIN m_cust mc ON i.kode_cust = mc.kode_cust
+LEFT JOIN m_area ma ON mc.kode_area = ma.kode_area;
 
--- 7. VIEW v_journal
+-- 7. VIEW v_journal (NO CHANGE - Already compatible)
 CREATE OR REPLACE VIEW v_journal AS
 SELECT 
     j.id, 
-    j.tanggal, 
-    j.transaksi, 
-    j.kode_coa, 
-    mc.nama_coa, 
-    j.keterangan, 
-    j.debet, 
-    j.credit
+    j.tanggal,
+    j.transaksi,
+    j.kode_coa,
+    mc.nama_coa,
+    mc.saldo_normal,
+    j.keterangan,
+    j.debet,
+    j.credit,
+    j.created_at
 FROM journal j
 INNER JOIN m_coa mc ON j.kode_coa = mc.kode_coa;
 
--- 8. VIEW v_kartu_stok
+-- 8. VIEW v_kartu_stok (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_kartu_stok AS
 SELECT 
     ks.urut, 
-    ks.kode_divisi, 
-    ks.kode_barang, 
-    mb.nama_barang, 
-    mb.kode_kategori, 
-    ks.no_ref, 
-    ks.tgl_proses, 
+    ks.kode_barang,
+    mb.nama_barang,
+    ks.no_ref,
+    ks.tgl_proses,
     ks.tipe,
-    ks.increase, 
-    ks.decrease, 
-    ks.harga_debet, 
-    ks.harga_kredit, 
-    ks.qty, 
-    ks.hpp
+    ks.increase,
+    ks.decrease,
+    ks.harga_debet,
+    ks.harga_kredit,
+    ks.hpp,
+    ks.qty
 FROM kartu_stok ks
-INNER JOIN m_barang mb ON ks.kode_divisi = mb.kode_divisi AND ks.kode_barang = mb.kode_barang;
+INNER JOIN m_barang mb ON ks.kode_barang = mb.kode_barang;
 
--- 9. VIEW v_part_penerimaan
+-- 9. VIEW v_part_penerimaan (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_part_penerimaan AS
 SELECT 
-    pp.kode_divisi, 
     pp.no_penerimaan, 
-    pp.tgl_penerimaan, 
-    pp.kode_supplier, 
-    ms.nama_supplier, 
-    pp.jatuh_tempo,
-    pp.no_faktur, 
-    pp.total, 
-    pp.discount, 
-    pp.pajak, 
-    pp.grand_total, 
+    pp.tgl_penerimaan,
+    pp.kode_supplier,
+    ms.nama_supplier,
+    pp.no_faktur,
+    pp.total,
+    pp.disc,
+    pp.pajak,
+    pp.grand_total,
+    pp.sisa_penerimaan,
     pp.status,
-    ppd.kode_barang, 
-    ppd.qty_supply, 
-    ppd.harga, 
-    ppd.diskon1, 
+    ppd.kode_barang,
+    mb.nama_barang,
+    ppd.qty_supply,
+    ppd.harga,
+    ppd.diskon1,
     ppd.diskon2,
-    ppd.harga_nett, 
-    mb.nama_barang
+    ppd.harga_nett
 FROM part_penerimaan pp
-JOIN part_penerimaan_detail ppd ON pp.kode_divisi = ppd.kode_divisi AND pp.no_penerimaan = ppd.no_penerimaan
-LEFT JOIN m_supplier ms ON pp.kode_divisi = ms.kode_divisi AND pp.kode_supplier = ms.kode_supplier
-LEFT JOIN m_barang mb ON ppd.kode_divisi = mb.kode_divisi AND ppd.kode_barang = mb.kode_barang;
+JOIN part_penerimaan_detail ppd ON pp.no_penerimaan = ppd.no_penerimaan
+LEFT JOIN m_supplier ms ON pp.kode_supplier = ms.kode_supplier
+LEFT JOIN m_barang mb ON ppd.kode_barang = mb.kode_barang;
 
--- 10. VIEW v_part_penerimaan_header
+-- 10. VIEW v_part_penerimaan_header (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_part_penerimaan_header AS
 SELECT 
-    pp.kode_divisi, 
     pp.no_penerimaan, 
-    pp.tgl_penerimaan, 
-    pp.kode_supplier, 
-    ms.nama_supplier, 
+    pp.tgl_penerimaan,
+    pp.kode_supplier,
+    ms.nama_supplier,
+    pp.kode_valas,
+    pp.kurs,
     pp.jatuh_tempo,
-    pp.no_faktur, 
-    pp.total, 
-    pp.discount, 
-    pp.pajak, 
-    pp.grand_total, 
+    pp.no_faktur,
+    pp.total,
+    pp.disc,
+    pp.pajak,
+    pp.grand_total,
+    pp.sisa_penerimaan,
     pp.status
 FROM part_penerimaan pp
-INNER JOIN m_supplier ms ON pp.kode_divisi = ms.kode_divisi AND pp.kode_supplier = ms.kode_supplier;
+INNER JOIN m_supplier ms ON pp.kode_supplier = ms.kode_supplier;
 
--- 11. VIEW v_penerimaan_finance
+-- 11. VIEW v_penerimaan_finance (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_penerimaan_finance AS
 SELECT 
-    pf.kode_divisi, 
     pf.no_penerimaan, 
-    pf.tgl_penerimaan, 
-    pf.tipe, 
-    pf.no_ref,
-    pf.tgl_ref, 
-    pf.tgl_pencairan, 
-    pf.bank_ref, 
-    pf.no_rek_tujuan, 
+    pf.tgl_penerimaan,
+    pf.tipe,
+    pf.no_rek_tujuan,
     pf.kode_cust,
-    pf.jumlah, 
-    pf.status, 
-    mc.nama_cust
-FROM penerimaan_finance pf
-LEFT JOIN m_cust mc ON pf.kode_divisi = mc.kode_divisi AND pf.kode_cust = mc.kode_cust;
-
--- 12. VIEW v_penerimaan_finance_detail
-CREATE OR REPLACE VIEW v_penerimaan_finance_detail AS
-SELECT 
-    pf.kode_divisi, 
-    pf.no_penerimaan, 
-    pf.tgl_penerimaan, 
-    pf.tipe, 
-    pf.no_ref, 
-    pf.tgl_ref, 
-    pf.tgl_pencairan, 
-    pf.bank_ref, 
-    pf.no_rek_tujuan, 
-    pf.kode_cust,
-    pf.jumlah, 
-    pf.status, 
-    pfd.no_invoice, 
-    pfd.jumlah_invoice, 
-    pfd.jumlah_bayar, 
-    pfd.jumlah_dispensasi,
-    pfd.status AS status_detail, 
-    pfd.id, 
-    i.sisa_invoice,
-    pfd.sisa_invoice - pfd.jumlah_bayar - pfd.jumlah_dispensasi AS sisa_bayar, 
-    mc.nama_cust, 
-    i.kode_sales,
-    ms.nama_sales, 
+    mc.nama_cust,
+    pf.jumlah,
+    pf.keterangan,
+    pf.status,
     pf.no_voucher
 FROM penerimaan_finance pf
-JOIN penerimaan_finance_detail pfd ON pf.kode_divisi = pfd.kode_divisi AND pf.no_penerimaan = pfd.no_penerimaan
-LEFT JOIN m_cust mc ON pf.kode_divisi = mc.kode_divisi AND pf.kode_cust = mc.kode_cust
-LEFT JOIN invoice i ON pfd.kode_divisi = i.kode_divisi AND pfd.no_invoice = i.no_invoice
-LEFT JOIN m_sales ms ON i.kode_divisi = ms.kode_divisi AND i.kode_sales = ms.kode_sales;
+LEFT JOIN m_cust mc ON pf.kode_cust = mc.kode_cust;
 
--- 13. VIEW v_return_sales_detail
+-- 12. VIEW v_penerimaan_finance_detail (FIXED - Removed kode_divisi)
+CREATE OR REPLACE VIEW v_penerimaan_finance_detail AS
+SELECT 
+    pf.no_penerimaan, 
+    pf.tgl_penerimaan,
+    pf.kode_cust,
+    mc.nama_cust,
+    pfd.no_invoice,
+    i.tgl_faktur,
+    i.kode_sales,
+    ms.nama_sales,
+    pfd.jumlah_invoice,
+    pfd.sisa_invoice,
+    pfd.jumlah_bayar,
+    pfd.jumlah_dispensasi,
+    pfd.status,
+    pf.no_voucher
+FROM penerimaan_finance pf
+JOIN penerimaan_finance_detail pfd ON pf.no_penerimaan = pfd.no_penerimaan
+LEFT JOIN m_cust mc ON pf.kode_cust = mc.kode_cust
+LEFT JOIN invoice i ON pfd.no_invoice = i.no_invoice
+LEFT JOIN m_sales ms ON i.kode_sales = ms.kode_sales;
+
+-- 13. VIEW v_return_sales_detail (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_return_sales_detail AS
 SELECT 
-    rs.kode_divisi, 
     rs.no_retur, 
-    rs.tgl_retur, 
-    rs.kode_cust, 
-    mc.nama_cust, 
-    mc.alamat AS alamat_cust, 
+    rs.tgl_retur,
+    rs.kode_cust,
+    mc.nama_cust,
     rs.total,
-    rsd.no_invoice, 
-    i.tgl_faktur, 
-    i.kode_sales, 
-    ms.nama_sales, 
-    rsd.kode_barang, 
-    mb.nama_barang, 
-    mb.satuan, 
-    mb.merk,
-    rsd.qty_retur, 
-    rsd.harga_nett, 
-    mc.telp, 
-    rs.status, 
+    rs.sisa_retur,
+    rs.status,
+    rsd.no_invoice,
+    i.tgl_faktur,
+    i.kode_sales,
+    ms.nama_sales,
+    rsd.kode_barang,
+    mb.nama_barang,
+    rsd.qty_retur,
+    rsd.harga_nett,
+    rsd.status AS status_detail,
     rs.tt
 FROM return_sales rs
-JOIN return_sales_detail rsd ON rs.kode_divisi = rsd.kode_divisi AND rs.no_retur = rsd.no_retur
-LEFT JOIN m_cust mc ON rs.kode_divisi = mc.kode_divisi AND rs.kode_cust = mc.kode_cust
-LEFT JOIN invoice i ON rsd.kode_divisi = i.kode_divisi AND rsd.no_invoice = i.no_invoice
-LEFT JOIN m_sales ms ON i.kode_divisi = ms.kode_divisi AND i.kode_sales = ms.kode_sales
-LEFT JOIN m_barang mb ON rsd.kode_divisi = mb.kode_divisi AND rsd.kode_barang = mb.kode_barang;
+JOIN return_sales_detail rsd ON rs.no_retur = rsd.no_retur
+LEFT JOIN m_cust mc ON rs.kode_cust = mc.kode_cust
+LEFT JOIN invoice i ON rsd.no_invoice = i.no_invoice
+LEFT JOIN m_sales ms ON i.kode_sales = ms.kode_sales
+LEFT JOIN m_barang mb ON rsd.kode_barang = mb.kode_barang;
 
--- 14. VIEW v_trans
+-- 14. VIEW v_trans (FIXED - Corrected column names)
 CREATE OR REPLACE VIEW v_trans AS
 SELECT 
-    dt.kode_trans, 
-    dt.kode_coa, 
-    dt.saldo_normal, 
-    mt.transaksi, 
-    mc.nama_coa
+    dt.kode_trans,
+    mt.transaksi,
+    dt.kode_coa,
+    mc.nama_coa,
+    dt.saldo_normal
 FROM d_trans dt
 INNER JOIN m_trans mt ON dt.kode_trans = mt.kode_trans
 INNER JOIN m_coa mc ON dt.kode_coa = mc.kode_coa;
 
--- 15. VIEW v_tt
+-- 15. VIEW v_tt (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_tt AS
 SELECT 
-    mt.kode_divisi,
     mt.no_tt, 
-    mt.tanggal, 
-    mt.kode_cust, 
-    mc.nama_cust, 
-    mt.keterangan
+    mt.tgl_tt,
+    mt.kode_cust,
+    mc.nama_cust,
+    mt.jumlah,
+    mt.keterangan,
+    mt.status
 FROM m_tt mt
-LEFT JOIN m_cust mc ON mt.kode_divisi = mc.kode_divisi AND mt.kode_cust = mc.kode_cust;
+LEFT JOIN m_cust mc ON mt.kode_cust = mc.kode_cust;
 
--- 16. VIEW v_tt_invoice
+-- 16. VIEW v_tt_invoice (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_tt_invoice AS
 SELECT 
-    mt.kode_divisi,
     mt.no_tt, 
-    mt.tanggal, 
-    mt.kode_cust, 
-    mc.nama_cust, 
-    mt.keterangan, 
-    dt.no_ref, 
-    i.tgl_faktur, 
-    ms.nama_sales, 
+    mt.tgl_tt,
+    mt.kode_cust,
+    mc.nama_cust,
+    dt.no_ref AS no_invoice,
+    i.tgl_faktur,
+    i.kode_sales,
+    ms.nama_sales,
     i.grand_total,
-    i.sisa_invoice
+    i.sisa_invoice,
+    i.status,
+    dt.jumlah AS jumlah_tt
 FROM m_tt mt
-JOIN d_tt dt ON mt.kode_divisi = dt.kode_divisi AND mt.no_tt = dt.no_tt
-JOIN m_cust mc ON mt.kode_divisi = mc.kode_divisi AND mt.kode_cust = mc.kode_cust
-JOIN invoice i ON mt.kode_divisi = i.kode_divisi AND dt.no_ref = i.no_invoice
-JOIN m_sales ms ON i.kode_divisi = ms.kode_divisi AND i.kode_sales = ms.kode_sales;
+JOIN d_tt dt ON mt.no_tt = dt.no_tt
+JOIN m_cust mc ON mt.kode_cust = mc.kode_cust
+JOIN invoice i ON dt.no_ref = i.no_invoice
+JOIN m_sales ms ON i.kode_sales = ms.kode_sales;
 
--- 17. VIEW v_tt_retur
+-- 17. VIEW v_tt_retur (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_tt_retur AS
 SELECT 
-    mt.kode_divisi,
     mt.no_tt, 
-    mt.tanggal, 
-    mt.kode_cust, 
-    mc.nama_cust, 
-    dt.no_ref, 
-    rs.tgl_retur, 
-    rsd.kode_barang, 
+    mt.tgl_tt,
+    mt.kode_cust,
+    mc.nama_cust,
+    dt.no_ref AS no_retur,
+    rs.tgl_retur,
+    rs.total,
+    rs.sisa_retur,
+    rs.status,
+    rsd.kode_barang,
     mb.nama_barang,
-    rsd.qty_retur, 
-    rsd.harga_nett, 
-    mb.merk, 
-    rs.status
+    rsd.qty_retur,
+    rsd.harga_nett,
+    dt.jumlah AS jumlah_tt
 FROM m_tt mt
-JOIN m_cust mc ON mt.kode_divisi = mc.kode_divisi AND mt.kode_cust = mc.kode_cust
-JOIN d_tt dt ON mt.kode_divisi = dt.kode_divisi AND mt.no_tt = dt.no_tt
-JOIN return_sales rs ON mt.kode_divisi = rs.kode_divisi AND dt.no_ref = rs.no_retur
-JOIN return_sales_detail rsd ON rs.kode_divisi = rsd.kode_divisi AND rs.no_retur = rsd.no_retur
-JOIN m_barang mb ON rsd.kode_divisi = mb.kode_divisi AND rsd.kode_barang = mb.kode_barang;
+JOIN m_cust mc ON mt.kode_cust = mc.kode_cust
+JOIN d_tt dt ON mt.no_tt = dt.no_tt
+JOIN return_sales rs ON dt.no_ref = rs.no_retur
+JOIN return_sales_detail rsd ON rs.no_retur = rsd.no_retur
+JOIN m_barang mb ON rsd.kode_barang = mb.kode_barang;
 
--- 18. VIEW v_voucher
+-- 18. VIEW v_voucher (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_voucher AS
 SELECT 
-    mv.kode_divisi,
     mv.no_voucher, 
-    mv.tanggal, 
-    mv.kode_sales, 
-    ms.nama_sales, 
-    mv.total_omzet, 
-    mv.komisi, 
-    mv.jumlah_komisi
+    mv.tgl_voucher,
+    mv.kode_sales,
+    ms.nama_sales,
+    mv.jenis_transaksi,
+    mv.persen_komisi,
+    mv.jumlah_komisi,
+    mv.status
 FROM m_voucher mv
-INNER JOIN m_sales ms ON mv.kode_divisi = ms.kode_divisi AND mv.kode_sales = ms.kode_sales;
+INNER JOIN m_sales ms ON mv.kode_sales = ms.kode_sales;
 
--- 19. VIEW tambahan untuk monitoring (opsional)
+-- 19. VIEW v_stok_summary (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_stok_summary AS
 SELECT 
-    mb.kode_divisi,
     mb.kode_barang,
     mb.nama_barang,
     mb.satuan,
-    COALESCE(SUM(db.stok), 0) AS total_stok,
     mb.stok_min,
     mb.lokasi,
+    COALESCE(SUM(db.stok), 0) AS total_stok,
     CASE 
-        WHEN COALESCE(SUM(db.stok), 0) <= mb.stok_min THEN 'CRITICAL'
-        WHEN COALESCE(SUM(db.stok), 0) <= mb.stok_min * 1.5 THEN 'LOW'
-        ELSE 'NORMAL'
+        WHEN COALESCE(SUM(db.stok), 0) <= 0 THEN 'Habis'
+        WHEN COALESCE(SUM(db.stok), 0) <= mb.stok_min THEN 'Minimum'
+        ELSE 'Normal'
     END AS status_stok
 FROM m_barang mb
-LEFT JOIN d_barang db ON mb.kode_divisi = db.kode_divisi AND mb.kode_barang = db.kode_barang
-GROUP BY mb.kode_divisi, mb.kode_barang, mb.nama_barang, mb.satuan, mb.stok_min, mb.lokasi;
+LEFT JOIN d_barang db ON mb.kode_barang = db.kode_barang
+GROUP BY mb.kode_barang, mb.nama_barang, mb.satuan, mb.stok_min, mb.lokasi;
 
--- 20. VIEW untuk laporan keuangan
+-- 20. VIEW v_financial_report (NO CHANGE - Already compatible)
 CREATE OR REPLACE VIEW v_financial_report AS
 SELECT 
     j.tanggal,
     j.kode_coa,
     mc.nama_coa,
     mc.saldo_normal,
-    j.transaksi,
-    j.keterangan,
     j.debet,
     j.credit,
-    j.debet - j.credit AS balance,
     CASE 
         WHEN mc.saldo_normal = 'Debit' THEN j.debet - j.credit
         ELSE j.credit - j.debet
@@ -453,10 +422,9 @@ FROM journal j
 JOIN m_coa mc ON j.kode_coa = mc.kode_coa
 ORDER BY j.tanggal, j.id;
 
--- 21. VIEW untuk aging report piutang
+-- 21. VIEW v_aging_report (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_aging_report AS
 SELECT 
-    i.kode_divisi,
     i.no_invoice,
     i.tgl_faktur,
     i.jatuh_tempo,
@@ -465,79 +433,81 @@ SELECT
     i.grand_total,
     i.sisa_invoice,
     i.status,
+    CURRENT_DATE - i.jatuh_tempo AS days_overdue,
     CASE 
-        WHEN CURRENT_DATE <= i.jatuh_tempo THEN 'CURRENT'
-        WHEN CURRENT_DATE <= i.jatuh_tempo + 30 THEN '1-30 DAYS'
-        WHEN CURRENT_DATE <= i.jatuh_tempo + 60 THEN '31-60 DAYS'
-        WHEN CURRENT_DATE <= i.jatuh_tempo + 90 THEN '61-90 DAYS'
-        ELSE 'OVER 90 DAYS'
-    END AS aging_category,
-    CURRENT_DATE - i.jatuh_tempo AS days_overdue
+        WHEN CURRENT_DATE - i.jatuh_tempo <= 0 THEN 'Belum Jatuh Tempo'
+        WHEN CURRENT_DATE - i.jatuh_tempo BETWEEN 1 AND 30 THEN '1-30 Hari'
+        WHEN CURRENT_DATE - i.jatuh_tempo BETWEEN 31 AND 60 THEN '31-60 Hari'
+        WHEN CURRENT_DATE - i.jatuh_tempo BETWEEN 61 AND 90 THEN '61-90 Hari'
+        ELSE 'Lebih dari 90 Hari'
+    END AS kategori_aging
 FROM invoice i
-JOIN m_cust mc ON i.kode_divisi = mc.kode_divisi AND i.kode_cust = mc.kode_cust
+JOIN m_cust mc ON i.kode_cust = mc.kode_cust
 WHERE i.sisa_invoice > 0 AND i.status != 'Cancel';
 
--- 22. VIEW untuk summary penjualan per sales
+-- 22. VIEW v_sales_summary (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_sales_summary AS
 SELECT 
-    i.kode_divisi,
     i.kode_sales,
     ms.nama_sales,
-    ma.area AS nama_area,
-    COUNT(i.no_invoice) AS total_transaksi,
-    SUM(i.grand_total) AS total_penjualan,
-    AVG(i.grand_total) AS rata_rata_per_transaksi,
-    SUM(i.sisa_invoice) AS total_piutang,
+    ma.area,
     EXTRACT(MONTH FROM i.tgl_faktur) AS bulan,
-    EXTRACT(YEAR FROM i.tgl_faktur) AS tahun
+    EXTRACT(YEAR FROM i.tgl_faktur) AS tahun,
+    COUNT(*) AS jumlah_invoice,
+    SUM(i.grand_total) AS total_penjualan,
+    AVG(i.grand_total) AS rata_rata_invoice
 FROM invoice i
-JOIN m_sales ms ON i.kode_divisi = ms.kode_divisi AND i.kode_sales = ms.kode_sales
-LEFT JOIN m_area ma ON ms.kode_divisi = ma.kode_divisi AND ms.kode_area = ma.kode_area
+JOIN m_sales ms ON i.kode_sales = ms.kode_sales
+LEFT JOIN m_area ma ON ms.kode_area = ma.kode_area
 WHERE i.status != 'Cancel'
-GROUP BY i.kode_divisi, i.kode_sales, ms.nama_sales, ma.area, 
+GROUP BY i.kode_sales, ms.nama_sales, ma.area, 
          EXTRACT(MONTH FROM i.tgl_faktur), EXTRACT(YEAR FROM i.tgl_faktur);
 
--- 23. VIEW untuk monitoring return/retur
+-- 23. VIEW v_return_summary (FIXED - Removed kode_divisi)
 CREATE OR REPLACE VIEW v_return_summary AS
 SELECT 
-    rs.kode_divisi,
     rs.no_retur,
     rs.tgl_retur,
     rs.kode_cust,
     mc.nama_cust,
     rs.status,
-    COUNT(rsd.id) AS total_item,
-    SUM(rsd.qty_retur * rsd.harga_nett) AS total_nilai_retur,
+    rs.total,
+    rs.sisa_retur,
+    COUNT(rsd.kode_barang) AS jumlah_item,
+    SUM(rsd.qty_retur) AS total_qty_retur,
     CASE 
-        WHEN rs.tipe_retur = 'sales' THEN 'Return Sales'
-        WHEN rs.tipe_retur = 'supplier' THEN 'Return to Supplier'
-        ELSE 'Other'
+        WHEN rs.sisa_retur <= 0 THEN 'Lunas'
+        WHEN rs.sisa_retur = rs.total THEN 'Belum Diproses'
+        ELSE 'Sebagian'
     END AS kategori_retur
 FROM return_sales rs
-JOIN m_cust mc ON rs.kode_divisi = mc.kode_divisi AND rs.kode_cust = mc.kode_cust
-LEFT JOIN return_sales_detail rsd ON rs.kode_divisi = rsd.kode_divisi AND rs.no_retur = rsd.no_retur
-GROUP BY rs.kode_divisi, rs.no_retur, rs.tgl_retur, rs.kode_cust, mc.nama_cust, 
-         rs.status, rs.tipe_retur;
+JOIN m_cust mc ON rs.kode_cust = mc.kode_cust
+LEFT JOIN return_sales_detail rsd ON rs.no_retur = rsd.no_retur
+GROUP BY rs.no_retur, rs.tgl_retur, rs.kode_cust, mc.nama_cust, 
+         rs.status, rs.total, rs.sisa_retur;
 
--- 24. VIEW untuk dashboard overview (KPI)
+-- 24. VIEW v_dashboard_kpi (FIXED - Updated for single-tenant)
 CREATE OR REPLACE VIEW v_dashboard_kpi AS
 SELECT 
     (SELECT COUNT(*) FROM invoice WHERE status != 'Cancel') AS total_invoice,
-    (SELECT SUM(grand_total) FROM invoice WHERE status != 'Cancel') AS total_penjualan,
-    (SELECT SUM(sisa_invoice) FROM invoice WHERE sisa_invoice > 0) AS total_piutang,
-    (SELECT COUNT(*) FROM m_cust WHERE status = TRUE) AS total_customer_aktif,
-    (SELECT COUNT(*) FROM m_barang WHERE status = TRUE) AS total_produk_aktif,
-    (SELECT COUNT(*) FROM v_stok_summary WHERE status_stok = 'CRITICAL') AS produk_stok_kritis,
-    (SELECT AVG(grand_total) FROM invoice WHERE status != 'Cancel' AND tgl_faktur >= CURRENT_DATE - 30) AS rata_rata_penjualan_bulanan;
+    (SELECT COUNT(*) FROM invoice WHERE status != 'Cancel' AND tgl_faktur >= CURRENT_DATE - 30) AS invoice_bulan_ini,
+    (SELECT SUM(grand_total) FROM invoice WHERE status != 'Cancel' AND tgl_faktur >= CURRENT_DATE - 30) AS penjualan_bulan_ini,
+    (SELECT AVG(grand_total) FROM invoice WHERE status != 'Cancel' AND tgl_faktur >= CURRENT_DATE - 30) AS rata_rata_penjualan_bulanan,
+    (SELECT COUNT(*) FROM m_cust) AS total_customer,
+    (SELECT COUNT(*) FROM m_barang WHERE status = true) AS total_barang_aktif,
+    (SELECT COUNT(*) FROM return_sales WHERE tgl_retur >= CURRENT_DATE - 30) AS retur_bulan_ini,
+    (SELECT SUM(sisa_invoice) FROM invoice WHERE sisa_invoice > 0 AND status != 'Cancel') AS total_piutang;
 
 -- INDEXES untuk optimasi performance VIEW
 -- =======================================
+-- Note: Indexes ini sebaiknya dibuat setelah semua data di-load
 
--- Comment: Indexes ini akan dibuat terpisah setelah semua data di-load
 /*
-CREATE INDEX CONCURRENTLY idx_invoice_performance ON invoice(kode_divisi, tgl_faktur, status);
-CREATE INDEX CONCURRENTLY idx_invoice_detail_performance ON invoice_detail(kode_divisi, no_invoice, kode_barang);
-CREATE INDEX CONCURRENTLY idx_kartu_stok_performance ON kartu_stok(kode_divisi, kode_barang, tanggal);
+CREATE INDEX CONCURRENTLY idx_invoice_performance ON invoice(tgl_faktur, status);
+CREATE INDEX CONCURRENTLY idx_invoice_detail_performance ON invoice_detail(no_invoice, kode_barang);
+CREATE INDEX CONCURRENTLY idx_kartu_stok_performance ON kartu_stok(kode_barang, tgl_proses);
 CREATE INDEX CONCURRENTLY idx_journal_performance ON journal(tanggal, kode_coa);
-CREATE INDEX CONCURRENTLY idx_return_sales_performance ON return_sales(kode_divisi, tgl_retur, status);
+CREATE INDEX CONCURRENTLY idx_return_sales_performance ON return_sales(tgl_retur, status);
+CREATE INDEX CONCURRENTLY idx_part_penerimaan_performance ON part_penerimaan(tgl_penerimaan, status);
+CREATE INDEX CONCURRENTLY idx_penerimaan_finance_performance ON penerimaan_finance(tgl_penerimaan, status);
 */

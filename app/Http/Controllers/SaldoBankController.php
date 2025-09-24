@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\SaldoBank;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SaldoBankController extends Controller
 {
     public function index(): JsonResponse
     {
         $saldoBanks = SaldoBank::with(['bank'])->get();
+
         return response()->json($saldoBanks);
     }
 
@@ -22,13 +23,16 @@ class SaldoBankController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
-            'kode_bank' => 'required|string|max:10',
-            'tanggal' => 'required|date',
-            'saldo' => 'required|numeric'
+            'no_rekening' => 'required|string|max:50|exists:bank,no_rekening',
+            'tgl_proses' => 'required|date',
+            'keterangan' => 'nullable|string|max:500',
+            'debet' => 'nullable|numeric|min:0',
+            'kredit' => 'nullable|numeric|min:0',
+            'saldo' => 'nullable|numeric',
         ]);
 
         $saldoBank = SaldoBank::create($request->all());
+
         return response()->json($saldoBank, 201);
     }
 
@@ -36,6 +40,7 @@ class SaldoBankController extends Controller
     {
         $saldoBank = SaldoBank::with(['bank'])
             ->findOrFail($id);
+
         return response()->json($saldoBank);
     }
 
@@ -47,12 +52,17 @@ class SaldoBankController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         $request->validate([
-            'tanggal' => 'required|date',
-            'saldo' => 'required|numeric'
+            'no_rekening' => 'required|string|max:50|exists:bank,no_rekening',
+            'tgl_proses' => 'required|date',
+            'keterangan' => 'nullable|string|max:500',
+            'debet' => 'nullable|numeric|min:0',
+            'kredit' => 'nullable|numeric|min:0',
+            'saldo' => 'nullable|numeric',
         ]);
 
         $saldoBank = SaldoBank::findOrFail($id);
         $saldoBank->update($request->all());
+
         return response()->json($saldoBank);
     }
 
@@ -60,24 +70,25 @@ class SaldoBankController extends Controller
     {
         $saldoBank = SaldoBank::findOrFail($id);
         $saldoBank->delete();
+
         return response()->json(['message' => 'SaldoBank deleted successfully']);
     }
 
-    public function getByBank($kodeDivisi, $kodeBank): JsonResponse
+    public function getByBank($noRekening): JsonResponse
     {
-        $saldoBanks = SaldoBank::where('kode_divisi', $kodeDivisi)
-            ->where('kode_bank', $kodeBank)
-            ->orderBy('tanggal', 'desc')
+        $saldoBanks = SaldoBank::where('no_rekening', $noRekening)
+            ->orderBy('tgl_proses', 'desc')
             ->get();
+
         return response()->json($saldoBanks);
     }
 
-    public function getLatest($kodeDivisi, $kodeBank): JsonResponse
+    public function getLatest($noRekening): JsonResponse
     {
-        $latestSaldo = SaldoBank::where('kode_divisi', $kodeDivisi)
-            ->where('kode_bank', $kodeBank)
-            ->orderBy('tanggal', 'desc')
+        $latestSaldo = SaldoBank::where('no_rekening', $noRekening)
+            ->orderBy('tgl_proses', 'desc')
             ->first();
+
         return response()->json($latestSaldo);
     }
 }

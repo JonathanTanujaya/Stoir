@@ -22,7 +22,6 @@ class UpdateKategoriRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
         $kodeKategori = $this->route('kodeKategori');
         
         return [
@@ -31,9 +30,7 @@ class UpdateKategoriRequest extends FormRequest
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('m_kategori', 'kode_kategori')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })->ignore($kodeKategori, 'kode_kategori'),
+                Rule::unique('m_kategori', 'kode_kategori')->ignore($kodeKategori, 'kode_kategori'),
             ],
             'kategori' => 'sometimes|required|string|max:50',
             'status' => 'sometimes|boolean',

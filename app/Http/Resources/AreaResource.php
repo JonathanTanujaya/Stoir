@@ -15,24 +15,11 @@ class AreaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'kode_divisi' => $this->kode_divisi,
             'kode_area' => $this->kode_area,
             'area' => $this->area,
             'status' => (bool) $this->status,
             'status_label' => $this->status ? 'Aktif' : 'Tidak Aktif',
             'status_badge_class' => $this->status ? 'success' : 'danger',
-            
-            // Relationships - check if resource is a proper model instance
-            'divisi' => $this->when(
-                method_exists($this->resource, 'relationLoaded') && $this->relationLoaded('divisi'), 
-                function () {
-                    return [
-                        'kode_divisi' => $this->divisi->kode_divisi,
-                        'divisi' => $this->divisi->divisi,
-                        'status' => (bool) $this->divisi->status,
-                    ];
-                }
-            ),
             
             // Stats - check if relationships are loaded
             'customers_count' => $this->when(
@@ -62,7 +49,6 @@ class AreaResource extends JsonResource
             
             // Additional data for UI
             'display_name' => "[{$this->kode_area}] {$this->area}",
-            'full_name' => "[{$this->kode_divisi}] - [{$this->kode_area}] {$this->area}",
         ];
     }
 }

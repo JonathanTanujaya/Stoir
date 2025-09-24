@@ -20,25 +20,19 @@ class StoreCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_cust' => [
                 'required',
                 'string',
                 'max:5',
-                Rule::unique('m_cust', 'kode_cust')->where(function ($q) use ($kodeDivisi) {
-                    return $q->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::unique('m_cust', 'kode_cust')
             ],
             'nama_cust' => 'required|string|max:100',
             'kode_area' => [
                 'required',
                 'string',
                 'max:5',
-                Rule::exists('m_area', 'kode_area')->where(function ($q) use ($kodeDivisi) {
-                    return $q->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_area', 'kode_area')
             ],
             'alamat' => 'nullable|string|max:255',
             'telp' => 'nullable|string|max:20',
@@ -53,9 +47,7 @@ class StoreCustomerRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:5',
-                Rule::exists('m_sales', 'kode_sales')->where(function ($q) use ($kodeDivisi) {
-                    return $q->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_sales', 'kode_sales')
             ]
         ];
     }

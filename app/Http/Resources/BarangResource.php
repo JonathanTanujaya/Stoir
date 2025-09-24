@@ -15,15 +15,11 @@ class BarangResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'kode_divisi' => $this->kode_divisi,
             'kode_barang' => $this->kode_barang,
             'nama_barang' => $this->nama_barang,
             'kode_kategori' => $this->kode_kategori,
             'nama_kategori' => $this->whenLoaded('kategori', function () {
                 return $this->kategori->nama_kategori ?? null;
-            }),
-            'nama_divisi' => $this->whenLoaded('divisi', function () {
-                return $this->divisi->nama_divisi ?? null;
             }),
             'pricing' => [
                 'harga_list' => $this->formatCurrency($this->harga_list),
@@ -56,7 +52,6 @@ class BarangResource extends JsonResource
             ],
             // Include relationships when loaded
             'relationships' => [
-                'divisi' => $this->whenLoaded('divisi'),
                 'kategori' => $this->whenLoaded('kategori'),
                 'detail_barang' => $this->whenLoaded('detailBarang'),
                 'stock_movements_count' => $this->whenCounted('kartuStoks'),

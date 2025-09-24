@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
@@ -24,7 +22,6 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'kode_divisi',
         'username',
         'nama',
         'password',
@@ -53,21 +50,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Ensure updates and deletes include both composite keys.
+     * Custom query handling for non-numeric primary key.
      */
     protected function setKeysForSaveQuery($query)
     {
-        $query->where('kode_divisi', '=', $this->original['kode_divisi'] ?? $this->getAttribute('kode_divisi'))
-              ->where('username', '=', $this->original['username'] ?? $this->getAttribute('username'));
+        $query->where('username', '=', $this->original['username'] ?? $this->getAttribute('username'));
 
         return $query;
-    }
-
-    /**
-     * Relationship with Divisi
-     */
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
     }
 }

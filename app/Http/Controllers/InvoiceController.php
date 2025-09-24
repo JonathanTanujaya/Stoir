@@ -16,13 +16,12 @@ class InvoiceController extends Controller
     /**
      * Display a listing of invoices with pagination and filtering.
      */
-    public function index(Request $request, string $kodeDivisi): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
             $request->attributes->set('query_start_time', microtime(true));
             
-            $query = Invoice::where('kode_divisi', $kodeDivisi)
-                           ->with(['divisi', 'customer', 'sales']);
+            $query = Invoice::with(['customer', 'sales']);
 
             // Apply search filter
             if ($request->filled('search')) {
@@ -98,16 +97,15 @@ class InvoiceController extends Controller
     /**
      * Store a newly created invoice.
      */
-    public function store(StoreInvoiceRequest $request, string $kodeDivisi): JsonResponse
+    public function store(StoreInvoiceRequest $request): JsonResponse
     {
         try {
             DB::beginTransaction();
 
             $invoiceData = $request->validated();
-            $invoiceData['kode_divisi'] = $kodeDivisi;
 
             $invoice = Invoice::create($invoiceData);
-            $invoice->load(['divisi', 'customer', 'sales']);
+            $invoice->load(['customer', 'sales']);
 
             DB::commit();
 
@@ -131,13 +129,11 @@ class InvoiceController extends Controller
     /**
      * Display the specified invoice.
      */
-    public function show(string $kodeDivisi, string $noInvoice): JsonResponse
+    public function show(string $noInvoice): JsonResponse
     {
         try {
-            $kodeDivisi = strtoupper($kodeDivisi);
             $noInvoice = strtoupper($noInvoice);
-            $invoice = Invoice::with(['divisi', 'customer', 'sales', 'invoiceDetails'])
-                             ->where('kode_divisi', $kodeDivisi)
+            $invoice = Invoice::with(['customer', 'sales', 'invoiceDetails'])
                              ->where('no_invoice', $noInvoice)
                              ->first();
 
@@ -165,14 +161,11 @@ class InvoiceController extends Controller
     /**
      * Update the specified invoice.
      */
-    public function update(UpdateInvoiceRequest $request, string $kodeDivisi, string $noInvoice): JsonResponse
+    public function update(UpdateInvoiceRequest $request, string $noInvoice): JsonResponse
     {
         try {
-            $kodeDivisi = strtoupper($kodeDivisi);
             $noInvoice = strtoupper($noInvoice);
-            $invoice = Invoice::where('kode_divisi', $kodeDivisi)
-                             ->where('no_invoice', $noInvoice)
-                             ->first();
+            $invoice = Invoice::where('no_invoice', $noInvoice)->first();
 
             if (!$invoice) {
                 return response()->json([
@@ -191,16 +184,10 @@ class InvoiceController extends Controller
 
             DB::beginTransaction();
 
-            // Update manual untuk composite key
-            Invoice::where('kode_divisi', $kodeDivisi)
-                   ->where('no_invoice', $noInvoice)
-                   ->update($request->validated());
+            $invoice->update($request->validated());
             
             // Refresh model untuk response
-            $invoice = Invoice::with(['divisi', 'customer', 'sales'])
-                             ->where('kode_divisi', $kodeDivisi)
-                             ->where('no_invoice', $noInvoice)
-                             ->first();
+            $invoice->load(['customer', 'sales']);
 
             DB::commit();
 
@@ -224,14 +211,11 @@ class InvoiceController extends Controller
     /**
      * Remove the specified invoice.
      */
-    public function destroy(string $kodeDivisi, string $noInvoice): JsonResponse
+    public function destroy(string $noInvoice): JsonResponse
     {
         try {
-            $kodeDivisi = strtoupper($kodeDivisi);
             $noInvoice = strtoupper($noInvoice);
-            $invoice = Invoice::where('kode_divisi', $kodeDivisi)
-                             ->where('no_invoice', $noInvoice)
-                             ->first();
+            $invoice = Invoice::where('no_invoice', $noInvoice)->first();
 
             if (!$invoice) {
                 return response()->json([
@@ -259,10 +243,7 @@ class InvoiceController extends Controller
                 ], 422);
             }
 
-            // Hard delete for invoice using composite key constraints
-            Invoice::where('kode_divisi', $kodeDivisi)
-                ->where('no_invoice', $noInvoice)
-                ->delete();
+            $invoice->delete();
 
             DB::commit();
 
@@ -285,14 +266,11 @@ class InvoiceController extends Controller
     /**
      * Cancel the specified invoice.
      */
-    public function cancel(string $kodeDivisi, string $noInvoice): JsonResponse
+    public function cancel(string $noInvoice): JsonResponse
     {
         try {
-            $kodeDivisi = strtoupper($kodeDivisi);
             $noInvoice = strtoupper($noInvoice);
-            $invoice = Invoice::where('kode_divisi', $kodeDivisi)
-                             ->where('no_invoice', $noInvoice)
-                             ->first();
+            $invoice = Invoice::where('no_invoice', $noInvoice)->first();
 
             if (!$invoice) {
                 return response()->json([
@@ -315,18 +293,14 @@ class InvoiceController extends Controller
                 'status' => 'Cancel'
             ]);
 
-            // Reload without using fresh() to avoid composite key issues
-            $reloaded = Invoice::with(['divisi', 'customer', 'sales'])
-                ->where('kode_divisi', $kodeDivisi)
-                ->where('no_invoice', $noInvoice)
-                ->first();
+            $invoice->load(['customer', 'sales']);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice berhasil dibatalkan',
-                'data' => new InvoiceResource($reloaded)
+                'data' => new InvoiceResource($invoice)
             ]);
 
         } catch (\Exception $e) {
@@ -343,10 +317,10 @@ class InvoiceController extends Controller
     /**
      * Get invoice summary statistics.
      */
-    public function getSummary(Request $request, string $kodeDivisi): JsonResponse
+    public function getSummary(Request $request): JsonResponse
     {
         try {
-            $query = Invoice::where('kode_divisi', $kodeDivisi);
+            $query = Invoice::query();
 
             // Apply date filter if provided
             if ($request->filled('month')) {

@@ -20,7 +20,6 @@ class UpdateReturnSalesDetailRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'kode_divisi' => $this->route('kodeDivisi'),
             'no_retur' => $this->route('noRetur'),
         ]);
     }
@@ -37,13 +36,13 @@ class UpdateReturnSalesDetailRequest extends FormRequest
                 'sometimes',
                 'string',
                 'max:15',
-                'exists:invoice,no_invoice,kode_divisi,' . $this->route('kodeDivisi'),
+                'exists:invoice,no_invoice',
             ],
             'kode_barang' => [
                 'sometimes',
                 'string',
                 'max:30',
-                'exists:m_barang,kode_barang,kode_divisi,' . $this->route('kodeDivisi'),
+                'exists:m_barang,kode_barang',
             ],
             'qty_retur' => [
                 'sometimes',

@@ -17,9 +17,9 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $kodeDivisi): Response
+    public function index(Request $request): Response
     {
-        $query = User::where('kode_divisi', $kodeDivisi);
+        $query = User::query();
 
         // Search functionality
         if ($request->filled('search')) {
@@ -47,9 +47,6 @@ class UserController extends Controller
             $query->orderBy($sortBy, $sortOrder);
         }
 
-        // Load relationships
-        $query->with(['divisi']);
-
         // Pagination
         $perPage = min($request->get('per_page', 15), 100);
         $users = $query->paginate($perPage);
@@ -60,16 +57,14 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request, string $kodeDivisi): Response
+    public function store(StoreUserRequest $request): Response
     {
         $validated = $request->validated();
-        $validated['kode_divisi'] = $kodeDivisi;
         
         // Hash password before storing
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
-        $user->load(['divisi']);
 
         return response(new UserResource($user), 201);
     }
@@ -77,12 +72,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $kodeDivisi, string $username): Response
+    public function show(string $username): Response
     {
-        $user = User::where([
-            'kode_divisi' => $kodeDivisi,
-            'username' => $username
-        ])->with(['divisi'])->firstOrFail();
+        $user = User::where('username', $username)->firstOrFail();
 
         return response(new UserResource($user));
     }
@@ -90,12 +82,9 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, string $kodeDivisi, string $username): Response
+    public function update(UpdateUserRequest $request, string $username): Response
     {
-        $user = User::where([
-            'kode_divisi' => $kodeDivisi,
-            'username' => $username
-        ])->firstOrFail();
+        $user = User::where('username', $username)->firstOrFail();
 
         $validated = $request->validated();
         
@@ -105,7 +94,6 @@ class UserController extends Controller
         }
 
         $user->update($validated);
-        $user->load(['divisi']);
 
         return response(new UserResource($user));
     }
@@ -113,12 +101,9 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $kodeDivisi, string $username): Response
+    public function destroy(string $username): Response
     {
-        $user = User::where([
-            'kode_divisi' => $kodeDivisi,
-            'username' => $username
-        ])->firstOrFail();
+        $user = User::where('username', $username)->firstOrFail();
 
         // Check if user has any related data that would prevent deletion
         // Add business logic here if needed
@@ -129,14 +114,13 @@ class UserController extends Controller
     }
 
     /**
-     * Get users statistics for the specified division.
+     * Get users statistics.
      */
-    public function stats(string $kodeDivisi): Response
+    public function stats(): Response
     {
         $stats = [
-            'total_users' => User::where('kode_divisi', $kodeDivisi)->count(),
-            'users_by_month' => User::where('kode_divisi', $kodeDivisi)
-                ->selectRaw('EXTRACT(MONTH FROM created_at) as month, COUNT(*) as count')
+            'total_users' => User::count(),
+            'users_by_month' => User::selectRaw('EXTRACT(MONTH FROM created_at) as month, COUNT(*) as count')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get()

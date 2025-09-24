@@ -22,16 +22,12 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'username' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('master_user', 'username')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::unique('master_user', 'username')
             ],
             'nama' => 'required|string|max:50',
             'password' => 'required|string|min:8',

@@ -13,19 +13,18 @@ use Illuminate\Http\Request;
 class AreaController extends Controller
 {
     /**
-     * Display a listing of areas for a specific division.
+     * Display a listing of areas.
      */
-    public function index(Request $request, string $kodeDivisi): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $request->attributes->set('query_start_time', microtime(true));
 
-        $query = Area::query()
-            ->where('kode_divisi', $kodeDivisi);
+        $query = Area::query();
 
         // Eager load counts for summary when listing
         $with = $request->boolean('with_relations', false);
         if ($with) {
-            $query->with(['divisi', 'customers', 'sales']);
+            $query->with(['customers', 'sales']);
         }
 
         // Search (ILIKE for Postgres case-insensitive)
@@ -64,13 +63,12 @@ class AreaController extends Controller
     /**
      * Store a newly created area in storage.
      */
-    public function store(StoreAreaRequest $request, string $kodeDivisi): JsonResponse
+    public function store(StoreAreaRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $validated['kode_divisi'] = $kodeDivisi;
 
         $area = Area::create($validated);
-        $area->load(['divisi', 'customers', 'sales']);
+        $area->load(['customers', 'sales']);
 
         return response()->json([
             'success' => true,
@@ -82,10 +80,9 @@ class AreaController extends Controller
     /**
      * Display the specified area.
      */
-    public function show(string $kodeDivisi, string $kodeArea): JsonResponse
+    public function show(string $kodeArea): JsonResponse
     {
-        $area = Area::with(['divisi', 'customers', 'sales'])
-            ->where('kode_divisi', $kodeDivisi)
+        $area = Area::with(['customers', 'sales'])
             ->where('kode_area', $kodeArea)
             ->firstOrFail();
 
@@ -98,21 +95,15 @@ class AreaController extends Controller
     /**
      * Update the specified area in storage.
      */
-    public function update(UpdateAreaRequest $request, string $kodeDivisi, string $kodeArea): JsonResponse
+    public function update(UpdateAreaRequest $request, string $kodeArea): JsonResponse
     {
-        $area = Area::where('kode_divisi', $kodeDivisi)
-            ->where('kode_area', $kodeArea)
+        $area = Area::where('kode_area', $kodeArea)
             ->firstOrFail();
 
         $validated = $request->validated();
-        
-        // Manual update for composite key models
-        foreach ($validated as $key => $value) {
-            $area->{$key} = $value;
-        }
-        $area->save();
+        $area->update($validated);
 
-        $area->load(['divisi', 'customers', 'sales']);
+        $area->load(['customers', 'sales']);
 
         return response()->json([
             'success' => true,
@@ -124,10 +115,9 @@ class AreaController extends Controller
     /**
      * Remove the specified area from storage.
      */
-    public function destroy(string $kodeDivisi, string $kodeArea): JsonResponse
+    public function destroy(string $kodeArea): JsonResponse
     {
-        $area = Area::where('kode_divisi', $kodeDivisi)
-            ->where('kode_area', $kodeArea)
+        $area = Area::where('kode_area', $kodeArea)
             ->firstOrFail();
 
         // Check if area has related customers or sales
@@ -154,18 +144,17 @@ class AreaController extends Controller
     }
 
     /**
-     * Get area statistics for a specific division.
+     * Get area statistics.
      */
-    public function stats(string $kodeDivisi): JsonResponse
+    public function stats(): JsonResponse
     {
         $stats = [
-            'total_areas' => Area::where('kode_divisi', $kodeDivisi)->count(),
-            'active_areas' => Area::where('kode_divisi', $kodeDivisi)->where('status', true)->count(),
-            'inactive_areas' => Area::where('kode_divisi', $kodeDivisi)->where('status', false)->count(),
+            'total_areas' => Area::count(),
+            'active_areas' => Area::where('status', true)->count(),
+            'inactive_areas' => Area::where('status', false)->count(),
         ];
 
         $areas = Area::with(['customers', 'sales'])
-            ->where('kode_divisi', $kodeDivisi)
             ->get();
 
         $stats['total_customers'] = $areas->sum(function ($area) {

@@ -13,7 +13,6 @@ class ReturPenerimaan extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_retur_penerimaan',
         'tgl_retur',
         'kode_supplier',
@@ -27,30 +26,23 @@ class ReturPenerimaan extends Model
         'nilai' => 'decimal:2'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode_supplier')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode_supplier');
     }
 
     public function partPenerimaan(): BelongsTo
     {
-        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan');
     }
 
     public function returPenerimaanDetails(): HasMany
     {
-        return $this->hasMany(ReturPenerimaanDetail::class, ['kode_divisi', 'no_retur_penerimaan'], ['kode_divisi', 'no_retur_penerimaan']);
+        return $this->hasMany(ReturPenerimaanDetail::class, 'no_retur_penerimaan', 'no_retur_penerimaan');
     }
 
     public function getKeyName(): array
     {
-        return ['kode_divisi', 'no_retur_penerimaan'];
+        return ['no_retur_penerimaan'];
     }
 }

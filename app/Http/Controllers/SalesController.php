@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Http\Requests\StoreSalesRequest;
 use App\Http\Requests\UpdateSalesRequest;
 use App\Http\Resources\SalesResource;
@@ -17,15 +16,12 @@ class SalesController extends Controller
     /**
      * Display a listing of sales with pagination and filtering.
      */
-    public function index(Request $request, string $kodeDivisi): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
             $request->attributes->set('query_start_time', microtime(true));
             
-                $query = Sales::where('kode_divisi', $kodeDivisi)
-                                 ->with(['divisi', 'area' => function ($q) use ($kodeDivisi) {
-                                     $q->where('kode_divisi', $kodeDivisi);
-                                 }]);
+                $query = Sales::with('area');
 
             // Apply search filter
             if ($request->filled('search')) {
@@ -77,22 +73,16 @@ class SalesController extends Controller
     /**
      * Store a newly created sales.
      */
-    public function store(StoreSalesRequest $request, string $kodeDivisi): JsonResponse
+    public function store(StoreSalesRequest $request): JsonResponse
     {
         try {
             DB::beginTransaction();
 
             $salesData = $request->validated();
-            $salesData['kode_divisi'] = $kodeDivisi;
 
             $sales = Sales::create($salesData);
-            // Ensure fresh state and relations are loaded with constrained area
-            $sales->refresh()->load([
-                'divisi',
-                'area' => function ($q) use ($kodeDivisi) {
-                    $q->where('kode_divisi', $kodeDivisi);
-                }
-            ]);
+            // Ensure fresh state and relations are loaded
+            $sales->refresh()->load('area');
 
             DB::commit();
 
@@ -116,22 +106,10 @@ class SalesController extends Controller
     /**
      * Display the specified sales.
      */
-    public function show(string $kodeDivisi, string $kodeSales): JsonResponse
+    public function show(string $kodeSales): JsonResponse
     {
         try {
-            $sales = Sales::with(['divisi', 'area' => function ($q) use ($kodeDivisi) {
-                            $q->where('kode_divisi', $kodeDivisi);
-                        }])
-                         ->where('kode_divisi', $kodeDivisi)
-                         ->where('kode_sales', $kodeSales)
-                         ->first();
-
-            if (!$sales) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sales tidak ditemukan'
-                ], 404);
-            }
+            $sales = Sales::with('area')->findOrFail($kodeSales);
 
             return response()->json([
                 'success' => true,
@@ -150,34 +128,17 @@ class SalesController extends Controller
     /**
      * Update the specified sales.
      */
-    public function update(UpdateSalesRequest $request, string $kodeDivisi, string $kodeSales): JsonResponse
+    public function update(UpdateSalesRequest $request, string $kodeSales): JsonResponse
     {
         try {
-            $sales = Sales::where('kode_divisi', $kodeDivisi)
-                         ->where('kode_sales', $kodeSales)
-                         ->first();
-
-            if (!$sales) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sales tidak ditemukan'
-                ], 404);
-            }
+            $sales = Sales::findOrFail($kodeSales);
 
             DB::beginTransaction();
 
-            // Update manual untuk composite key
-            Sales::where('kode_divisi', $kodeDivisi)
-                 ->where('kode_sales', $kodeSales)
-                 ->update($request->validated());
+            $sales->update($request->validated());
             
             // Refresh model untuk response
-            $sales = Sales::with(['divisi', 'area' => function ($q) use ($kodeDivisi) {
-                            $q->where('kode_divisi', $kodeDivisi);
-                        }])
-                         ->where('kode_divisi', $kodeDivisi)
-                         ->where('kode_sales', $kodeSales)
-                         ->first();
+            $sales->refresh()->load('area');
 
             DB::commit();
 
@@ -201,19 +162,10 @@ class SalesController extends Controller
     /**
      * Remove the specified sales.
      */
-    public function destroy(string $kodeDivisi, string $kodeSales): JsonResponse
+    public function destroy(string $kodeSales): JsonResponse
     {
         try {
-            $sales = Sales::where('kode_divisi', $kodeDivisi)
-                         ->where('kode_sales', $kodeSales)
-                         ->first();
-
-            if (!$sales) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sales tidak ditemukan'
-                ], 404);
-            }
+            $sales = Sales::findOrFail($kodeSales);
 
             DB::beginTransaction();
 
@@ -227,10 +179,7 @@ class SalesController extends Controller
                 ], 422);
             }
 
-            // Delete manual untuk composite key
-            Sales::where('kode_divisi', $kodeDivisi)
-                 ->where('kode_sales', $kodeSales)
-                 ->delete();
+            $sales->delete();
 
             DB::commit();
 
@@ -242,7 +191,6 @@ class SalesController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to delete sales', [
-                'kode_divisi' => $kodeDivisi,
                 'kode_sales' => $kodeSales,
                 'error' => $e->getMessage(),
             ]);
@@ -257,23 +205,14 @@ class SalesController extends Controller
     /**
      * Get sales performance statistics.
      */
-    public function getSalesStats(string $kodeDivisi, string $kodeSales): JsonResponse
+    public function getSalesStats(string $kodeSales): JsonResponse
     {
         try {
             $sales = Sales::with(['invoices' => function ($query) {
-                $query->selectRaw('kode_sales, kode_divisi, COUNT(*) as total_invoices, SUM(grand_total) as total_sales')
-                      ->groupBy('kode_sales', 'kode_divisi');
+                $query->selectRaw('kode_sales, COUNT(*) as total_invoices, SUM(grand_total) as total_sales')
+                      ->groupBy('kode_sales');
             }])
-            ->where('kode_divisi', $kodeDivisi)
-            ->where('kode_sales', $kodeSales)
-            ->first();
-
-            if (!$sales) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sales tidak ditemukan'
-                ], 404);
-            }
+            ->findOrFail($kodeSales);
 
             $totalSales = $sales->invoices->sum('grand_total');
             $totalInvoices = $sales->invoices->count();

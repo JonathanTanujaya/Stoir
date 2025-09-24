@@ -18,7 +18,6 @@ class PartPenerimaanDetail extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_penerimaan',
         'kode_barang',
         'qty_supply',
@@ -41,8 +40,7 @@ class PartPenerimaanDetail extends Model
      */
     public function partPenerimaan(): BelongsTo
     {
-        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(PartPenerimaan::class, 'no_penerimaan', 'no_penerimaan');
     }
 
     /**
@@ -50,16 +48,7 @@ class PartPenerimaanDetail extends Model
      */
     public function barang(): BelongsTo
     {
-        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')
-            ->where('kode_divisi', $this->kode_divisi);
-    }
-
-    /**
-     * Relationship with Divisi
-     */
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
 
     /**

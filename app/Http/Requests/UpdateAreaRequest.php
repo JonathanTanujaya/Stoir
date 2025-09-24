@@ -39,7 +39,6 @@ class UpdateAreaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
         $kodeArea = $this->route('kodeArea');
         
         return [
@@ -48,9 +47,7 @@ class UpdateAreaRequest extends FormRequest
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('m_area', 'kode_area')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })->ignore($kodeArea, 'kode_area'),
+                Rule::unique('m_area', 'kode_area')->ignore($kodeArea, 'kode_area'),
             ],
             'area' => 'sometimes|required|string|max:50',
             'status' => 'sometimes|boolean',

@@ -22,16 +22,12 @@ class StoreKategoriRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_kategori' => [
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('m_kategori', 'kode_kategori')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                }),
+                Rule::unique('m_kategori', 'kode_kategori'),
             ],
             'kategori' => 'required|string|max:50',
             'status' => 'boolean',

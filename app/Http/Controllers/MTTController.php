@@ -3,75 +3,170 @@
 namespace App\Http\Controllers;
 
 use App\Models\MTt;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class MTtController extends Controller
+class MTTController extends Controller
 {
+    /**
+     * Display a listing of tanda terima with relationships.
+     */
     public function index(): JsonResponse
     {
-        $mTts = MTt::with(['divisi', 'customer', 'dTts'])->get();
-        return response()->json($mTts);
+        try {
+            $mTts = MTt::with(['customer', 'dTts'])->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $mTts,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data tanda terima',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function create()
-    {
-        // Return view for create form if needed
-    }
-
+    /**
+     * Store a newly created tanda terima.
+     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
-            'no_tt' => 'required|string|max:20',
-            'tgl_tt' => 'required|date',
-            'kode_cust' => 'required|string|max:15',
-            'nilai' => 'required|numeric|min:0',
-            'status' => 'required|boolean'
+            'no_tt' => 'required|string|max:15|unique:m_tt,no_tt',
+            'tanggal' => 'required|date',
+            'kode_cust' => 'required|string|max:5|exists:m_cust,kode_cust',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
-        $mTt = MTt::create($request->all());
-        return response()->json($mTt, 201);
+        try {
+            DB::beginTransaction();
+
+            $mTt = MTt::create($request->all());
+            $mTt->load(['customer']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tanda terima berhasil dibuat',
+                'data' => $mTt,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat tanda terima',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function show(string $kodeDivisi, string $noTt): JsonResponse
+    /**
+     * Display the specified tanda terima.
+     */
+    public function show(string $noTt): JsonResponse
     {
-        $mTt = MTt::with(['divisi', 'customer', 'dTts'])
-            ->where('kode_divisi', $kodeDivisi)
-            ->where('no_tt', $noTt)
-            ->firstOrFail();
-        return response()->json($mTt);
+        try {
+            $mTt = MTt::with(['customer', 'dTts'])
+                ->where('no_tt', $noTt)
+                ->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'data' => $mTt,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data tanda terima',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function edit(string $kodeDivisi, string $noTt)
-    {
-        // Return view for edit form if needed
-    }
-
-    public function update(Request $request, string $kodeDivisi, string $noTt): JsonResponse
+    /**
+     * Update the specified tanda terima.
+     */
+    public function update(Request $request, string $noTt): JsonResponse
     {
         $request->validate([
-            'tgl_tt' => 'required|date',
-            'kode_cust' => 'required|string|max:15',
-            'nilai' => 'required|numeric|min:0',
-            'status' => 'required|boolean'
+            'tanggal' => 'required|date',
+            'kode_cust' => 'required|string|max:5|exists:m_cust,kode_cust',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
-        $mTt = MTt::where('kode_divisi', $kodeDivisi)
-            ->where('no_tt', $noTt)
-            ->firstOrFail();
-        
-        $mTt->update($request->all());
-        return response()->json($mTt);
+        try {
+            $mTt = MTt::where('no_tt', $noTt)->firstOrFail();
+
+            DB::beginTransaction();
+
+            $mTt->update($request->all());
+            $mTt->load(['customer']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tanda terima berhasil diperbarui',
+                'data' => $mTt,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui tanda terima',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function destroy(string $kodeDivisi, string $noTt): JsonResponse
+    /**
+     * Remove the specified tanda terima.
+     */
+    public function destroy(string $noTt): JsonResponse
     {
-        $mTt = MTt::where('kode_divisi', $kodeDivisi)
-            ->where('no_tt', $noTt)
-            ->firstOrFail();
-        
-        $mTt->delete();
-        return response()->json(['message' => 'MTt deleted successfully']);
+        try {
+            $mTt = MTt::where('no_tt', $noTt)->firstOrFail();
+
+            DB::beginTransaction();
+
+            // Check if has related details
+            $hasDetails = $mTt->dTts()->exists();
+            if ($hasDetails) {
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tanda terima tidak dapat dihapus karena memiliki detail terkait',
+                ], 422);
+            }
+
+            $mTt->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tanda terima berhasil dihapus',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus tanda terima',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

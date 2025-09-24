@@ -16,7 +16,6 @@ class ReturnSalesDetailResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'kode_divisi' => $this->kode_divisi,
             'no_retur' => $this->no_retur,
             'no_invoice' => $this->no_invoice,
             'kode_barang' => $this->kode_barang,
@@ -30,7 +29,6 @@ class ReturnSalesDetailResource extends JsonResource
             // Related data (loaded when available)
             'return_sales' => $this->whenLoaded('returnSales', function () {
                 return [
-                    'kode_divisi' => $this->returnSales->kode_divisi,
                     'no_return_sales' => $this->returnSales->no_return_sales,
                     'tgl_return' => $this->returnSales->tgl_return,
                     'kode_cust' => $this->returnSales->kode_cust,
@@ -40,7 +38,6 @@ class ReturnSalesDetailResource extends JsonResource
             
             'barang' => $this->whenLoaded('barang', function () {
                 return [
-                    'kode_divisi' => $this->barang->kode_divisi,
                     'kode_barang' => $this->barang->kode_barang,
                     'nama_barang' => $this->barang->nama_barang,
                     'satuan' => $this->barang->satuan,
@@ -50,7 +47,6 @@ class ReturnSalesDetailResource extends JsonResource
             
             'invoice' => $this->whenLoaded('invoice', function () {
                 return [
-                    'kode_divisi' => $this->invoice->kode_divisi,
                     'no_invoice' => $this->invoice->no_invoice,
                     'tgl_faktur' => $this->invoice->tgl_faktur,
                     'kode_cust' => $this->invoice->kode_cust,

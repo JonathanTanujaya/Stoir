@@ -22,26 +22,20 @@ class StoreSalesRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_sales' => [
                 'required',
                 'string',
                 'max:15',
                 'regex:/^[A-Z0-9\-_]+$/',
-                Rule::unique('m_sales')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::unique('m_sales', 'kode_sales')
             ],
             'nama_sales' => 'required|string|max:50',
             'kode_area' => [
                 'nullable',
                 'string',
                 'max:5',
-                Rule::exists('m_area', 'kode_area')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_area', 'kode_area')
             ],
             'alamat' => 'nullable|string|max:500',
             'no_hp' => 'nullable|string|max:20|regex:/^[\d\-\+\(\)\s]+$/',

@@ -12,7 +12,6 @@ class ReturnSalesDetail extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_retur',
         'no_invoice',
         'kode_barang',
@@ -26,24 +25,20 @@ class ReturnSalesDetail extends Model
         'harga_nett' => 'decimal:2'
     ];
 
-    // Note: These relationships are simplified due to composite key constraints
-    // They may require additional where clauses in queries for proper scoping
+    // Simplified relationships after removing kode_divisi composite key constraints
     
     public function returnSales(): BelongsTo
     {
-        // This is a simplified relationship - may need manual scoping by kode_divisi
         return $this->belongsTo(ReturnSales::class, 'no_retur', 'no_retur');
     }
 
     public function barang(): BelongsTo
     {
-        // This is a simplified relationship - may need manual scoping by kode_divisi
         return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
 
     public function invoice(): BelongsTo
     {
-        // This is a simplified relationship - may need manual scoping by kode_divisi
         return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice');
     }
 }

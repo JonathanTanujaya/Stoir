@@ -13,7 +13,6 @@ class MTt extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_tt',
         'tgl_tt',
         'kode_cust',
@@ -27,23 +26,18 @@ class MTt extends Model
         'status' => 'boolean'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, ['kode_divisi', 'kode_cust'], ['kode_divisi', 'kode_cust']);
+        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust');
     }
 
     public function dTts(): HasMany
     {
-        return $this->hasMany(DTt::class, ['kode_divisi', 'no_tt'], ['kode_divisi', 'no_tt']);
+        return $this->hasMany(DTt::class, 'no_tt', 'no_tt');
     }
 
     public function getKeyName(): array
     {
-        return ['kode_divisi', 'no_tt'];
+        return ['no_tt'];
     }
 }

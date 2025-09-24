@@ -16,14 +16,12 @@ class SupplierController extends Controller
     /**
      * Display a listing of suppliers with pagination and filtering.
      */
-    public function index(Request $request, string $kodeDivisi): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
             $request->attributes->set('query_start_time', microtime(true));
             
-            $query = Supplier::query()
-                ->where('kode_divisi', $kodeDivisi)
-                ->with(['divisi']);
+            $query = Supplier::query();
 
             // Apply search filter
             if ($request->filled('search')) {
@@ -68,16 +66,14 @@ class SupplierController extends Controller
     /**
      * Store a newly created supplier.
      */
-    public function store(StoreSupplierRequest $request, string $kodeDivisi)
+    public function store(StoreSupplierRequest $request)
     {
         try {
             DB::beginTransaction();
 
             $validated = $request->validated();
-            $validated['kode_divisi'] = $kodeDivisi;
 
             $supplier = Supplier::create($validated);
-            $supplier->load(['divisi']);
 
             DB::commit();
 
@@ -100,12 +96,10 @@ class SupplierController extends Controller
     /**
      * Display the specified supplier.
      */
-    public function show(string $kodeDivisi, string $kodeSupplier)
+    public function show(string $kodeSupplier)
     {
         try {
-            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
-                ->where('kode_supplier', $kodeSupplier)
-                ->with(['divisi'])
+            $supplier = Supplier::where('kode_supplier', $kodeSupplier)
                 ->firstOrFail();
 
             return response()->json([
@@ -132,18 +126,16 @@ class SupplierController extends Controller
     /**
      * Update the specified supplier.
      */
-    public function update(UpdateSupplierRequest $request, string $kodeDivisi, string $kodeSupplier)
+    public function update(UpdateSupplierRequest $request, string $kodeSupplier)
     {
         try {
             DB::beginTransaction();
             
-            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
-                ->where('kode_supplier', $kodeSupplier)
+            $supplier = Supplier::where('kode_supplier', $kodeSupplier)
                 ->firstOrFail();
 
             $validated = $request->validated();
             $supplier->update($validated);
-            $supplier->load(['divisi']);
 
             DB::commit();
 
@@ -157,7 +149,6 @@ class SupplierController extends Controller
             DB::rollBack();
             
             \Log::error('Error updating supplier: ' . $e->getMessage(), [
-                'kodeDivisi' => $kodeDivisi,
                 'kodeSupplier' => $kodeSupplier,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -173,11 +164,10 @@ class SupplierController extends Controller
     /**
      * Remove the specified supplier.
      */
-    public function destroy(string $kodeDivisi, string $kodeSupplier): JsonResponse
+    public function destroy(string $kodeSupplier): JsonResponse
     {
         try {
-            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
-                               ->where('kode_supplier', $kodeSupplier)
+            $supplier = Supplier::where('kode_supplier', $kodeSupplier)
                                ->first();
 
             if (!$supplier) {
@@ -198,10 +188,7 @@ class SupplierController extends Controller
 
             DB::beginTransaction();
             
-            // Manual delete to avoid composite key issues
-            Supplier::where('kode_divisi', $kodeDivisi)
-                    ->where('kode_supplier', $kodeSupplier)
-                    ->delete();
+            $supplier->delete();
                     
             DB::commit();
 
@@ -224,11 +211,10 @@ class SupplierController extends Controller
     /**
      * Get supplier statistics and summary.
      */
-    public function getSupplierStats(string $kodeDivisi, string $kodeSupplier): JsonResponse
+    public function getSupplierStats(string $kodeSupplier): JsonResponse
     {
         try {
-            $supplier = Supplier::where('kode_divisi', $kodeDivisi)
-                               ->where('kode_supplier', $kodeSupplier)
+            $supplier = Supplier::where('kode_supplier', $kodeSupplier)
                                ->with(['partPenerimaans'])
                                ->first();
 

@@ -10,26 +10,21 @@ class CustomerApiTest extends TestCase
 {
     use CreatesTestData;
 
-    protected string $kodeDivisi;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $user = $this->actingAsTestUser();
-        $this->kodeDivisi = $user->kode_divisi;
+        $this->actingAsTestUser();
     }
 
     #[Test]
     public function it_lists_customers(): void
     {
-        // seed area and a customer
-        $area = $this->createTestArea($this->kodeDivisi);
+        $area = $this->createTestArea();
         $this->createTestCustomer('CSTX1', [
-            'kode_divisi' => $this->kodeDivisi,
             'kode_area' => $area['kode_area'],
         ]);
 
-        $res = $this->getJson("/api/divisi/{$this->kodeDivisi}/customers?per_page=5");
+        $res = $this->getJson("/api/customers?per_page=5");
         $res->assertOk()->assertJsonStructure([
             'data', 'summary', 'pagination', 'meta'
         ]);
@@ -38,17 +33,17 @@ class CustomerApiTest extends TestCase
     #[Test]
     public function it_creates_customer_with_normalization(): void
     {
-        $area = $this->createTestArea($this->kodeDivisi);
+        $area = $this->createTestArea();
 
         $payload = [
-            'kode_cust' => 'cst01', // lower will be uppercased (5 chars)
+            'kode_cust' => 'cst01',
             'nama_cust' => 'Test Customer',
-            'kode_area' => strtolower($area['kode_area']), // already <= 5
+            'kode_area' => strtolower($area['kode_area']),
             'alamat' => 'Jl. Test',
             'status' => '1',
         ];
 
-        $res = $this->postJson("/api/divisi/{$this->kodeDivisi}/customers", $payload);
+        $res = $this->postJson("/api/customers", $payload);
         $res->assertCreated()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.kode_cust', 'CST01')
@@ -58,16 +53,15 @@ class CustomerApiTest extends TestCase
     #[Test]
     public function it_shows_updates_and_deletes_customer(): void
     {
-        $area = $this->createTestArea($this->kodeDivisi);
+        $area = $this->createTestArea();
         $this->createTestCustomer('CSU01', [
-            'kode_divisi' => $this->kodeDivisi,
             'kode_area' => $area['kode_area'],
         ]);
 
-    $show = $this->getJson("/api/divisi/{$this->kodeDivisi}/customers/CSU01");
+    $show = $this->getJson("/api/customers/CSU01");
     $show->assertOk()->assertJsonPath('data.kode_cust', 'CSU01');
 
-        $upd = $this->putJson("/api/divisi/{$this->kodeDivisi}/customers/CSU01", [
+        $upd = $this->putJson("/api/customers/CSU01", [
             'nama_cust' => 'Updated Name',
             'status' => '0',
         ]);
@@ -76,7 +70,7 @@ class CustomerApiTest extends TestCase
             ->assertJsonPath('data.nama_cust', 'Updated Name')
             ->assertJsonPath('data.business_info.status', false);
 
-    $del = $this->deleteJson("/api/divisi/{$this->kodeDivisi}/customers/CSU01");
+    $del = $this->deleteJson("/api/customers/CSU01");
         $del->assertOk()->assertJsonPath('success', true);
     }
 }

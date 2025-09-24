@@ -16,14 +16,13 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $kodeDivisi)
+    public function index(Request $request)
     {
         try {
             $request->attributes->set('query_start_time', microtime(true));
 
             $query = Customer::query()
-                ->where('kode_divisi', $kodeDivisi)
-                ->with(['divisi', 'area', 'sales']);
+                ->with(['area', 'sales']);
 
             if ($request->filled('search')) {
                 $search = $request->get('search');
@@ -75,14 +74,13 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCustomerRequest $request, string $kodeDivisi)
+    public function store(StoreCustomerRequest $request)
     {
         try {
             $validated = $request->validated();
-            $validated['kode_divisi'] = $kodeDivisi;
 
             $customer = Customer::create($validated);
-            $customer->load(['divisi', 'area', 'sales']);
+            $customer->load(['area', 'sales']);
 
             return response()->json([
                 'success' => true,
@@ -101,12 +99,11 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $kodeDivisi, string $kodeCust)
+    public function show(string $kodeCust)
     {
         try {
-            $customer = Customer::where('kode_divisi', $kodeDivisi)
-                                ->where('kode_cust', $kodeCust)
-                                ->with(['divisi', 'area', 'sales'])
+            $customer = Customer::where('kode_cust', $kodeCust)
+                                ->with(['area', 'sales'])
                                 ->firstOrFail();
 
             return response()->json([
@@ -126,16 +123,15 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCustomerRequest $request, string $kodeDivisi, string $kodeCust)
+    public function update(UpdateCustomerRequest $request, string $kodeCust)
     {
         try {
-            $customer = Customer::where('kode_divisi', $kodeDivisi)
-                                ->where('kode_cust', $kodeCust)
+            $customer = Customer::where('kode_cust', $kodeCust)
                                 ->firstOrFail();
 
             $validated = $request->validated();
             $customer->update($validated);
-            $customer->load(['divisi', 'area', 'sales']);
+            $customer->load(['area', 'sales']);
 
             return response()->json([
                 'success' => true,
@@ -154,11 +150,10 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $kodeDivisi, string $kodeCust)
+    public function destroy(string $kodeCust)
     {
         try {
-            $customer = Customer::where('kode_divisi', $kodeDivisi)
-                                ->where('kode_cust', $kodeCust)
+            $customer = Customer::where('kode_cust', $kodeCust)
                                 ->firstOrFail();
 
             $customer->delete();

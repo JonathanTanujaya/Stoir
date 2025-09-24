@@ -10,7 +10,7 @@ class DPaketController extends Controller
 {
     public function index(): JsonResponse
     {
-        $dPakets = DPaket::with(['divisi', 'barang'])->get();
+        $dPakets = DPaket::with(['barang'])->get();
         return response()->json($dPakets);
     }
 
@@ -22,7 +22,6 @@ class DPaketController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
             'kode_paket' => 'required|string|max:15',
             'kode_barang' => 'required|string|max:15|exists:m_barang,kode_barang',
             'qty' => 'required|integer|min:1'
@@ -32,29 +31,27 @@ class DPaketController extends Controller
         return response()->json($dPaket, 201);
     }
 
-    public function show(string $kodeDivisi, string $kodePaket, string $kodeBarang): JsonResponse
+    public function show(string $kodePaket, string $kodeBarang): JsonResponse
     {
-        $dPaket = DPaket::with(['divisi', 'barang'])
-            ->where('kode_divisi', $kodeDivisi)
+        $dPaket = DPaket::with(['barang'])
             ->where('kode_paket', $kodePaket)
             ->where('kode_barang', $kodeBarang)
             ->firstOrFail();
         return response()->json($dPaket);
     }
 
-    public function edit(string $kodeDivisi, string $kodePaket, string $kodeBarang)
+    public function edit(string $kodePaket, string $kodeBarang)
     {
         // Return view for edit form if needed
     }
 
-    public function update(Request $request, string $kodeDivisi, string $kodePaket, string $kodeBarang): JsonResponse
+    public function update(Request $request, string $kodePaket, string $kodeBarang): JsonResponse
     {
         $request->validate([
             'qty' => 'required|integer|min:1'
         ]);
 
-        $dPaket = DPaket::where('kode_divisi', $kodeDivisi)
-            ->where('kode_paket', $kodePaket)
+        $dPaket = DPaket::where('kode_paket', $kodePaket)
             ->where('kode_barang', $kodeBarang)
             ->firstOrFail();
         
@@ -62,10 +59,9 @@ class DPaketController extends Controller
         return response()->json($dPaket);
     }
 
-    public function destroy(string $kodeDivisi, string $kodePaket, string $kodeBarang): JsonResponse
+    public function destroy(string $kodePaket, string $kodeBarang): JsonResponse
     {
-        $dPaket = DPaket::where('kode_divisi', $kodeDivisi)
-            ->where('kode_paket', $kodePaket)
+        $dPaket = DPaket::where('kode_paket', $kodePaket)
             ->where('kode_barang', $kodeBarang)
             ->firstOrFail();
         

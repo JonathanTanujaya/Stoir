@@ -15,23 +15,11 @@ class KategoriResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'kode_divisi' => $this->kode_divisi,
             'kode_kategori' => $this->kode_kategori,
             'kategori' => $this->kategori,
             'status' => (bool) $this->status,
             'status_label' => $this->status ? 'Aktif' : 'Tidak Aktif',
             'status_badge_class' => $this->status ? 'success' : 'danger',
-            
-            // Relationships
-            'divisi' => $this->when(
-                method_exists($this->resource, 'relationLoaded') && $this->relationLoaded('divisi'), 
-                function () {
-                    return [
-                        'kode_divisi' => $this->divisi->kode_divisi,
-                        'nama_divisi' => $this->divisi->nama_divisi,
-                    ];
-                }
-            ),
             
             // Stats
             'barangs_count' => $this->when(
@@ -55,7 +43,6 @@ class KategoriResource extends JsonResource
             
             // Additional data for UI
             'display_name' => "[{$this->kode_kategori}] {$this->kategori}",
-            'full_name' => "[{$this->kode_divisi}] - [{$this->kode_kategori}] {$this->kategori}",
         ];
     }
 }

@@ -10,21 +10,17 @@ class SalesApiTest extends TestCase
 {
     use RefreshDatabase, CreatesTestData;
 
-    protected string $kodeDivisi;
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->actingAsTestUser();
-        $this->kodeDivisi = $this->createTestDivisi()->kode_divisi;
     }
 
     public function test_it_lists_sales_with_pagination_and_filters(): void
     {
-        $area = $this->createTestArea($this->kodeDivisi);
+        $area = $this->createTestArea();
 
         \DB::table('m_sales')->insert([
-            'kode_divisi' => $this->kodeDivisi,
             'kode_sales' => 'SL' . substr(self::$testRunId, 0, 3),
             'nama_sales' => 'Sales A',
             'kode_area' => $area['kode_area'],
@@ -34,7 +30,7 @@ class SalesApiTest extends TestCase
             'status' => true,
         ]);
 
-        $res = $this->getJson("/api/divisi/{$this->kodeDivisi}/sales?per_page=5&search=Sales&area={$area['kode_area']}&status=1&sort=kode_sales&direction=asc");
+        $res = $this->getJson("/api/sales?per_page=5&search=Sales&area={$area['kode_area']}&status=1&sort=kode_sales&direction=asc");
         $res->assertOk()->assertJsonStructure([
             'data', 'summary', 'pagination', 'filters_applied', 'api_version', 'timestamp', 'query_time'
         ]);
@@ -42,7 +38,7 @@ class SalesApiTest extends TestCase
 
     public function test_it_creates_sales_with_normalization(): void
     {
-        $area = $this->createTestArea($this->kodeDivisi);
+        $area = $this->createTestArea();
 
         $payload = [
             'kode_sales' => 'sl001',
@@ -54,7 +50,7 @@ class SalesApiTest extends TestCase
             'status' => '1',
         ];
 
-        $res = $this->postJson("/api/divisi/{$this->kodeDivisi}/sales", $payload);
+        $res = $this->postJson("/api/sales", $payload);
         $res->assertCreated()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.kode_sales', 'SL001')
@@ -64,9 +60,8 @@ class SalesApiTest extends TestCase
 
     public function test_it_shows_updates_and_deletes_sales(): void
     {
-        $area = $this->createTestArea($this->kodeDivisi);
+        $area = $this->createTestArea();
         \DB::table('m_sales')->insert([
-            'kode_divisi' => $this->kodeDivisi,
             'kode_sales' => 'SL' . substr(self::$testRunId, 1, 3),
             'nama_sales' => 'Sales B',
             'kode_area' => $area['kode_area'],
@@ -78,10 +73,10 @@ class SalesApiTest extends TestCase
 
         $kodeSales = 'SL' . substr(self::$testRunId, 1, 3);
 
-        $show = $this->getJson("/api/divisi/{$this->kodeDivisi}/sales/{$kodeSales}");
+        $show = $this->getJson("/api/sales/{$kodeSales}");
         $show->assertOk()->assertJsonPath('data.kode_sales', $kodeSales);
 
-        $update = $this->putJson("/api/divisi/{$this->kodeDivisi}/sales/{$kodeSales}", [
+        $update = $this->putJson("/api/sales/{$kodeSales}", [
             'nama_sales' => 'Sales B Updated',
             'status' => false,
         ]);
@@ -89,7 +84,7 @@ class SalesApiTest extends TestCase
             ->assertJsonPath('data.nama_sales', 'Sales B Updated')
             ->assertJsonPath('data.status', false);
 
-        $delete = $this->deleteJson("/api/divisi/{$this->kodeDivisi}/sales/{$kodeSales}");
+        $delete = $this->deleteJson("/api/sales/{$kodeSales}");
         $delete->assertOk()->assertJsonPath('success', true);
     }
 }

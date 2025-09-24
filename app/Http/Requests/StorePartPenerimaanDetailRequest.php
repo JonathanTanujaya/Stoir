@@ -22,16 +22,12 @@ class StorePartPenerimaanDetailRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_barang' => [
                 'required',
                 'string',
                 'max:30',
-                Rule::exists('master_barang', 'kode_barang')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('master_barang', 'kode_barang')
             ],
             'qty_supply' => 'required|integer|min:1',
             'harga' => 'required|numeric|min:0',
@@ -52,7 +48,7 @@ class StorePartPenerimaanDetailRequest extends FormRequest
             'kode_barang.required' => 'Kode barang harus diisi.',
             'kode_barang.string' => 'Kode barang harus berupa teks.',
             'kode_barang.max' => 'Kode barang maksimal 30 karakter.',
-            'kode_barang.exists' => 'Kode barang tidak ditemukan dalam divisi ini.',
+            'kode_barang.exists' => 'Kode barang tidak ditemukan.',
             'qty_supply.required' => 'Quantity supply harus diisi.',
             'qty_supply.integer' => 'Quantity supply harus berupa angka bulat.',
             'qty_supply.min' => 'Quantity supply minimal 1.',
@@ -78,7 +74,6 @@ class StorePartPenerimaanDetailRequest extends FormRequest
     {
         // Ensure divisi and penerimaan codes are available for validation
         $this->merge([
-            'kode_divisi' => $this->route('kodeDivisi'),
             'no_penerimaan' => $this->route('noPenerimaan'),
         ]);
     }

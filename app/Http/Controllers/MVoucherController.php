@@ -10,7 +10,7 @@ class MVoucherController extends Controller
 {
     public function index(): JsonResponse
     {
-        $mVouchers = MVoucher::with(['divisi', 'sales', 'dVouchers'])->get();
+        $mVouchers = MVoucher::with(['sales', 'dVouchers'])->get();
         return response()->json($mVouchers);
     }
 
@@ -22,7 +22,6 @@ class MVoucherController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
             'no_voucher' => 'required|string|max:20',
             'tgl_voucher' => 'required|date',
             'kode_sales' => 'required|string|max:10',
@@ -34,21 +33,20 @@ class MVoucherController extends Controller
         return response()->json($mVoucher, 201);
     }
 
-    public function show(string $kodeDivisi, string $noVoucher): JsonResponse
+    public function show(string $noVoucher): JsonResponse
     {
-        $mVoucher = MVoucher::with(['divisi', 'sales', 'dVouchers'])
-            ->where('kode_divisi', $kodeDivisi)
+        $mVoucher = MVoucher::with(['sales', 'dVouchers'])
             ->where('no_voucher', $noVoucher)
             ->firstOrFail();
         return response()->json($mVoucher);
     }
 
-    public function edit(string $kodeDivisi, string $noVoucher)
+    public function edit(string $noVoucher)
     {
         // Return view for edit form if needed
     }
 
-    public function update(Request $request, string $kodeDivisi, string $noVoucher): JsonResponse
+    public function update(Request $request, string $noVoucher): JsonResponse
     {
         $request->validate([
             'tgl_voucher' => 'required|date',
@@ -57,18 +55,16 @@ class MVoucherController extends Controller
             'status' => 'required|boolean'
         ]);
 
-        $mVoucher = MVoucher::where('kode_divisi', $kodeDivisi)
-            ->where('no_voucher', $noVoucher)
+        $mVoucher = MVoucher::where('no_voucher', $noVoucher)
             ->firstOrFail();
         
         $mVoucher->update($request->all());
         return response()->json($mVoucher);
     }
 
-    public function destroy(string $kodeDivisi, string $noVoucher): JsonResponse
+    public function destroy(string $noVoucher): JsonResponse
     {
-        $mVoucher = MVoucher::where('kode_divisi', $kodeDivisi)
-            ->where('no_voucher', $noVoucher)
+        $mVoucher = MVoucher::where('no_voucher', $noVoucher)
             ->firstOrFail();
         
         $mVoucher->delete();

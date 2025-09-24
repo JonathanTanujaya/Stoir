@@ -20,7 +20,6 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
         $kodeCust = $this->route('kodeCust');
         
         return [
@@ -29,16 +28,14 @@ class UpdateCustomerRequest extends FormRequest
                 'string',
                 'max:5',
                 Rule::unique('m_cust', 'kode_cust')
-                    ->where('kode_divisi', $kodeDivisi)
                     ->ignore($kodeCust, 'kode_cust')
-                    ->where('kode_divisi', $kodeDivisi)
             ],
             'nama_cust' => 'sometimes|string|max:100',
             'kode_area' => [
                 'sometimes',
                 'string',
                 'max:5',
-                Rule::exists('m_area', 'kode_area')->where('kode_divisi', $kodeDivisi)
+                Rule::exists('m_area', 'kode_area')
             ],
             'alamat' => 'sometimes|nullable|string|max:255',
             'telp' => 'sometimes|nullable|string|max:20',
@@ -54,7 +51,7 @@ class UpdateCustomerRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:5',
-                Rule::exists('m_sales', 'kode_sales')->where('kode_divisi', $kodeDivisi)
+                Rule::exists('m_sales', 'kode_sales')
             ]
         ];
     }

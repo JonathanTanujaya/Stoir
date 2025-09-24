@@ -15,22 +15,12 @@ use Illuminate\Http\Request;
 class DBarangController extends Controller
 {
     /**
-     * Display a listing of barang details for a specific division and product.
+     * Display a listing of barang details for a specific product.
      */
-    public function index(Request $request, string $kodeDivisi, string $kodeBarang): JsonResponse
+    public function index(Request $request, string $kodeBarang): JsonResponse
     {
-        // Verify division exists
-        $divisi = Divisi::where('kode_divisi', $kodeDivisi)->first();
-        if (!$divisi) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Divisi tidak ditemukan.',
-            ], 404);
-        }
-
         // Verify barang exists
-        $barang = Barang::where('kode_divisi', $kodeDivisi)
-            ->where('kode_barang', $kodeBarang)
+        $barang = Barang::where('kode_barang', $kodeBarang)
             ->first();
         if (!$barang) {
             return response()->json([
@@ -39,9 +29,8 @@ class DBarangController extends Controller
             ], 404);
         }
 
-        $query = DBarang::where('kode_divisi', $kodeDivisi)
-            ->where('kode_barang', $kodeBarang)
-            ->with(['divisi', 'barang']);
+        $query = DBarang::where('kode_barang', $kodeBarang)
+            ->with(['barang']);
 
         // Filter by stock availability
         if ($request->filled('available_only')) {
@@ -94,10 +83,6 @@ class DBarangController extends Controller
             'success' => true,
             'message' => 'Data detail barang berhasil diambil.',
             'data' => new DBarangCollection($barangDetails),
-            'division_info' => [
-                'kode_divisi' => $divisi->kode_divisi,
-                'nama_divisi' => $divisi->nama_divisi ?? null,
-            ],
             'product_info' => [
                 'kode_barang' => $barang->kode_barang,
                 'nama_barang' => $barang->nama_barang ?? null,
@@ -110,20 +95,10 @@ class DBarangController extends Controller
     /**
      * Store a newly created barang detail.
      */
-    public function store(StoreDBarangRequest $request, string $kodeDivisi, string $kodeBarang): JsonResponse
+    public function store(StoreDBarangRequest $request, string $kodeBarang): JsonResponse
     {
-        // Verify division exists
-        $divisi = Divisi::where('kode_divisi', $kodeDivisi)->first();
-        if (!$divisi) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Divisi tidak ditemukan.',
-            ], 404);
-        }
-
         // Verify barang exists
-        $barang = Barang::where('kode_divisi', $kodeDivisi)
-            ->where('kode_barang', $kodeBarang)
+        $barang = Barang::where('kode_barang', $kodeBarang)
             ->first();
         if (!$barang) {
             return response()->json([
@@ -151,15 +126,14 @@ class DBarangController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $kodeDivisi, string $kodeBarang, int $id): JsonResponse
+    public function show(string $kodeBarang, int $id): JsonResponse
     {
-        $barangDetail = DBarang::where('id', $id)
-            ->where('kode_divisi', $kodeDivisi)
-            ->where('kode_barang', $kodeBarang)
-            ->with(['divisi', 'barang', 'stockMovements'])
+        $dBarang = DBarang::where('kode_barang', $kodeBarang)
+            ->where('id', $id)
+            ->with(['barang'])
             ->first();
 
-        if (!$barangDetail) {
+        if (!$dBarang) {
             return response()->json([
                 'success' => false,
                 'message' => 'Detail barang tidak ditemukan.',
@@ -169,17 +143,16 @@ class DBarangController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail barang berhasil diambil.',
-            'data' => new DBarangResource($barangDetail)
+            'data' => new DBarangResource($dBarang)
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDBarangRequest $request, string $kodeDivisi, string $kodeBarang, int $id): JsonResponse
+    public function update(UpdateDBarangRequest $request, string $kodeBarang, int $id): JsonResponse
     {
         $barangDetail = DBarang::where('id', $id)
-            ->where('kode_divisi', $kodeDivisi)
             ->where('kode_barang', $kodeBarang)
             ->first();
 
@@ -202,10 +175,9 @@ class DBarangController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $kodeDivisi, string $kodeBarang, int $id): JsonResponse
+    public function destroy(string $kodeBarang, int $id): JsonResponse
     {
         $barangDetail = DBarang::where('id', $id)
-            ->where('kode_divisi', $kodeDivisi)
             ->where('kode_barang', $kodeBarang)
             ->first();
 
@@ -235,20 +207,10 @@ class DBarangController extends Controller
     /**
      * Get statistics for barang details.
      */
-    public function statistics(string $kodeDivisi, string $kodeBarang): JsonResponse
+    public function statistics(string $kodeBarang): JsonResponse
     {
-        // Verify division exists
-        $divisi = Divisi::where('kode_divisi', $kodeDivisi)->first();
-        if (!$divisi) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Divisi tidak ditemukan.',
-            ], 404);
-        }
-
         // Verify barang exists
-        $barang = Barang::where('kode_divisi', $kodeDivisi)
-            ->where('kode_barang', $kodeBarang)
+        $barang = Barang::where('kode_barang', $kodeBarang)
             ->first();
         if (!$barang) {
             return response()->json([
@@ -257,8 +219,7 @@ class DBarangController extends Controller
             ], 404);
         }
 
-        $details = DBarang::where('kode_divisi', $kodeDivisi)
-            ->where('kode_barang', $kodeBarang)
+        $details = DBarang::where('kode_barang', $kodeBarang)
             ->get();
 
         $totalStock = $details->sum('stok');
@@ -297,10 +258,6 @@ class DBarangController extends Controller
             'success' => true,
             'message' => 'Statistik detail barang berhasil diambil.',
             'data' => $stats,
-            'division_info' => [
-                'kode_divisi' => $divisi->kode_divisi,
-                'nama_divisi' => $divisi->nama_divisi ?? null,
-            ],
             'product_info' => [
                 'kode_barang' => $barang->kode_barang,
                 'nama_barang' => $barang->nama_barang ?? null,

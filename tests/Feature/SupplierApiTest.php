@@ -7,28 +7,17 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Supplier;
-use App\Models\Divisi;
 use Laravel\Sanctum\Sanctum;
 
 class SupplierApiTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected string $divisi = 'TEST';
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Ensure divisi exists
-        Divisi::firstOrCreate(
-            ['kode_divisi' => $this->divisi],
-            ['nama_divisi' => 'Test Division']
-        );
-
-        // Authenticate a user in the same divisi
         $user = User::factory()->create([
-            'kode_divisi' => $this->divisi,
             'username' => 'tester',
             'nama' => 'Test User',
         ]);
@@ -37,14 +26,13 @@ class SupplierApiTest extends TestCase
 
     public function test_index_lists_suppliers(): void
     {
-        Supplier::factory()->count(3)->forDivision($this->divisi)->create();
+        Supplier::factory()->count(3)->create();
 
-        $res = $this->getJson("/api/divisi/{$this->divisi}/suppliers");
+        $res = $this->getJson("/api/suppliers");
         $res->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
                     '*' => [
-                        'kode_divisi',
                         'kode_supplier',
                         'nama_supplier',
                         'contact_info' => ['alamat','telp','contact'],
@@ -67,37 +55,35 @@ class SupplierApiTest extends TestCase
             'status' => 'A',
         ];
 
-        $res = $this->postJson("/api/divisi/{$this->divisi}/suppliers", $payload);
+        $res = $this->postJson("/api/suppliers", $payload);
         $res->assertStatus(201)
             ->assertJsonPath('data.kode_supplier', 'SUP001')
             ->assertJsonPath('data.nama_supplier', 'PT Satu');
 
         $this->assertDatabaseHas('m_supplier', [
-            'kode_divisi' => $this->divisi,
             'kode_supplier' => 'SUP001',
         ]);
     }
 
     public function test_show_returns_single_supplier(): void
     {
-        Supplier::factory()->forDivision($this->divisi)->withCode('SUP002')->create();
+        Supplier::factory()->withCode('SUP002')->create();
 
-        $res = $this->getJson("/api/divisi/{$this->divisi}/suppliers/SUP002");
+        $res = $this->getJson("/api/suppliers/SUP002");
         $res->assertOk()->assertJsonPath('data.kode_supplier', 'SUP002');
     }
 
     public function test_update_modifies_supplier(): void
     {
-        Supplier::factory()->forDivision($this->divisi)->withCode('SUP003')->create();
+        Supplier::factory()->withCode('SUP003')->create();
 
-        $res = $this->putJson("/api/divisi/{$this->divisi}/suppliers/SUP003", [
+        $res = $this->putJson("/api/suppliers/SUP003", [
             'nama_supplier' => 'Baru',
             'status' => 'N',
         ]);
 
         $res->assertOk()->assertJsonPath('message', 'Supplier berhasil diperbarui');
         $this->assertDatabaseHas('m_supplier', [
-            'kode_divisi' => $this->divisi,
             'kode_supplier' => 'SUP003',
             'nama_supplier' => 'Baru',
             'status' => false,
@@ -106,13 +92,12 @@ class SupplierApiTest extends TestCase
 
     public function test_destroy_deletes_supplier(): void
     {
-        Supplier::factory()->forDivision($this->divisi)->withCode('SUP004')->create();
+        Supplier::factory()->withCode('SUP004')->create();
 
-        $res = $this->deleteJson("/api/divisi/{$this->divisi}/suppliers/SUP004");
+        $res = $this->deleteJson("/api/suppliers/SUP004");
         $res->assertOk()->assertJsonPath('message', 'Supplier berhasil dihapus');
 
         $this->assertDatabaseMissing('m_supplier', [
-            'kode_divisi' => $this->divisi,
             'kode_supplier' => 'SUP004',
         ]);
     }

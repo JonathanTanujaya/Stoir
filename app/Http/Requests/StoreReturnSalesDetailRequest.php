@@ -20,7 +20,6 @@ class StoreReturnSalesDetailRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'kode_divisi' => $this->route('kodeDivisi'),
             'no_retur' => $this->route('noRetur'),
         ]);
     }
@@ -33,29 +32,23 @@ class StoreReturnSalesDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'kode_divisi' => [
-                'required',
-                'string',
-                'max:5',
-                'exists:m_divisi,kode_divisi',
-            ],
             'no_retur' => [
                 'required',
                 'string',
                 'max:15',
-                'exists:return_sales,no_return_sales,kode_divisi,' . $this->route('kodeDivisi'),
+                'exists:return_sales,no_retur',
             ],
             'no_invoice' => [
                 'required',
                 'string',
                 'max:15',
-                'exists:invoice,no_invoice,kode_divisi,' . $this->route('kodeDivisi'),
+                'exists:invoice,no_invoice',
             ],
             'kode_barang' => [
                 'required',
                 'string',
                 'max:30',
-                'exists:m_barang,kode_barang,kode_divisi,' . $this->route('kodeDivisi'),
+                'exists:m_barang,kode_barang',
             ],
             'qty_retur' => [
                 'required',
@@ -84,8 +77,6 @@ class StoreReturnSalesDetailRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'kode_divisi.required' => 'Kode divisi harus diisi.',
-            'kode_divisi.exists' => 'Kode divisi tidak valid.',
             'no_retur.required' => 'Nomor retur harus diisi.',
             'no_retur.exists' => 'Nomor retur tidak ditemukan dalam divisi ini.',
             'no_invoice.required' => 'Nomor invoice harus diisi.',

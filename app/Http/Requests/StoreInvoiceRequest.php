@@ -22,34 +22,26 @@ class StoreInvoiceRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'no_invoice' => [
                 'required',
                 'string',
                 'max:15',
                 'regex:/^[A-Z0-9\-_\/]+$/',
-                Rule::unique('invoice')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::unique('invoice', 'no_invoice')
             ],
             'tgl_faktur' => 'required|date',
             'kode_cust' => [
                 'required',
                 'string',
                 'max:5',
-                Rule::exists('m_cust', 'kode_cust')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_cust', 'kode_cust')
             ],
             'kode_sales' => [
                 'nullable',
                 'string',
                 'max:5',
-                Rule::exists('m_sales', 'kode_sales')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_sales', 'kode_sales')
             ],
             'tipe' => 'nullable|string|in:1,2',
             'jatuh_tempo' => 'required|date|after_or_equal:tgl_faktur',

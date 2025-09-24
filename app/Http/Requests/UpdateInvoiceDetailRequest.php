@@ -22,16 +22,12 @@ class UpdateInvoiceDetailRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_barang' => [
                 'sometimes',
                 'string',
                 'max:50',
-                Rule::exists('m_barang', 'kode_barang')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_barang', 'kode_barang')
             ],
             'qty_supply' => 'sometimes|integer|min:1',
             'harga_jual' => 'sometimes|numeric|min:0',

@@ -12,7 +12,6 @@ class DVoucher extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_voucher',
         'kode_sales',
         'no_invoice',
@@ -26,31 +25,23 @@ class DVoucher extends Model
         'nilai' => 'decimal:2'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
     public function sales(): BelongsTo
     {
-        return $this->belongsTo(Sales::class, 'kode_sales', 'kode_sales')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Sales::class, 'kode_sales', 'kode_sales');
     }
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust');
     }
 
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice');
     }
 
     public function getKeyName(): array
     {
-        return ['kode_divisi', 'no_voucher', 'no_invoice'];
+        return ['no_voucher', 'no_invoice'];
     }
 }

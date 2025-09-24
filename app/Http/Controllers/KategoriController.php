@@ -15,14 +15,13 @@ class KategoriController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $kodeDivisi): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
             $request->attributes->set('query_start_time', microtime(true));
 
             $query = Kategori::query()
-                ->where('kode_divisi', $kodeDivisi)
-                ->with(['divisi', 'barangs', 'dPakets']);
+                ->with(['barangs', 'dPakets']);
 
             // Search functionality (PostgreSQL friendly)
             if ($request->filled('search')) {
@@ -63,15 +62,13 @@ class KategoriController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreKategoriRequest $request, string $kodeDivisi): JsonResponse
+    public function store(StoreKategoriRequest $request): JsonResponse
     {
         try {
             $data = $request->validated();
-            $data['kode_divisi'] = $kodeDivisi;
             $data['status'] = $data['status'] ?? true;
 
             $kategori = Kategori::create($data);
-            $kategori->load(['divisi']);
             
             return response()->json([
                 'success' => true,
@@ -90,11 +87,10 @@ class KategoriController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $kodeDivisi, string $kodeKategori): JsonResponse
+    public function show(string $kodeKategori): JsonResponse
     {
         try {
-            $kategori = Kategori::with(['divisi', 'barangs', 'dPakets'])
-                ->where('kode_divisi', $kodeDivisi)
+            $kategori = Kategori::with(['barangs', 'dPakets'])
                 ->where('kode_kategori', $kodeKategori)
                 ->firstOrFail();
             
@@ -115,30 +111,14 @@ class KategoriController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateKategoriRequest $request, string $kodeDivisi, string $kodeKategori): JsonResponse
+    public function update(UpdateKategoriRequest $request, string $kodeKategori): JsonResponse
     {
         try {
-            $kategori = Kategori::where('kode_divisi', $kodeDivisi)
-                ->where('kode_kategori', $kodeKategori)
+            $kategori = Kategori::where('kode_kategori', $kodeKategori)
                 ->firstOrFail();
 
             $data = $request->validated();
-            
-            if (isset($data['kode_kategori']) && $data['kode_kategori'] !== $kodeKategori) {
-                $newData = array_merge($kategori->toArray(), $data);
-                $newData['kode_divisi'] = $kodeDivisi;
-                $newKategori = Kategori::create($newData);
-                $kategori->delete();
-                $newKategori->load(['divisi']);
-                $kategori = $newKategori;
-            } else {
-                \DB::table('m_kategori')
-                    ->where('kode_divisi', $kodeDivisi)
-                    ->where('kode_kategori', $kodeKategori)
-                    ->update($data);
-                $kategori->refresh();
-                $kategori->load(['divisi']);
-            }
+            $kategori->update($data);
             
             return response()->json([
                 'success' => true,
@@ -157,11 +137,10 @@ class KategoriController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $kodeDivisi, string $kodeKategori): JsonResponse
+    public function destroy(string $kodeKategori): JsonResponse
     {
         try {
             $kategori = Kategori::withCount(['barangs', 'dPakets'])
-                ->where('kode_divisi', $kodeDivisi)
                 ->where('kode_kategori', $kodeKategori)
                 ->firstOrFail();
             
@@ -176,10 +155,7 @@ class KategoriController extends Controller
                 ], 422);
             }
 
-            \DB::table('m_kategori')
-                ->where('kode_divisi', $kodeDivisi)
-                ->where('kode_kategori', $kodeKategori)
-                ->delete();
+            $kategori->delete();
             
             return response()->json([
                 'success' => true,
@@ -196,17 +172,17 @@ class KategoriController extends Controller
     }
 
     /**
-     * Get statistics for categories in a specific division.
+     * Get statistics for categories.
      */
-    public function stats(string $kodeDivisi): JsonResponse
+    public function stats(): JsonResponse
     {
         try {
             $stats = [
-                'total_kategoris' => Kategori::where('kode_divisi', $kodeDivisi)->count(),
-                'active_kategoris' => Kategori::where('kode_divisi', $kodeDivisi)->where('status', true)->count(),
-                'inactive_kategoris' => Kategori::where('kode_divisi', $kodeDivisi)->where('status', false)->count(),
-                'total_barangs' => \DB::table('m_barang')->where('kode_divisi', $kodeDivisi)->count(),
-                'total_dpakets' => \DB::table('d_paket')->where('kode_divisi', $kodeDivisi)->count(),
+                'total_kategoris' => Kategori::count(),
+                'active_kategoris' => Kategori::where('status', true)->count(),
+                'inactive_kategoris' => Kategori::where('status', false)->count(),
+                'total_barangs' => \DB::table('m_barang')->count(),
+                'total_dpakets' => \DB::table('d_paket')->count(),
             ];
 
             return response()->json([

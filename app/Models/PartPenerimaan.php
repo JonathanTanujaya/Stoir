@@ -9,32 +9,55 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PartPenerimaan extends Model
 {
     protected $table = 'part_penerimaan';
+    protected $primaryKey = 'no_penerimaan';
     public $incrementing = false;
     public $timestamps = false;
+    protected $keyType = 'string';
+    const CREATED_AT = 'created_at';
     
     protected $fillable = [
-        'kode_divisi',
-        'no_penerimaan'
+        'no_penerimaan',
+        'tgl_penerimaan',
+        'kode_valas',
+        'kurs',
+        'kode_supplier',
+        'jatuh_tempo',
+        'no_faktur',
+        'total',
+        'discount',
+        'pajak',
+        'grand_total',
+        'status'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
+    protected $casts = [
+        'tgl_penerimaan' => 'date',
+        'jatuh_tempo' => 'date',
+        'kurs' => 'decimal:2',
+        'total' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'pajak' => 'decimal:2',
+        'grand_total' => 'decimal:2',
+        'created_at' => 'datetime'
+    ];
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode_supplier')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Supplier::class, 'kode_supplier', 'kode_supplier');
     }
 
     public function partPenerimaanDetails(): HasMany
     {
-        return $this->hasMany(PartPenerimaanDetail::class, ['kode_divisi', 'no_penerimaan'], ['kode_divisi', 'no_penerimaan']);
+        return $this->hasMany(PartPenerimaanDetail::class, 'no_penerimaan', 'no_penerimaan');
     }
 
-    public function getKeyName(): array
+    public function returPenerimaanDetails(): HasMany
     {
-        return ['kode_divisi', 'no_penerimaan'];
+        return $this->hasMany(ReturPenerimaanDetail::class, 'no_penerimaan', 'no_penerimaan');
+    }
+
+    public function dVouchers(): HasMany
+    {
+        return $this->hasMany(DVoucher::class, 'no_penerimaan', 'no_penerimaan');
     }
 }

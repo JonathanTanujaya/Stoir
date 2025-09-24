@@ -12,7 +12,6 @@ class PenerimaanFinanceDetail extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_penerimaan',
         'no_invoice',
         'jumlah_invoice',
@@ -32,13 +31,11 @@ class PenerimaanFinanceDetail extends Model
 
     public function penerimaanFinance(): BelongsTo
     {
-        return $this->belongsTo(PenerimaanFinance::class, 'no_penerimaan', 'no_penerimaan')
-                    ->where('penerimaan_finance.kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(PenerimaanFinance::class, 'no_penerimaan', 'no_penerimaan');
     }
 
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice')
-                    ->where('invoice.kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice');
     }
 }

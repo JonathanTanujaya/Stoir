@@ -2,123 +2,63 @@
 
 namespace Tests\Traits;
 
+use App\Models\Kategori;
+use App\Models\Barang;
+use App\Models\Area;
+use App\Models\Customer;
+use App\Models\Sales;
+use App\Models\Supplier;
 use App\Models\User;
-use App\Models\Divisi;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 trait CreatesTestData
 {
     protected static $testRunId;
-    protected static $testCounter = 0;
+    protected static $createdUsers = [];
 
-    protected function setUp(): void
+    public static function bootCreatesTestData()
     {
-        parent::setUp();
-        
-        // Clean up any existing test data first
-        $this->cleanupTestData();
-        
-        $this->ensureTestRunInitialized();
+        self::$testRunId = uniqid();
     }
 
-    /**
-     * Ensure the test run ID and counter are initialized. Safe to call multiple times.
-     */
-    protected function ensureTestRunInitialized(): void
-    {
-        if (! static::$testRunId) {
-            static::$testRunId = substr(Str::uuid()->toString(), 0, 6) . '_' . substr((string) microtime(true), -6);
-        }
-        if (! is_int(static::$testCounter) || static::$testCounter < 0) {
-            static::$testCounter = 0;
-        }
-    }
-
-    /**
-     * Create a unique test user for this test run
-     */
     protected function createTestUser(array $attributes = []): User
     {
-        $this->ensureTestRunInitialized();
-        static::$testCounter++;
-        
-        $uniqueId = static::$testRunId . '_' . static::$testCounter;
-        
-        // Ensure test divisi exists
-        $divisi = $this->createTestDivisi();
-        
-        $defaults = [
-            'kode_divisi' => $divisi->kode_divisi,
-            'username' => 'test_' . $uniqueId,
-            'nama' => 'Test User ' . $uniqueId,
-            'password' => 'test123',
-        ];
-
-        $userData = array_merge($defaults, $attributes);
-        
-        // Use direct DB insert to avoid factory issues
-        \DB::table('master_user')->insert($userData);
-        
-        return User::where('kode_divisi', $userData['kode_divisi'])
-                  ->where('username', $userData['username'])
-                  ->first();
-    }
-
-    /**
-     * Create a unique test divisi for this test run
-     */
-    protected function createTestDivisi(array $attributes = []): Divisi
-    {
-        $this->ensureTestRunInitialized();
-    // Last 2 alphanumeric chars to keep 'TST' + XX <= 5 chars (column limit)
-    $alnum = preg_replace('/[^A-Za-z0-9]/', '', (string) static::$testRunId);
-    $uniqueId = strtoupper(substr($alnum, -2) ?: '01');
-        
-        $defaults = [
-            'kode_divisi' => 'TST' . $uniqueId, // Max 5 chars total
-            'nama_divisi' => 'Test Divisi ' . static::$testRunId,
-        ];
-
-        $divisiData = array_merge($defaults, $attributes);
-        
-        // Check if already exists
-        $existing = Divisi::where('kode_divisi', $divisiData['kode_divisi'])->first();
-        if ($existing) {
-            return $existing;
+        $email = 'testuser' . self::$testRunId . '@example.com';
+        if (isset(self::$createdUsers[$email])) {
+            return self::$createdUsers[$email];
         }
-        
-        // Use direct DB insert to avoid factory issues
-        \DB::table('m_divisi')->insert($divisiData);
-        
-        return Divisi::where('kode_divisi', $divisiData['kode_divisi'])->first();
+
+        $user = User::factory()->create(array_merge([
+            'name' => 'Test User ' . self::$testRunId,
+            'email' => $email,
+            'password' => Hash::make('password'),
+            'role' => 'user',
+        ], $attributes));
+
+        self::$createdUsers[$email] = $user;
+        return $user;
     }
 
-    /**
-     * Create a test kategori for the given divisi
-     */
-    protected function createTestKategori(string $kodeDivisi, array $attributes = []): array 
+    protected function createTestKategori(array $attributes = []): Kategori
     {
         $this->ensureTestRunInitialized();
         $uniqueId = static::$testRunId;
         
         $defaults = [
-            'kode_divisi' => $kodeDivisi,
             'kode_kategori' => 'KAT' . substr($uniqueId, 0, 3),
             'kategori' => 'Test Category ' . $uniqueId,
         ];
 
         $kategoriData = array_merge($defaults, $attributes);
         
-        // Check if already exists
         $existing = \DB::table('m_kategori')
-                      ->where('kode_divisi', $kategoriData['kode_divisi'])
                       ->where('kode_kategori', $kategoriData['kode_kategori'])
                       ->first();
         if ($existing) {
             return (array) $existing;
         }
         
-        // Use direct DB insert to avoid factory issues
         \DB::table('m_kategori')->insert($kategoriData);
         
         return $kategoriData;
@@ -130,37 +70,26 @@ trait CreatesTestData
     protected function cleanupTestData(): void
     {
         try {
-            // Clean up test barang first (has foreign keys)
             \DB::table('m_barang')
-                ->where('kode_divisi', 'like', 'TST%')
+                ->where('kode_barang', 'like', 'TST%')
                 ->delete();
                 
-            // Clean up test customers before areas (FK to area)
             \DB::table('m_cust')
-                ->where('kode_divisi', 'like', 'TST%')
+                ->where('kode_cust', 'like', 'TST%')
                 ->delete();
 
-            // Clean up test kategori
             \DB::table('m_kategori')
-                ->where('kode_divisi', 'like', 'TST%')
+                ->where('kode_kategori', 'like', 'TST%')
                 ->delete();
 
-            // Clean up test areas
             \DB::table('m_area')
-                ->where('kode_divisi', 'like', 'TST%')
+                ->where('kode_area', 'like', 'TST%')
                 ->delete();
             
-            // Clean up any test users (broader pattern)
             \DB::table('master_user')
                 ->where('username', 'like', 'test_%')
                 ->delete();
             
-            // Clean up test divisi (broader pattern)
-            \DB::table('m_divisi')
-                ->where('kode_divisi', 'like', 'TST%')
-                ->delete();
-                
-            // Clean up tokens
             \DB::table('personal_access_tokens')
                 ->where('tokenable_type', User::class)
                 ->delete();
@@ -176,7 +105,6 @@ trait CreatesTestData
     {
         try {
             \DB::table('m_barang')
-                ->where('kode_divisi', 'like', 'TST%')
                 ->where('kode_barang', 'like', $pattern)
                 ->delete();
         } catch (\Exception $e) {
@@ -200,7 +128,6 @@ trait CreatesTestData
     {
         $user = $this->createTestUser($attributes);
         
-        // Use Laravel's actingAs for testing instead of Sanctum tokens
         $this->actingAs($user);
         
         return $user;
@@ -209,15 +136,14 @@ trait CreatesTestData
     /**
      * Create a test area row
      *
-     * @return array{kode_divisi:string,kode_area:string,area:string,status:bool}
+     * @return array{kode_area:string,area:string,status:bool}
      */
-    protected function createTestArea(string $kodeDivisi, array $attributes = []): array
+    protected function createTestArea(array $attributes = []): array
     {
         $this->ensureTestRunInitialized();
     $unique = substr(static::$testRunId, 0, 3);
 
         $defaults = [
-            'kode_divisi' => $kodeDivisi,
             'kode_area' => strtoupper('AR' . $unique), // ensure <=5 chars and uppercase
             'area' => 'Test Area ' . $unique,
             'status' => true,
@@ -226,7 +152,6 @@ trait CreatesTestData
         $data = array_merge($defaults, $attributes);
 
         $exists = \DB::table('m_area')
-            ->where('kode_divisi', $data['kode_divisi'])
             ->where('kode_area', $data['kode_area'])
             ->first();
         if ($exists) {
@@ -245,13 +170,11 @@ trait CreatesTestData
     protected function createTestCustomer(string $kodeCust, array $attributes = []): array
     {
         $this->ensureTestRunInitialized();
-        $kodeDivisi = $attributes['kode_divisi'] ?? $this->createTestDivisi()->kode_divisi;
-        $area = $this->createTestArea($kodeDivisi, [
+        $area = $this->createTestArea([
             'kode_area' => $attributes['kode_area'] ?? ('AR' . substr(static::$testRunId, 0, 3)),
         ]);
 
         $defaults = [
-            'kode_divisi' => $kodeDivisi,
             'kode_cust' => $kodeCust,
             'nama_cust' => 'Test Customer ' . $kodeCust,
             'kode_area' => $area['kode_area'],
@@ -262,14 +185,11 @@ trait CreatesTestData
 
         $data = array_merge($defaults, $attributes);
 
-        // Upsert-like: if exists, update; else insert
         $exists = \DB::table('m_cust')
-            ->where('kode_divisi', $data['kode_divisi'])
             ->where('kode_cust', $data['kode_cust'])
             ->first();
         if ($exists) {
             \DB::table('m_cust')
-                ->where('kode_divisi', $data['kode_divisi'])
                 ->where('kode_cust', $data['kode_cust'])
                 ->update($data);
         } else {
@@ -286,7 +206,6 @@ trait CreatesTestData
     {
         try {
             \DB::table('m_cust')
-                ->where('kode_divisi', 'like', 'TST%')
                 ->where('kode_cust', 'like', $pattern)
                 ->delete();
         } catch (\Exception $e) {

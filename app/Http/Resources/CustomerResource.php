@@ -13,7 +13,6 @@ class CustomerResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'kode_divisi' => $this->kode_divisi,
             'kode_cust' => $this->kode_cust,
             'nama_cust' => $this->nama_cust,
             
@@ -51,12 +50,6 @@ class CustomerResource extends JsonResource
             
             // Relationships
             'relationships' => [
-                'divisi' => $this->whenLoaded('divisi', function () {
-                    return [
-                        'kode_divisi' => $this->divisi->kode_divisi,
-                        'nama_divisi' => $this->divisi->nama_divisi
-                    ];
-                }),
                 'area' => $this->whenLoaded('area', function () {
                     return [
                         'kode_area' => $this->area->kode_area,

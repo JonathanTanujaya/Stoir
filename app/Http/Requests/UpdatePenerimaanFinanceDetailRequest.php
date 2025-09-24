@@ -20,7 +20,6 @@ class UpdatePenerimaanFinanceDetailRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'kode_divisi' => $this->route('kodeDivisi'),
             'no_penerimaan' => $this->route('noPenerimaan'),
         ]);
     }
@@ -33,14 +32,13 @@ class UpdatePenerimaanFinanceDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'kode_divisi' => 'sometimes|required|string|max:5',
             'no_penerimaan' => 'sometimes|required|string|max:15',
             'no_invoice' => [
                 'sometimes',
                 'required',
                 'string',
                 'max:15',
-                'exists:invoice,no_invoice,kode_divisi,' . $this->route('kodeDivisi')
+                'exists:invoice,no_invoice'
             ],
             'jumlah_invoice' => 'sometimes|required|numeric|min:0|max:99999999999999.99',
             'sisa_invoice' => 'sometimes|required|numeric|min:0|max:99999999999999.99',
@@ -56,9 +54,6 @@ class UpdatePenerimaanFinanceDetailRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'kode_divisi.required' => 'Kode divisi wajib diisi.',
-            'kode_divisi.string' => 'Kode divisi harus berupa teks.',
-            'kode_divisi.max' => 'Kode divisi maksimal 5 karakter.',
             'no_penerimaan.required' => 'Nomor penerimaan wajib diisi.',
             'no_penerimaan.string' => 'Nomor penerimaan harus berupa teks.',
             'no_penerimaan.max' => 'Nomor penerimaan maksimal 15 karakter.',

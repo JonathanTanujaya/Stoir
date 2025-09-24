@@ -22,7 +22,6 @@ class UpdateBarangRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
         $kodeBarang = $this->route('kodeBarang');
         
         return [
@@ -32,9 +31,7 @@ class UpdateBarangRequest extends FormRequest
                 'required',
                 'string',
                 'max:10',
-                Rule::exists('m_kategori')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_kategori', 'kode_kategori')
             ],
             'harga_list' => 'sometimes|nullable|numeric|min:0|max:999999999.99',
             'harga_jual' => 'sometimes|nullable|numeric|min:0|max:999999999.99',
@@ -48,7 +45,6 @@ class UpdateBarangRequest extends FormRequest
                 'string',
                 'max:50',
                 Rule::unique('m_barang', 'barcode')->ignore($kodeBarang, 'kode_barang')
-                    ->where('kode_divisi', $kodeDivisi)
             ],
             'status' => 'sometimes|nullable|boolean',
             'lokasi' => 'sometimes|nullable|string|max:50',

@@ -10,7 +10,7 @@ class DTtController extends Controller
 {
     public function index(): JsonResponse
     {
-        $dTts = DTt::with(['divisi', 'customer', 'invoice'])->get();
+        $dTts = DTt::with(['customer', 'invoice'])->get();
         return response()->json($dTts);
     }
 
@@ -22,7 +22,6 @@ class DTtController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
             'no_tt' => 'required|string|max:20',
             'no_invoice' => 'required|string|max:20',
             'tgl_invoice' => 'required|date',
@@ -34,22 +33,21 @@ class DTtController extends Controller
         return response()->json($dTt, 201);
     }
 
-    public function show(string $kodeDivisi, string $noTt, string $noInvoice): JsonResponse
+    public function show(string $noTt, string $noInvoice): JsonResponse
     {
-        $dTt = DTt::with(['divisi', 'customer', 'invoice'])
-            ->where('kode_divisi', $kodeDivisi)
+        $dTt = DTt::with(['customer', 'invoice'])
             ->where('no_tt', $noTt)
             ->where('no_invoice', $noInvoice)
             ->firstOrFail();
         return response()->json($dTt);
     }
 
-    public function edit(string $kodeDivisi, string $noTt, string $noInvoice)
+    public function edit(string $noTt, string $noInvoice)
     {
         // Return view for edit form if needed
     }
 
-    public function update(Request $request, string $kodeDivisi, string $noTt, string $noInvoice): JsonResponse
+    public function update(Request $request, string $noTt, string $noInvoice): JsonResponse
     {
         $request->validate([
             'tgl_invoice' => 'required|date',
@@ -57,8 +55,7 @@ class DTtController extends Controller
             'nilai' => 'required|numeric|min:0'
         ]);
 
-        $dTt = DTt::where('kode_divisi', $kodeDivisi)
-            ->where('no_tt', $noTt)
+        $dTt = DTt::where('no_tt', $noTt)
             ->where('no_invoice', $noInvoice)
             ->firstOrFail();
         
@@ -66,10 +63,9 @@ class DTtController extends Controller
         return response()->json($dTt);
     }
 
-    public function destroy(string $kodeDivisi, string $noTt, string $noInvoice): JsonResponse
+    public function destroy(string $noTt, string $noInvoice): JsonResponse
     {
-        $dTt = DTt::where('kode_divisi', $kodeDivisi)
-            ->where('no_tt', $noTt)
+        $dTt = DTt::where('no_tt', $noTt)
             ->where('no_invoice', $noInvoice)
             ->firstOrFail();
         

@@ -33,16 +33,12 @@ class StoreAreaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_area' => [
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('m_area', 'kode_area')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                }),
+                Rule::unique('m_area', 'kode_area'),
             ],
             'area' => 'required|string|max:50',
             'status' => 'boolean',

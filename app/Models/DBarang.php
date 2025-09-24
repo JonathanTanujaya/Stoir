@@ -4,21 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DBarang extends Model
 {
     use HasFactory;
 
     protected $table = 'd_barang';
-    
     protected $primaryKey = 'id';
-    
     public $incrementing = true;
-    
     protected $keyType = 'int';
 
     protected $fillable = [
-        'kode_divisi',
         'kode_barang',
         'tgl_masuk',
         'modal',
@@ -32,47 +30,28 @@ class DBarang extends Model
     ];
 
     /**
-     * Relationship with Divisi
-     */
-    public function divisi()
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
-    /**
      * Relationship with Barang (master)
      */
-    public function barang()
+    public function barang(): BelongsTo
     {
-        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
 
     /**
      * Relationship with KartuStok
      */
-    public function kartuStoks()
+    public function kartuStoks(): HasMany
     {
-        return $this->hasMany(KartuStok::class, 'kode_barang', 'kode_barang')
-                    ->where('kode_divisi', $this->kode_divisi);
+        return $this->hasMany(KartuStok::class, 'kode_barang', 'kode_barang');
     }
 
     /**
      * Get stock movement history for this specific item
      */
-    public function stockMovements()
+    public function stockMovements(): HasMany
     {
         return $this->hasMany(KartuStok::class, 'kode_barang', 'kode_barang')
-                    ->where('kode_divisi', $this->kode_divisi)
                     ->orderBy('tgl_proses', 'desc');
-    }
-
-    /**
-     * Scope to filter by division
-     */
-    public function scopeForDivision($query, $kodeDivisi)
-    {
-        return $query->where('kode_divisi', $kodeDivisi);
     }
 
     /**

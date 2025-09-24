@@ -23,16 +23,6 @@ class AreaCollection extends ResourceCollection
                 'active_areas' => $collection->filter(function ($item) {
                     return isset($item->status) ? (bool) $item->status : false;
                 })->count(),
-                'coverage_by_divisi' => $collection->groupBy(function ($item) {
-                    return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-                })->count(),
-                'average_areas_per_divisi' => $collection->groupBy(function ($item) {
-                    return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-                })->count() > 0
-                    ? round($collection->count() / $collection->groupBy(function ($item) {
-                        return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-                    })->count(), 2)
-                    : 0,
             ],
         ];
 
@@ -44,20 +34,6 @@ class AreaCollection extends ResourceCollection
             'inactive_count' => $collection->filter(function ($item) {
                 return isset($item->status) ? !(bool) $item->status : false;
             })->count(),
-            'divisi_breakdown' => $collection->groupBy(function ($item) {
-                return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-            })->map(function ($areas, $kodeDivisi) {
-                return [
-                    'kode_divisi' => $kodeDivisi,
-                    'total' => $areas->count(),
-                    'active' => $areas->filter(function ($item) {
-                        return isset($item->status) ? (bool) $item->status : false;
-                    })->count(),
-                    'inactive' => $areas->filter(function ($item) {
-                        return isset($item->status) ? !(bool) $item->status : false;
-                    })->count(),
-                ];
-            })->values(),
         ];
 
         if ($isPaginated) {

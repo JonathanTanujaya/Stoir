@@ -12,7 +12,6 @@ class MDokumen extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'kode_trans',
         'nomor',
         'prefix',
@@ -26,11 +25,6 @@ class MDokumen extends Model
         'bulan' => 'integer'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
     public function transactionType(): BelongsTo
     {
         return $this->belongsTo(TransactionType::class, 'kode_trans', 'kode_trans');
@@ -38,6 +32,6 @@ class MDokumen extends Model
 
     public function getKeyName(): array
     {
-        return ['kode_divisi', 'kode_trans'];
+        return ['kode_trans'];
     }
 }

@@ -3,79 +3,137 @@
 namespace App\Http\Controllers;
 
 use App\Models\DVoucher;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DVoucherController extends Controller
 {
     public function index(): JsonResponse
     {
-        $dVouchers = DVoucher::with(['divisi', 'sales', 'customer', 'invoice'])->get();
-        return response()->json($dVouchers);
-    }
+        try {
+            $dVouchers = DVoucher::with(['voucher'])->get();
 
-    public function create()
-    {
-        // Return view for create form if needed
+            return response()->json([
+                'success' => true,
+                'data' => $dVouchers,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data detail voucher',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'kode_divisi' => 'required|string|max:5|exists:m_divisi,kode_divisi',
-            'no_voucher' => 'required|string|max:20',
-            'kode_sales' => 'required|string|max:10',
-            'no_invoice' => 'required|string|max:20',
-            'tgl_invoice' => 'required|date',
-            'kode_cust' => 'required|string|max:15',
-            'nilai' => 'required|numeric|min:0'
+            'no_voucher' => 'required|string|max:15|exists:m_voucher,no_voucher',
+            'no_penerimaan' => 'required|string|max:15',
         ]);
 
-        $dVoucher = DVoucher::create($request->all());
-        return response()->json($dVoucher, 201);
+        try {
+            DB::beginTransaction();
+
+            $dVoucher = DVoucher::create($request->all());
+            $dVoucher->load('voucher');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail voucher berhasil dibuat',
+                'data' => $dVoucher,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat detail voucher',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function show(string $kodeDivisi, string $noVoucher, string $noInvoice): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $dVoucher = DVoucher::with(['divisi', 'sales', 'customer', 'invoice'])
-            ->where('kode_divisi', $kodeDivisi)
-            ->where('no_voucher', $noVoucher)
-            ->where('no_invoice', $noInvoice)
-            ->firstOrFail();
-        return response()->json($dVoucher);
+        try {
+            $dVoucher = DVoucher::with('voucher')->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $dVoucher,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data detail voucher',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function edit(string $kodeDivisi, string $noVoucher, string $noInvoice)
-    {
-        // Return view for edit form if needed
-    }
-
-    public function update(Request $request, string $kodeDivisi, string $noVoucher, string $noInvoice): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            'kode_sales' => 'required|string|max:10',
-            'tgl_invoice' => 'required|date',
-            'kode_cust' => 'required|string|max:15',
-            'nilai' => 'required|numeric|min:0'
+            'no_voucher' => 'required|string|max:15|exists:m_voucher,no_voucher',
+            'no_penerimaan' => 'required|string|max:15',
         ]);
 
-        $dVoucher = DVoucher::where('kode_divisi', $kodeDivisi)
-            ->where('no_voucher', $noVoucher)
-            ->where('no_invoice', $noInvoice)
-            ->firstOrFail();
-        
-        $dVoucher->update($request->all());
-        return response()->json($dVoucher);
+        try {
+            DB::beginTransaction();
+
+            $dVoucher = DVoucher::findOrFail($id);
+            $dVoucher->update($request->all());
+            $dVoucher->load('voucher');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail voucher berhasil diperbarui',
+                'data' => $dVoucher,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui detail voucher',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function destroy(string $kodeDivisi, string $noVoucher, string $noInvoice): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        $dVoucher = DVoucher::where('kode_divisi', $kodeDivisi)
-            ->where('no_voucher', $noVoucher)
-            ->where('no_invoice', $noInvoice)
-            ->firstOrFail();
-        
-        $dVoucher->delete();
-        return response()->json(['message' => 'DVoucher deleted successfully']);
+        try {
+            DB::beginTransaction();
+
+            $dVoucher = DVoucher::findOrFail($id);
+            $dVoucher->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail voucher berhasil dihapus',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus detail voucher',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

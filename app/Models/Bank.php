@@ -2,34 +2,44 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bank extends Model
 {
-    protected $table = 'm_bank';
+    use HasFactory;
+
+    protected $table = 'bank';
+    protected $primaryKey = 'no_rekening';
     public $incrementing = false;
-    public $timestamps = false;
-    
+    protected $keyType = 'string';
+
     protected $fillable = [
-        'kode_divisi',
-        'kode_bank'
+        'no_rekening',
+        'atas_nama',
+        'kode_bank',
+        'nama_bank',
+        'saldo',
+        'status_rekening',
+        'status_bank',
     ];
 
-    public function divisi(): BelongsTo
+    protected $casts = [
+        'saldo' => 'decimal:2',
+        'status_bank' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    // Relationship dengan saldo bank
+    public function saldoBanks()
     {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
+        return $this->hasMany(SaldoBank::class, 'no_rekening', 'no_rekening');
     }
 
-    public function detailBanks(): HasMany
+    // Relationship dengan penerimaan finance
+    public function penerimaanFinances()
     {
-        return $this->hasMany(DetailBank::class, 'kode_bank', 'kode_bank')
-            ->where('kode_divisi', $this->kode_divisi);
-    }
-
-    public function getKeyName(): array
-    {
-        return ['kode_divisi', 'kode_bank'];
+        return $this->hasMany(PenerimaanFinance::class, 'no_rek_tujuan', 'no_rekening');
     }
 }

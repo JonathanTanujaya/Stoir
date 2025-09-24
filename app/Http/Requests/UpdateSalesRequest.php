@@ -22,8 +22,6 @@ class UpdateSalesRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'nama_sales' => 'sometimes|required|string|max:50',
             'kode_area' => [
@@ -31,9 +29,7 @@ class UpdateSalesRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:5',
-                Rule::exists('m_area', 'kode_area')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_area', 'kode_area')
             ],
             'alamat' => 'sometimes|nullable|string|max:500',
             'no_hp' => 'sometimes|nullable|string|max:20|regex:/^[\d\-\+\(\)\s]+$/',

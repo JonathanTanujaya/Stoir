@@ -17,15 +17,13 @@ class ReturPenerimaanDetailController extends Controller
     /**
      * Display a listing of the retur penerimaan details.
      */
-    public function index(Request $request, string $kodeDivisi, string $noRetur): JsonResponse
+    public function index(Request $request, string $noRetur): JsonResponse
     {
         // Verify parent ReturPenerimaan exists
-        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur_penerimaan', $noRetur)
+        $returPenerimaan = ReturPenerimaan::where('no_retur_penerimaan', $noRetur)
             ->firstOrFail();
 
-        $query = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur', $noRetur)
+        $query = ReturPenerimaanDetail::where('no_retur', $noRetur)
             ->with(['returPenerimaan', 'barang', 'partPenerimaan']);
 
         // Apply filters
@@ -76,16 +74,14 @@ class ReturPenerimaanDetailController extends Controller
     /**
      * Store a newly created retur penerimaan detail.
      */
-    public function store(StoreReturPenerimaanDetailRequest $request, string $kodeDivisi, string $noRetur): JsonResponse
+    public function store(StoreReturPenerimaanDetailRequest $request, string $noRetur): JsonResponse
     {
         // Verify parent ReturPenerimaan exists
-        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur_penerimaan', $noRetur)
+        $returPenerimaan = ReturPenerimaan::where('no_retur_penerimaan', $noRetur)
             ->firstOrFail();
 
         // Check for duplicates
-        $exists = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur', $noRetur)
+        $exists = ReturPenerimaanDetail::where('no_retur', $noRetur)
             ->where('kode_barang', $request->kode_barang)
             ->where('no_penerimaan', $request->no_penerimaan)
             ->exists();
@@ -114,15 +110,13 @@ class ReturPenerimaanDetailController extends Controller
     /**
      * Display the specified retur penerimaan detail.
      */
-    public function show(string $kodeDivisi, string $noRetur, string $id): JsonResponse
+    public function show(string $noRetur, string $id): JsonResponse
     {
         // Verify parent ReturPenerimaan exists
-        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur_penerimaan', $noRetur)
+        $returPenerimaan = ReturPenerimaan::where('no_retur_penerimaan', $noRetur)
             ->firstOrFail();
 
-        $detail = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur', $noRetur)
+        $detail = ReturPenerimaanDetail::where('no_retur', $noRetur)
             ->where('id', $id)
             ->with(['returPenerimaan', 'barang', 'partPenerimaan'])
             ->firstOrFail();
@@ -135,15 +129,13 @@ class ReturPenerimaanDetailController extends Controller
     /**
      * Update the specified retur penerimaan detail.
      */
-    public function update(UpdateReturPenerimaanDetailRequest $request, string $kodeDivisi, string $noRetur, string $id): JsonResponse
+    public function update(UpdateReturPenerimaanDetailRequest $request, string $noRetur, string $id): JsonResponse
     {
         // Verify parent ReturPenerimaan exists
-        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur_penerimaan', $noRetur)
+        $returPenerimaan = ReturPenerimaan::where('no_retur_penerimaan', $noRetur)
             ->firstOrFail();
 
-        $detail = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur', $noRetur)
+        $detail = ReturPenerimaanDetail::where('no_retur', $noRetur)
             ->where('id', $id)
             ->firstOrFail();
 
@@ -152,8 +144,7 @@ class ReturPenerimaanDetailController extends Controller
             $kodeBarang = $request->get('kode_barang', $detail->kode_barang);
             $noPenerimaan = $request->get('no_penerimaan', $detail->no_penerimaan);
 
-            $exists = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-                ->where('no_retur', $noRetur)
+            $exists = ReturPenerimaanDetail::where('no_retur', $noRetur)
                 ->where('kode_barang', $kodeBarang)
                 ->where('no_penerimaan', $noPenerimaan)
                 ->where('id', '!=', $id)
@@ -181,15 +172,13 @@ class ReturPenerimaanDetailController extends Controller
     /**
      * Remove the specified retur penerimaan detail.
      */
-    public function destroy(string $kodeDivisi, string $noRetur, string $id): JsonResponse
+    public function destroy(string $noRetur, string $id): JsonResponse
     {
         // Verify parent ReturPenerimaan exists
-        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur_penerimaan', $noRetur)
+        $returPenerimaan = ReturPenerimaan::where('no_retur_penerimaan', $noRetur)
             ->firstOrFail();
 
-        $detail = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur', $noRetur)
+        $detail = ReturPenerimaanDetail::where('no_retur', $noRetur)
             ->where('id', $id)
             ->firstOrFail();
 
@@ -203,15 +192,13 @@ class ReturPenerimaanDetailController extends Controller
     /**
      * Get statistics for retur penerimaan details.
      */
-    public function stats(Request $request, string $kodeDivisi, string $noRetur): JsonResponse
+    public function stats(Request $request, string $noRetur): JsonResponse
     {
         // Verify parent ReturPenerimaan exists
-        $returPenerimaan = ReturPenerimaan::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur_penerimaan', $noRetur)
+        $returPenerimaan = ReturPenerimaan::where('no_retur_penerimaan', $noRetur)
             ->firstOrFail();
 
-        $query = ReturPenerimaanDetail::where('kode_divisi', $kodeDivisi)
-            ->where('no_retur', $noRetur);
+        $query = ReturPenerimaanDetail::where('no_retur', $noRetur);
 
         $totalDetails = $query->count();
         $totalQtyRetur = $query->sum('qty_retur');
@@ -230,7 +217,6 @@ class ReturPenerimaanDetailController extends Controller
 
         return response()->json([
             'retur_penerimaan' => [
-                'kode_divisi' => $returPenerimaan->kode_divisi,
                 'no_retur_penerimaan' => $returPenerimaan->no_retur_penerimaan,
                 'total' => $returPenerimaan->total,
                 'status' => $returPenerimaan->status,

@@ -24,16 +24,6 @@ class KategoriCollection extends ResourceCollection
                 'active_kategoris' => $collection->filter(function ($item) {
                     return isset($item->status) ? (bool) $item->status : false;
                 })->count(),
-                'coverage_by_divisi' => $collection->groupBy(function ($item) {
-                    return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-                })->count(),
-                'average_kategoris_per_divisi' => $collection->groupBy(function ($item) {
-                    return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-                })->count() > 0
-                    ? round($collection->count() / $collection->groupBy(function ($item) {
-                        return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-                    })->count(), 2)
-                    : 0,
             ],
         ];
 
@@ -45,20 +35,6 @@ class KategoriCollection extends ResourceCollection
             'inactive_count' => $collection->filter(function ($item) {
                 return isset($item->status) ? !(bool) $item->status : false;
             })->count(),
-            'divisi_breakdown' => $collection->groupBy(function ($item) {
-                return isset($item->kode_divisi) ? $item->kode_divisi : 'unknown';
-            })->map(function ($kategoris, $kodeDivisi) {
-                return [
-                    'kode_divisi' => $kodeDivisi,
-                    'total' => $kategoris->count(),
-                    'active' => $kategoris->filter(function ($item) {
-                        return isset($item->status) ? (bool) $item->status : false;
-                    })->count(),
-                    'inactive' => $kategoris->filter(function ($item) {
-                        return isset($item->status) ? !(bool) $item->status : false;
-                    })->count(),
-                ];
-            })->values(),
         ];
 
         if ($isPaginated) {

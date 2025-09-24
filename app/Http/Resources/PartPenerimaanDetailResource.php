@@ -20,7 +20,6 @@ class PartPenerimaanDetailResource extends JsonResource
         $discountAmount = $grossAmount - $this->harga_nett;
         
         return [
-            'kode_divisi' => $this->kode_divisi,
             'no_penerimaan' => $this->no_penerimaan,
             'kode_barang' => $this->kode_barang,
             'qty_supply' => $this->qty_supply,
@@ -42,13 +41,12 @@ class PartPenerimaanDetailResource extends JsonResource
             'formatted_nett_amount' => 'Rp ' . number_format($this->harga_nett, 2, ',', '.'),
             'formatted_unit_price' => 'Rp ' . number_format($this->harga, 2, ',', '.'),
             
-            // Composite identifier (since no primary key exists)
-            'composite_key' => $this->kode_divisi . '-' . $this->no_penerimaan . '-' . $this->kode_barang,
+            // Composite identifier for single-tenant structure
+            'composite_key' => $this->no_penerimaan . '-' . $this->kode_barang,
             
             // Relationship data
             'part_penerimaan' => $this->whenLoaded('partPenerimaan', function () {
                 return [
-                    'kode_divisi' => $this->partPenerimaan->kode_divisi,
                     'no_penerimaan' => $this->partPenerimaan->no_penerimaan,
                     'tanggal' => $this->partPenerimaan->tanggal,
                     'supplier_name' => $this->partPenerimaan->supplier_name ?? 'N/A',
@@ -57,18 +55,10 @@ class PartPenerimaanDetailResource extends JsonResource
             
             'barang' => $this->whenLoaded('barang', function () {
                 return [
-                    'kode_divisi' => $this->barang->kode_divisi,
                     'kode_barang' => $this->barang->kode_barang,
                     'barang' => $this->barang->barang,
                     'satuan' => $this->barang->satuan ?? 'N/A',
                     'status' => $this->barang->status,
-                ];
-            }),
-            
-            'divisi' => $this->whenLoaded('divisi', function () {
-                return [
-                    'kode_divisi' => $this->divisi->kode_divisi,
-                    'divisi' => $this->divisi->divisi,
                 ];
             }),
             

@@ -16,7 +16,6 @@ class PenerimaanFinanceDetailResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'kode_divisi' => $this->kode_divisi,
             'no_penerimaan' => $this->no_penerimaan,
             'no_invoice' => $this->no_invoice,
             'jumlah_invoice' => $this->jumlah_invoice,

@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Barang extends Model
 {
     use HasFactory;
+    
     protected $table = 'm_barang';
-    public $incrementing = false;
     protected $primaryKey = 'kode_barang';
+    public $incrementing = false;
     protected $keyType = 'string';
     
     protected $fillable = [
-        'kode_divisi',
         'kode_barang',
         'nama_barang',
         'kode_kategori',
@@ -39,61 +39,45 @@ class Barang extends Model
         'disc1' => 'decimal:2',
         'disc2' => 'decimal:2',
         'status' => 'boolean',
-        'stok_min' => 'integer'
+        'stok_min' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
-
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
 
     public function kategori(): BelongsTo
     {
         return $this->belongsTo(Kategori::class, 'kode_kategori', 'kode_kategori');
     }
 
-    public function detailBarang(): HasOne
+    public function dBarangs(): HasMany
     {
-        return $this->hasOne(DetailBarang::class, 'kode_barang', 'kode_barang')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->hasMany(DBarang::class, 'kode_barang', 'kode_barang');
     }
 
     public function kartuStoks(): HasMany
     {
-        return $this->hasMany(KartuStok::class, 'kode_barang', 'kode_barang')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->hasMany(KartuStok::class, 'kode_barang', 'kode_barang');
     }
 
     public function invoiceDetails(): HasMany
     {
-        return $this->hasMany(InvoiceDetail::class, 'kode_barang', 'kode_barang')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->hasMany(InvoiceDetail::class, 'kode_barang', 'kode_barang');
     }
 
-    /**
-     * Set the keys for a save operation.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    protected function setKeysForSaveQuery($query)
+    public function partPenerimaanDetails(): HasMany
     {
-        $query->where('kode_divisi', $this->getAttribute('kode_divisi'))
-              ->where('kode_barang', $this->getAttribute('kode_barang'));
-
-        return $query;
+        return $this->hasMany(PartPenerimaanDetail::class, 'kode_barang', 'kode_barang');
     }
 
-    /**
-     * Get the value of the model's primary key.
-     *
-     * @return mixed
-     */
-    public function getKey()
+    public function returnSalesDetails(): HasMany
     {
-        return [
-            'kode_divisi' => $this->getAttribute('kode_divisi'),
-            'kode_barang' => $this->getAttribute('kode_barang')
-        ];
+        return $this->hasMany(ReturnSalesDetail::class, 'kode_barang', 'kode_barang');
     }
+
+    public function returPenerimaanDetails(): HasMany
+    {
+        return $this->hasMany(ReturPenerimaanDetail::class, 'kode_barang', 'kode_barang');
+    }
+
+    
 }

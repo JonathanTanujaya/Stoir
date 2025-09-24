@@ -13,7 +13,6 @@ class ReturnSales extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_return_sales',
         'tgl_return',
         'kode_cust',
@@ -27,30 +26,23 @@ class ReturnSales extends Model
         'nilai' => 'decimal:2'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Customer::class, 'kode_cust', 'kode_cust');
     }
 
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice');
     }
 
     public function returnSalesDetails(): HasMany
     {
-        return $this->hasMany(ReturnSalesDetail::class, ['kode_divisi', 'no_return_sales'], ['kode_divisi', 'no_return_sales']);
+        return $this->hasMany(ReturnSalesDetail::class, 'no_return_sales', 'no_return_sales');
     }
 
     public function getKeyName(): array
     {
-        return ['kode_divisi', 'no_return_sales'];
+        return ['no_return_sales'];
     }
 }

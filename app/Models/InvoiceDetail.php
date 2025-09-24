@@ -16,7 +16,6 @@ class InvoiceDetail extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_invoice',
         'kode_barang',
         'qty_supply',
@@ -41,8 +40,7 @@ class InvoiceDetail extends Model
      */
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Invoice::class, 'no_invoice', 'no_invoice');
     }
 
     /**
@@ -50,15 +48,6 @@ class InvoiceDetail extends Model
      */
     public function barang(): BelongsTo
     {
-        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')
-            ->where('kode_divisi', $this->kode_divisi);
-    }
-
-    /**
-     * Relationship with Divisi
-     */
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
 }

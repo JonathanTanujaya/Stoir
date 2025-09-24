@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
@@ -15,6 +15,7 @@ class ReportController extends Controller
     {
         try {
             $data = DB::select('SELECT * FROM v_bank');
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -29,19 +30,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_barang';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_kategori')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_kategori = ?';
+                $conditions[] = 'kode_kategori = ?';
                 $params[] = $request->kode_kategori;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -56,26 +57,25 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_invoice';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('no_invoice')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' no_invoice = ?';
+                $conditions[] = 'no_invoice = ?';
                 $params[] = $request->no_invoice;
             }
 
             if ($request->has('start_date') && $request->has('end_date')) {
-                $query .= ($request->has('kode_divisi') || $request->has('no_invoice')) ? ' AND' : ' WHERE';
-                $query .= ' tgl_faktur BETWEEN ? AND ?';
+                $conditions[] = 'tgl_faktur BETWEEN ? AND ?';
                 $params[] = $request->start_date;
                 $params[] = $request->end_date;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -90,19 +90,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_invoice_header';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('status')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' status = ?';
+                $conditions[] = 'status = ?';
                 $params[] = $request->status;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -117,27 +117,26 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_kartu_stok';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_barang')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_barang = ?';
+                $conditions[] = 'kode_barang = ?';
                 $params[] = $request->kode_barang;
             }
 
             if ($request->has('start_date') && $request->has('end_date')) {
-                $query .= ($request->has('kode_divisi') || $request->has('kode_barang')) ? ' AND' : ' WHERE';
-                $query .= ' tgl_proses BETWEEN ? AND ?';
+                $conditions[] = 'tgl_proses BETWEEN ? AND ?';
                 $params[] = $request->start_date;
                 $params[] = $request->end_date;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $query .= ' ORDER BY tgl_proses, urut';
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -152,19 +151,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_part_penerimaan';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_supplier')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_supplier = ?';
+                $conditions[] = 'kode_supplier = ?';
                 $params[] = $request->kode_supplier;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -179,19 +178,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_penerimaan_finance';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_cust')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_cust = ?';
+                $conditions[] = 'kode_cust = ?';
                 $params[] = $request->kode_cust;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -206,19 +205,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_return_sales_detail';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_cust')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_cust = ?';
+                $conditions[] = 'kode_cust = ?';
                 $params[] = $request->kode_cust;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -230,19 +229,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_stok_summary';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('status_stok')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' status_stok = ?';
+                $conditions[] = 'status_stok = ?';
                 $params[] = $request->status_stok;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -254,21 +253,26 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_financial_report';
             $params = [];
+            $conditions = [];
 
             if ($request->has('start_date') && $request->has('end_date')) {
-                $query .= ' WHERE tanggal BETWEEN ? AND ?';
+                $conditions[] = 'tanggal BETWEEN ? AND ?';
                 $params[] = $request->start_date;
                 $params[] = $request->end_date;
             }
 
             if ($request->has('kode_coa')) {
-                $query .= ($request->has('start_date') && $request->has('end_date')) ? ' AND' : ' WHERE';
-                $query .= ' kode_coa = ?';
+                $conditions[] = 'kode_coa = ?';
                 $params[] = $request->kode_coa;
+            }
+
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
             }
 
             $query .= ' ORDER BY tanggal, kode_coa';
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -280,20 +284,20 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_aging_report';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('aging_category')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' aging_category = ?';
+                $conditions[] = 'aging_category = ?';
                 $params[] = $request->aging_category;
+            }
+
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
             }
 
             $query .= ' ORDER BY days_overdue DESC';
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -305,26 +309,25 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_sales_summary';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_sales')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_sales = ?';
+                $conditions[] = 'kode_sales = ?';
                 $params[] = $request->kode_sales;
             }
 
             if ($request->has('bulan') && $request->has('tahun')) {
-                $query .= ($request->has('kode_divisi') || $request->has('kode_sales')) ? ' AND' : ' WHERE';
-                $query .= ' bulan = ? AND tahun = ?';
+                $conditions[] = 'bulan = ? AND tahun = ?';
                 $params[] = $request->bulan;
                 $params[] = $request->tahun;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -336,19 +339,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_return_summary';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kategori_retur')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kategori_retur = ?';
+                $conditions[] = 'kategori_retur = ?';
                 $params[] = $request->kategori_retur;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -359,6 +362,7 @@ class ReportController extends Controller
     {
         try {
             $data = DB::select('SELECT * FROM v_dashboard_kpi');
+
             return response()->json($data[0] ?? []);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -373,21 +377,26 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_journal';
             $params = [];
+            $conditions = [];
 
             if ($request->has('start_date') && $request->has('end_date')) {
-                $query .= ' WHERE tanggal BETWEEN ? AND ?';
+                $conditions[] = 'tanggal BETWEEN ? AND ?';
                 $params[] = $request->start_date;
                 $params[] = $request->end_date;
             }
 
             if ($request->has('kode_coa')) {
-                $query .= ($request->has('start_date') && $request->has('end_date')) ? ' AND' : ' WHERE';
-                $query .= ' kode_coa = ?';
+                $conditions[] = 'kode_coa = ?';
                 $params[] = $request->kode_coa;
+            }
+
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
             }
 
             $query .= ' ORDER BY tanggal, id';
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -402,19 +411,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_tt';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_cust')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_cust = ?';
+                $conditions[] = 'kode_cust = ?';
                 $params[] = $request->kode_cust;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -429,19 +438,19 @@ class ReportController extends Controller
         try {
             $query = 'SELECT * FROM v_voucher';
             $params = [];
-
-            if ($request->has('kode_divisi')) {
-                $query .= ' WHERE kode_divisi = ?';
-                $params[] = $request->kode_divisi;
-            }
+            $conditions = [];
 
             if ($request->has('kode_sales')) {
-                $query .= $request->has('kode_divisi') ? ' AND' : ' WHERE';
-                $query .= ' kode_sales = ?';
+                $conditions[] = 'kode_sales = ?';
                 $params[] = $request->kode_sales;
             }
 
+            if (! empty($conditions)) {
+                $query .= ' WHERE '.implode(' AND ', $conditions);
+            }
+
             $data = DB::select($query, $params);
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

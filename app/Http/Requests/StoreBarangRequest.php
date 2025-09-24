@@ -22,26 +22,20 @@ class StoreBarangRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kodeDivisi = $this->route('kodeDivisi');
-        
         return [
             'kode_barang' => [
                 'required',
                 'string',
                 'max:20',
                 'regex:/^[A-Z0-9\-_]+$/',
-                Rule::unique('m_barang')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::unique('m_barang', 'kode_barang')
             ],
             'nama_barang' => 'required|string|max:100',
             'kode_kategori' => [
                 'required',
                 'string',
                 'max:10',
-                Rule::exists('m_kategori')->where(function ($query) use ($kodeDivisi) {
-                    return $query->where('kode_divisi', $kodeDivisi);
-                })
+                Rule::exists('m_kategori', 'kode_kategori')
             ],
             'harga_list' => 'nullable|numeric|min:0|max:999999999.99',
             'harga_jual' => 'nullable|numeric|min:0|max:999999999.99',

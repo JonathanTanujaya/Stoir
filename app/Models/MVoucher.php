@@ -13,7 +13,6 @@ class MVoucher extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'kode_divisi',
         'no_voucher',
         'tgl_voucher',
         'kode_sales',
@@ -27,24 +26,18 @@ class MVoucher extends Model
         'status' => 'boolean'
     ];
 
-    public function divisi(): BelongsTo
-    {
-        return $this->belongsTo(Divisi::class, 'kode_divisi', 'kode_divisi');
-    }
-
     public function sales(): BelongsTo
     {
-        return $this->belongsTo(Sales::class, 'kode_sales', 'kode_sales')
-            ->where('kode_divisi', $this->kode_divisi);
+        return $this->belongsTo(Sales::class, 'kode_sales', 'kode_sales');
     }
 
     public function dVouchers(): HasMany
     {
-        return $this->hasMany(DVoucher::class, ['kode_divisi', 'no_voucher'], ['kode_divisi', 'no_voucher']);
+        return $this->hasMany(DVoucher::class, 'no_voucher', 'no_voucher');
     }
 
     public function getKeyName(): array
     {
-        return ['kode_divisi', 'no_voucher'];
+        return ['no_voucher'];
     }
 }

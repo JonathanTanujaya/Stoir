@@ -18,23 +18,16 @@ class InvoiceDetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $kodeDivisi, string $noInvoice): JsonResponse
+    public function index(Request $request, string $noInvoice): JsonResponse
     {
         // Start timing for meta and normalize route params
         $request->attributes->set('query_start_time', microtime(true));
-        $kodeDivisi = strtoupper($kodeDivisi);
         $noInvoice = strtoupper($noInvoice);
 
         // Verify that the parent invoice exists
-        $invoice = Invoice::where([
-            'kode_divisi' => $kodeDivisi,
-            'no_invoice' => $noInvoice
-        ])->firstOrFail();
+        $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
 
-        $query = InvoiceDetail::where([
-            'kode_divisi' => $kodeDivisi,
-            'no_invoice' => $noInvoice
-        ]);
+        $query = InvoiceDetail::where('no_invoice', $noInvoice);
 
         // Search functionality
         if ($request->filled('search')) {
@@ -94,7 +87,7 @@ class InvoiceDetailController extends Controller
         }
 
         // Load relationships
-        $query->with(['invoice', 'barang', 'divisi']);
+        $query->with(['invoice', 'barang']);
 
         // Pagination
         $perPage = min($request->get('per_page', 15), 100);
@@ -104,7 +97,6 @@ class InvoiceDetailController extends Controller
             ->additional([
                 'success' => true,
                 'parent' => [
-                    'kode_divisi' => $kodeDivisi,
                     'no_invoice' => $noInvoice,
                 ]
             ])
@@ -115,22 +107,17 @@ class InvoiceDetailController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreInvoiceDetailRequest $request, string $kodeDivisi, string $noInvoice): JsonResponse
+    public function store(StoreInvoiceDetailRequest $request, string $noInvoice): JsonResponse
     {
-        $kodeDivisi = strtoupper($kodeDivisi);
         $noInvoice = strtoupper($noInvoice);
         // Verify that the parent invoice exists
-        $invoice = Invoice::where([
-            'kode_divisi' => $kodeDivisi,
-            'no_invoice' => $noInvoice
-        ])->firstOrFail();
+        $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
 
         $validated = $request->validated();
-        $validated['kode_divisi'] = $kodeDivisi;
         $validated['no_invoice'] = $noInvoice;
 
         $invoiceDetail = InvoiceDetail::create($validated);
-        $invoiceDetail->load(['invoice', 'barang', 'divisi']);
+        $invoiceDetail->load(['invoice', 'barang']);
 
         return response()->json(new InvoiceDetailResource($invoiceDetail), 201);
     }
@@ -138,15 +125,13 @@ class InvoiceDetailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $kodeDivisi, string $noInvoice, int $id): JsonResponse
+    public function show(string $noInvoice, int $id): JsonResponse
     {
-        $kodeDivisi = strtoupper($kodeDivisi);
         $noInvoice = strtoupper($noInvoice);
         $invoiceDetail = InvoiceDetail::where([
             'id' => $id,
-            'kode_divisi' => $kodeDivisi,
             'no_invoice' => $noInvoice
-        ])->with(['invoice', 'barang', 'divisi'])->firstOrFail();
+        ])->with(['invoice', 'barang'])->firstOrFail();
 
         return response()->json(new InvoiceDetailResource($invoiceDetail));
     }
@@ -154,19 +139,17 @@ class InvoiceDetailController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateInvoiceDetailRequest $request, string $kodeDivisi, string $noInvoice, int $id): JsonResponse
+    public function update(UpdateInvoiceDetailRequest $request, string $noInvoice, int $id): JsonResponse
     {
-        $kodeDivisi = strtoupper($kodeDivisi);
         $noInvoice = strtoupper($noInvoice);
         $invoiceDetail = InvoiceDetail::where([
             'id' => $id,
-            'kode_divisi' => $kodeDivisi,
             'no_invoice' => $noInvoice
         ])->firstOrFail();
 
         $validated = $request->validated();
         $invoiceDetail->update($validated);
-        $invoiceDetail->load(['invoice', 'barang', 'divisi']);
+        $invoiceDetail->load(['invoice', 'barang']);
 
         return response()->json(new InvoiceDetailResource($invoiceDetail));
     }
@@ -174,13 +157,11 @@ class InvoiceDetailController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $kodeDivisi, string $noInvoice, int $id): Response
+    public function destroy(string $noInvoice, int $id): Response
     {
-        $kodeDivisi = strtoupper($kodeDivisi);
         $noInvoice = strtoupper($noInvoice);
         $invoiceDetail = InvoiceDetail::where([
             'id' => $id,
-            'kode_divisi' => $kodeDivisi,
             'no_invoice' => $noInvoice
         ])->firstOrFail();
 
@@ -192,54 +173,29 @@ class InvoiceDetailController extends Controller
     /**
      * Get invoice details statistics for the specified invoice.
      */
-    public function stats(string $kodeDivisi, string $noInvoice): JsonResponse
+    public function stats(string $noInvoice): JsonResponse
     {
-        $kodeDivisi = strtoupper($kodeDivisi);
         $noInvoice = strtoupper($noInvoice);
         // Verify that the parent invoice exists
-        $invoice = Invoice::where([
-            'kode_divisi' => $kodeDivisi,
-            'no_invoice' => $noInvoice
-        ])->firstOrFail();
+        $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
 
         $stats = [
-            'total_items' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->count(),
+            'total_items' => InvoiceDetail::where('no_invoice', $noInvoice)->count(),
             
-            'total_quantity' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->sum('qty_supply'),
+            'total_quantity' => InvoiceDetail::where('no_invoice', $noInvoice)->sum('qty_supply'),
             
-            'total_gross_amount' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->sum(DB::raw('qty_supply * harga_jual')),
+            'total_gross_amount' => InvoiceDetail::where('no_invoice', $noInvoice)->sum(DB::raw('qty_supply * harga_jual')),
             
-            'total_net_amount' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->sum('harga_nett'),
+            'total_net_amount' => InvoiceDetail::where('no_invoice', $noInvoice)->sum('harga_nett'),
             
-            'average_unit_price' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->avg('harga_jual'),
+            'average_unit_price' => InvoiceDetail::where('no_invoice', $noInvoice)->avg('harga_jual'),
             
-            'items_by_status' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->selectRaw('status, COUNT(*) as count')
+            'items_by_status' => InvoiceDetail::where('no_invoice', $noInvoice)->selectRaw('status, COUNT(*) as count')
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray(),
                 
-            'items_by_type' => InvoiceDetail::where([
-                'kode_divisi' => $kodeDivisi,
-                'no_invoice' => $noInvoice
-            ])->selectRaw('jenis, COUNT(*) as count')
+            'items_by_type' => InvoiceDetail::where('no_invoice', $noInvoice)->selectRaw('jenis, COUNT(*) as count')
                 ->groupBy('jenis')
                 ->pluck('count', 'jenis')
                 ->toArray()
