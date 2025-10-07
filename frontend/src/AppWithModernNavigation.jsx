@@ -13,7 +13,8 @@ import MasterSales from './pages/MasterData/Sales/MasterSales';
 import MasterSuppliers from './pages/MasterData/Suppliers/MasterSuppliers';
 import MasterBank from './pages/MasterData/Bank/MasterBank';
 import ModernMasterCategories from './pages/MasterData/Categories/ModernMasterCategories';
-import MasterSparepartOptimized from './pages/MasterData/Sparepart/MasterSparepartOptimized';
+import SparepartListPage from './pages/MasterData/Sparepart/SparepartListPage';
+import SparepartFormPage from './pages/MasterData/Sparepart/SparepartFormPage';
 import MasterChecklistOptimized from './pages/MasterData/Checklist/MasterChecklistOptimized';
 // Transactions pages
 import SalesForm from './pages/Sales/SalesForm';
@@ -120,7 +121,9 @@ function AppWithModernNavigation() {
             <Route path="/master/divisi" element={<DivisiManager />} />
             <Route path="/master/customer" element={<WithDivisi Component={CustomerManager} />} />
             <Route path="/master/kategori" element={<ModernMasterCategories />} />
-            <Route path="/master/sparepart" element={<MasterSparepartOptimized />} />
+      <Route path="/master/sparepart" element={<SparepartListPage />} />
+      <Route path="/master/sparepart/create" element={<SparepartFormPage />} />
+      <Route path="/master/sparepart/:id/edit" element={<SparepartFormPage />} />
             <Route path="/master/checklist" element={<MasterChecklistOptimized />} />
             <Route path="/master/barang" element={<WithDivisi Component={BarangManager} />} />
             <Route path="/master/area" element={<MasterArea />} />

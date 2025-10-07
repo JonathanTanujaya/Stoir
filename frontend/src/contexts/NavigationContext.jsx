@@ -27,7 +27,6 @@ export const navigationConfig = {
       { label: 'Supplier', path: '/master/supplier', icon: 'TruckIcon' },
       { label: 'Customer', path: '/master/customer', icon: 'UsersIcon' },
       { label: 'Bank', path: '/master/bank', icon: 'BuildingLibraryIcon' },
-      { label: 'Rekening', path: '/master/rekening', icon: 'CreditCardIcon' },
     ],
   },
   transactions: {
