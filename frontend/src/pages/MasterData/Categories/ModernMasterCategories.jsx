@@ -88,71 +88,154 @@ const ModernMasterCategories = () => {
   );
 
   return (
-    <div style={{ padding: spacing[6], backgroundColor: colors.gray[50], minHeight: '100vh' }}>
+    <div style={{ 
+      padding: spacing[6], 
+      backgroundColor: colors.gray[50], 
+      height: '100vh', 
+      overflow: 'hidden' 
+    }}>
       {/* Inline Form */}
       <Card padding={spacing[4]} style={{ marginBottom: spacing[4] }}>
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto auto', gap: spacing[3], alignItems: 'start' }}>
-            <Input
-              label="Kode Kategori"
-              name="kode_kategori"
-              value={formData.kode_kategori}
-              onChange={(e) => setFormData({ ...formData, kode_kategori: e.target.value })}
-              placeholder="KAT001"
-              required
-              disabled={!!editingId}
-            />
-            <Input
-              label="Nama Kategori"
-              name="nama_kategori"
-              value={formData.nama_kategori}
-              onChange={(e) => setFormData({ ...formData, nama_kategori: e.target.value })}
-              placeholder="Masukkan nama kategori..."
-              required
-            />
-            <div style={{ marginTop: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[4] }}>
+            {/* Kode Kategori */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+              <label style={{ 
+                fontSize: typography.fontSize.sm,
+                fontWeight: typography.fontWeight.medium,
+                color: colors.gray[700],
+                minWidth: '100px',
+                whiteSpace: 'nowrap'
+              }}>
+                Kode Kategori:
+              </label>
+              <input
+                name="kode_kategori"
+                value={formData.kode_kategori}
+                onChange={(e) => setFormData({ ...formData, kode_kategori: e.target.value })}
+                placeholder="KAT001"
+                required
+                disabled={!!editingId}
+                style={{
+                  width: '120px',
+                  padding: `${spacing[2]} ${spacing[3]}`,
+                  fontSize: typography.fontSize.sm,
+                  border: `1px solid ${colors.gray[300]}`,
+                  borderRadius: borderRadius.md,
+                  outline: 'none',
+                  backgroundColor: editingId ? colors.gray[100] : colors.white,
+                  color: colors.gray[900]
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = colors.primary[500];
+                  e.target.style.boxShadow = `0 0 0 3px ${colors.primary[50]}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = colors.gray[300];
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+
+            {/* Nama Kategori */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2], flex: 1 }}>
+              <label style={{ 
+                fontSize: typography.fontSize.sm,
+                fontWeight: typography.fontWeight.medium,
+                color: colors.gray[700],
+                minWidth: '110px',
+                whiteSpace: 'nowrap'
+              }}>
+                Nama Kategori:
+              </label>
+              <input
+                name="nama_kategori"
+                value={formData.nama_kategori}
+                onChange={(e) => setFormData({ ...formData, nama_kategori: e.target.value })}
+                placeholder="Masukkan nama kategori..."
+                required
+                style={{
+                  flex: 1,
+                  padding: `${spacing[2]} ${spacing[3]}`,
+                  fontSize: typography.fontSize.sm,
+                  border: `1px solid ${colors.gray[300]}`,
+                  borderRadius: borderRadius.md,
+                  outline: 'none',
+                  backgroundColor: colors.white,
+                  color: colors.gray[900]
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = colors.primary[500];
+                  e.target.style.boxShadow = `0 0 0 3px ${colors.primary[50]}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = colors.gray[300];
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: spacing[2] }}>
               <Button type="submit" icon={editingId ? <EditIcon /> : <PlusIcon />}>
                 {editingId ? 'Update' : 'Simpan'}
               </Button>
-            </div>
-            {editingId && (
-              <div style={{ marginTop: '24px' }}>
+              {editingId && (
                 <Button type="button" variant="secondary" icon={<XIcon />} onClick={resetForm}>
                   Batal
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </form>
       </Card>
 
       {/* Search */}
       <Card padding={spacing[4]} style={{ marginBottom: spacing[4] }}>
-        <div style={{ position: 'relative', maxWidth: '400px' }}>
-          <input
-            type="text"
-            placeholder="Cari kategori (kode/nama)..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              height: '40px',
-              padding: `${spacing[2]} ${spacing[3]} ${spacing[2]} ${spacing[10]}`,
-              fontSize: typography.fontSize.sm,
-              border: `1px solid ${colors.gray[300]}`,
-              borderRadius: borderRadius.md,
-              outline: 'none',
-            }}
-          />
-          <div style={{ position: 'absolute', left: spacing[3], top: '50%', transform: 'translateY(-50%)', color: colors.gray[400] }}>
-            <SearchIcon />
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: spacing[2], 
+          maxWidth: '400px'
+        }}>
+          <label style={{ 
+            fontWeight: typography.fontWeight.medium,
+            fontSize: typography.fontSize.sm,
+            color: colors.gray[700],
+            minWidth: '80px'
+          }}>
+            Pencarian:
+          </label>
+          <div style={{ 
+            position: 'relative', 
+            flex: 1,
+            marginLeft: '20px' // Menggeser box input agar sejajar dengan input kode kategori
+          }}>
+            <input
+              type="text"
+              placeholder="Cari kategori (kode/nama)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                height: '40px',
+                padding: `${spacing[2]} ${spacing[3]} ${spacing[2]} ${spacing[10]}`,
+                fontSize: typography.fontSize.sm,
+                border: `1px solid ${colors.gray[300]}`,
+                borderRadius: borderRadius.md,
+                outline: 'none',
+              }}
+            />
+            <div style={{ position: 'absolute', left: spacing[3], top: '50%', transform: 'translateY(-50%)', color: colors.gray[400] }}>
+              <SearchIcon />
+            </div>
           </div>
         </div>
       </Card>
 
       {/* Table - Scrollable */}
       <Card padding="0">
-        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <div style={{ height: 'calc(100vh - 300px)', overflowY: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: typography.fontSize.sm }}>
             <thead style={{ position: 'sticky', top: 0, backgroundColor: colors.gray[50], zIndex: 1 }}>
               <tr style={{ borderBottom: `2px solid ${colors.gray[200]}` }}>

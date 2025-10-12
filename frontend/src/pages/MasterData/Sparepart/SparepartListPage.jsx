@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+
+const EditIcon = () => <span>✏️</span>;
 import api from '../../../services/api';
 
 function SparepartListPage() {
@@ -10,7 +12,94 @@ function SparepartListPage() {
   const [search, setSearch] = useState('');
   
   useEffect(() => {
-    api.get('/spareparts').then(res => setData(res.data || []));
+    // Data dummy untuk testing
+    const dummyData = [
+      {
+        kode_barang: 'SPR001',
+        nama_barang: 'Filter Oli Mesin',
+        kode_kategori: 'FILTER',
+        satuan: 'pcs',
+        stok: 25,
+        min_stok: 10,
+        harga_beli: 35000,
+        harga_jual: 50000
+      },
+      {
+        kode_barang: 'SPR002',
+        nama_barang: 'Brake Pad Depan',
+        kode_kategori: 'BRAKE',
+        satuan: 'set',
+        stok: 8,
+        min_stok: 15,
+        harga_beli: 120000,
+        harga_jual: 180000
+      },
+      {
+        kode_barang: 'SPR003',
+        nama_barang: 'Spark Plug NGK',
+        kode_kategori: 'ENGINE',
+        satuan: 'pcs',
+        stok: 0,
+        min_stok: 5,
+        harga_beli: 25000,
+        harga_jual: 40000
+      },
+      {
+        kode_barang: 'SPR004',
+        nama_barang: 'Timing Belt',
+        kode_kategori: 'ENGINE',
+        satuan: 'pcs',
+        stok: 12,
+        min_stok: 8,
+        harga_beli: 85000,
+        harga_jual: 125000
+      },
+      {
+        kode_barang: 'SPR005',
+        nama_barang: 'Air Filter',
+        kode_kategori: 'FILTER',
+        satuan: 'pcs',
+        stok: 3,
+        min_stok: 10,
+        harga_beli: 45000,
+        harga_jual: 65000
+      },
+      {
+        kode_barang: 'SPR006',
+        nama_barang: 'Radiator Coolant',
+        kode_kategori: 'COOLANT',
+        satuan: 'liter',
+        stok: 18,
+        min_stok: 5,
+        harga_beli: 28000,
+        harga_jual: 42000
+      },
+      {
+        kode_barang: 'SPR007',
+        nama_barang: 'Disc Brake Rotor',
+        kode_kategori: 'BRAKE',
+        satuan: 'pcs',
+        stok: 6,
+        min_stok: 4,
+        harga_beli: 350000,
+        harga_jual: 480000
+      },
+      {
+        kode_barang: 'SPR008',
+        nama_barang: 'Engine Oil 5W-30',
+        kode_kategori: 'OIL',
+        satuan: 'liter',
+        stok: 22,
+        min_stok: 15,
+        harga_beli: 75000,
+        harga_jual: 95000
+      }
+    ];
+    
+    setData(dummyData);
+    
+    // Uncomment untuk menggunakan API
+    // api.get('/spareparts').then(res => setData(res.data || []));
   }, []);
 
   const filteredData = data.filter(item => 
@@ -33,89 +122,213 @@ function SparepartListPage() {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '600', margin: 0, color: '#1f2937' }}>Sparepart</h1>
+    <div style={{ 
+      padding: '20px', 
+      backgroundColor: '#f8fafc', 
+      minHeight: '100vh' 
+    }}>
+      {/* Action Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ maxWidth: '400px', flex: 1 }}>
+          <Input 
+            placeholder="Cari sparepart..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <Button onClick={() => navigate('/master/sparepart/create')}>Tambah Baru</Button>
-      </div>
-
-      {/* Search */}
-      <div style={{ marginBottom: '20px', maxWidth: '400px' }}>
-        <Input 
-          placeholder="Cari sparepart..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
       </div>
 
       {/* Table */}
       <div style={{ 
         backgroundColor: 'white', 
-        borderRadius: '8px', 
+        borderRadius: '12px', 
         border: '1px solid #e5e7eb',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Kode</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Nama Sparepart</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Stok</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Harga Beli</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Harga Jual</th>
-                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Aksi</th>
+              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'left', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Kode
+                </th>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'left', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Nama Sparepart
+                </th>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'left', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Kategori
+                </th>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'center', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Stok
+                </th>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'right', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Harga Beli
+                </th>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'right', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Harga Jual
+                </th>
+                <th style={{ 
+                  padding: '16px 20px', 
+                  textAlign: 'center', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  color: '#475569', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredData.map((item, idx) => {
                 const stockBadge = getStockBadge(item.stok, item.min_stok);
                 return (
-                  <tr key={item.kode_barang} style={{ borderBottom: idx < filteredData.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
-                    <td style={{ padding: '16px', fontSize: '14px', fontWeight: '500', color: '#1f2937' }}>{item.kode_barang}</td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#1f2937' }}>{item.nama_barang}</td>
-                    <td style={{ padding: '16px', fontSize: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontWeight: '500', color: '#1f2937' }}>{item.stok}</span>
+                  <tr 
+                    key={item.kode_barang} 
+                    style={{ 
+                      borderBottom: idx < filteredData.length - 1 ? '1px solid #f1f5f9' : 'none',
+                      backgroundColor: 'white',
+                      transition: 'background-color 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'white';
+                    }}
+                  >
+                    <td style={{ 
+                      padding: '18px 20px', 
+                      fontSize: '14px', 
+                      fontWeight: '600', 
+                      color: '#1e293b',
+                      fontFamily: 'monospace'
+                    }}>
+                      {item.kode_barang}
+                    </td>
+                    <td style={{ 
+                      padding: '18px 20px', 
+                      fontSize: '15px', 
+                      color: '#334155',
+                      fontWeight: '500'
+                    }}>
+                      {item.nama_barang}
+                    </td>
+                    <td style={{ 
+                      padding: '18px 20px', 
+                      fontSize: '14px', 
+                      color: '#64748b'
+                    }}>
+                      {item.kode_kategori}
+                    </td>
+                    <td style={{ padding: '18px 20px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                        <span style={{ 
+                          fontSize: '15px',
+                          fontWeight: '600', 
+                          color: '#1e293b',
+                          minWidth: '40px'
+                        }}>
+                          {item.stok}
+                        </span>
                         <span style={{
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '11px',
-                          fontWeight: '500',
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: '600',
                           color: stockBadge.color,
-                          backgroundColor: stockBadge.bg
+                          backgroundColor: stockBadge.bg,
+                          border: `1px solid ${stockBadge.color}20`
                         }}>
                           {stockBadge.text}
                         </span>
                       </div>
                     </td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#6b7280' }}>{formatCurrency(item.harga_beli)}</td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#6b7280' }}>{formatCurrency(item.harga_jual)}</td>
-                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                    <td style={{ 
+                      padding: '18px 20px', 
+                      fontSize: '14px', 
+                      color: '#475569',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}>
+                      {formatCurrency(item.harga_beli)}
+                    </td>
+                    <td style={{ 
+                      padding: '18px 20px', 
+                      fontSize: '14px', 
+                      color: '#475569',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}>
+                      {formatCurrency(item.harga_jual)}
+                    </td>
+                    <td style={{ padding: '18px 20px', textAlign: 'center' }}>
                       <button
                         onClick={() => navigate(`/master/sparepart/${item.kode_barang}/edit`)}
                         style={{
-                          padding: '6px 12px',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          color: '#3b82f6',
+                          padding: '8px',
                           backgroundColor: 'transparent',
-                          border: '1px solid #3b82f6',
-                          borderRadius: '6px',
+                          border: 'none',
                           cursor: 'pointer',
-                          transition: 'all 0.2s'
+                          color: '#6b7280',
+                          borderRadius: '6px',
+                          transition: 'all 150ms',
+                          fontSize: '16px'
                         }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#3b82f6';
-                          e.target.style.color = 'white';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = 'transparent';
-                          e.target.style.color = '#3b82f6';
-                        }}
+                        title="Edit sparepart"
                       >
-                        Edit
+                        <EditIcon />
                       </button>
                     </td>
                   </tr>
@@ -126,7 +339,14 @@ function SparepartListPage() {
         </div>
         
         {/* Footer */}
-        <div style={{ padding: '12px 16px', backgroundColor: '#f9fafb', borderTop: '1px solid #e5e7eb', fontSize: '14px', color: '#6b7280' }}>
+        <div style={{ 
+          padding: '16px 20px', 
+          backgroundColor: '#f8fafc', 
+          borderTop: '1px solid #e2e8f0', 
+          fontSize: '14px', 
+          color: '#64748b',
+          fontWeight: '500'
+        }}>
           Menampilkan {filteredData.length} dari {data.length} sparepart
         </div>
       </div>

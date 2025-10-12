@@ -25,7 +25,6 @@ const ModernLayout = () => {
               flex: 1,
               overflow: 'auto',
               backgroundColor: 'background.default',
-              p: 3,
             }}
           >
             <Outlet />
